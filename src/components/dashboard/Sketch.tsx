@@ -1,3 +1,4 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 // Hand-drawn arrow that curves down-right
@@ -15,7 +16,7 @@ export function SketchArrow({
     "down-left": "M120 5 Q 80 30 60 60 T 10 95",
     "down-right": "M5 5 Q 40 30 60 60 T 130 95",
   };
-  const heads: Record<string, JSX.Element> = {
+  const heads: Record<string, React.ReactElement> = {
     right: <polyline points="115,18 130,28 118,40" />,
     left: <polyline points="20,18 5,28 17,40" />,
     down: <polyline points="18,82 28,95 38,82" />,
