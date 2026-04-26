@@ -1,31 +1,37 @@
-import { Lightbulb, FileText, MonitorPlay, Megaphone, Lock, Check } from "lucide-react";
+import { Lightbulb, FileText, MonitorPlay, Megaphone, Lock, Check, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
 
-type Course = {
-  num: number;
-  icon: typeof Lightbulb;
-  title: string;
-  progress: number;
-  status: "done" | "in-progress" | "locked";
-  color: "green" | "blue" | "violet" | "orange";
-};
+const icons = [Lightbulb, FileText, MonitorPlay, Megaphone, GraduationCap];
+const colors = ["green", "blue", "violet", "orange"] as const;
 
-const courses: Course[] = [
-  { num: 1, icon: Lightbulb, title: "Pomysł na pierwszy produkt online", progress: 100, status: "done", color: "green" },
-  { num: 2, icon: FileText, title: "Stwórz ofertę za 97–497 zł", progress: 75, status: "in-progress", color: "blue" },
-  { num: 3, icon: MonitorPlay, title: "Landing page, który sprzedaje", progress: 25, status: "locked", color: "violet" },
-  { num: 4, icon: Megaphone, title: "Pierwsze reklamy na produkt", progress: 0, status: "locked", color: "orange" },
-];
+type Course = {
+  id: string;
+  num: number;
+  title: string;
+  progress: number; // 0-100
+  required_xp: number;
+  unlocked: boolean;
+  done: boolean;
+  color: (typeof colors)[number];
+};
 
 const colorMap = {
-  green: { ring: "ring-green/30", bg: "bg-green-soft", text: "text-green", grad: "bg-gradient-green", border: "border-green/40" },
-  blue: { ring: "ring-blue/30", bg: "bg-blue-soft", text: "text-blue", grad: "bg-gradient-blue", border: "border-blue/40" },
-  violet: { ring: "ring-violet/30", bg: "bg-violet-soft", text: "text-violet", grad: "bg-gradient-violet", border: "border-violet/40" },
-  orange: { ring: "ring-orange/30", bg: "bg-orange-soft", text: "text-orange", grad: "bg-gradient-orange", border: "border-orange/40" },
+  green: { bg: "bg-green-soft", text: "text-green", grad: "bg-gradient-green", border: "border-green/40" },
+  blue: { bg: "bg-blue-soft", text: "text-blue", grad: "bg-gradient-blue", border: "border-blue/40" },
+  violet: { bg: "bg-violet-soft", text: "text-violet", grad: "bg-gradient-violet", border: "border-violet/40" },
+  orange: { bg: "bg-orange-soft", text: "text-orange", grad: "bg-gradient-orange", border: "border-orange/40" },
 };
 
-export function CoursesSection() {
+const fallback: Course[] = [
+  { id: "1", num: 1, title: "Pomysł na pierwszy produkt online", progress: 100, required_xp: 0, unlocked: true, done: true, color: "green" },
+  { id: "2", num: 2, title: "Stwórz ofertę za 97–497 zł", progress: 75, required_xp: 0, unlocked: true, done: false, color: "blue" },
+  { id: "3", num: 3, title: "Landing page, który sprzedaje", progress: 25, required_xp: 500, unlocked: false, done: false, color: "violet" },
+  { id: "4", num: 4, title: "Pierwsze reklamy na produkt", progress: 0, required_xp: 1000, unlocked: false, done: false, color: "orange" },
+];
+
+export function CoursesSection({ courses }: { courses?: Course[] }) {
+  const data = courses && courses.length > 0 ? courses : fallback;
   return (
     <section>
       <div className="flex items-end justify-between mb-3">
@@ -41,13 +47,13 @@ export function CoursesSection() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {courses.map((c) => {
+        {data.map((c) => {
           const cm = colorMap[c.color];
-          const Icon = c.icon;
-          const isLocked = c.status === "locked";
+          const Icon = icons[(c.num - 1) % icons.length];
+          const isLocked = !c.unlocked;
           return (
             <div
-              key={c.num}
+              key={c.id}
               className={cn(
                 "relative bg-card rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5",
                 cm.border,
@@ -56,8 +62,9 @@ export function CoursesSection() {
               style={{ boxShadow: "0 6px 20px -8px oklch(0.4 0.1 280 / 0.15)" }}
             >
               {isLocked && (
-                <div className="absolute top-3 right-3 w-7 h-7 rounded-lg bg-muted grid place-items-center">
-                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-muted px-2 py-1">
+                  <Lock className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] font-bold text-muted-foreground">{c.required_xp} XP</span>
                 </div>
               )}
               <div className="flex items-start justify-between">
@@ -73,13 +80,13 @@ export function CoursesSection() {
                 <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                   <div className={cn("h-full rounded-full", cm.grad)} style={{ width: `${c.progress}%` }} />
                 </div>
-                {c.status === "done" ? (
+                {c.done ? (
                   <div className="w-5 h-5 rounded-full bg-green grid place-items-center">
                     <Check className="w-3 h-3 text-white" strokeWidth={3} />
                   </div>
                 ) : (
                   <span className="text-xs font-bold text-muted-foreground">
-                    {isLocked && c.progress === 0 ? "Zablokowany" : `${c.progress}%`}
+                    {isLocked ? "Zablokowany" : `${c.progress}%`}
                   </span>
                 )}
               </div>
