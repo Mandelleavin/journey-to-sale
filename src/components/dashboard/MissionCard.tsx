@@ -1,11 +1,26 @@
-import { Target, Zap } from "lucide-react";
+import { Target, Zap, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SketchArrow, SketchUnderline, SketchStar } from "./Sketch";
 
-export function MissionCard() {
+type Props = {
+  title?: string;
+  description?: string;
+  xpReward?: number;
+  unlocked?: boolean;
+  onAction?: () => void;
+  upcoming?: string[];
+};
+
+export function MissionCard({
+  title = "Napisz propozycję swojego produktu online",
+  description = "Stwórz krótki opis, czym jest Twój produkt i komu pomaga.",
+  xpReward = 120,
+  unlocked = true,
+  onAction,
+  upcoming = ["Napisz ofertę", "Stwórz stronę", "Przygotuj kampanię"],
+}: Props) {
   return (
     <div className="relative grid lg:grid-cols-[1fr_280px] gap-4">
-      {/* Mission */}
       <div className="relative bg-card rounded-2xl p-6 border border-border shadow-card overflow-hidden">
         <div className="absolute -top-12 -left-12 w-40 h-40 rounded-full bg-violet-soft opacity-60 blur-2xl" />
         <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-blue-soft opacity-60 blur-2xl" />
@@ -24,21 +39,25 @@ export function MissionCard() {
             </div>
             <div className="flex-1">
               <h2 className="font-display font-extrabold text-xl md:text-2xl text-foreground leading-tight">
-                Napisz propozycję swojego produktu online
+                {title}
               </h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
-                Stwórz krótki opis, czym jest Twój produkt i komu pomaga.
-              </p>
+              <p className="text-sm text-muted-foreground mt-1.5">{description}</p>
             </div>
           </div>
 
           <div className="mt-5 flex items-center gap-3 flex-wrap">
-            <Button className="bg-gradient-violet text-primary-foreground shadow-glow hover:opacity-95 hover:bg-gradient-violet rounded-xl px-5 h-11 font-bold uppercase tracking-wide text-xs">
-              Wykonaj zadanie
+            <Button
+              onClick={onAction}
+              disabled={!unlocked}
+              className="bg-gradient-violet text-primary-foreground shadow-glow hover:opacity-95 hover:bg-gradient-violet rounded-xl px-5 h-11 font-bold uppercase tracking-wide text-xs"
+            >
+              {unlocked ? "Wykonaj zadanie" : (
+                <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Zablokowane</span>
+              )}
             </Button>
             <div className="inline-flex items-center gap-1.5 px-3 h-11 rounded-xl bg-green-soft border border-green/20 text-green font-bold text-sm">
               <Zap className="w-4 h-4 fill-green" />
-              +120 XP
+              +{xpReward} XP
             </div>
             <div className="hidden md:block relative ml-auto">
               <SketchArrow direction="right" className="w-24 h-12 -rotate-12" />
@@ -47,22 +66,18 @@ export function MissionCard() {
         </div>
       </div>
 
-      {/* Sticky note */}
       <div className="relative">
         <div className="sticky-note float-slow rounded-md p-5 relative">
           <SketchStar className="absolute -top-3 -right-2 w-7 h-7" />
           <div className="font-hand font-bold text-2xl text-ink leading-none">Nie zapomnij!</div>
           <ul className="mt-3 space-y-2">
-            {["Napisz ofertę", "Stwórz stronę", "Przygotuj kampanię"].map((t) => (
+            {upcoming.slice(0, 3).map((t) => (
               <li key={t} className="flex items-center gap-2 text-sm text-ink/85 font-medium">
                 <span className="w-4 h-4 rounded border-2 border-ink/40" />
                 {t}
               </li>
             ))}
           </ul>
-          <div className="mt-4 pt-3 border-t border-ink/15 text-xs text-ink/75 font-hand text-base leading-snug">
-            Masz 2 zadania<br />z terminem w tym tygodniu!
-          </div>
         </div>
       </div>
     </div>
