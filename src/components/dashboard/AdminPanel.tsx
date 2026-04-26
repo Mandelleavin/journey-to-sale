@@ -59,8 +59,8 @@ export function AdminPanel() {
             <span className="px-2 py-0.5 rounded-md bg-violet-soft text-violet text-[10px] font-bold uppercase tracking-wide">Poziom 2</span>
           </div>
           <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> ania.nowak@example.com</div>
-            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3" /> +48 123 456 789</div>
+            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3" /><span>ania.nowak@example.com</span></div>
+            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3" /><span>+48 123 456 789</span></div>
           </div>
         </div>
         <div className="text-right shrink-0">
