@@ -69,7 +69,7 @@ function OnboardingPage() {
       readiness_percent: readiness.percent,
     });
     setBusy(false);
-    if (!error) navigate({ to: "/" });
+    if (!error) navigate({ to: "/onboarding/result" });
   };
 
   const next = () => setStep((s) => Math.min(TOTAL_STEPS - 1, s + 1));
@@ -275,30 +275,9 @@ function OnboardingPage() {
                 </div>
               )}
 
-              {form.acquisition_plan && (
-                <div className="rounded-2xl border border-border bg-muted/30 p-4">
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                    Twój wstępny poziom gotowości do sprzedaży
-                  </div>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="font-display text-3xl font-extrabold text-violet">{readiness.percent}%</div>
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wide",
-                        tag.tone === "green" && "bg-green-soft text-green",
-                        tag.tone === "blue" && "bg-blue-soft text-blue",
-                        tag.tone === "orange" && "bg-orange-soft text-orange",
-                        tag.tone === "violet" && "bg-violet-soft text-violet",
-                      )}
-                    >
-                      {tag.label}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-gradient-violet" style={{ width: `${readiness.percent}%` }} />
-                  </div>
-                </div>
-              )}
+              <p className="text-center text-xs text-muted-foreground">
+                Po zapisaniu zobaczysz swój wstępny wynik gotowości do sprzedaży.
+              </p>
             </div>
           )}
 
