@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox, Phone, Flame, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
@@ -49,14 +49,16 @@ function AdminPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 max-w-2xl">
+        <Tabs defaultValue="hotleads" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 max-w-3xl">
+            <TabsTrigger value="hotleads"><Flame className="w-4 h-4 mr-1" />Hot leady</TabsTrigger>
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-1" />Użytkownicy</TabsTrigger>
             <TabsTrigger value="submissions"><Inbox className="w-4 h-4 mr-1" />Zgłoszenia</TabsTrigger>
             <TabsTrigger value="courses"><GraduationCap className="w-4 h-4 mr-1" />Kursy</TabsTrigger>
             <TabsTrigger value="advisor"><ListChecks className="w-4 h-4 mr-1" />Doradca</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="hotleads" className="mt-6"><HotLeadsTab /></TabsContent>
           <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
           <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
           <TabsContent value="courses" className="mt-6"><CoursesTab /></TabsContent>
@@ -704,6 +706,417 @@ function AdvisorTab() {
             )}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ==================== HOT LEADS ==================== */
+
+type LeadRow = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  readiness_percent: number;
+  acquisition_plan: string | null;
+  has_product_idea: boolean | null;
+  has_offer: boolean | null;
+  product_idea_details: string | null;
+  goal_90_days: string | null;
+  weekly_hours: number | null;
+  biggest_problem: string | null;
+  created_at: string;
+};
+
+type ScheduledCall = {
+  id: string;
+  user_id: string;
+  scheduled_for: string;
+  status: "scheduled" | "completed" | "skipped";
+  notes: string | null;
+  called_at: string | null;
+};
+
+function HotLeadsTab() {
+  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [calls, setCalls] = useState<ScheduledCall[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [minPercent, setMinPercent] = useState(45);
+  const [tab, setTab] = useState<"todo" | "scheduled" | "done">("todo");
+
+  const load = async () => {
+    setLoading(true);
+    const [{ data: profiles }, { data: surveys }, { data: callsData }] = await Promise.all([
+      supabase.from("profiles").select("id, email, full_name, phone, created_at"),
+      supabase.from("survey_responses").select("user_id, readiness_percent, acquisition_plan, has_product_idea, has_offer, product_idea_details, goal_90_days, weekly_hours, biggest_problem"),
+      supabase.from("lead_calls").select("*").order("scheduled_for", { ascending: true }),
+    ]);
+
+    const surveyMap = new Map((surveys ?? []).map((s) => [s.user_id, s]));
+    const merged: LeadRow[] = (profiles ?? [])
+      .map((p) => {
+        const s = surveyMap.get(p.id);
+        return {
+          id: p.id,
+          email: p.email,
+          full_name: p.full_name,
+          phone: p.phone,
+          created_at: p.created_at,
+          readiness_percent: s?.readiness_percent ?? 0,
+          acquisition_plan: s?.acquisition_plan ?? null,
+          has_product_idea: s?.has_product_idea ?? null,
+          has_offer: s?.has_offer ?? null,
+          product_idea_details: s?.product_idea_details ?? null,
+          goal_90_days: s?.goal_90_days ?? null,
+          weekly_hours: s?.weekly_hours ?? null,
+          biggest_problem: s?.biggest_problem ?? null,
+        };
+      })
+      .sort((a, b) => b.readiness_percent - a.readiness_percent);
+    setLeads(merged);
+    setCalls((callsData ?? []) as ScheduledCall[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const callsByUser = useMemo(() => {
+    const m = new Map<string, ScheduledCall[]>();
+    calls.forEach((c) => {
+      const arr = m.get(c.user_id) ?? [];
+      arr.push(c);
+      m.set(c.user_id, arr);
+    });
+    return m;
+  }, [calls]);
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const scheduleCall = async (userId: string, date: string) => {
+    const { error } = await supabase.from("lead_calls").insert({
+      user_id: userId,
+      scheduled_for: date,
+      status: "scheduled",
+    });
+    if (error) toast.error(error.message);
+    else { toast.success("Zaplanowano rozmowę"); load(); }
+  };
+
+  const markCalled = async (callId: string, notes: string) => {
+    const { error } = await supabase.from("lead_calls").update({
+      status: "completed",
+      called_at: new Date().toISOString(),
+      notes: notes || null,
+    }).eq("id", callId);
+    if (error) toast.error(error.message);
+    else { toast.success("Oznaczono jako wykonane"); load(); }
+  };
+
+  const skipCall = async (callId: string) => {
+    const { error } = await supabase.from("lead_calls").update({
+      status: "skipped",
+      called_at: new Date().toISOString(),
+    }).eq("id", callId);
+    if (error) toast.error(error.message);
+    else { toast.success("Pominięto"); load(); }
+  };
+
+  const deleteCall = async (callId: string) => {
+    const { error } = await supabase.from("lead_calls").delete().eq("id", callId);
+    if (error) toast.error(error.message);
+    else load();
+  };
+
+  if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
+
+  // Lista "Do zadzwonienia" - hot leady (>= minPercent) bez zaplanowanej rozmowy
+  const todoLeads = leads.filter((l) => {
+    if (l.readiness_percent < minPercent) return false;
+    const userCalls = callsByUser.get(l.id) ?? [];
+    return !userCalls.some((c) => c.status === "scheduled");
+  });
+
+  // Zaplanowane: wszystkie scheduled, posortowane po dacie
+  const scheduledList = calls
+    .filter((c) => c.status === "scheduled")
+    .map((c) => ({ call: c, lead: leads.find((l) => l.id === c.user_id) }))
+    .filter((x) => x.lead)
+    .sort((a, b) => a.call.scheduled_for.localeCompare(b.call.scheduled_for));
+
+  // Wykonane / pominięte
+  const doneList = calls
+    .filter((c) => c.status !== "scheduled")
+    .map((c) => ({ call: c, lead: leads.find((l) => l.id === c.user_id) }))
+    .filter((x) => x.lead)
+    .sort((a, b) => (b.call.called_at ?? "").localeCompare(a.call.called_at ?? ""));
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="font-display font-bold text-lg flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange" /> Hot leady
+            </h2>
+            <p className="text-xs text-muted-foreground">Najgorętsze kontakty do dzwonienia — sortowane po gotowości do zakupu</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-muted-foreground">Próg %</Label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={minPercent}
+              onChange={(e) => setMinPercent(Number(e.target.value))}
+              className="w-20"
+            />
+          </div>
+        </div>
+
+        {/* Mini stats */}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <Stat label="Do zadzwonienia" value={todoLeads.length} tone="orange" />
+          <Stat label="Zaplanowane" value={scheduledList.length} tone="blue" />
+          <Stat label="Wykonane" value={doneList.filter((d) => d.call.status === "completed").length} tone="green" />
+        </div>
+      </div>
+
+      {/* Inner tabs */}
+      <div className="flex gap-1">
+        {([
+          { v: "todo", l: `Do zadzwonienia (${todoLeads.length})` },
+          { v: "scheduled", l: `Zaplanowane (${scheduledList.length})` },
+          { v: "done", l: `Historia (${doneList.length})` },
+        ] as const).map((t) => (
+          <button
+            key={t.v}
+            onClick={() => setTab(t.v)}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide",
+              tab === t.v ? "bg-violet text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+            )}
+          >
+            {t.l}
+          </button>
+        ))}
+      </div>
+
+      {tab === "todo" && (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          {todoLeads.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              Brak nowych leadów powyżej {minPercent}%. Obniż próg lub poczekaj na nowe rejestracje.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {todoLeads.map((l) => <LeadCard key={l.id} lead={l} today={today} onSchedule={scheduleCall} />)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "scheduled" && (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          {scheduledList.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">Brak zaplanowanych rozmów</div>
+          ) : (
+            <div className="space-y-3">
+              {scheduledList.map(({ call, lead }) => (
+                <ScheduledCallCard
+                  key={call.id}
+                  call={call}
+                  lead={lead!}
+                  onDone={markCalled}
+                  onSkip={skipCall}
+                  onDelete={deleteCall}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "done" && (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          {doneList.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">Brak historii rozmów</div>
+          ) : (
+            <div className="space-y-2">
+              {doneList.map(({ call, lead }) => (
+                <div key={call.id} className="flex items-center gap-3 p-3 rounded-xl border border-border">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">{lead!.full_name ?? lead!.email}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {lead!.email} · {lead!.phone ?? "brak tel."}
+                    </div>
+                    {call.notes && <div className="text-xs mt-1 text-foreground/80">📝 {call.notes}</div>}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <Badge variant="outline" className={cn(
+                      "text-[10px]",
+                      call.status === "completed" ? "border-green/40 text-green" : "border-muted-foreground/40 text-muted-foreground",
+                    )}>
+                      {call.status === "completed" ? "✓ Wykonano" : "↷ Pominięto"}
+                    </Badge>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {call.called_at ? new Date(call.called_at).toLocaleString("pl-PL") : ""}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: number; tone: "orange" | "blue" | "green" }) {
+  return (
+    <div className={cn(
+      "rounded-2xl p-3 border",
+      tone === "orange" && "bg-orange-soft/50 border-orange/20",
+      tone === "blue" && "bg-blue-soft/50 border-blue/20",
+      tone === "green" && "bg-green-soft/50 border-green/20",
+    )}>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{label}</div>
+      <div className={cn(
+        "font-display text-2xl font-extrabold",
+        tone === "orange" && "text-orange",
+        tone === "blue" && "text-blue",
+        tone === "green" && "text-green",
+      )}>{value}</div>
+    </div>
+  );
+}
+
+function LeadCard({ lead, today, onSchedule }: { lead: LeadRow; today: string; onSchedule: (userId: string, date: string) => void }) {
+  const [date, setDate] = useState(today);
+  const tag = readinessLabel(lead.readiness_percent);
+  return (
+    <div className="rounded-2xl border border-border p-4">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="font-bold text-base">{lead.full_name ?? lead.email}</div>
+            <Badge variant="outline" className={cn(
+              "text-[10px]",
+              tag.tone === "green" && "border-green/40 text-green",
+              tag.tone === "blue" && "border-blue/40 text-blue",
+              tag.tone === "orange" && "border-orange/40 text-orange",
+              tag.tone === "violet" && "border-violet/40 text-violet",
+            )}>
+              {tag.label} · {lead.readiness_percent}%
+            </Badge>
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3 flex-wrap">
+            <span>📧 {lead.email}</span>
+            {lead.phone && <span className="font-bold text-foreground">📞 {lead.phone}</span>}
+          </div>
+          <div className="mt-2 grid sm:grid-cols-2 gap-2 text-xs">
+            {lead.product_idea_details && <div><b>Produkt:</b> {lead.product_idea_details}</div>}
+            {lead.goal_90_days && <div><b>Cel 90 dni:</b> {lead.goal_90_days}</div>}
+            {lead.biggest_problem && <div className="sm:col-span-2"><b>Problem:</b> {lead.biggest_problem}</div>}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-2 flex-wrap pt-3 border-t border-border">
+        <CalendarDays className="w-4 h-4 text-violet" />
+        <Label className="text-xs">Zaplanuj rozmowę:</Label>
+        <Input
+          type="date"
+          value={date}
+          min={today}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-40 h-8"
+        />
+        <Button
+          size="sm"
+          onClick={() => onSchedule(lead.id, date)}
+          className="bg-gradient-violet text-primary-foreground"
+        >
+          <Phone className="w-3.5 h-3.5 mr-1" /> Dodaj do listy dzwonienia
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function ScheduledCallCard({
+  call, lead, onDone, onSkip, onDelete,
+}: {
+  call: ScheduledCall;
+  lead: LeadRow;
+  onDone: (id: string, notes: string) => void;
+  onSkip: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [notes, setNotes] = useState("");
+  const today = new Date().toISOString().slice(0, 10);
+  const isOverdue = call.scheduled_for < today;
+  const isToday = call.scheduled_for === today;
+  const tag = readinessLabel(lead.readiness_percent);
+
+  return (
+    <div className={cn(
+      "rounded-2xl border p-4",
+      isOverdue ? "border-destructive/40 bg-destructive/5" : isToday ? "border-orange/40 bg-orange-soft/30" : "border-border",
+    )}>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="font-bold text-base">{lead.full_name ?? lead.email}</div>
+            <Badge variant="outline" className={cn(
+              "text-[10px]",
+              tag.tone === "green" && "border-green/40 text-green",
+              tag.tone === "blue" && "border-blue/40 text-blue",
+              tag.tone === "orange" && "border-orange/40 text-orange",
+              tag.tone === "violet" && "border-violet/40 text-violet",
+            )}>{tag.label} · {lead.readiness_percent}%</Badge>
+            <Badge variant="outline" className={cn(
+              "text-[10px]",
+              isOverdue && "border-destructive text-destructive",
+              isToday && "border-orange text-orange",
+              !isOverdue && !isToday && "border-blue/40 text-blue",
+            )}>
+              <CalendarDays className="w-3 h-3 mr-1" />
+              {isOverdue ? "Zaległe" : isToday ? "DZIŚ" : new Date(call.scheduled_for).toLocaleDateString("pl-PL")}
+            </Badge>
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3 flex-wrap">
+            <span>📧 {lead.email}</span>
+            {lead.phone ? (
+              <a href={`tel:${lead.phone}`} className="font-bold text-violet hover:underline">📞 {lead.phone}</a>
+            ) : (
+              <span className="text-destructive">⚠ brak numeru telefonu</span>
+            )}
+          </div>
+          {lead.product_idea_details && (
+            <div className="mt-2 text-xs"><b>Produkt:</b> {lead.product_idea_details}</div>
+          )}
+        </div>
+      </div>
+      <div className="mt-3 pt-3 border-t border-border space-y-2">
+        <Textarea
+          placeholder="Notatka po rozmowie (opcjonalna)..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="min-h-[50px] text-sm"
+        />
+        <div className="flex gap-2 flex-wrap">
+          <Button size="sm" onClick={() => onDone(call.id, notes)} className="bg-green text-white hover:bg-green/90">
+            <Check className="w-4 h-4 mr-1" /> Zadzwoniłem
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => onSkip(call.id)}>
+            Pomiń
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => onDelete(call.id)} className="text-destructive ml-auto">
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );

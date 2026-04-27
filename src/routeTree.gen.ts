@@ -14,6 +14,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingResultRoute = OnboardingResultRouteImport.update({
+  id: '/result',
+  path: '/result',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   id: '/lessons/$lessonId',
   path: '/lessons/$lessonId',
@@ -57,29 +63,32 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/onboarding/result': typeof OnboardingResultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/onboarding/result': typeof OnboardingResultRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/onboarding/result': typeof OnboardingResultRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
+    | '/onboarding/result'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
+    | '/onboarding/result'
   id:
     | '__root__'
     | '/'
@@ -109,13 +120,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
+    | '/onboarding/result'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
-  OnboardingRoute: typeof OnboardingRoute
+  OnboardingRoute: typeof OnboardingRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
@@ -158,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/result': {
+      id: '/onboarding/result'
+      path: '/result'
+      fullPath: '/onboarding/result'
+      preLoaderRoute: typeof OnboardingResultRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
     '/lessons/$lessonId': {
       id: '/lessons/$lessonId'
       path: '/lessons/$lessonId'
@@ -175,11 +194,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface OnboardingRouteChildren {
+  OnboardingResultRoute: typeof OnboardingResultRoute
+}
+
+const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingResultRoute: OnboardingResultRoute,
+}
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
+  OnboardingRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
-  OnboardingRoute: OnboardingRoute,
+  OnboardingRoute: OnboardingRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
