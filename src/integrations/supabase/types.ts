@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_calls: {
+        Row: {
+          called_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          scheduled_for: string
+          status: Database["public"]["Enums"]["call_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          called_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_for: string
+          status?: Database["public"]["Enums"]["call_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          called_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["call_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lesson_tasks: {
         Row: {
           created_at: string
@@ -528,6 +564,7 @@ export type Database = {
       acquisition_plan_type: "paid_ads" | "organic_social" | "unsure"
       advisor_type: "technical" | "marketing"
       app_role: "admin" | "user"
+      call_status: "scheduled" | "completed" | "skipped"
       notification_type:
         | "task_approved"
         | "task_rejected"
@@ -676,6 +713,7 @@ export const Constants = {
       acquisition_plan_type: ["paid_ads", "organic_social", "unsure"],
       advisor_type: ["technical", "marketing"],
       app_role: ["admin", "user"],
+      call_status: ["scheduled", "completed", "skipped"],
       notification_type: [
         "task_approved",
         "task_rejected",
