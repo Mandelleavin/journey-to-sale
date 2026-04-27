@@ -14,8 +14,8 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -42,14 +42,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
-  id: '/courses/$courseId',
-  path: '/courses/$courseId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   id: '/lessons/$lessonId',
   path: '/lessons/$lessonId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -83,10 +83,32 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/auth' | '/onboarding' | '/reset-password' | '/courses/$courseId' | '/lessons/$lessonId'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/courses/$courseId'
+    | '/lessons/$lessonId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/auth' | '/onboarding' | '/reset-password' | '/courses/$courseId' | '/lessons/$lessonId'
-  id: '__root__' | '/' | '/admin' | '/auth' | '/onboarding' | '/reset-password' | '/courses/$courseId' | '/lessons/$lessonId'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/courses/$courseId'
+    | '/lessons/$lessonId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/courses/$courseId'
+    | '/lessons/$lessonId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,18 +158,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/courses/$courseId': {
-      id: '/courses/$courseId'
-      path: '/courses/$courseId'
-      fullPath: '/courses/$courseId'
-      preLoaderRoute: typeof CoursesCourseIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/lessons/$lessonId': {
       id: '/lessons/$lessonId'
       path: '/lessons/$lessonId'
       fullPath: '/lessons/$lessonId'
       preLoaderRoute: typeof LessonsLessonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

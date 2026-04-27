@@ -1,7 +1,8 @@
-import { Bell, Flame, LogOut } from "lucide-react";
+import { Flame, LogOut, Shield } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { SketchUnderline } from "./Sketch";
 import { useAuth } from "@/lib/auth-context";
+import { NotificationsBell } from "./NotificationsBell";
 
 type Props = {
   fullName?: string;
@@ -35,9 +36,9 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
         {isAdmin && (
           <Link
             to="/admin"
-            className="rounded-xl bg-gradient-violet px-3 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground shadow-glow"
+            className="rounded-xl bg-gradient-violet px-3 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground shadow-glow inline-flex items-center gap-1"
           >
-            Panel admina
+            <Shield className="w-3.5 h-3.5" /> Panel admina
           </Link>
         )}
 
@@ -51,14 +52,7 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           </div>
         </div>
 
-        <button className="relative w-12 h-12 rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors">
-          <Bell className="w-5 h-5 text-foreground" strokeWidth={2.2} />
-          {notificationsCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold grid place-items-center">
-              {notificationsCount}
-            </span>
-          )}
-        </button>
+        <NotificationsBell initialCount={notificationsCount} />
 
         <button
           onClick={() => signOut()}
