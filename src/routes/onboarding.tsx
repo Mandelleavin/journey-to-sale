@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { computeReadiness, readinessLabel, type AcquisitionPlan } from "@/lib/scoring";
+import { computeReadiness, type AcquisitionPlan } from "@/lib/scoring";
 import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
@@ -50,7 +50,6 @@ function OnboardingPage() {
   }, [user, navigate]);
 
   const readiness = useMemo(() => computeReadiness(form), [form]);
-  const tag = readinessLabel(readiness.percent);
 
   const submit = async () => {
     if (!user) return;
