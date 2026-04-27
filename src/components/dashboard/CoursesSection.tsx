@@ -1,4 +1,5 @@
 import { Lightbulb, FileText, MonitorPlay, Megaphone, Lock, Check, GraduationCap } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
 
@@ -51,13 +52,17 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
           const cm = colorMap[c.color];
           const Icon = icons[(c.num - 1) % icons.length];
           const isLocked = !c.unlocked;
+          const isRealCourse = c.id.length > 5; // uuid vs fallback "1"
+          const Wrapper: any = isLocked || !isRealCourse ? "div" : Link;
+          const wrapperProps = isLocked || !isRealCourse ? {} : { to: "/courses/$courseId", params: { courseId: c.id } };
           return (
-            <div
+            <Wrapper
               key={c.id}
+              {...wrapperProps}
               className={cn(
-                "relative bg-card rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5",
+                "relative bg-card rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5 block",
                 cm.border,
-                isLocked && "opacity-90",
+                isLocked && "opacity-90 pointer-events-none",
               )}
               style={{ boxShadow: "0 6px 20px -8px oklch(0.4 0.1 280 / 0.15)" }}
             >
@@ -90,7 +95,7 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
                   </span>
                 )}
               </div>
-            </div>
+            </Wrapper>
           );
         })}
       </div>
