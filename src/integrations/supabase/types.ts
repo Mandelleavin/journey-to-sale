@@ -275,6 +275,9 @@ export type Database = {
       }
       survey_responses: {
         Row: {
+          acquisition_plan:
+            | Database["public"]["Enums"]["acquisition_plan_type"]
+            | null
           biggest_problem: string | null
           created_at: string
           goal_90_days: string | null
@@ -282,11 +285,17 @@ export type Database = {
           has_offer: boolean | null
           has_product_idea: boolean | null
           id: string
+          product_idea_details: string | null
+          readiness_percent: number
+          readiness_score: number
           updated_at: string
           user_id: string
           weekly_hours: number | null
         }
         Insert: {
+          acquisition_plan?:
+            | Database["public"]["Enums"]["acquisition_plan_type"]
+            | null
           biggest_problem?: string | null
           created_at?: string
           goal_90_days?: string | null
@@ -294,11 +303,17 @@ export type Database = {
           has_offer?: boolean | null
           has_product_idea?: boolean | null
           id?: string
+          product_idea_details?: string | null
+          readiness_percent?: number
+          readiness_score?: number
           updated_at?: string
           user_id: string
           weekly_hours?: number | null
         }
         Update: {
+          acquisition_plan?:
+            | Database["public"]["Enums"]["acquisition_plan_type"]
+            | null
           biggest_problem?: string | null
           created_at?: string
           goal_90_days?: string | null
@@ -306,6 +321,9 @@ export type Database = {
           has_offer?: boolean | null
           has_product_idea?: boolean | null
           id?: string
+          product_idea_details?: string | null
+          readiness_percent?: number
+          readiness_score?: number
           updated_at?: string
           user_id?: string
           weekly_hours?: number | null
@@ -507,6 +525,7 @@ export type Database = {
       }
     }
     Enums: {
+      acquisition_plan_type: "paid_ads" | "organic_social" | "unsure"
       advisor_type: "technical" | "marketing"
       app_role: "admin" | "user"
       notification_type:
@@ -654,6 +673,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acquisition_plan_type: ["paid_ads", "organic_social", "unsure"],
       advisor_type: ["technical", "marketing"],
       app_role: ["admin", "user"],
       notification_type: [
