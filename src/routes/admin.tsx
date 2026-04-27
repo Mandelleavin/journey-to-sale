@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox, Phone, Flame, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
@@ -49,14 +49,16 @@ function AdminPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 max-w-2xl">
+        <Tabs defaultValue="hotleads" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 max-w-3xl">
+            <TabsTrigger value="hotleads"><Flame className="w-4 h-4 mr-1" />Hot leady</TabsTrigger>
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-1" />Użytkownicy</TabsTrigger>
             <TabsTrigger value="submissions"><Inbox className="w-4 h-4 mr-1" />Zgłoszenia</TabsTrigger>
             <TabsTrigger value="courses"><GraduationCap className="w-4 h-4 mr-1" />Kursy</TabsTrigger>
             <TabsTrigger value="advisor"><ListChecks className="w-4 h-4 mr-1" />Doradca</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="hotleads" className="mt-6"><HotLeadsTab /></TabsContent>
           <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
           <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
           <TabsContent value="courses" className="mt-6"><CoursesTab /></TabsContent>
