@@ -6,7 +6,6 @@ import { StatCards } from "@/components/dashboard/StatCards";
 import { MissionCard } from "@/components/dashboard/MissionCard";
 import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
-import { AdminPanel } from "@/components/dashboard/AdminPanel";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
@@ -20,7 +19,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const data = useDashboardData();
   const [fullName, setFullName] = useState<string | undefined>();
   const [hasSurvey, setHasSurvey] = useState<boolean | null>(null);
