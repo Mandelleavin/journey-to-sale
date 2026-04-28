@@ -1260,6 +1260,25 @@ function MentorTab() {
                 </div>
               )}
 
+              {(t.status === "assigned" || t.status === "needs_revision") && (
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <EditMentorTaskDialog task={t} onSaved={load} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    onClick={async () => {
+                      if (!confirm("Usunąć to zadanie?")) return;
+                      const { error } = await supabase.from("mentor_assigned_tasks").delete().eq("id", t.id);
+                      if (error) toast.error(error.message);
+                      else { toast.success("Usunięto"); load(); }
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />Usuń
+                  </Button>
+                </div>
+              )}
+
               {t.admin_feedback && t.status !== "submitted" && (
                 <div className="mt-3 text-xs text-muted-foreground"><b>Twoja odpowiedź:</b> {t.admin_feedback}</div>
               )}
@@ -1355,6 +1374,66 @@ function AssignMentorTaskDialog({
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
           <Button onClick={save} className="bg-gradient-violet text-primary-foreground">Przypisz</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditMentorTaskDialog({ task, onSaved }: { task: MentorTaskRow; onSaved: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState(task.title);
+  const [instructions, setInstructions] = useState(task.instructions ?? "");
+  const [xp, setXp] = useState(task.xp_reward);
+  const [due, setDue] = useState(task.due_date ?? "");
+
+  useEffect(() => {
+    if (open) {
+      setTitle(task.title);
+      setInstructions(task.instructions ?? "");
+      setXp(task.xp_reward);
+      setDue(task.due_date ?? "");
+    }
+  }, [open, task]);
+
+  const save = async () => {
+    if (!title.trim()) return toast.error("Podaj tytuł");
+    const { error } = await supabase
+      .from("mentor_assigned_tasks")
+      .update({
+        title,
+        instructions: instructions || null,
+        xp_reward: xp,
+        due_date: due || null,
+      })
+      .eq("id", task.id);
+    if (error) return toast.error(error.message);
+    toast.success("Zaktualizowano zadanie");
+    setOpen(false);
+    onSaved();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          <Pencil className="w-4 h-4 mr-1" />Edytuj
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Edycja zadania od mentora</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label>Tytuł zadania</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+          <div><Label>Instrukcje</Label><Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} className="min-h-[100px]" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Nagroda XP</Label><Input type="number" value={xp} onChange={(e) => setXp(Number(e.target.value))} /></div>
+            <div><Label>Termin (opcjonalny)</Label><Input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></div>
+          </div>
+          <p className="text-xs text-muted-foreground">Edycja możliwa tylko dla zadań ze statusem „assigned" lub „needs_revision".</p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
+          <Button onClick={save} className="bg-gradient-violet text-primary-foreground">Zapisz zmiany</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
