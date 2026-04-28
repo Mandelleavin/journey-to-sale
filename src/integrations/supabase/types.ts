@@ -47,6 +47,65 @@ export type Database = {
         }
         Relationships: []
       }
+      community_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           cover_url: string | null
@@ -363,6 +422,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rewards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_available: boolean
+          position: number
+          title: string
+          updated_at: string
+          xp_cost: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          position?: number
+          title: string
+          updated_at?: string
+          xp_cost?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          position?: number
+          title?: string
+          updated_at?: string
+          xp_cost?: number
+        }
+        Relationships: []
+      }
       survey_responses: {
         Row: {
           acquisition_plan:
@@ -525,6 +617,77 @@ export type Database = {
           },
         ]
       }
+      user_products: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          link: string | null
+          name: string
+          price_pln: number | null
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          link?: string | null
+          name: string
+          price_pln?: number | null
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          link?: string | null
+          name?: string
+          price_pln?: number | null
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          reward_id: string
+          status: string
+          user_id: string
+          xp_spent: number
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          reward_id: string
+          status?: string
+          user_id: string
+          xp_spent: number
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          reward_id?: string
+          status?: string
+          user_id?: string
+          xp_spent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -642,6 +805,7 @@ export type Database = {
         | "ads"
         | "technical"
         | "other"
+      product_status: "idea" | "building" | "active" | "paused"
       submission_status: "pending" | "approved" | "rejected" | "needs_revision"
     }
     CompositeTypes: {
@@ -800,6 +964,7 @@ export const Constants = {
         "technical",
         "other",
       ],
+      product_status: ["idea", "building", "active", "paused"],
       submission_status: ["pending", "approved", "rejected", "needs_revision"],
     },
   },

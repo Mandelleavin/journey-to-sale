@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Route as RouteIcon,
@@ -15,25 +15,24 @@ import {
 import { cn } from "@/lib/utils";
 
 const items = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: RouteIcon, label: "Moja ścieżka" },
-  { icon: GraduationCap, label: "Kursy" },
-  { icon: ListChecks, label: "Zadania" },
-  { icon: Package, label: "Mój produkt" },
-  { icon: AlertTriangle, label: "Problemy" },
-  { icon: MessageCircleQuestion, label: "Kontakt z doradcą" },
-  { icon: Trophy, label: "Nagrody" },
-  { icon: Users, label: "Społeczność" },
-  { icon: CreditCard, label: "Mój pakiet" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
+  { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
+  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
+  { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
+  { icon: Package, label: "Mój produkt", to: "/products" as const },
+  { icon: AlertTriangle, label: "Problemy", to: "/problems" as const },
+  { icon: MessageCircleQuestion, label: "Kontakt z doradcą", to: "/advisor" as const },
+  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
+  { icon: Users, label: "Społeczność", to: "/community" as const },
+  { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
 ];
 
 export function Sidebar() {
-  const [active, setActive] = useState("Dashboard");
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-card border border-border rounded-3xl p-5 shadow-soft sticky top-6 self-start max-h-[calc(100vh-3rem)]">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-2 pb-6 border-b border-border">
+    <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-card border border-border rounded-3xl p-5 shadow-soft sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
+      <Link to="/" className="flex items-center gap-3 px-2 pb-6 border-b border-border">
         <div className="relative">
           <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
             <span className="font-display font-extrabold text-lg leading-none">90</span>
@@ -46,16 +45,17 @@ export function Sidebar() {
             do pierwszej<br />sprzedaży online
           </div>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex flex-col gap-1 mt-5 flex-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = active === item.label;
+          const isActive =
+            item.to === "/" ? pathname === "/" : pathname === item.to || pathname.startsWith(item.to + "/");
           return (
-            <button
+            <Link
               key={item.label}
-              onClick={() => setActive(item.label)}
+              to={item.to}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 isActive
@@ -65,7 +65,7 @@ export function Sidebar() {
             >
               <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
               <span>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
