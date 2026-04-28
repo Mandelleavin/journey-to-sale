@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox, Phone, Flame, CalendarDays } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, ArrowLeft, Users, GraduationCap, ListChecks, Inbox, Phone, Flame, CalendarDays, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
@@ -50,9 +50,10 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 max-w-4xl">
             <TabsTrigger value="hotleads"><Flame className="w-4 h-4 mr-1" />Hot leady</TabsTrigger>
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-1" />Użytkownicy</TabsTrigger>
+            <TabsTrigger value="mentor"><Sparkles className="w-4 h-4 mr-1" />Mentor</TabsTrigger>
             <TabsTrigger value="submissions"><Inbox className="w-4 h-4 mr-1" />Zgłoszenia</TabsTrigger>
             <TabsTrigger value="courses"><GraduationCap className="w-4 h-4 mr-1" />Kursy</TabsTrigger>
             <TabsTrigger value="advisor"><ListChecks className="w-4 h-4 mr-1" />Doradca</TabsTrigger>
@@ -60,6 +61,7 @@ function AdminPage() {
 
           <TabsContent value="hotleads" className="mt-6"><HotLeadsTab /></TabsContent>
           <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
+          <TabsContent value="mentor" className="mt-6"><MentorTab /></TabsContent>
           <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
           <TabsContent value="courses" className="mt-6"><CoursesTab /></TabsContent>
           <TabsContent value="advisor" className="mt-6"><AdvisorTab /></TabsContent>
@@ -1119,5 +1121,242 @@ function ScheduledCallCard({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ==================== MENTOR ASSIGNED TASKS ==================== */
+
+type MentorTaskRow = {
+  id: string;
+  user_id: string;
+  title: string;
+  instructions: string | null;
+  xp_reward: number;
+  due_date: string | null;
+  status: "assigned" | "submitted" | "approved" | "rejected" | "needs_revision";
+  submission_content: string | null;
+  admin_feedback: string | null;
+  created_at: string;
+  user_email?: string;
+  user_name?: string | null;
+};
+
+function MentorTab() {
+  const { user } = useAuth();
+  const [tasks, setTasks] = useState<MentorTaskRow[]>([]);
+  const [profiles, setProfiles] = useState<{ id: string; email: string; full_name: string | null }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"submitted" | "active" | "all">("submitted");
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+
+  const load = async () => {
+    setLoading(true);
+    const [{ data: t }, { data: p }] = await Promise.all([
+      supabase.from("mentor_assigned_tasks").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, email, full_name"),
+    ]);
+    const userMap = new Map((p ?? []).map((x) => [x.id, x]));
+    setProfiles(p ?? []);
+    setTasks(((t ?? []) as MentorTaskRow[]).map((x) => ({
+      ...x,
+      user_email: userMap.get(x.user_id)?.email,
+      user_name: userMap.get(x.user_id)?.full_name ?? null,
+    })));
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const review = async (id: string, status: "approved" | "rejected" | "needs_revision") => {
+    const fb = feedback[id] ?? null;
+    const { error } = await supabase
+      .from("mentor_assigned_tasks")
+      .update({ status, admin_feedback: fb, reviewed_at: new Date().toISOString(), reviewed_by: user?.id })
+      .eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success("Zaktualizowano"); load(); }
+  };
+
+  const filtered = tasks.filter((t) => {
+    if (filter === "submitted") return t.status === "submitted";
+    if (filter === "active") return t.status === "assigned" || t.status === "needs_revision" || t.status === "submitted";
+    return true;
+  });
+
+  if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <div>
+            <h2 className="font-display font-bold text-lg">Zadania od mentora</h2>
+            <p className="text-xs text-muted-foreground">Przypisuj indywidualne zadania użytkownikom i recenzuj zgłoszenia</p>
+          </div>
+          <AssignMentorTaskDialog profiles={profiles} onSaved={load} />
+        </div>
+
+        <div className="flex gap-1 mb-4">
+          {(["submitted", "active", "all"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold uppercase",
+                filter === f ? "bg-violet text-primary-foreground" : "bg-muted text-muted-foreground",
+              )}
+            >
+              {f === "submitted" ? "Do recenzji" : f === "active" ? "Aktywne" : "Wszystkie"}
+            </button>
+          ))}
+        </div>
+
+        {filtered.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">Brak zadań</div>}
+
+        <div className="space-y-3">
+          {filtered.map((t) => (
+            <div key={t.id} className="rounded-2xl border border-border p-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm">{t.title}</div>
+                  <div className="text-xs text-muted-foreground">
+                    👤 {t.user_name ?? t.user_email} · +{t.xp_reward} XP
+                    {t.due_date && <> · termin {new Date(t.due_date).toLocaleDateString("pl-PL")}</>}
+                  </div>
+                  {t.instructions && <p className="text-xs mt-2">{t.instructions}</p>}
+                </div>
+                <Badge variant="outline" className={cn(
+                  "text-[10px]",
+                  t.status === "assigned" && "border-blue/40 text-blue",
+                  t.status === "submitted" && "border-violet/40 text-violet",
+                  t.status === "approved" && "border-green/40 text-green",
+                  t.status === "rejected" && "border-destructive/40 text-destructive",
+                  t.status === "needs_revision" && "border-orange/40 text-orange",
+                )}>{t.status}</Badge>
+              </div>
+
+              {t.submission_content && (
+                <div className="mt-3 rounded-xl bg-muted/40 p-3 text-sm whitespace-pre-wrap">{t.submission_content}</div>
+              )}
+
+              {t.status === "submitted" && (
+                <div className="mt-3 space-y-2">
+                  <Textarea
+                    placeholder="Feedback dla użytkownika..."
+                    value={feedback[t.id] ?? ""}
+                    onChange={(e) => setFeedback((f) => ({ ...f, [t.id]: e.target.value }))}
+                    className="min-h-[60px]"
+                  />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button size="sm" onClick={() => review(t.id, "approved")} className="bg-green text-white hover:bg-green/90">
+                      <Check className="w-4 h-4 mr-1" />Zatwierdź (przyznaj XP)
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => review(t.id, "needs_revision")}>
+                      <Pencil className="w-4 h-4 mr-1" />Do poprawy
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => review(t.id, "rejected")} className="text-destructive">
+                      <X className="w-4 h-4 mr-1" />Odrzuć
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {t.admin_feedback && t.status !== "submitted" && (
+                <div className="mt-3 text-xs text-muted-foreground"><b>Twoja odpowiedź:</b> {t.admin_feedback}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssignMentorTaskDialog({
+  profiles, onSaved,
+}: { profiles: { id: string; email: string; full_name: string | null }[]; onSaved: () => void }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [search, setSearch] = useState("");
+  const [title, setTitle] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [xp, setXp] = useState(150);
+  const [due, setDue] = useState("");
+
+  const filteredProfiles = profiles
+    .filter((p) => (p.email + " " + (p.full_name ?? "")).toLowerCase().includes(search.toLowerCase()))
+    .slice(0, 8);
+
+  const save = async () => {
+    if (!userId || !title.trim()) return toast.error("Wybierz użytkownika i podaj tytuł");
+    const { error } = await supabase.from("mentor_assigned_tasks").insert({
+      user_id: userId,
+      assigned_by: user?.id ?? "",
+      title,
+      instructions: instructions || null,
+      xp_reward: xp,
+      due_date: due || null,
+    } as never);
+    if (error) return toast.error(error.message);
+    toast.success("Zadanie przypisane");
+    setOpen(false);
+    setUserId(""); setTitle(""); setInstructions(""); setXp(150); setDue(""); setSearch("");
+    onSaved();
+  };
+
+  const selected = profiles.find((p) => p.id === userId);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-violet text-primary-foreground">
+          <Plus className="w-3.5 h-3.5 mr-1" />Przypisz zadanie
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Nowe zadanie od mentora</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>Użytkownik</Label>
+            {selected ? (
+              <div className="flex items-center justify-between rounded-lg border border-border p-2 mt-1">
+                <div className="text-sm">
+                  <div className="font-semibold">{selected.full_name ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground">{selected.email}</div>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setUserId("")}>Zmień</Button>
+              </div>
+            ) : (
+              <>
+                <Input placeholder="Szukaj po email lub imieniu..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <div className="mt-2 max-h-40 overflow-y-auto space-y-1">
+                  {filteredProfiles.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setUserId(p.id)}
+                      className="w-full text-left p-2 rounded-lg hover:bg-muted text-sm"
+                    >
+                      <div className="font-semibold">{p.full_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">{p.email}</div>
+                    </button>
+                  ))}
+                  {filteredProfiles.length === 0 && <div className="text-xs text-muted-foreground p-2">Brak wyników</div>}
+                </div>
+              </>
+            )}
+          </div>
+          <div><Label>Tytuł zadania</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="np. Przygotuj briefing kampanii" /></div>
+          <div><Label>Instrukcje</Label><Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} className="min-h-[100px]" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Nagroda XP</Label><Input type="number" value={xp} onChange={(e) => setXp(Number(e.target.value))} /></div>
+            <div><Label>Termin (opcjonalny)</Label><Input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
+          <Button onClick={save} className="bg-gradient-violet text-primary-foreground">Przypisz</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

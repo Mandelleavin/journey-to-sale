@@ -213,6 +213,60 @@ export type Database = {
           },
         ]
       }
+      mentor_assigned_tasks: {
+        Row: {
+          admin_feedback: string | null
+          assigned_by: string
+          created_at: string
+          due_date: string | null
+          id: string
+          instructions: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["mentor_task_status"]
+          submission_content: string | null
+          submitted_at: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          admin_feedback?: string | null
+          assigned_by: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["mentor_task_status"]
+          submission_content?: string | null
+          submitted_at?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          admin_feedback?: string | null
+          assigned_by?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["mentor_task_status"]
+          submission_content?: string | null
+          submitted_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -565,6 +619,12 @@ export type Database = {
       advisor_type: "technical" | "marketing"
       app_role: "admin" | "user"
       call_status: "scheduled" | "completed" | "skipped"
+      mentor_task_status:
+        | "assigned"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "needs_revision"
       notification_type:
         | "task_approved"
         | "task_rejected"
@@ -714,6 +774,13 @@ export const Constants = {
       advisor_type: ["technical", "marketing"],
       app_role: ["admin", "user"],
       call_status: ["scheduled", "completed", "skipped"],
+      mentor_task_status: [
+        "assigned",
+        "submitted",
+        "approved",
+        "rejected",
+        "needs_revision",
+      ],
       notification_type: [
         "task_approved",
         "task_rejected",

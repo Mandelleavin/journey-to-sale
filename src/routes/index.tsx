@@ -9,6 +9,7 @@ import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievement
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
+import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
 import { useAuth } from "@/lib/auth-context";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,6 +112,7 @@ function Index() {
             upcoming={upcoming}
             onAction={() => mission && setSubmitTaskId(mission.id)}
           />
+          <MentorTasksSection />
           <CoursesSection courses={enrichedCourses} />
           <div className="grid xl:grid-cols-2 gap-5">
             <TasksAndAchievements />

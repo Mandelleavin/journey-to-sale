@@ -62,11 +62,11 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           <LogOut className="w-5 h-5 text-foreground" strokeWidth={2.2} />
         </button>
 
-        <div className="w-12 h-12 rounded-full bg-gradient-violet p-[2px]">
+        <Link to="/profile" title="Twój profil" className="w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity">
           <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
             {initials}
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );
