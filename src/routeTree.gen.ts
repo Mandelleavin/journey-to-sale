@@ -9,16 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProductsRouteImport } from './routes/products'
+import { Route as ProblemsRouteImport } from './routes/problems'
+import { Route as PathRouteImport } from './routes/path'
+import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdvisorRouteImport } from './routes/advisor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -29,14 +48,49 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProblemsRoute = ProblemsRouteImport.update({
+  id: '/problems',
+  path: '/problems',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PathRoute = PathRouteImport.update({
+  id: '/path',
+  path: '/path',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PackageRoute = PackageRouteImport.update({
+  id: '/package',
+  path: '/package',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvisorRoute = AdvisorRouteImport.update({
+  id: '/advisor',
+  path: '/advisor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -60,18 +114,27 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
-  id: '/courses/$courseId',
-  path: '/courses/$courseId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => CoursesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/package': typeof PackageRoute
+  '/path': typeof PathRoute
+  '/problems': typeof ProblemsRoute
+  '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
+  '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -79,10 +142,19 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/package': typeof PackageRoute
+  '/path': typeof PathRoute
+  '/problems': typeof ProblemsRoute
+  '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
+  '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -91,10 +163,19 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/package': typeof PackageRoute
+  '/path': typeof PathRoute
+  '/problems': typeof ProblemsRoute
+  '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
+  '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -104,10 +185,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/advisor'
     | '/auth'
+    | '/community'
+    | '/courses'
     | '/onboarding'
+    | '/package'
+    | '/path'
+    | '/problems'
+    | '/products'
     | '/profile'
     | '/reset-password'
+    | '/rewards'
+    | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -115,10 +205,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/advisor'
     | '/auth'
+    | '/community'
+    | '/courses'
     | '/onboarding'
+    | '/package'
+    | '/path'
+    | '/problems'
+    | '/products'
     | '/profile'
     | '/reset-password'
+    | '/rewards'
+    | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -126,10 +225,19 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/advisor'
     | '/auth'
+    | '/community'
+    | '/courses'
     | '/onboarding'
+    | '/package'
+    | '/path'
+    | '/problems'
+    | '/products'
     | '/profile'
     | '/reset-password'
+    | '/rewards'
+    | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -138,16 +246,38 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AdvisorRoute: typeof AdvisorRoute
   AuthRoute: typeof AuthRoute
+  CommunityRoute: typeof CommunityRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   OnboardingRoute: typeof OnboardingRouteWithChildren
+  PackageRoute: typeof PackageRoute
+  PathRoute: typeof PathRoute
+  ProblemsRoute: typeof ProblemsRoute
+  ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  RewardsRoute: typeof RewardsRoute
+  TasksRoute: typeof TasksRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -162,6 +292,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/problems': {
+      id: '/problems'
+      path: '/problems'
+      fullPath: '/problems'
+      preLoaderRoute: typeof ProblemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/path': {
+      id: '/path'
+      path: '/path'
+      fullPath: '/path'
+      preLoaderRoute: typeof PathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/package': {
+      id: '/package'
+      path: '/package'
+      fullPath: '/package'
+      preLoaderRoute: typeof PackageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -169,11 +327,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advisor': {
+      id: '/advisor'
+      path: '/advisor'
+      fullPath: '/advisor'
+      preLoaderRoute: typeof AdvisorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -206,13 +385,24 @@ declare module '@tanstack/react-router' {
     }
     '/courses/$courseId': {
       id: '/courses/$courseId'
-      path: '/courses/$courseId'
+      path: '/$courseId'
       fullPath: '/courses/$courseId'
       preLoaderRoute: typeof CoursesCourseIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof CoursesRoute
     }
   }
 }
+
+interface CoursesRouteChildren {
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
 
 interface OnboardingRouteChildren {
   OnboardingResultRoute: typeof OnboardingResultRoute
@@ -229,11 +419,19 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AdvisorRoute: AdvisorRoute,
   AuthRoute: AuthRoute,
+  CommunityRoute: CommunityRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   OnboardingRoute: OnboardingRouteWithChildren,
+  PackageRoute: PackageRoute,
+  PathRoute: PathRoute,
+  ProblemsRoute: ProblemsRoute,
+  ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  CoursesCourseIdRoute: CoursesCourseIdRoute,
+  RewardsRoute: RewardsRoute,
+  TasksRoute: TasksRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
 }
 export const routeTree = rootRouteImport
