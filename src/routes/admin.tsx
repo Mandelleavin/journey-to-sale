@@ -1291,12 +1291,12 @@ function AssignMentorTaskDialog({
     if (!userId || !title.trim()) return toast.error("Wybierz użytkownika i podaj tytuł");
     const { error } = await supabase.from("mentor_assigned_tasks").insert({
       user_id: userId,
-      assigned_by: user?.id,
+      assigned_by: user?.id ?? "",
       title,
       instructions: instructions || null,
       xp_reward: xp,
       due_date: due || null,
-    });
+    } as never);
     if (error) return toast.error(error.message);
     toast.success("Zadanie przypisane");
     setOpen(false);
