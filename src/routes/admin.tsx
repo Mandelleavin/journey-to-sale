@@ -1260,6 +1260,25 @@ function MentorTab() {
                 </div>
               )}
 
+              {(t.status === "assigned" || t.status === "needs_revision") && (
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <EditMentorTaskDialog task={t} onSaved={load} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    onClick={async () => {
+                      if (!confirm("Usunąć to zadanie?")) return;
+                      const { error } = await supabase.from("mentor_assigned_tasks").delete().eq("id", t.id);
+                      if (error) toast.error(error.message);
+                      else { toast.success("Usunięto"); load(); }
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />Usuń
+                  </Button>
+                </div>
+              )}
+
               {t.admin_feedback && t.status !== "submitted" && (
                 <div className="mt-3 text-xs text-muted-foreground"><b>Twoja odpowiedź:</b> {t.admin_feedback}</div>
               )}
