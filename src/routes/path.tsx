@@ -114,6 +114,9 @@ function PathPage() {
         totalXp={data.totalXp}
         xpToNext={data.xpToNext}
         pctToNext={Math.round(data.pctToNext)}
+        pathDay={currentDay}
+        pathPct={Math.round(((currentDay - 1) / 89) * 100)}
+        successPct={readiness}
       />
 
       <ProgressPath currentDay={currentDay} />
