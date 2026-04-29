@@ -11,6 +11,12 @@ import {
   Users,
   CreditCard,
   Sparkles,
+  Target,
+  Award,
+  Swords,
+  CalendarDays,
+  BarChart3,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,11 +25,18 @@ const items = [
   { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
   { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
   { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
+  { icon: Target, label: "Wyzwania", to: "/challenges" as const },
+  { icon: Trophy, label: "Ranking", to: "/leaderboard" as const },
+  { icon: Award, label: "Odznaki", to: "/badges" as const },
+  { icon: Swords, label: "Pojedynki", to: "/duels" as const },
+  { icon: Bot, label: "AI Coach", to: "/coach" as const },
+  { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
+  { icon: BarChart3, label: "Statystyki", to: "/stats" as const },
   { icon: Package, label: "Mój produkt", to: "/products" as const },
-  { icon: AlertTriangle, label: "Problemy", to: "/problems" as const },
-  { icon: MessageCircleQuestion, label: "Kontakt z doradcą", to: "/advisor" as const },
-  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
   { icon: Users, label: "Społeczność", to: "/community" as const },
+  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
+  { icon: MessageCircleQuestion, label: "Doradca", to: "/advisor" as const },
+  { icon: AlertTriangle, label: "Problemy", to: "/problems" as const },
   { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
 ];
 

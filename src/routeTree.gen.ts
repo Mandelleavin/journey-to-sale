@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -18,19 +19,34 @@ import { Route as ProblemsRouteImport } from './routes/problems'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as DuelsRouteImport } from './routes/duels'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as CoachRouteImport } from './routes/coach'
+import { Route as ChallengesRouteImport } from './routes/challenges'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as BadgesRouteImport } from './routes/badges'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdvisorRouteImport } from './routes/advisor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
+import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
+import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
 
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RewardsRoute = RewardsRouteImport.update({
@@ -73,6 +89,16 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuelsRoute = DuelsRouteImport.update({
+  id: '/duels',
+  path: '/duels',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -81,6 +107,26 @@ const CoursesRoute = CoursesRouteImport.update({
 const CommunityRoute = CommunityRouteImport.update({
   id: '/community',
   path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachRoute = CoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChallengesRoute = ChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BadgesRoute = BadgesRouteImport.update({
+  id: '/badges',
+  path: '/badges',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -103,6 +149,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUserIdRoute = UUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingResultRoute = OnboardingResultRouteImport.update({
   id: '/result',
   path: '/result',
@@ -118,14 +169,38 @@ const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   path: '/$courseId',
   getParentRoute: () => CoursesRoute,
 } as any)
+const ApiPublicCronStreakWarningRoute =
+  ApiPublicCronStreakWarningRouteImport.update({
+    id: '/api/public/cron/streak-warning',
+    path: '/api/public/cron/streak-warning',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronFinalizeDuelsRoute =
+  ApiPublicCronFinalizeDuelsRouteImport.update({
+    id: '/api/public/cron/finalize-duels',
+    path: '/api/public/cron/finalize-duels',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronDailyChallengesRoute =
+  ApiPublicCronDailyChallengesRouteImport.update({
+    id: '/api/public/cron/daily-challenges',
+    path: '/api/public/cron/daily-challenges',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/badges': typeof BadgesRoute
+  '/calendar': typeof CalendarRoute
+  '/challenges': typeof ChallengesRoute
+  '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/duels': typeof DuelsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -134,18 +209,29 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/u/$userId': typeof UUserIdRoute
+  '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
+  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
+  '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/badges': typeof BadgesRoute
+  '/calendar': typeof CalendarRoute
+  '/challenges': typeof ChallengesRoute
+  '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/duels': typeof DuelsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -154,10 +240,15 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/u/$userId': typeof UUserIdRoute
+  '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
+  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
+  '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -165,8 +256,14 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
+  '/badges': typeof BadgesRoute
+  '/calendar': typeof CalendarRoute
+  '/challenges': typeof ChallengesRoute
+  '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/duels': typeof DuelsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -175,10 +272,15 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/u/$userId': typeof UUserIdRoute
+  '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
+  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
+  '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -187,8 +289,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/advisor'
     | '/auth'
+    | '/badges'
+    | '/calendar'
+    | '/challenges'
+    | '/coach'
     | '/community'
     | '/courses'
+    | '/duels'
+    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -197,18 +305,29 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/rewards'
+    | '/stats'
     | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/u/$userId'
+    | '/api/public/cron/daily-challenges'
+    | '/api/public/cron/finalize-duels'
+    | '/api/public/cron/streak-warning'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/advisor'
     | '/auth'
+    | '/badges'
+    | '/calendar'
+    | '/challenges'
+    | '/coach'
     | '/community'
     | '/courses'
+    | '/duels'
+    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -217,18 +336,29 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/rewards'
+    | '/stats'
     | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/u/$userId'
+    | '/api/public/cron/daily-challenges'
+    | '/api/public/cron/finalize-duels'
+    | '/api/public/cron/streak-warning'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/advisor'
     | '/auth'
+    | '/badges'
+    | '/calendar'
+    | '/challenges'
+    | '/coach'
     | '/community'
     | '/courses'
+    | '/duels'
+    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -237,10 +367,15 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reset-password'
     | '/rewards'
+    | '/stats'
     | '/tasks'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/u/$userId'
+    | '/api/public/cron/daily-challenges'
+    | '/api/public/cron/finalize-duels'
+    | '/api/public/cron/streak-warning'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,8 +383,14 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AdvisorRoute: typeof AdvisorRoute
   AuthRoute: typeof AuthRoute
+  BadgesRoute: typeof BadgesRoute
+  CalendarRoute: typeof CalendarRoute
+  ChallengesRoute: typeof ChallengesRoute
+  CoachRoute: typeof CoachRoute
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  DuelsRoute: typeof DuelsRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
@@ -258,8 +399,13 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
+  StatsRoute: typeof StatsRoute
   TasksRoute: typeof TasksRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
+  UUserIdRoute: typeof UUserIdRoute
+  ApiPublicCronDailyChallengesRoute: typeof ApiPublicCronDailyChallengesRoute
+  ApiPublicCronFinalizeDuelsRoute: typeof ApiPublicCronFinalizeDuelsRoute
+  ApiPublicCronStreakWarningRoute: typeof ApiPublicCronStreakWarningRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -269,6 +415,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks'
       preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rewards': {
@@ -327,6 +480,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/duels': {
+      id: '/duels'
+      path: '/duels'
+      fullPath: '/duels'
+      preLoaderRoute: typeof DuelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/courses': {
       id: '/courses'
       path: '/courses'
@@ -339,6 +506,34 @@ declare module '@tanstack/react-router' {
       path: '/community'
       fullPath: '/community'
       preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coach': {
+      id: '/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof CoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/challenges': {
+      id: '/challenges'
+      path: '/challenges'
+      fullPath: '/challenges'
+      preLoaderRoute: typeof ChallengesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/badges': {
+      id: '/badges'
+      path: '/badges'
+      fullPath: '/badges'
+      preLoaderRoute: typeof BadgesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -369,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$userId': {
+      id: '/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof UUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding/result': {
       id: '/onboarding/result'
       path: '/result'
@@ -389,6 +591,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses/$courseId'
       preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof CoursesRoute
+    }
+    '/api/public/cron/streak-warning': {
+      id: '/api/public/cron/streak-warning'
+      path: '/api/public/cron/streak-warning'
+      fullPath: '/api/public/cron/streak-warning'
+      preLoaderRoute: typeof ApiPublicCronStreakWarningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/finalize-duels': {
+      id: '/api/public/cron/finalize-duels'
+      path: '/api/public/cron/finalize-duels'
+      fullPath: '/api/public/cron/finalize-duels'
+      preLoaderRoute: typeof ApiPublicCronFinalizeDuelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/daily-challenges': {
+      id: '/api/public/cron/daily-challenges'
+      path: '/api/public/cron/daily-challenges'
+      fullPath: '/api/public/cron/daily-challenges'
+      preLoaderRoute: typeof ApiPublicCronDailyChallengesRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -421,8 +644,14 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AdvisorRoute: AdvisorRoute,
   AuthRoute: AuthRoute,
+  BadgesRoute: BadgesRoute,
+  CalendarRoute: CalendarRoute,
+  ChallengesRoute: ChallengesRoute,
+  CoachRoute: CoachRoute,
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  DuelsRoute: DuelsRoute,
+  LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
@@ -431,8 +660,13 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
+  StatsRoute: StatsRoute,
   TasksRoute: TasksRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
+  UUserIdRoute: UUserIdRoute,
+  ApiPublicCronDailyChallengesRoute: ApiPublicCronDailyChallengesRoute,
+  ApiPublicCronFinalizeDuelsRoute: ApiPublicCronFinalizeDuelsRoute,
+  ApiPublicCronStreakWarningRoute: ApiPublicCronStreakWarningRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
