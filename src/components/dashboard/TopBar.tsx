@@ -1,8 +1,11 @@
-import { Flame, LogOut, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LogOut, Shield } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { SketchUnderline } from "./Sketch";
 import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
+import { StreakBadge } from "./StreakBadge";
+import { supabase } from "@/integrations/supabase/client";
 
 type Props = {
   fullName?: string;
@@ -10,8 +13,21 @@ type Props = {
 };
 
 export function TopBar({ fullName, notificationsCount = 0 }: Props) {
-  const { signOut, isAdmin } = useAuth();
+  const { signOut, isAdmin, user } = useAuth();
   const name = fullName?.split(" ")[0] || "Twórco";
+  const [streak, setStreak] = useState({ current: 0, multiplier: 1 });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_streaks")
+      .select("current_streak, multiplier")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setStreak({ current: data.current_streak, multiplier: Number(data.multiplier) });
+      });
+  }, [user]);
   const initials = (fullName ?? "TW")
     .split(" ")
     .map((s) => s[0])
@@ -42,15 +58,7 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           </Link>
         )}
 
-        <div className="flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-orange grid place-items-center">
-            <Flame className="w-4 h-4 text-white fill-white/30" strokeWidth={2.2} />
-          </div>
-          <div className="leading-tight">
-            <div className="font-display font-extrabold text-sm">7 dni</div>
-            <div className="text-[10px] text-muted-foreground font-semibold uppercase">seria</div>
-          </div>
-        </div>
+        <StreakBadge current={streak.current} multiplier={streak.multiplier} />
 
         <NotificationsBell initialCount={notificationsCount} />
 
