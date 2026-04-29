@@ -37,18 +37,21 @@ function PathPage() {
   const data = useDashboardData();
   const [profileCreated, setProfileCreated] = useState<string | null>(null);
   const [mentorTasks, setMentorTasks] = useState<MentorTask[]>([]);
+  const [readiness, setReadiness] = useState<number>(0);
   const [submitTaskId, setSubmitTaskId] = useState<string | null>(null);
   const [submitTaskTitle, setSubmitTaskTitle] = useState<string | undefined>();
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: prof }, { data: mt }] = await Promise.all([
+      const [{ data: prof }, { data: mt }, { data: survey }] = await Promise.all([
         supabase.from("profiles").select("created_at").eq("id", user.id).maybeSingle(),
         supabase.from("mentor_assigned_tasks").select("id, title, instructions, xp_reward, due_date, status, created_at").eq("user_id", user.id),
+        supabase.from("survey_responses").select("readiness_percent").eq("user_id", user.id).maybeSingle(),
       ]);
       setProfileCreated(prof?.created_at ?? null);
       setMentorTasks((mt ?? []) as MentorTask[]);
+      setReadiness(survey?.readiness_percent ?? 0);
     })();
   }, [user]);
 
