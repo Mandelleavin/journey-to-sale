@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/public/cron/daily-challenges")({
         const url = new URL(request.url);
         const isWeekly = url.searchParams.get("weekly") === "1";
         const templates = isWeekly ? WEEKLY_TEMPLATES : DAILY_TEMPLATES;
-        const type = isWeekly ? "weekly" : "daily";
+        const type: "weekly" | "daily" = isWeekly ? "weekly" : "daily";
         const days = isWeekly ? 7 : 1;
         const ends = new Date(Date.now() + days * 86400000).toISOString();
 
