@@ -107,6 +107,18 @@ function Index() {
             totalXp={data.totalXp}
             xpToNext={data.xpToNext}
             pctToNext={Math.round(data.pctToNext)}
+            pathDay={(() => {
+              if (!profileCreated) return 1;
+              const d = Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
+              return Math.max(1, Math.min(90, d));
+            })()}
+            pathPct={(() => {
+              if (!profileCreated) return 0;
+              const d = Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
+              const day = Math.max(1, Math.min(90, d));
+              return Math.round(((day - 1) / 89) * 100);
+            })()}
+            successPct={readiness}
           />
           <MissionCard
             title={mission?.title}
