@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const DAILY_TEMPLATES = [
+type Metric = "lessons_watched" | "xp_earned" | "comments_created" | "tasks_approved" | "mentor_tasks_done" | "posts_created" | "login_days";
+type Tpl = { title: string; description: string; metric: Metric; goal: number; xp: number };
+
+const DAILY_TEMPLATES: Tpl[] = [
   { title: "Obejrzyj 1 lekcję", description: "Wykonaj choć jedną lekcję dziś", metric: "lessons_watched", goal: 1, xp: 50 },
   { title: "Zdobądź 100 XP", description: "Wykonaj akcje za 100 XP w ciągu dnia", metric: "xp_earned", goal: 100, xp: 50 },
   { title: "Skomentuj post w społeczności", description: "Wesprzyj kogoś z grupy komentarzem", metric: "comments_created", goal: 1, xp: 30 },
 ];
 
-const WEEKLY_TEMPLATES = [
+const WEEKLY_TEMPLATES: Tpl[] = [
   { title: "3 zatwierdzone zadania", description: "Wykonaj i wyślij do akceptacji 3 zadania", metric: "tasks_approved", goal: 3, xp: 300 },
   { title: "500 XP w tym tygodniu", description: "Tempo, które naprawdę popchnie projekt", metric: "xp_earned", goal: 500, xp: 200 },
 ];
