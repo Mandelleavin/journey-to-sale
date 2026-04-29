@@ -24,6 +24,8 @@ function Index() {
   const data = useDashboardData();
   const [fullName, setFullName] = useState<string | undefined>();
   const [hasSurvey, setHasSurvey] = useState<boolean | null>(null);
+  const [readiness, setReadiness] = useState(0);
+  const [profileCreated, setProfileCreated] = useState<string | null>(null);
   const [submitTaskId, setSubmitTaskId] = useState<string | null>(null);
 
   // Guard: niezalogowany -> /auth
@@ -36,11 +38,13 @@ function Index() {
     if (!user) return;
     (async () => {
       const [{ data: prof }, { data: survey }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
-        supabase.from("survey_responses").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, created_at").eq("id", user.id).maybeSingle(),
+        supabase.from("survey_responses").select("id, readiness_percent").eq("user_id", user.id).maybeSingle(),
       ]);
       setFullName(prof?.full_name ?? undefined);
+      setProfileCreated(prof?.created_at ?? null);
       setHasSurvey(!!survey);
+      setReadiness(survey?.readiness_percent ?? 0);
     })();
   }, [user]);
 
