@@ -47,6 +47,108 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          name: string
+          position: number
+          rarity: Database["public"]["Enums"]["badge_rarity"]
+          xp_bonus: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name: string
+          position?: number
+          rarity?: Database["public"]["Enums"]["badge_rarity"]
+          xp_bonus?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          position?: number
+          rarity?: Database["public"]["Enums"]["badge_rarity"]
+          xp_bonus?: number
+        }
+        Relationships: []
+      }
+      challenges: {
+        Row: {
+          badge_code: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          goal_value: number
+          id: string
+          is_active: boolean
+          metric: Database["public"]["Enums"]["challenge_metric"]
+          starts_at: string
+          title: string
+          type: Database["public"]["Enums"]["challenge_type"]
+          xp_reward: number
+        }
+        Insert: {
+          badge_code?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          goal_value: number
+          id?: string
+          is_active?: boolean
+          metric: Database["public"]["Enums"]["challenge_metric"]
+          starts_at?: string
+          title: string
+          type: Database["public"]["Enums"]["challenge_type"]
+          xp_reward?: number
+        }
+        Update: {
+          badge_code?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          goal_value?: number
+          id?: string
+          is_active?: boolean
+          metric?: Database["public"]["Enums"]["challenge_metric"]
+          starts_at?: string
+          title?: string
+          type?: Database["public"]["Enums"]["challenge_type"]
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      coach_usage: {
+        Row: {
+          id: string
+          message_count: number
+          used_date: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_count?: number
+          used_date?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_count?: number
+          used_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_comments: {
         Row: {
           content: string
@@ -139,6 +241,57 @@ export type Database = {
           required_xp?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      duels: {
+        Row: {
+          challenger_id: string
+          challenger_progress: number
+          created_at: string
+          ends_at: string
+          id: string
+          metric: Database["public"]["Enums"]["duel_metric"]
+          opponent_id: string
+          opponent_progress: number
+          starts_at: string | null
+          status: Database["public"]["Enums"]["duel_status"]
+          target: number
+          updated_at: string
+          winner_id: string | null
+          xp_stake: number
+        }
+        Insert: {
+          challenger_id: string
+          challenger_progress?: number
+          created_at?: string
+          ends_at: string
+          id?: string
+          metric: Database["public"]["Enums"]["duel_metric"]
+          opponent_id: string
+          opponent_progress?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["duel_status"]
+          target: number
+          updated_at?: string
+          winner_id?: string | null
+          xp_stake?: number
+        }
+        Update: {
+          challenger_id?: string
+          challenger_progress?: number
+          created_at?: string
+          ends_at?: string
+          id?: string
+          metric?: Database["public"]["Enums"]["duel_metric"]
+          opponent_id?: string
+          opponent_progress?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["duel_status"]
+          target?: number
+          updated_at?: string
+          winner_id?: string | null
+          xp_stake?: number
         }
         Relationships: []
       }
@@ -559,6 +712,76 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_challenges: {
+        Row: {
+          challenge_id: string
+          claimed: boolean
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress: number
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          claimed?: boolean
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          claimed?: boolean
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_course_enrollments: {
         Row: {
           course_id: string
@@ -709,6 +932,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_streaks: {
+        Row: {
+          current_streak: number
+          last_activity_date: string | null
+          longest_streak: number
+          multiplier: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          last_activity_date?: string | null
+          longest_streak?: number
+          multiplier?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          last_activity_date?: string | null
+          longest_streak?: number
+          multiplier?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_xp_log: {
         Row: {
           amount: number
@@ -759,12 +1009,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_badge: {
+        Args: { _badge_code: string; _user_id: string }
+        Returns: undefined
+      }
       award_xp: {
         Args: {
           _amount: number
           _lesson_id?: string
           _reason: string
           _task_id?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      bump_duels: {
+        Args: {
+          _delta: number
+          _metric: Database["public"]["Enums"]["duel_metric"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      bump_user_challenges: {
+        Args: {
+          _delta: number
+          _metric: Database["public"]["Enums"]["challenge_metric"]
           _user_id: string
         }
         Returns: undefined
@@ -776,12 +1046,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_streak: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       acquisition_plan_type: "paid_ads" | "organic_social" | "unsure"
       advisor_type: "technical" | "marketing"
       app_role: "admin" | "user"
+      badge_rarity: "common" | "rare" | "epic" | "legendary"
       call_status: "scheduled" | "completed" | "skipped"
+      challenge_metric:
+        | "lessons_watched"
+        | "tasks_approved"
+        | "mentor_tasks_done"
+        | "xp_earned"
+        | "posts_created"
+        | "comments_created"
+        | "login_days"
+      challenge_type: "daily" | "weekly" | "sprint" | "community"
+      duel_metric: "tasks_approved" | "lessons_watched" | "xp_earned"
+      duel_status: "pending" | "active" | "completed" | "declined" | "expired"
       mentor_task_status:
         | "assigned"
         | "submitted"
@@ -937,7 +1220,20 @@ export const Constants = {
       acquisition_plan_type: ["paid_ads", "organic_social", "unsure"],
       advisor_type: ["technical", "marketing"],
       app_role: ["admin", "user"],
+      badge_rarity: ["common", "rare", "epic", "legendary"],
       call_status: ["scheduled", "completed", "skipped"],
+      challenge_metric: [
+        "lessons_watched",
+        "tasks_approved",
+        "mentor_tasks_done",
+        "xp_earned",
+        "posts_created",
+        "comments_created",
+        "login_days",
+      ],
+      challenge_type: ["daily", "weekly", "sprint", "community"],
+      duel_metric: ["tasks_approved", "lessons_watched", "xp_earned"],
+      duel_status: ["pending", "active", "completed", "declined", "expired"],
       mentor_task_status: [
         "assigned",
         "submitted",
