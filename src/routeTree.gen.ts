@@ -35,6 +35,7 @@ import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
 import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
 import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
@@ -169,6 +170,11 @@ const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   path: '/$courseId',
   getParentRoute: () => CoursesRoute,
 } as any)
+const AdminCoursesRoute = AdminCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiPublicCronStreakWarningRoute =
   ApiPublicCronStreakWarningRouteImport.update({
     id: '/api/public/cron/streak-warning',
@@ -190,7 +196,7 @@ const ApiPublicCronDailyChallengesRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/badges': typeof BadgesRoute
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/courses': typeof AdminCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -221,7 +228,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/badges': typeof BadgesRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/courses': typeof AdminCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -253,7 +261,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/badges': typeof BadgesRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/courses': typeof AdminCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/courses'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/courses'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/courses'
     | '/courses/$courseId'
     | '/lessons/$lessonId'
     | '/onboarding/result'
@@ -380,7 +392,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AdvisorRoute: typeof AdvisorRoute
   AuthRoute: typeof AuthRoute
   BadgesRoute: typeof BadgesRoute
@@ -592,6 +604,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/admin/courses': {
+      id: '/admin/courses'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AdminCoursesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/public/cron/streak-warning': {
       id: '/api/public/cron/streak-warning'
       path: '/api/public/cron/streak-warning'
@@ -615,6 +634,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminRouteChildren {
+  AdminCoursesRoute: typeof AdminCoursesRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCoursesRoute: AdminCoursesRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
@@ -641,7 +670,7 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AdvisorRoute: AdvisorRoute,
   AuthRoute: AuthRoute,
   BadgesRoute: BadgesRoute,
