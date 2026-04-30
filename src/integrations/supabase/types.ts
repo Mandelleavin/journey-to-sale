@@ -217,6 +217,7 @@ export type Database = {
           is_published: boolean
           position: number
           required_xp: number
+          slug: string | null
           title: string
           updated_at: string
         }
@@ -228,6 +229,7 @@ export type Database = {
           is_published?: boolean
           position?: number
           required_xp?: number
+          slug?: string | null
           title: string
           updated_at?: string
         }
@@ -239,6 +241,7 @@ export type Database = {
           is_published?: boolean
           position?: number
           required_xp?: number
+          slug?: string | null
           title?: string
           updated_at?: string
         }
@@ -331,6 +334,95 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_attachments: {
+        Row: {
+          created_at: string
+          file_size_bytes: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          lesson_id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          file_size_bytes?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          lesson_id: string
+          position?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          file_size_bytes?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          lesson_id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_attachments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_admin_reply: boolean
+          lesson_id: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          lesson_id: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          lesson_id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_comments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_tasks: {
         Row: {
           created_at: string
@@ -372,15 +464,48 @@ export type Database = {
           },
         ]
       }
+      lesson_unlock_notifications: {
+        Row: {
+          id: string
+          lesson_id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          lesson_id: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          lesson_id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_unlock_notifications_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
+          content: string | null
+          content_blocks: Json
           course_id: string
           created_at: string
           description: string | null
           due_in_days: number | null
           id: string
           is_published: boolean
+          module_id: string | null
           position: number
+          requires_task_completion: boolean
           title: string
           unlock_after_hours: number
           updated_at: string
@@ -388,13 +513,17 @@ export type Database = {
           xp_reward: number
         }
         Insert: {
+          content?: string | null
+          content_blocks?: Json
           course_id: string
           created_at?: string
           description?: string | null
           due_in_days?: number | null
           id?: string
           is_published?: boolean
+          module_id?: string | null
           position?: number
+          requires_task_completion?: boolean
           title: string
           unlock_after_hours?: number
           updated_at?: string
@@ -402,13 +531,17 @@ export type Database = {
           xp_reward?: number
         }
         Update: {
+          content?: string | null
+          content_blocks?: Json
           course_id?: string
           created_at?: string
           description?: string | null
           due_in_days?: number | null
           id?: string
           is_published?: boolean
+          module_id?: string | null
           position?: number
+          requires_task_completion?: boolean
           title?: string
           unlock_after_hours?: number
           updated_at?: string
@@ -421,6 +554,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
             referencedColumns: ["id"]
           },
         ]
@@ -478,6 +618,53 @@ export type Database = {
           xp_reward?: number
         }
         Relationships: []
+      }
+      modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          position: number
+          requires_previous_module: boolean
+          title: string
+          unlock_after_hours: number
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          position?: number
+          requires_previous_module?: boolean
+          title: string
+          unlock_after_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          position?: number
+          requires_previous_module?: boolean
+          title?: string
+          unlock_after_hours?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -1045,6 +1232,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      lesson_unlocks_at: {
+        Args: { _lesson_id: string; _user_id: string }
+        Returns: string
       }
       update_streak: { Args: { _user_id: string }; Returns: undefined }
     }

@@ -351,6 +351,20 @@ function CoursesTab() {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Baner z zachętą do nowego panelu
+  const NewPanelBanner = () => (
+    <Link to="/admin/courses" className="block rounded-2xl border border-violet/40 bg-gradient-to-r from-violet-soft to-blue-soft p-4 mb-4 hover:opacity-90">
+      <div className="flex items-center gap-3">
+        <Sparkles className="w-6 h-6 text-violet" />
+        <div className="flex-1">
+          <div className="font-display font-bold">✨ Nowy panel kursów (z modułami, drip, blokami treści)</div>
+          <div className="text-xs text-muted-foreground">Twórz kursy, moduły, lekcje, dodawaj wideo, PDF i zadania bez programisty.</div>
+        </div>
+        <span className="font-bold text-violet">Otwórz →</span>
+      </div>
+    </Link>
+  );
+
   const load = async () => {
     setLoading(true);
     const [{ data: c }, { data: l }, { data: t }] = await Promise.all([
@@ -370,6 +384,8 @@ function CoursesTab() {
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
 
   return (
+    <div>
+      <NewPanelBanner />
     <div className="grid md:grid-cols-[300px_1fr] gap-4">
       {/* Lista kursów */}
       <div className="rounded-3xl border border-border bg-card p-4">
