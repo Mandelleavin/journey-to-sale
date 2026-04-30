@@ -20,7 +20,10 @@ export const Route = createFileRoute("/advisor")({
   head: () => ({
     meta: [
       { title: "Kontakt z doradcą — 90 Dni" },
-      { name: "description", content: "Zadaj pytanie doradcy — strategia, marketing, sprzedaż, technologia." },
+      {
+        name: "description",
+        content: "Zadaj pytanie doradcy — strategia, marketing, sprzedaż, technologia.",
+      },
     ],
   }),
   component: AdvisorPage,
@@ -84,7 +87,9 @@ function AdvisorPage() {
             <div>
               <Label>Doradca</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="strategy">Strategia / sprzedaż</SelectItem>
                   <SelectItem value="marketing">Marketing</SelectItem>
@@ -122,13 +127,17 @@ function AdvisorPage() {
                 <div className="text-xs text-muted-foreground mb-2">
                   {new Date(m.created_at).toLocaleString("pl-PL")} · {m.advisor_type}
                 </div>
-                <p className="text-sm whitespace-pre-wrap"><b>Ty:</b> {m.message}</p>
+                <p className="text-sm whitespace-pre-wrap">
+                  <b>Ty:</b> {m.message}
+                </p>
                 {m.reply ? (
                   <div className="mt-3 rounded-xl bg-violet-soft p-3 text-sm whitespace-pre-wrap">
                     <b>Doradca:</b> {m.reply}
                   </div>
                 ) : (
-                  <div className="mt-3 text-xs text-muted-foreground italic">Czeka na odpowiedź...</div>
+                  <div className="mt-3 text-xs text-muted-foreground italic">
+                    Czeka na odpowiedź...
+                  </div>
                 )}
               </div>
             ))}

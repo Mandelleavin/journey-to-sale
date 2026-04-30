@@ -1,4 +1,13 @@
-import { Lightbulb, FileText, MonitorPlay, MessageSquare, Megaphone, TrendingUp, Rocket, Check } from "lucide-react";
+import {
+  Lightbulb,
+  FileText,
+  MonitorPlay,
+  MessageSquare,
+  Megaphone,
+  TrendingUp,
+  Rocket,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
 
@@ -58,13 +67,26 @@ export function ProgressPath({ currentDay = 1 }: Props) {
                     "relative w-16 h-16 rounded-full grid place-items-center transition-all",
                     done && "bg-gradient-green text-white shadow-soft",
                     current && "bg-gradient-violet text-white shadow-glow scale-110",
-                    !done && !current && "bg-muted text-muted-foreground border-2 border-dashed border-border",
+                    !done &&
+                      !current &&
+                      "bg-muted text-muted-foreground border-2 border-dashed border-border",
                   )}
                 >
-                  {done ? <Check className="w-6 h-6" strokeWidth={3} /> : <Icon className="w-6 h-6" strokeWidth={2.2} />}
+                  {done ? (
+                    <Check className="w-6 h-6" strokeWidth={3} />
+                  ) : (
+                    <Icon className="w-6 h-6" strokeWidth={2.2} />
+                  )}
                   {current && <span className="absolute inset-0 rounded-full pulse-ring" />}
                 </div>
-                <div className={cn("mt-2 text-xs font-bold", current ? "text-violet" : "text-foreground")}>Dzień {s.day}</div>
+                <div
+                  className={cn(
+                    "mt-2 text-xs font-bold",
+                    current ? "text-violet" : "text-foreground",
+                  )}
+                >
+                  Dzień {s.day}
+                </div>
                 <div className="text-[11px] text-muted-foreground">{s.label}</div>
               </div>
             );

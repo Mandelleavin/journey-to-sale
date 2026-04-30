@@ -1,4 +1,5 @@
 ## Cel
+
 Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, leaderboard, odznaki, wyzwania, pojedynki, profile publiczne, AI Coach, kalendarz, statystyki — w 5 fazach w jednej iteracji.
 
 ---
@@ -6,6 +7,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ## Faza 1 — Fundament grywalizacji (streak + ranking + odznaki)
 
 **Baza danych (migracja):**
+
 - Tabela `badges` (code unique, name, description, icon, rarity, xp_bonus)
 - Tabela `user_badges` (user_id, badge_id, earned_at) — unikalność (user_id, badge_id)
 - Tabela `user_streaks` (user_id PK, current_streak, longest_streak, last_activity_date, multiplier)
@@ -19,6 +21,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 **RLS:** wszyscy authenticated mogą czytać `badges` i `user_badges` (do leaderboardu/profili publicznych); insert tylko przez funkcje SECURITY DEFINER; `user_streaks` — select all auth, update tylko trigger.
 
 **UI:**
+
 - `/leaderboard` — 3 zakładki (tygodniowy, all-time, 90-dniowy), top 3 z medalami, własna pozycja zawsze widoczna, awatary + dzień ścieżki + level + 3 ostatnie odznaki
 - `StreakBadge` w `TopBar` (🔥 X dni, tooltip z mnożnikiem)
 - `BadgeGrid` — reużywalny komponent (siatka odznak, zdobyte vs zablokowane, rzadkość przez kolor)
@@ -32,6 +35,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ## Faza 2 — Wyzwania (challenges)
 
 **Baza danych:**
+
 - ENUM `challenge_type` (daily, weekly, sprint, community)
 - ENUM `challenge_metric` (lessons_watched, tasks_approved, mentor_tasks_done, xp_earned, posts_created, comments_created, login_days)
 - Tabela `challenges` (id, type, title, description, metric, goal_value, xp_reward, badge_code, starts_at, ends_at, is_active)
@@ -46,6 +50,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 - Seed 1 sprintu 30-dniowego "Pierwsza sprzedaż"
 
 **UI:**
+
 - `/challenges` — 3 sekcje (codzienne / tygodniowe / sprinty), karta z progress barem, czasem do końca, przyciskiem "Odbierz nagrodę" gdy ukończone
 - Sekcja "Aktywne wyzwania" na `/path` (top 3)
 - Sidebar: "Wyzwania" (Target)
@@ -55,6 +60,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ## Faza 3 — Pojedynki + profile publiczne
 
 **Baza danych:**
+
 - ENUM `duel_status` (pending, active, completed, declined, expired)
 - ENUM `duel_metric` (tasks_approved, lessons_watched, xp_earned)
 - Tabela `duels` (id, challenger_id, opponent_id, metric, target, xp_stake, status, starts_at, ends_at, winner_id, challenger_progress, opponent_progress)
@@ -64,10 +70,12 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 - Cron `/api/public/cron/finalize-duels` (co godzinę) — kończy duele po `ends_at`, przyznaje XP zwycięzcy (przegrany traci stake), badge "Pierwszy pojedynek"
 
 **UI:**
+
 - `/duels` — aktywne, oczekujące zaproszenia, historia
 - Dialog "Wyzwij na pojedynek" z listą użytkowników (search po imieniu)
 
 **Profile publiczne:**
+
 - Trasa `/u/$userId` — read-only profil: full_name, dzień ścieżki, level, total XP, streak, odznaki, ostatnie produkty (publiczne)
 - Server function `getPublicProfile(userId)` — zwraca tylko bezpieczne pola
 
@@ -76,15 +84,18 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ## Faza 4 — AI Coach + kalendarz/przypomnienia
 
 **AI Coach:**
+
 - Server function `askCoach(message)` — używa Lovable AI (`google/gemini-2.5-flash`) z system promptem zawierającym: dzień ścieżki, level, ostatnie 5 zadań, wyniki ankiety, aktywne wyzwania
 - Trasa `/coach` — czat (bez persystencji historii w v1, tylko sesja)
 - Zliczanie tokenów per user (tabela `coach_usage` z dziennym limitem 20 wiadomości)
 
 **Kalendarz:**
+
 - Trasa `/calendar` — widok miesięczny (react-day-picker), zaznaczone dni z deadline'ami zadań od mentora i lekcji (`due_in_days` od `enrolled_at`)
 - Lista wydarzeń na wybrany dzień
 
 **Przypomnienia:**
+
 - Cron `/api/public/cron/daily-reminders` (08:00) — tworzy notyfikacje "Twoje zadanie na dziś" dla użytkowników z aktywnymi wyzwaniami/zadaniami
 - Cron `/api/public/cron/streak-warning` (20:00) — notyfikacja dla userów z streak ≥3 którzy dziś nie mieli aktywności
 
@@ -93,6 +104,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ## Faza 5 — Statystyki + społeczność
 
 **Trasa `/stats`:**
+
 - Wykres XP w czasie (recharts AreaChart, ostatnie 30 dni)
 - Heatmap aktywności (custom grid, 90 dni × kolor wg liczby akcji)
 - Karty: średnia XP/dzień, najlepszy dzień, ulubiona pora, % ukończonych wyzwań
@@ -104,6 +116,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ---
 
 ## Co NIE wchodzi w tej iteracji
+
 - Drużyny/mastermindy (większy feature, osobna faza)
 - PWA push notifications (wymaga manifest + service worker + zgody)
 - Webinary/wydarzenia live (wymaga integracji streamingu)
@@ -112,6 +125,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ---
 
 ## Założenia techniczne
+
 - Wszystkie nowe trasy używają istniejącego `PageShell`
 - Wszystkie zapytania DB użytkownika idą przez RLS (bez `supabaseAdmin` w UI)
 - Crony używają `/api/public/cron/*` z `supabaseAdmin` po stronie serwera
@@ -121,6 +135,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ---
 
 ## Kolejność wykonania w jednej iteracji
+
 1. Migracja DB (Fazy 1+2+3+4+5 razem — jedna migracja, ~15 tabel/funkcji/triggerów)
 2. Komponenty wspólne: `StreakBadge`, `BadgeGrid`, `LeaderboardRow`, `ChallengeCard`, `DuelCard`
 3. 8 nowych tras: `/leaderboard`, `/badges`, `/challenges`, `/duels`, `/u/$userId`, `/coach`, `/calendar`, `/stats`
@@ -131,6 +146,7 @@ Wdrożyć kompletny system grywalizacji opisany w poprzedniej rozmowie: streak, 
 ---
 
 ## Ryzyka i mitygacje
+
 - **Spam triggerów** → użycie `pg_notify` zamiast cascading triggers; jeden master-trigger na `user_xp_log` rozdzielający akcje
 - **Limit AI** → twardy dzienny limit + walidacja w handler
 - **Pusty leaderboard na starcie** → fallback UI "Bądź pierwszy"

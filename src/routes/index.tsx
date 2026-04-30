@@ -39,7 +39,11 @@ function Index() {
     (async () => {
       const [{ data: prof }, { data: survey }] = await Promise.all([
         supabase.from("profiles").select("full_name, created_at").eq("id", user.id).maybeSingle(),
-        supabase.from("survey_responses").select("id, readiness_percent").eq("user_id", user.id).maybeSingle(),
+        supabase
+          .from("survey_responses")
+          .select("id, readiness_percent")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
       setFullName(prof?.full_name ?? undefined);
       setProfileCreated(prof?.created_at ?? null);
@@ -84,14 +88,13 @@ function Index() {
     });
   }, [data.courses, data.lessons, data.watchedLessonIds, data.totalXp]);
 
-  const upcoming = useMemo(
-    () => data.tasks.slice(0, 3).map((t) => t.title),
-    [data.tasks],
-  );
+  const upcoming = useMemo(() => data.tasks.slice(0, 3).map((t) => t.title), [data.tasks]);
 
   if (authLoading || !user) {
     return (
-      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">Ładowanie...</div>
+      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
+        Ładowanie...
+      </div>
     );
   }
 
@@ -109,12 +112,14 @@ function Index() {
             pctToNext={Math.round(data.pctToNext)}
             pathDay={(() => {
               if (!profileCreated) return 1;
-              const d = Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
+              const d =
+                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
               return Math.max(1, Math.min(90, d));
             })()}
             pathPct={(() => {
               if (!profileCreated) return 0;
-              const d = Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
+              const d =
+                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
               const day = Math.max(1, Math.min(90, d));
               return Math.round(((day - 1) / 89) * 100);
             })()}
@@ -149,4 +154,3 @@ function Index() {
     </div>
   );
 }
-

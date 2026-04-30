@@ -10,7 +10,10 @@ export const Route = createFileRoute("/package")({
   head: () => ({
     meta: [
       { title: "Mój pakiet — 90 Dni" },
-      { name: "description", content: "Twoje aktualne członkostwo w programie 90 Dni do pierwszej sprzedaży." },
+      {
+        name: "description",
+        content: "Twoje aktualne członkostwo w programie 90 Dni do pierwszej sprzedaży.",
+      },
     ],
   }),
   component: PackagePage,
@@ -38,9 +41,7 @@ function PackagePage() {
               Aktywne
             </Badge>
             <h2 className="font-display font-extrabold text-2xl">Pakiet 90 Dni — Pełny</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {user?.email}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
           </div>
           <div className="w-14 h-14 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
             <CreditCard className="w-7 h-7" />
@@ -84,7 +85,9 @@ function PackagePage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Status</div>
-            <Badge variant="outline" className="border-green/40 text-green">Aktywny</Badge>
+            <Badge variant="outline" className="border-green/40 text-green">
+              Aktywny
+            </Badge>
           </div>
         </div>
         <div className="flex gap-2 mt-4 flex-wrap">

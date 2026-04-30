@@ -54,7 +54,11 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
 
   const markAllRead = async () => {
     if (!user) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false);
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
     load();
   };
 
@@ -83,11 +87,16 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
           )}
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {items.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Brak powiadomień</div>}
+          {items.length === 0 && (
+            <div className="p-6 text-center text-sm text-muted-foreground">Brak powiadomień</div>
+          )}
           {items.map((n) => (
             <div
               key={n.id}
-              className={cn("px-4 py-3 border-b last:border-0 text-sm", !n.is_read && "bg-violet-soft/30")}
+              className={cn(
+                "px-4 py-3 border-b last:border-0 text-sm",
+                !n.is_read && "bg-violet-soft/30",
+              )}
             >
               <div className="font-bold text-foreground">{n.title}</div>
               {n.body && <div className="text-xs text-muted-foreground mt-0.5">{n.body}</div>}

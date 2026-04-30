@@ -57,12 +57,19 @@ function CommunityPage() {
   const load = async () => {
     setLoading(true);
     const [{ data: p }, { data: c }, { data: prof }] = await Promise.all([
-      supabase.from("community_posts").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase
+        .from("community_posts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50),
       supabase.from("community_comments").select("*").order("created_at"),
       supabase.from("profiles").select("id, full_name"),
     ]);
     const nameMap = new Map((prof ?? []).map((x) => [x.id, x.full_name]));
-    const enrichedPosts = ((p ?? []) as Post[]).map((x) => ({ ...x, author_name: nameMap.get(x.user_id) ?? "Użytkownik" }));
+    const enrichedPosts = ((p ?? []) as Post[]).map((x) => ({
+      ...x,
+      author_name: nameMap.get(x.user_id) ?? "Użytkownik",
+    }));
     const grouped: Record<string, Comment[]> = {};
     ((c ?? []) as Comment[]).forEach((cm) => {
       const enriched = { ...cm, author_name: nameMap.get(cm.user_id) ?? "Użytkownik" };
@@ -122,7 +129,9 @@ function CommunityPage() {
           />
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="general">Ogólne</SelectItem>
                 <SelectItem value="success">Sukces 🎉</SelectItem>
@@ -149,7 +158,9 @@ function CommunityPage() {
             key={k}
             onClick={() => setFilter(k)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase ${
-              filter === k ? "bg-gradient-violet text-primary-foreground" : "bg-muted text-muted-foreground"
+              filter === k
+                ? "bg-gradient-violet text-primary-foreground"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             {label}
@@ -171,11 +182,19 @@ function CommunityPage() {
                 <div>
                   <div className="font-bold text-sm">{p.author_name}</div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(p.created_at).toLocaleString("pl-PL")} · <Badge variant="outline" className="text-[10px]">{p.category}</Badge>
+                    {new Date(p.created_at).toLocaleString("pl-PL")} ·{" "}
+                    <Badge variant="outline" className="text-[10px]">
+                      {p.category}
+                    </Badge>
                   </div>
                 </div>
                 {user?.id === p.user_id && (
-                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => removePost(p.id)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => removePost(p.id)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}

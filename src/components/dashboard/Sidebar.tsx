@@ -50,12 +50,17 @@ export function Sidebar() {
           <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
             <span className="font-display font-extrabold text-lg leading-none">90</span>
           </div>
-          <Sparkles className="absolute -top-1 -right-1 w-3.5 h-3.5 text-orange" strokeWidth={2.5} />
+          <Sparkles
+            className="absolute -top-1 -right-1 w-3.5 h-3.5 text-orange"
+            strokeWidth={2.5}
+          />
         </div>
         <div className="leading-tight">
           <div className="font-display font-extrabold text-foreground text-sm">90 DNI</div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            do pierwszej<br />sprzedaży online
+            do pierwszej
+            <br />
+            sprzedaży online
           </div>
         </div>
       </Link>
@@ -64,7 +69,9 @@ export function Sidebar() {
         {items.map((item) => {
           const Icon = item.icon;
           const isActive =
-            item.to === "/" ? pathname === "/" : pathname === item.to || pathname.startsWith(item.to + "/");
+            item.to === "/"
+              ? pathname === "/"
+              : pathname === item.to || pathname.startsWith(item.to + "/");
           return (
             <Link
               key={item.label}

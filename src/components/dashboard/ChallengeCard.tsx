@@ -58,7 +58,9 @@ export function ChallengeCard({
           </div>
           <div>
             <div className="font-display font-extrabold text-foreground">{challenge.title}</div>
-            <span className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded ${TYPE_COLOR[challenge.type] ?? ""}`}>
+            <span
+              className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded ${TYPE_COLOR[challenge.type] ?? ""}`}
+            >
               {TYPE_LABEL[challenge.type] ?? challenge.type}
             </span>
           </div>

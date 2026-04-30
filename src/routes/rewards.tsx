@@ -13,7 +13,10 @@ export const Route = createFileRoute("/rewards")({
   head: () => ({
     meta: [
       { title: "Nagrody — 90 Dni" },
-      { name: "description", content: "Wymieniaj zdobyte XP na realne nagrody — konsultacje, audyty, szablony." },
+      {
+        name: "description",
+        content: "Wymieniaj zdobyte XP na realne nagrody — konsultacje, audyty, szablony.",
+      },
     ],
   }),
   component: RewardsPage,
@@ -47,7 +50,11 @@ function RewardsPage() {
     setLoading(true);
     const [{ data: r }, { data: c }] = await Promise.all([
       supabase.from("rewards").select("*").eq("is_available", true).order("position"),
-      supabase.from("user_rewards").select("*").eq("user_id", user.id).order("claimed_at", { ascending: false }),
+      supabase
+        .from("user_rewards")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("claimed_at", { ascending: false }),
     ]);
     setRewards((r ?? []) as Reward[]);
     setClaims((c ?? []) as Claim[]);
@@ -95,7 +102,10 @@ function RewardsPage() {
             {rewards.map((r) => {
               const canAfford = data.totalXp >= r.xp_cost;
               return (
-                <div key={r.id} className="rounded-2xl border border-border p-4 flex flex-col gap-2">
+                <div
+                  key={r.id}
+                  className="rounded-2xl border border-border p-4 flex flex-col gap-2"
+                >
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-bold text-sm flex items-center gap-2">
                       <Gift className="w-4 h-4 text-violet" /> {r.title}
@@ -104,14 +114,22 @@ function RewardsPage() {
                       {r.xp_cost} XP
                     </Badge>
                   </div>
-                  {r.description && <p className="text-xs text-muted-foreground">{r.description}</p>}
+                  {r.description && (
+                    <p className="text-xs text-muted-foreground">{r.description}</p>
+                  )}
                   <Button
                     size="sm"
                     onClick={() => claim(r)}
                     disabled={!canAfford}
                     className="mt-auto bg-gradient-violet text-primary-foreground"
                   >
-                    {canAfford ? <><Sparkles className="w-4 h-4 mr-1" /> Odbierz</> : `Brakuje ${r.xp_cost - data.totalXp} XP`}
+                    {canAfford ? (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-1" /> Odbierz
+                      </>
+                    ) : (
+                      `Brakuje ${r.xp_cost - data.totalXp} XP`
+                    )}
                   </Button>
                 </div>
               );
@@ -127,14 +145,19 @@ function RewardsPage() {
             {claims.map((c) => {
               const reward = rewards.find((r) => r.id === c.reward_id);
               return (
-                <div key={c.id} className="flex items-center justify-between rounded-xl border border-border p-3">
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between rounded-xl border border-border p-3"
+                >
                   <div>
                     <div className="font-semibold text-sm">{reward?.title ?? "Nagroda"}</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(c.claimed_at).toLocaleDateString("pl-PL")} · {c.xp_spent} XP
                     </div>
                   </div>
-                  <Badge variant="outline">{c.status === "delivered" ? "Dostarczono" : "W realizacji"}</Badge>
+                  <Badge variant="outline">
+                    {c.status === "delivered" ? "Dostarczono" : "W realizacji"}
+                  </Badge>
                 </div>
               );
             })}

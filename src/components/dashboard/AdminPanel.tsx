@@ -25,10 +25,38 @@ const stats = [
 ];
 
 const adminTasks = [
-  { title: "Popraw ofertę produktu", date: "20.05.2024", status: "Przesłane", xp: "+150 XP", color: "violet", icon: Send },
-  { title: "Stwórz nagłówek na landing page", date: "20.05.2024", status: "Do poprawy", xp: "+100 XP", color: "orange", icon: RefreshCw },
-  { title: "Przygotuj 3 pomysły na kampanię", date: "25.05.2024", status: "Do zrobienia", xp: "+150 XP", color: "blue", icon: Clock },
-  { title: "Nagraj wideo z obietnicą produktu", date: "28.05.2024", status: "Do zrobienia", xp: "+200 XP", color: "blue", icon: Clock },
+  {
+    title: "Popraw ofertę produktu",
+    date: "20.05.2024",
+    status: "Przesłane",
+    xp: "+150 XP",
+    color: "violet",
+    icon: Send,
+  },
+  {
+    title: "Stwórz nagłówek na landing page",
+    date: "20.05.2024",
+    status: "Do poprawy",
+    xp: "+100 XP",
+    color: "orange",
+    icon: RefreshCw,
+  },
+  {
+    title: "Przygotuj 3 pomysły na kampanię",
+    date: "25.05.2024",
+    status: "Do zrobienia",
+    xp: "+150 XP",
+    color: "blue",
+    icon: Clock,
+  },
+  {
+    title: "Nagraj wideo z obietnicą produktu",
+    date: "28.05.2024",
+    status: "Do zrobienia",
+    xp: "+200 XP",
+    color: "blue",
+    icon: Clock,
+  },
 ];
 
 const taskColors = {
@@ -55,12 +83,22 @@ export function AdminPanel() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-display font-extrabold text-lg text-foreground">Anna Nowak</h2>
-            <span className="px-2 py-0.5 rounded-md bg-green-soft text-green text-[10px] font-bold uppercase tracking-wide">Growth</span>
-            <span className="px-2 py-0.5 rounded-md bg-violet-soft text-violet text-[10px] font-bold uppercase tracking-wide">Poziom 2</span>
+            <span className="px-2 py-0.5 rounded-md bg-green-soft text-green text-[10px] font-bold uppercase tracking-wide">
+              Growth
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-violet-soft text-violet text-[10px] font-bold uppercase tracking-wide">
+              Poziom 2
+            </span>
           </div>
           <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3" /><span>ania.nowak@example.com</span></div>
-            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3" /><span>+48 123 456 789</span></div>
+            <div className="flex items-center gap-1.5">
+              <Mail className="w-3 h-3" />
+              <span>ania.nowak@example.com</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Phone className="w-3 h-3" />
+              <span>+48 123 456 789</span>
+            </div>
           </div>
         </div>
         <div className="text-right shrink-0">
@@ -105,12 +143,14 @@ export function AdminPanel() {
             {survey.map((s) => (
               <li key={s.q} className="flex items-start justify-between gap-3 text-xs">
                 <span className="text-muted-foreground flex-1">{s.q}</span>
-                <span className={cn(
-                  "font-bold shrink-0 text-right",
-                  s.positive && "text-green",
-                  s.positive === false && "text-orange",
-                  s.neutral && "text-foreground",
-                )}>
+                <span
+                  className={cn(
+                    "font-bold shrink-0 text-right",
+                    s.positive && "text-green",
+                    s.positive === false && "text-orange",
+                    s.neutral && "text-foreground",
+                  )}
+                >
                   {s.a}
                 </span>
               </li>
@@ -141,7 +181,10 @@ export function AdminPanel() {
       <div className="mt-5">
         <div className="flex items-center justify-between mb-3">
           <h4 className="font-display font-bold text-sm">Przypisane zadania indywidualne</h4>
-          <Button size="sm" className="rounded-xl bg-gradient-violet text-primary-foreground hover:bg-gradient-violet hover:opacity-95 h-8 text-xs font-bold">
+          <Button
+            size="sm"
+            className="rounded-xl bg-gradient-violet text-primary-foreground hover:bg-gradient-violet hover:opacity-95 h-8 text-xs font-bold"
+          >
             <Plus className="w-3.5 h-3.5" /> Dodaj zadanie
           </Button>
         </div>
@@ -149,15 +192,28 @@ export function AdminPanel() {
           {adminTasks.map((t) => {
             const Icon = t.icon;
             return (
-              <li key={t.title} className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-violet/40 transition-colors">
-                <div className={cn("w-8 h-8 rounded-lg grid place-items-center shrink-0", taskColors[t.color as keyof typeof taskColors])}>
+              <li
+                key={t.title}
+                className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-violet/40 transition-colors"
+              >
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg grid place-items-center shrink-0",
+                    taskColors[t.color as keyof typeof taskColors],
+                  )}
+                >
                   <Icon className="w-4 h-4" strokeWidth={2.2} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-foreground truncate">{t.title}</div>
                   <div className="text-[11px] text-muted-foreground">Termin: {t.date}</div>
                 </div>
-                <span className={cn("text-[11px] font-semibold px-2 py-1 rounded-md shrink-0", taskColors[t.color as keyof typeof taskColors])}>
+                <span
+                  className={cn(
+                    "text-[11px] font-semibold px-2 py-1 rounded-md shrink-0",
+                    taskColors[t.color as keyof typeof taskColors],
+                  )}
+                >
                   {t.status}
                 </span>
                 <span className="text-xs font-bold text-violet w-14 text-right shrink-0 flex items-center gap-1 justify-end">
@@ -174,16 +230,29 @@ export function AdminPanel() {
         <div className="bg-violet-soft/50 border border-violet/20 rounded-2xl p-4">
           <h4 className="font-display font-bold text-sm mb-2">Notatki administratora</h4>
           <ul className="space-y-1.5 text-xs text-foreground/85">
-            <li className="flex gap-2"><span className="text-violet">•</span>Dobry pomysł na produkt, ale problem z komunikacją wartości</li>
-            <li className="flex gap-2"><span className="text-violet">•</span>Warto zaproponować pakiet PRO</li>
-            <li className="flex gap-2"><span className="text-violet">•</span>Umówić rozmowę w przyszłym tygodniu</li>
-            <li className="flex gap-2"><span className="text-violet">•</span>Potencjał na 10k+ miesięcznie</li>
+            <li className="flex gap-2">
+              <span className="text-violet">•</span>Dobry pomysł na produkt, ale problem z
+              komunikacją wartości
+            </li>
+            <li className="flex gap-2">
+              <span className="text-violet">•</span>Warto zaproponować pakiet PRO
+            </li>
+            <li className="flex gap-2">
+              <span className="text-violet">•</span>Umówić rozmowę w przyszłym tygodniu
+            </li>
+            <li className="flex gap-2">
+              <span className="text-violet">•</span>Potencjał na 10k+ miesięcznie
+            </li>
           </ul>
         </div>
         <div className="hidden xl:flex absolute -right-2 -bottom-4 items-center gap-1 pointer-events-none">
           <SketchArrow direction="left" className="w-16 h-10 -rotate-12 text-orange" />
           <span className="font-hand text-orange text-sm font-bold leading-tight">
-            Twoje notatki<br />(niewidoczne<br />dla użytkownika)
+            Twoje notatki
+            <br />
+            (niewidoczne
+            <br />
+            dla użytkownika)
           </span>
         </div>
       </div>

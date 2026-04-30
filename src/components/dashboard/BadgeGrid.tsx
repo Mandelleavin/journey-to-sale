@@ -1,8 +1,27 @@
-import { Award, Sword, Flame, Trophy, TrendingUp, Crown, BadgeDollarSign, Users, Swords, Lock } from "lucide-react";
+import {
+  Award,
+  Sword,
+  Flame,
+  Trophy,
+  TrendingUp,
+  Crown,
+  BadgeDollarSign,
+  Users,
+  Swords,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, typeof Award> = {
-  Award, Sword, Flame, Trophy, TrendingUp, Crown, BadgeDollarSign, Users, Swords,
+  Award,
+  Sword,
+  Flame,
+  Trophy,
+  TrendingUp,
+  Crown,
+  BadgeDollarSign,
+  Users,
+  Swords,
 };
 
 const RARITY: Record<string, string> = {
@@ -53,7 +72,9 @@ export function BadgeGrid({ badges }: { badges: BadgeItem[] }) {
             </div>
             <div className="font-display font-bold text-sm text-foreground">{b.name}</div>
             <div className="text-[10px] text-muted-foreground line-clamp-2">{b.description}</div>
-            <div className="text-[10px] uppercase font-bold tracking-wide text-violet">{b.rarity}</div>
+            <div className="text-[10px] uppercase font-bold tracking-wide text-violet">
+              {b.rarity}
+            </div>
           </div>
         );
       })}

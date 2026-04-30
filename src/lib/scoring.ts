@@ -47,7 +47,10 @@ export function computeReadiness(a: SurveyAnswers): { score: number; percent: nu
   return { score, percent: score };
 }
 
-export function readinessLabel(percent: number): { label: string; tone: "green" | "blue" | "orange" | "violet" } {
+export function readinessLabel(percent: number): {
+  label: string;
+  tone: "green" | "blue" | "orange" | "violet";
+} {
   if (percent >= 70) return { label: "Hot lead", tone: "green" };
   if (percent >= 45) return { label: "Warm", tone: "blue" };
   if (percent >= 25) return { label: "Edukacja", tone: "violet" };

@@ -1,5 +1,16 @@
 import { useRef, useEffect } from "react";
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Heading2, Heading3, Quote, Undo, Redo } from "lucide-react";
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Link as LinkIcon,
+  Heading2,
+  Heading3,
+  Quote,
+  Undo,
+  Redo,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -35,15 +46,29 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
   return (
     <div className={cn("rounded-xl border border-border bg-card", className)}>
       <div className="flex flex-wrap items-center gap-0.5 p-1.5 border-b border-border">
-        <ToolBtn onClick={() => exec("bold")} title="Pogrubienie"><Bold className="w-4 h-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec("italic")} title="Kursywa"><Italic className="w-4 h-4" /></ToolBtn>
+        <ToolBtn onClick={() => exec("bold")} title="Pogrubienie">
+          <Bold className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => exec("italic")} title="Kursywa">
+          <Italic className="w-4 h-4" />
+        </ToolBtn>
         <Sep />
-        <ToolBtn onClick={() => exec("formatBlock", "h2")} title="Nagłówek 2"><Heading2 className="w-4 h-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec("formatBlock", "h3")} title="Nagłówek 3"><Heading3 className="w-4 h-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec("formatBlock", "blockquote")} title="Cytat"><Quote className="w-4 h-4" /></ToolBtn>
+        <ToolBtn onClick={() => exec("formatBlock", "h2")} title="Nagłówek 2">
+          <Heading2 className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => exec("formatBlock", "h3")} title="Nagłówek 3">
+          <Heading3 className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => exec("formatBlock", "blockquote")} title="Cytat">
+          <Quote className="w-4 h-4" />
+        </ToolBtn>
         <Sep />
-        <ToolBtn onClick={() => exec("insertUnorderedList")} title="Lista"><List className="w-4 h-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec("insertOrderedList")} title="Lista numerowana"><ListOrdered className="w-4 h-4" /></ToolBtn>
+        <ToolBtn onClick={() => exec("insertUnorderedList")} title="Lista">
+          <List className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => exec("insertOrderedList")} title="Lista numerowana">
+          <ListOrdered className="w-4 h-4" />
+        </ToolBtn>
         <Sep />
         <ToolBtn
           onClick={() => {
@@ -55,8 +80,12 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
           <LinkIcon className="w-4 h-4" />
         </ToolBtn>
         <Sep />
-        <ToolBtn onClick={() => exec("undo")} title="Cofnij"><Undo className="w-4 h-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec("redo")} title="Ponów"><Redo className="w-4 h-4" /></ToolBtn>
+        <ToolBtn onClick={() => exec("undo")} title="Cofnij">
+          <Undo className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => exec("redo")} title="Ponów">
+          <Redo className="w-4 h-4" />
+        </ToolBtn>
       </div>
       <div
         ref={ref}
@@ -70,11 +99,22 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
   );
 }
 
-function ToolBtn({ children, onClick, title }: { children: React.ReactNode; onClick: () => void; title: string }) {
+function ToolBtn({
+  children,
+  onClick,
+  title,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  title: string;
+}) {
   return (
     <button
       type="button"
-      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
       title={title}
       className="h-8 w-8 grid place-items-center rounded-md hover:bg-muted text-foreground/80"
     >

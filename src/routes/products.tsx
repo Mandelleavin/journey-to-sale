@@ -31,7 +31,10 @@ export const Route = createFileRoute("/products")({
   head: () => ({
     meta: [
       { title: "Mój produkt — 90 Dni" },
-      { name: "description", content: "Zarządzaj swoimi produktami i ofertami w drodze do pierwszej sprzedaży." },
+      {
+        name: "description",
+        content: "Zarządzaj swoimi produktami i ofertami w drodze do pierwszej sprzedaży.",
+      },
     ],
   }),
   component: ProductsPage,
@@ -95,7 +98,10 @@ function ProductsPage() {
   };
 
   return (
-    <PageShell title="Mój produkt" subtitle="Buduj swoją ofertę — od pomysłu do aktywnego produktu.">
+    <PageShell
+      title="Mój produkt"
+      subtitle="Buduj swoją ofertę — od pomysłu do aktywnego produktu."
+    >
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
           <div>
@@ -130,11 +136,20 @@ function ProductsPage() {
                     {statusLabel[p.status]}
                   </Badge>
                 </div>
-                {p.description && <p className="text-xs text-muted-foreground line-clamp-3">{p.description}</p>}
+                {p.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-3">{p.description}</p>
+                )}
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold">{p.price_pln != null ? `${p.price_pln} zł` : "—"}</span>
+                  <span className="font-bold">
+                    {p.price_pln != null ? `${p.price_pln} zł` : "—"}
+                  </span>
                   {p.link && (
-                    <a href={p.link} target="_blank" rel="noreferrer" className="text-violet inline-flex items-center gap-1">
+                    <a
+                      href={p.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-violet inline-flex items-center gap-1"
+                    >
                       <ExternalLink className="w-3 h-3" /> Otwórz
                     </a>
                   )}
@@ -150,7 +165,12 @@ function ProductsPage() {
                   >
                     <Pencil className="w-3.5 h-3.5 mr-1" /> Edytuj
                   </Button>
-                  <Button size="sm" variant="outline" className="text-destructive" onClick={() => remove(p.id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    onClick={() => remove(p.id)}
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -220,21 +240,36 @@ function ProductDialog({
         <div className="space-y-3">
           <div>
             <Label>Nazwa</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="np. Mentoring 1:1" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="np. Mentoring 1:1"
+            />
           </div>
           <div>
             <Label>Opis</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="min-h-[100px]" />
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="min-h-[100px]"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Cena (zł)</Label>
-              <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" />
+              <Input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="0"
+              />
             </div>
             <div>
               <Label>Status</Label>
               <Select value={status} onValueChange={(v) => setStatus(v as Status)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="idea">Pomysł</SelectItem>
                   <SelectItem value="building">W budowie</SelectItem>
@@ -246,11 +281,17 @@ function ProductDialog({
           </div>
           <div>
             <Label>Link (opcjonalny)</Label>
-            <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://..." />
+            <Input
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://..."
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Anuluj</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Anuluj
+          </Button>
           <Button onClick={save} className="bg-gradient-violet text-primary-foreground">
             {product ? "Zapisz" : "Dodaj"}
           </Button>

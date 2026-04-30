@@ -21,9 +21,19 @@ function CalendarPage() {
     if (!user) return;
     (async () => {
       const [{ data: mt }, { data: enr }, { data: lessons }] = await Promise.all([
-        supabase.from("mentor_assigned_tasks").select("title, due_date").eq("user_id", user.id).not("due_date", "is", null),
-        supabase.from("user_course_enrollments").select("course_id, enrolled_at").eq("user_id", user.id),
-        supabase.from("lessons").select("title, course_id, due_in_days").not("due_in_days", "is", null),
+        supabase
+          .from("mentor_assigned_tasks")
+          .select("title, due_date")
+          .eq("user_id", user.id)
+          .not("due_date", "is", null),
+        supabase
+          .from("user_course_enrollments")
+          .select("course_id, enrolled_at")
+          .eq("user_id", user.id),
+        supabase
+          .from("lessons")
+          .select("title, course_id, due_in_days")
+          .not("due_in_days", "is", null),
       ]);
 
       const evts: EventItem[] = [];
@@ -49,10 +59,7 @@ function CalendarPage() {
 
   const dayEvents = useMemo(() => {
     if (!selected) return [];
-    return events.filter(
-      (e) =>
-        e.date.toDateString() === selected.toDateString(),
-    );
+    return events.filter((e) => e.date.toDateString() === selected.toDateString());
   }, [events, selected]);
 
   return (
@@ -72,7 +79,11 @@ function CalendarPage() {
           <div className="flex items-center gap-2 mb-3">
             <CalendarIcon className="w-5 h-5 text-violet" />
             <h2 className="font-display font-bold">
-              {selected?.toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" })}
+              {selected?.toLocaleDateString("pl-PL", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
             </h2>
           </div>
           {dayEvents.length === 0 ? (

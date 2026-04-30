@@ -1,13 +1,7 @@
 import { Flame } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function StreakBadge({
-  current,
-  multiplier,
-}: {
-  current: number;
-  multiplier: number;
-}) {
+export function StreakBadge({ current, multiplier }: { current: number; multiplier: number }) {
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
@@ -28,7 +22,9 @@ export function StreakBadge({
           <div className="text-xs">
             <p className="font-bold">Mnożnik XP: ×{multiplier.toFixed(1)}</p>
             <p>7 dni → ×1.5, 30 dni → ×2.0</p>
-            <p className="text-muted-foreground">Wykonaj dziś dowolną akcję, żeby utrzymać serię.</p>
+            <p className="text-muted-foreground">
+              Wykonaj dziś dowolną akcję, żeby utrzymać serię.
+            </p>
           </div>
         </TooltipContent>
       </Tooltip>

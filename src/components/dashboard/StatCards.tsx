@@ -39,9 +39,14 @@ export function StatCards({
             <div className="text-xs text-orange font-semibold">{levelLabel}</div>
           </div>
         </div>
-        <div className="mt-3 text-[11px] text-muted-foreground">Jeszcze {xpToNext} XP do poziomu {level + 1}</div>
+        <div className="mt-3 text-[11px] text-muted-foreground">
+          Jeszcze {xpToNext} XP do poziomu {level + 1}
+        </div>
         <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
-          <div className="h-full bg-gradient-orange rounded-full" style={{ width: `${pctToNext}%` }} />
+          <div
+            className="h-full bg-gradient-orange rounded-full"
+            style={{ width: `${pctToNext}%` }}
+          />
         </div>
       </div>
 
@@ -57,7 +62,10 @@ export function StatCards({
         </div>
         <div className="text-xs font-semibold text-green mt-0.5">Łączny dorobek</div>
         <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-          <div className="h-full bg-gradient-violet rounded-full" style={{ width: `${pctToNext}%` }} />
+          <div
+            className="h-full bg-gradient-violet rounded-full"
+            style={{ width: `${pctToNext}%` }}
+          />
         </div>
       </div>
 
@@ -66,7 +74,9 @@ export function StatCards({
         <div className="text-xs text-muted-foreground font-medium">Szansa na pierwszą sprzedaż</div>
         <div className="mt-2 flex items-end justify-between">
           <div>
-            <div className="font-display font-extrabold text-3xl text-foreground">{successPct}%</div>
+            <div className="font-display font-extrabold text-3xl text-foreground">
+              {successPct}%
+            </div>
             <div className="text-[11px] text-muted-foreground">Cel: 100%</div>
           </div>
           <TrendingUp className="w-5 h-5 text-green" />
@@ -89,7 +99,14 @@ export function StatCards({
         <div className="mt-2 flex items-center gap-3">
           <div className="relative w-14 h-14">
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15.5" stroke="oklch(0.93 0.02 280)" strokeWidth="3.5" fill="none" />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                stroke="oklch(0.93 0.02 280)"
+                strokeWidth="3.5"
+                fill="none"
+              />
               <circle
                 cx="18"
                 cy="18"

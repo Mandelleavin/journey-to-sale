@@ -77,16 +77,25 @@ export function useDashboardData(): DashboardData {
     if (!user) return;
     setLoading(true);
 
-    const [xpRes, coursesRes, lessonsRes, tasksRes, enrollRes, progressRes, subsRes, notifRes] = await Promise.all([
-      supabase.from("user_xp_log").select("amount").eq("user_id", user.id),
-      supabase.from("courses").select("*").eq("is_published", true).order("position"),
-      supabase.from("lessons").select("*").eq("is_published", true).order("position"),
-      supabase.from("lesson_tasks").select("*"),
-      supabase.from("user_course_enrollments").select("course_id").eq("user_id", user.id),
-      supabase.from("user_lesson_progress").select("lesson_id").eq("user_id", user.id),
-      supabase.from("task_submissions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("is_read", false),
-    ]);
+    const [xpRes, coursesRes, lessonsRes, tasksRes, enrollRes, progressRes, subsRes, notifRes] =
+      await Promise.all([
+        supabase.from("user_xp_log").select("amount").eq("user_id", user.id),
+        supabase.from("courses").select("*").eq("is_published", true).order("position"),
+        supabase.from("lessons").select("*").eq("is_published", true).order("position"),
+        supabase.from("lesson_tasks").select("*"),
+        supabase.from("user_course_enrollments").select("course_id").eq("user_id", user.id),
+        supabase.from("user_lesson_progress").select("lesson_id").eq("user_id", user.id),
+        supabase
+          .from("task_submissions")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("is_read", false),
+      ]);
 
     setTotalXp((xpRes.data ?? []).reduce((s, r) => s + (r.amount ?? 0), 0));
     setCourses((coursesRes.data ?? []) as CourseRow[]);

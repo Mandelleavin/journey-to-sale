@@ -39,7 +39,11 @@ function OnboardingResultPage() {
   }, [user, navigate]);
 
   if (percent === null) {
-    return <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">Liczę Twój wynik...</div>;
+    return (
+      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
+        Liczę Twój wynik...
+      </div>
+    );
   }
 
   const tag = readinessLabel(percent);
@@ -63,7 +67,9 @@ function OnboardingResultPage() {
           </div>
 
           <div className="mt-4 flex items-baseline justify-center gap-2">
-            <div className="font-display text-7xl font-extrabold text-violet leading-none">{percent}</div>
+            <div className="font-display text-7xl font-extrabold text-violet leading-none">
+              {percent}
+            </div>
             <div className="font-display text-3xl font-bold text-muted-foreground">%</div>
           </div>
 

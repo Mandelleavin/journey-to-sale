@@ -51,13 +51,16 @@ export function MissionCard({
               disabled={!unlocked}
               className="bg-gradient-violet text-primary-foreground shadow-glow hover:opacity-95 hover:bg-gradient-violet rounded-xl px-5 h-11 font-bold uppercase tracking-wide text-xs"
             >
-              {unlocked ? "Wykonaj zadanie" : (
-                <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Zablokowane</span>
+              {unlocked ? (
+                "Wykonaj zadanie"
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" /> Zablokowane
+                </span>
               )}
             </Button>
             <div className="inline-flex items-center gap-1.5 px-3 h-11 rounded-xl bg-green-soft border border-green/20 text-green font-bold text-sm">
-              <Zap className="w-4 h-4 fill-green" />
-              +{xpReward} XP
+              <Zap className="w-4 h-4 fill-green" />+{xpReward} XP
             </div>
             <div className="hidden md:block relative ml-auto">
               <SketchArrow direction="right" className="w-24 h-12 -rotate-12" />

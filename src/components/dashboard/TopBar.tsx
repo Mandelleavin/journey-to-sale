@@ -45,7 +45,9 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           <span className="text-3xl md:text-4xl">👋</span>
         </div>
         <SketchUnderline className="w-40 h-3 -mt-1 ml-1" />
-        <p className="text-sm text-muted-foreground mt-2">Super, że znowu działasz nad swoim produktem!</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Super, że znowu działasz nad swoim produktem!
+        </p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -70,7 +72,11 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           <LogOut className="w-5 h-5 text-foreground" strokeWidth={2.2} />
         </button>
 
-        <Link to="/profile" title="Twój profil" className="w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity">
+        <Link
+          to="/profile"
+          title="Twój profil"
+          className="w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
+        >
           <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
             {initials}
           </div>

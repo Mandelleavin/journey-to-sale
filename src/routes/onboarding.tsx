@@ -78,7 +78,11 @@ function OnboardingPage() {
   const canAdvance = (() => {
     switch (step) {
       case 0:
-        return form.has_product_idea !== null && form.has_offer !== null && form.has_landing_page !== null;
+        return (
+          form.has_product_idea !== null &&
+          form.has_offer !== null &&
+          form.has_landing_page !== null
+        );
       case 1:
         return !form.has_product_idea || form.product_idea_details.trim().length >= 5;
       case 2:
@@ -122,7 +126,10 @@ function OnboardingPage() {
             Twoje odpowiedzi pomogą nam dostosować dla Ciebie plan nauki i spersonalizowane zadania.
           </p>
           <div className="mx-auto mt-4 h-1.5 w-64 overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-gradient-violet transition-all" style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }} />
+            <div
+              className="h-full bg-gradient-violet transition-all"
+              style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
+            />
           </div>
         </div>
 
@@ -149,7 +156,9 @@ function OnboardingPage() {
 
           {step === 1 && form.has_product_idea && (
             <div>
-              <Label className="text-base">Świetnie! Napisz, co konkretnie planujesz sprzedawać.</Label>
+              <Label className="text-base">
+                Świetnie! Napisz, co konkretnie planujesz sprzedawać.
+              </Label>
               <Textarea
                 value={form.product_idea_details}
                 onChange={(e) => setForm((f) => ({ ...f, product_idea_details: e.target.value }))}
@@ -224,7 +233,8 @@ function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <Label className="text-base">
-                  Jeśli nikt nie widzi Twojej oferty — nie ma sprzedaży. Jak planujesz pozyskiwać pierwszych klientów?
+                  Jeśli nikt nie widzi Twojej oferty — nie ma sprzedaży. Jak planujesz pozyskiwać
+                  pierwszych klientów?
                 </Label>
               </div>
               <div className="space-y-2">
@@ -241,7 +251,12 @@ function OnboardingPage() {
                     desc: "Posty, rolki, content organiczny",
                     icon: "📱",
                   },
-                  { v: "unsure" as const, title: "Jeszcze nie wiem", desc: "Potrzebuję wskazówek", icon: "🤔" },
+                  {
+                    v: "unsure" as const,
+                    title: "Jeszcze nie wiem",
+                    desc: "Potrzebuję wskazówek",
+                    icon: "🤔",
+                  },
                 ].map((opt) => (
                   <button
                     key={opt.v}
@@ -269,7 +284,8 @@ function OnboardingPage() {
                     <Sparkles className="w-4 h-4" /> Mała wskazówka
                   </div>
                   <p className="mt-1 text-foreground/90">
-                    Większość osób na początku myśli podobnie. Pokażemy Ci, jak zdobywać klientów nawet przy małym budżecie 🔥
+                    Większość osób na początku myśli podobnie. Pokażemy Ci, jak zdobywać klientów
+                    nawet przy małym budżecie 🔥
                   </p>
                 </div>
               )}
@@ -308,7 +324,15 @@ function OnboardingPage() {
   );
 }
 
-function YesNo({ label, value, onChange }: { label: string; value: boolean | null; onChange: (v: boolean) => void }) {
+function YesNo({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | null;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <div>
       <Label className="text-base">{label}</Label>

@@ -1,6 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Mail, Lock as LockIcon, User as UserIcon, Sparkles, ArrowLeft } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock as LockIcon,
+  User as UserIcon,
+  Sparkles,
+  ArrowLeft,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -72,13 +80,14 @@ function AuthPage() {
         const { data } = await supabase.auth.getSession();
         if (data.session) navigate({ to: "/onboarding" });
       } else if (mode === "reset") {
-        const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+        const redirectTo =
+          typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
         if (error) throw error;
         setInfo("Link do resetu hasła wysłany. Sprawdź skrzynkę.");
       }
-    } catch (err: any) {
-      setError(err.message ?? "Coś poszło nie tak");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Coś poszło nie tak");
     } finally {
       setBusy(false);
     }
@@ -99,7 +108,10 @@ function AuthPage() {
         <div className="grid w-full gap-10 lg:grid-cols-[1.1fr_1fr]">
           {/* lewa kolumna — narracja */}
           <div className="hidden flex-col justify-between lg:flex">
-            <Link to="/" className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+            >
               <ArrowLeft className="h-4 w-4" /> Powrót
             </Link>
             <div>
@@ -107,10 +119,15 @@ function AuthPage() {
                 <Sparkles className="h-3.5 w-3.5" /> 90 dni do pierwszej sprzedaży
               </div>
               <h1 className="mt-6 font-display text-5xl font-extrabold leading-tight">
-                Otwórz drzwi do <span className="bg-gradient-to-r from-violet-soft via-pink-300 to-orange-soft bg-clip-text text-transparent">swojej pierwszej sprzedaży</span>.
+                Otwórz drzwi do{" "}
+                <span className="bg-gradient-to-r from-violet-soft via-pink-300 to-orange-soft bg-clip-text text-transparent">
+                  swojej pierwszej sprzedaży
+                </span>
+                .
               </h1>
               <p className="mt-4 max-w-md text-white/70">
-                Klucz pasuje do zamka, gdy hasło ma minimum 8 znaków. Latarka pokazuje formularz tam, gdzie patrzysz.
+                Klucz pasuje do zamka, gdy hasło ma minimum 8 znaków. Latarka pokazuje formularz
+                tam, gdzie patrzysz.
               </p>
             </div>
             <div className="text-xs text-white/40">© {new Date().getFullYear()} 90 Dni</div>
@@ -119,9 +136,15 @@ function AuthPage() {
           {/* prawa kolumna — formularz */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
             <div className="mb-6 flex gap-2 rounded-full bg-white/5 p-1">
-              <TabBtn active={mode === "signin"} onClick={() => setMode("signin")}>Logowanie</TabBtn>
-              <TabBtn active={mode === "signup"} onClick={() => setMode("signup")}>Rejestracja</TabBtn>
-              <TabBtn active={mode === "reset"} onClick={() => setMode("reset")}>Reset</TabBtn>
+              <TabBtn active={mode === "signin"} onClick={() => setMode("signin")}>
+                Logowanie
+              </TabBtn>
+              <TabBtn active={mode === "signup"} onClick={() => setMode("signup")}>
+                Rejestracja
+              </TabBtn>
+              <TabBtn active={mode === "reset"} onClick={() => setMode("reset")}>
+                Reset
+              </TabBtn>
             </div>
 
             <h2 className="font-display text-2xl font-bold">
@@ -220,10 +243,10 @@ function AuthPage() {
                 {busy
                   ? "Chwila..."
                   : mode === "signin"
-                  ? "Zaloguj się"
-                  : mode === "signup"
-                  ? "Załóż konto"
-                  : "Wyślij link"}
+                    ? "Zaloguj się"
+                    : mode === "signup"
+                      ? "Załóż konto"
+                      : "Wyślij link"}
               </Button>
 
               {mode === "signin" && (
@@ -243,7 +266,15 @@ function AuthPage() {
   );
 }
 
-function TabBtn({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+function TabBtn({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
@@ -281,7 +312,9 @@ function Field({
     <div>
       <Label className="text-white/80">{label}</Label>
       <div className="relative mt-1">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40">{icon}</span>
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
+          {icon}
+        </span>
         <Input
           type={type}
           value={value}

@@ -16,7 +16,10 @@ export const Route = createFileRoute("/path")({
   head: () => ({
     meta: [
       { title: "Moja ścieżka — 90 Dni" },
-      { name: "description", content: "Twój postęp 90 dni: bieżący dzień, zadania na dziś i kolejne kroki." },
+      {
+        name: "description",
+        content: "Twój postęp 90 dni: bieżący dzień, zadania na dziś i kolejne kroki.",
+      },
     ],
   }),
   component: PathPage,
@@ -46,8 +49,15 @@ function PathPage() {
     (async () => {
       const [{ data: prof }, { data: mt }, { data: survey }] = await Promise.all([
         supabase.from("profiles").select("created_at").eq("id", user.id).maybeSingle(),
-        supabase.from("mentor_assigned_tasks").select("id, title, instructions, xp_reward, due_date, status, created_at").eq("user_id", user.id),
-        supabase.from("survey_responses").select("readiness_percent").eq("user_id", user.id).maybeSingle(),
+        supabase
+          .from("mentor_assigned_tasks")
+          .select("id, title, instructions, xp_reward, due_date, status, created_at")
+          .eq("user_id", user.id),
+        supabase
+          .from("survey_responses")
+          .select("readiness_percent")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
       setProfileCreated(prof?.created_at ?? null);
       setMentorTasks((mt ?? []) as MentorTask[]);
@@ -98,17 +108,26 @@ function PathPage() {
     if (!txt || txt.trim().length < 5) return;
     const { error } = await supabase
       .from("mentor_assigned_tasks")
-      .update({ submission_content: txt, status: "submitted", submitted_at: new Date().toISOString() })
+      .update({
+        submission_content: txt,
+        status: "submitted",
+        submitted_at: new Date().toISOString(),
+      })
       .eq("id", t.id);
     if (error) toast.error(error.message);
     else {
       toast.success("Wysłano do mentora");
-      setMentorTasks((prev) => prev.map((x) => x.id === t.id ? { ...x, status: "submitted" } : x));
+      setMentorTasks((prev) =>
+        prev.map((x) => (x.id === t.id ? { ...x, status: "submitted" } : x)),
+      );
     }
   };
 
   return (
-    <PageShell title="Moja ścieżka" subtitle={`Dzień ${currentDay} z 90 — Twoja podróż do pierwszej sprzedaży online`}>
+    <PageShell
+      title="Moja ścieżka"
+      subtitle={`Dzień ${currentDay} z 90 — Twoja podróż do pierwszej sprzedaży online`}
+    >
       <StatCards
         level={data.level}
         totalXp={data.totalXp}
@@ -124,9 +143,19 @@ function PathPage() {
       {/* Mini-statystyki postępu */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatTile icon={Flame} label="Dzień programu" value={`${currentDay}/90`} tone="orange" />
-        <StatTile icon={CheckCircle2} label="Zadań ukończonych" value={String(totalDone)} tone="green" />
+        <StatTile
+          icon={CheckCircle2}
+          label="Zadań ukończonych"
+          value={String(totalDone)}
+          tone="green"
+        />
         <StatTile icon={Sparkles} label="XP zdobyte" value={String(data.totalXp)} tone="violet" />
-        <StatTile icon={Calendar} label="Pozostało dni" value={String(Math.max(0, 90 - currentDay))} tone="blue" />
+        <StatTile
+          icon={Calendar}
+          label="Pozostało dni"
+          value={String(Math.max(0, 90 - currentDay))}
+          tone="blue"
+        />
       </div>
 
       {/* Zadania na dziś */}
@@ -137,13 +166,19 @@ function PathPage() {
           </div>
           <div>
             <h2 className="font-display font-extrabold text-lg">Zadania na dziś</h2>
-            <p className="text-xs text-muted-foreground">Wykonaj je, by przesunąć się do przodu w ścieżce</p>
+            <p className="text-xs text-muted-foreground">
+              Wykonaj je, by przesunąć się do przodu w ścieżce
+            </p>
           </div>
         </div>
 
         {mentorToday.length === 0 && courseTasksToday.length === 0 ? (
           <div className="text-sm text-muted-foreground p-6 text-center">
-            🎉 Brak zaległych zadań. Świetna robota! Otwórz <Link to="/courses" className="text-violet font-bold">Kursy</Link>, żeby ruszyć dalej.
+            🎉 Brak zaległych zadań. Świetna robota! Otwórz{" "}
+            <Link to="/courses" className="text-violet font-bold">
+              Kursy
+            </Link>
+            , żeby ruszyć dalej.
           </div>
         ) : (
           <div className="space-y-3">
@@ -168,7 +203,10 @@ function PathPage() {
                 instructions={t.instructions}
                 xp={t.xp_reward}
                 status={t.sub?.status === "needs_revision" ? "revise" : "todo"}
-                onAction={() => { setSubmitTaskId(t.id); setSubmitTaskTitle(t.title); }}
+                onAction={() => {
+                  setSubmitTaskId(t.id);
+                  setSubmitTaskTitle(t.title);
+                }}
                 actionLabel={t.sub?.status === "needs_revision" ? "Popraw" : "Wyślij rozwiązanie"}
               />
             ))}
@@ -187,8 +225,15 @@ function PathPage() {
   );
 }
 
-function StatTile({ icon: Icon, label, value, tone }: {
-  icon: typeof Calendar; label: string; value: string;
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof Calendar;
+  label: string;
+  value: string;
   tone: "orange" | "green" | "violet" | "blue";
 }) {
   const toneCls = {
@@ -210,7 +255,16 @@ function StatTile({ icon: Icon, label, value, tone }: {
   );
 }
 
-function TaskRow({ badge, title, instructions, xp, dueLabel, status, onAction, actionLabel }: {
+function TaskRow({
+  badge,
+  title,
+  instructions,
+  xp,
+  dueLabel,
+  status,
+  onAction,
+  actionLabel,
+}: {
   badge: string;
   title: string;
   instructions: string | null;
@@ -225,10 +279,14 @@ function TaskRow({ badge, title, instructions, xp, dueLabel, status, onAction, a
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={cn(
-              "text-[10px] font-bold uppercase rounded px-1.5 py-0.5",
-              badge === "Mentor" ? "bg-violet-soft text-violet" : "bg-blue-soft text-blue",
-            )}>{badge}</span>
+            <span
+              className={cn(
+                "text-[10px] font-bold uppercase rounded px-1.5 py-0.5",
+                badge === "Mentor" ? "bg-violet-soft text-violet" : "bg-blue-soft text-blue",
+              )}
+            >
+              {badge}
+            </span>
             {status === "revise" && (
               <span className="text-[10px] font-bold uppercase rounded px-1.5 py-0.5 bg-orange-soft text-orange inline-flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> Do poprawy
@@ -241,7 +299,9 @@ function TaskRow({ badge, title, instructions, xp, dueLabel, status, onAction, a
             )}
           </div>
           <div className="font-bold text-sm mt-1">{title}</div>
-          {instructions && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{instructions}</p>}
+          {instructions && (
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{instructions}</p>
+          )}
           <div className="text-xs font-bold text-violet mt-2">+{xp} XP</div>
         </div>
         <Button

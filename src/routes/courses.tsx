@@ -8,7 +8,10 @@ export const Route = createFileRoute("/courses")({
   head: () => ({
     meta: [
       { title: "Kursy — 90 Dni" },
-      { name: "description", content: "Wszystkie kursy w programie 90 Dni. Odblokuj kolejne XP-em." },
+      {
+        name: "description",
+        content: "Wszystkie kursy w programie 90 Dni. Odblokuj kolejne XP-em.",
+      },
     ],
   }),
   component: CoursesPage,
@@ -18,7 +21,10 @@ function CoursesPage() {
   const data = useDashboardData();
 
   return (
-    <PageShell title="Kursy" subtitle="Odblokuj kolejne kursy zdobywając XP. Każdy kurs przybliża Cię do sprzedaży.">
+    <PageShell
+      title="Kursy"
+      subtitle="Odblokuj kolejne kursy zdobywając XP. Każdy kurs przybliża Cię do sprzedaży."
+    >
       {data.loading ? (
         <div className="text-sm text-muted-foreground p-6">Ładowanie...</div>
       ) : (
@@ -57,10 +63,7 @@ function CoursesPage() {
                   {lessonsForCourse.length} lekcji · wymaga {c.required_xp} XP
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-violet"
-                    style={{ width: `${progress}%` }}
-                  />
+                  <div className="h-full bg-gradient-violet" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="text-xs font-bold">{progress}%</div>
                 {unlocked ? (
@@ -83,7 +86,9 @@ function CoursesPage() {
             );
           })}
           {data.courses.length === 0 && (
-            <div className="col-span-full text-center text-sm text-muted-foreground p-12">Brak kursów</div>
+            <div className="col-span-full text-center text-sm text-muted-foreground p-12">
+              Brak kursów
+            </div>
           )}
         </div>
       )}

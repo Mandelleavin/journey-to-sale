@@ -96,14 +96,16 @@
   --gradient-green: linear-gradient(135deg, oklch(0.72 0.17 152), oklch(0.62 0.18 165));
   --gradient-blue: linear-gradient(135deg, oklch(0.68 0.16 240), oklch(0.58 0.18 255));
   --gradient-orange: linear-gradient(135deg, oklch(0.78 0.17 60), oklch(0.68 0.19 40));
-  --gradient-bg: radial-gradient(1200px 600px at 0% 0%, oklch(0.96 0.05 290) 0%, transparent 60%),
-                 radial-gradient(900px 500px at 100% 10%, oklch(0.96 0.04 220) 0%, transparent 55%),
-                 radial-gradient(900px 500px at 50% 100%, oklch(0.97 0.05 95) 0%, transparent 60%);
+  --gradient-bg:
+    radial-gradient(1200px 600px at 0% 0%, oklch(0.96 0.05 290) 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 10%, oklch(0.96 0.04 220) 0%, transparent 55%),
+    radial-gradient(900px 500px at 50% 100%, oklch(0.97 0.05 95) 0%, transparent 60%);
 
   /* Shadows */
   --shadow-soft: 0 1px 2px oklch(0.4 0.05 280 / 0.04), 0 8px 24px -8px oklch(0.4 0.1 280 / 0.08);
   --shadow-card: 0 1px 2px oklch(0.4 0.05 280 / 0.04), 0 12px 32px -12px oklch(0.4 0.1 280 / 0.12);
-  --shadow-glow: 0 0 0 6px oklch(0.58 0.21 290 / 0.12), 0 12px 32px -8px oklch(0.58 0.21 290 / 0.35);
+  --shadow-glow:
+    0 0 0 6px oklch(0.58 0.21 290 / 0.12), 0 12px 32px -8px oklch(0.58 0.21 290 / 0.35);
   --shadow-note: 4px 6px 0 oklch(0.85 0.12 95 / 0.5);
 
   --sidebar: oklch(1 0 0);
@@ -121,14 +123,18 @@
     border-color: var(--color-border);
   }
 
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
@@ -139,18 +145,38 @@
     background-image: var(--gradient-bg);
     background-color: var(--color-background);
   }
-  .bg-gradient-violet { background-image: var(--gradient-violet); }
-  .bg-gradient-green { background-image: var(--gradient-green); }
-  .bg-gradient-blue { background-image: var(--gradient-blue); }
-  .bg-gradient-orange { background-image: var(--gradient-orange); }
+  .bg-gradient-violet {
+    background-image: var(--gradient-violet);
+  }
+  .bg-gradient-green {
+    background-image: var(--gradient-green);
+  }
+  .bg-gradient-blue {
+    background-image: var(--gradient-blue);
+  }
+  .bg-gradient-orange {
+    background-image: var(--gradient-orange);
+  }
 
-  .shadow-soft { box-shadow: var(--shadow-soft); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .shadow-note { box-shadow: var(--shadow-note); }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .shadow-note {
+    box-shadow: var(--shadow-note);
+  }
 
-  .font-hand { font-family: var(--font-hand); }
-  .font-display { font-family: var(--font-display); }
+  .font-hand {
+    font-family: var(--font-hand);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
 
   .sticky-note {
     background: linear-gradient(180deg, oklch(0.96 0.13 95), oklch(0.93 0.15 92));
@@ -160,22 +186,37 @@
 
   /* Pulsing ring */
   @keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 oklch(0.58 0.21 290 / 0.55); }
-    70% { box-shadow: 0 0 0 18px oklch(0.58 0.21 290 / 0); }
-    100% { box-shadow: 0 0 0 0 oklch(0.58 0.21 290 / 0); }
+    0% {
+      box-shadow: 0 0 0 0 oklch(0.58 0.21 290 / 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 18px oklch(0.58 0.21 290 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 oklch(0.58 0.21 290 / 0);
+    }
   }
   .pulse-ring {
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   @keyframes float-slow {
-    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-    50% { transform: translateY(-4px) rotate(-1deg); }
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1.5deg);
+    }
+    50% {
+      transform: translateY(-4px) rotate(-1deg);
+    }
   }
-  .float-slow { animation: float-slow 6s ease-in-out infinite; }
+  .float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
 
   @keyframes draw {
-    to { stroke-dashoffset: 0; }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
   .sketch-draw {
     stroke-dasharray: 400;

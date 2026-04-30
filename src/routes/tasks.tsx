@@ -11,7 +11,10 @@ export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
       { title: "Zadania — 90 Dni" },
-      { name: "description", content: "Twoje aktywne zadania, oczekujące zgłoszenia i historia ukończonych." },
+      {
+        name: "description",
+        content: "Twoje aktywne zadania, oczekujące zgłoszenia i historia ukończonych.",
+      },
     ],
   }),
   component: TasksPage,
@@ -45,17 +48,21 @@ function TasksPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="font-display font-bold text-lg">Zadania z kursów</h2>
           <div className="flex gap-1">
-            {([
-              ["todo", "Do zrobienia", todo.length],
-              ["pending", "Oczekujące", pending.length],
-              ["done", "Ukończone", done.length],
-            ] as const).map(([k, label, n]) => (
+            {(
+              [
+                ["todo", "Do zrobienia", todo.length],
+                ["pending", "Oczekujące", pending.length],
+                ["done", "Ukończone", done.length],
+              ] as const
+            ).map(([k, label, n]) => (
               <button
                 key={k}
                 onClick={() => setFilter(k)}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-bold uppercase",
-                  filter === k ? "bg-gradient-violet text-primary-foreground" : "bg-muted text-muted-foreground",
+                  filter === k
+                    ? "bg-gradient-violet text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
                 )}
               >
                 {label} · {n}
@@ -67,7 +74,9 @@ function TasksPage() {
         {data.loading ? (
           <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>
         ) : list.length === 0 ? (
-          <div className="p-12 text-center text-sm text-muted-foreground">Brak zadań w tej kategorii</div>
+          <div className="p-12 text-center text-sm text-muted-foreground">
+            Brak zadań w tej kategorii
+          </div>
         ) : (
           <div className="space-y-3">
             {list.map((t) => {
@@ -77,10 +86,14 @@ function TasksPage() {
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-sm">{t.title}</div>
-                      {t.instructions && <p className="text-xs text-muted-foreground mt-1">{t.instructions}</p>}
+                      {t.instructions && (
+                        <p className="text-xs text-muted-foreground mt-1">{t.instructions}</p>
+                      )}
                       <div className="text-xs text-muted-foreground mt-1">+{t.xp_reward} XP</div>
                       {sub?.admin_feedback && (
-                        <div className="mt-2 text-xs"><b>Feedback:</b> {sub.admin_feedback}</div>
+                        <div className="mt-2 text-xs">
+                          <b>Feedback:</b> {sub.admin_feedback}
+                        </div>
                       )}
                     </div>
                     {filter === "done" ? (
@@ -96,7 +109,13 @@ function TasksPage() {
                         onClick={() => setSubmitTaskId(t.id)}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-violet text-primary-foreground text-xs font-bold"
                       >
-                        {sub?.status === "needs_revision" ? <><AlertCircle className="w-4 h-4" /> Popraw</> : "Wyślij rozwiązanie"}
+                        {sub?.status === "needs_revision" ? (
+                          <>
+                            <AlertCircle className="w-4 h-4" /> Popraw
+                          </>
+                        ) : (
+                          "Wyślij rozwiązanie"
+                        )}
                       </button>
                     )}
                   </div>

@@ -43,7 +43,11 @@ export function PageShell({
   }, [user]);
 
   if (authLoading || !user) {
-    return <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">Ładowanie...</div>;
+    return (
+      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
+        Ładowanie...
+      </div>
+    );
   }
 
   return (

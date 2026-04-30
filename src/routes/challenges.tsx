@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { ChallengeCard, type Challenge } from "@/components/dashboard/ChallengeCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useServerFn } from "@tanstack/react-start";
-import { claimChallenge } from "@/server/gamification.functions";
+import { claimChallenge } from "@/lib/gamification.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/challenges")({
@@ -25,10 +25,7 @@ function ChallengesPage() {
       .select("*")
       .eq("is_active", true)
       .gt("ends_at", new Date().toISOString());
-    const { data: uc } = await supabase
-      .from("user_challenges")
-      .select("*")
-      .eq("user_id", user.id);
+    const { data: uc } = await supabase.from("user_challenges").select("*").eq("user_id", user.id);
     const ucMap = new Map((uc ?? []).map((u) => [u.challenge_id, u]));
     setItems(
       (ch ?? []).map((c) => {
@@ -49,7 +46,9 @@ function ChallengesPage() {
     );
   }, [user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const onClaim = async (id: string) => {
     setClaimingId(id);
@@ -59,7 +58,7 @@ function ChallengesPage() {
       toast.success(`+${res.xp} XP odebrane!`);
       load();
     } else {
-      toast.error(res.error ?? "Błąd");
+      toast.error(res.error ?? "BĹ‚Ä…d");
     }
   };
 
@@ -80,7 +79,12 @@ function ChallengesPage() {
               <h2 className="font-display font-extrabold text-lg mb-3">{g.label}</h2>
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {list.map((c) => (
-                  <ChallengeCard key={c.id} challenge={c} onClaim={onClaim} claiming={claimingId === c.id} />
+                  <ChallengeCard
+                    key={c.id}
+                    challenge={c}
+                    onClaim={onClaim}
+                    claiming={claimingId === c.id}
+                  />
                 ))}
               </div>
             </section>
@@ -88,7 +92,7 @@ function ChallengesPage() {
         })}
         {items.length === 0 && (
           <div className="rounded-3xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            Brak aktywnych wyzwań. Codzienne pojawią się jutro rano.
+            Brak aktywnych wyzwaĹ„. Codzienne pojawiÄ… siÄ™ jutro rano.
           </div>
         )}
       </div>

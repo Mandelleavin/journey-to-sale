@@ -38,7 +38,10 @@ function ResetPassword() {
 
   return (
     <div className="grid min-h-screen place-items-center bg-app px-4">
-      <form onSubmit={handle} className="w-full max-w-md rounded-3xl border border-border bg-card p-8 shadow-card">
+      <form
+        onSubmit={handle}
+        className="w-full max-w-md rounded-3xl border border-border bg-card p-8 shadow-card"
+      >
         <h1 className="font-display text-2xl font-bold">Ustaw nowe hasło</h1>
         <p className="mt-1 text-sm text-muted-foreground">Wprowadź nowe hasło do konta.</p>
         {!ready && (
@@ -57,8 +60,16 @@ function ResetPassword() {
             className="mt-1"
           />
         </div>
-        {error && <div className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
-        <Button type="submit" disabled={busy || !ready} className="mt-6 w-full rounded-xl bg-gradient-violet text-primary-foreground">
+        {error && (
+          <div className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+        <Button
+          type="submit"
+          disabled={busy || !ready}
+          className="mt-6 w-full rounded-xl bg-gradient-violet text-primary-foreground"
+        >
           {busy ? "Zapisuję..." : "Zapisz hasło"}
         </Button>
       </form>

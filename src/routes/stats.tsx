@@ -3,7 +3,15 @@ import { useEffect, useState, useMemo } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 import { Zap, Calendar, Award, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +30,33 @@ function StatsPage() {
     if (!user) return;
     (async () => {
       const [xp, st, bg, ch] = await Promise.all([
-        supabase.from("user_xp_log").select("amount, created_at").eq("user_id", user.id).order("created_at"),
-        supabase.from("user_streaks").select("current_streak, longest_streak, multiplier").eq("user_id", user.id).maybeSingle(),
-        supabase.from("user_badges").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("user_challenges").select("id", { count: "exact", head: true }).eq("user_id", user.id).not("completed_at", "is", null),
+        supabase
+          .from("user_xp_log")
+          .select("amount, created_at")
+          .eq("user_id", user.id)
+          .order("created_at"),
+        supabase
+          .from("user_streaks")
+          .select("current_streak, longest_streak, multiplier")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("user_badges")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id),
+        supabase
+          .from("user_challenges")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .not("completed_at", "is", null),
       ]);
       setXpRows(xp.data ?? []);
-      if (st.data) setStreak({ current: st.data.current_streak, longest: st.data.longest_streak, multiplier: Number(st.data.multiplier) });
+      if (st.data)
+        setStreak({
+          current: st.data.current_streak,
+          longest: st.data.longest_streak,
+          multiplier: Number(st.data.multiplier),
+        });
       setBadgesCount(bg.count ?? 0);
       setChallengesDone(ch.count ?? 0);
     })();
@@ -74,7 +102,12 @@ function StatsPage() {
     <PageShell title="Twoje statystyki" subtitle="Postępy w czasie i kalendarz aktywności">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat icon={Zap} label="Łączne XP" value={String(totalXp)} />
-        <Stat icon={Calendar} label="Seria" value={`${streak.current} dni`} sub={`×${streak.multiplier}`} />
+        <Stat
+          icon={Calendar}
+          label="Seria"
+          value={`${streak.current} dni`}
+          sub={`×${streak.multiplier}`}
+        />
         <Stat icon={Award} label="Odznaki" value={String(badgesCount)} />
         <Stat icon={Target} label="Wyzwania" value={String(challengesDone)} sub="ukończone" />
       </div>
@@ -88,7 +121,13 @@ function StatsPage() {
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="xp" stroke="oklch(0.55 0.22 295)" strokeWidth={2.5} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="xp"
+                stroke="oklch(0.55 0.22 295)"
+                strokeWidth={2.5}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -116,10 +155,22 @@ function StatsPage() {
   );
 }
 
-function Stat({ icon: Icon, label, value, sub }: { icon: typeof Zap; label: string; value: string; sub?: string }) {
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof Zap;
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-      <div className="flex items-center gap-2 text-muted-foreground text-xs"><Icon className="w-3.5 h-3.5" /> {label}</div>
+      <div className="flex items-center gap-2 text-muted-foreground text-xs">
+        <Icon className="w-3.5 h-3.5" /> {label}
+      </div>
       <div className="font-display font-extrabold text-2xl mt-1">{value}</div>
       {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
     </div>

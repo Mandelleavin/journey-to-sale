@@ -1,4 +1,12 @@
-import { Lightbulb, FileText, MonitorPlay, Megaphone, Lock, Check, GraduationCap } from "lucide-react";
+﻿import {
+  Lightbulb,
+  FileText,
+  MonitorPlay,
+  Megaphone,
+  Lock,
+  Check,
+  GraduationCap,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
@@ -18,17 +26,73 @@ type Course = {
 };
 
 const colorMap = {
-  green: { bg: "bg-green-soft", text: "text-green", grad: "bg-gradient-green", border: "border-green/40" },
-  blue: { bg: "bg-blue-soft", text: "text-blue", grad: "bg-gradient-blue", border: "border-blue/40" },
-  violet: { bg: "bg-violet-soft", text: "text-violet", grad: "bg-gradient-violet", border: "border-violet/40" },
-  orange: { bg: "bg-orange-soft", text: "text-orange", grad: "bg-gradient-orange", border: "border-orange/40" },
+  green: {
+    bg: "bg-green-soft",
+    text: "text-green",
+    grad: "bg-gradient-green",
+    border: "border-green/40",
+  },
+  blue: {
+    bg: "bg-blue-soft",
+    text: "text-blue",
+    grad: "bg-gradient-blue",
+    border: "border-blue/40",
+  },
+  violet: {
+    bg: "bg-violet-soft",
+    text: "text-violet",
+    grad: "bg-gradient-violet",
+    border: "border-violet/40",
+  },
+  orange: {
+    bg: "bg-orange-soft",
+    text: "text-orange",
+    grad: "bg-gradient-orange",
+    border: "border-orange/40",
+  },
 };
 
 const fallback: Course[] = [
-  { id: "1", num: 1, title: "Pomysł na pierwszy produkt online", progress: 100, required_xp: 0, unlocked: true, done: true, color: "green" },
-  { id: "2", num: 2, title: "Stwórz ofertę za 97–497 zł", progress: 75, required_xp: 0, unlocked: true, done: false, color: "blue" },
-  { id: "3", num: 3, title: "Landing page, który sprzedaje", progress: 25, required_xp: 500, unlocked: false, done: false, color: "violet" },
-  { id: "4", num: 4, title: "Pierwsze reklamy na produkt", progress: 0, required_xp: 1000, unlocked: false, done: false, color: "orange" },
+  {
+    id: "1",
+    num: 1,
+    title: "PomysĹ‚ na pierwszy produkt online",
+    progress: 100,
+    required_xp: 0,
+    unlocked: true,
+    done: true,
+    color: "green",
+  },
+  {
+    id: "2",
+    num: 2,
+    title: "StwĂłrz ofertÄ™ za 97â€“497 zĹ‚",
+    progress: 75,
+    required_xp: 0,
+    unlocked: true,
+    done: false,
+    color: "blue",
+  },
+  {
+    id: "3",
+    num: 3,
+    title: "Landing page, ktĂłry sprzedaje",
+    progress: 25,
+    required_xp: 500,
+    unlocked: false,
+    done: false,
+    color: "violet",
+  },
+  {
+    id: "4",
+    num: 4,
+    title: "Pierwsze reklamy na produkt",
+    progress: 0,
+    required_xp: 1000,
+    unlocked: false,
+    done: false,
+    color: "orange",
+  },
 ];
 
 export function CoursesSection({ courses }: { courses?: Course[] }) {
@@ -37,11 +101,13 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
     <section>
       <div className="flex items-end justify-between mb-3">
         <h3 className="font-display font-bold text-lg flex items-center gap-2">
-          <span className="text-violet">▾</span> Twoje kursy
+          <span className="text-violet">â–ľ</span> Twoje kursy
         </h3>
         <div className="hidden md:flex items-center gap-2 relative">
           <span className="font-hand text-orange text-base font-bold leading-tight text-right max-w-[200px]">
-            Kursy odblokowywane<br />za XP lub postępy
+            Kursy odblokowywane
+            <br />
+            za XP lub postÄ™py
           </span>
           <SketchArrow direction="right" className="w-20 h-10 rotate-12 text-orange" />
         </div>
@@ -53,12 +119,8 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
           const Icon = icons[(c.num - 1) % icons.length];
           const isLocked = !c.unlocked;
           const isRealCourse = c.id.length > 5; // uuid vs fallback "1"
-          const Wrapper: any = isLocked || !isRealCourse ? "div" : Link;
-          const wrapperProps = isLocked || !isRealCourse ? {} : { to: "/courses/$courseId", params: { courseId: c.id } };
-          return (
-            <Wrapper
-              key={c.id}
-              {...wrapperProps}
+          const card = (
+            <div
               className={cn(
                 "relative bg-card rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5 block",
                 cm.border,
@@ -69,7 +131,9 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
               {isLocked && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-muted px-2 py-1">
                   <Lock className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-[10px] font-bold text-muted-foreground">{c.required_xp} XP</span>
+                  <span className="text-[10px] font-bold text-muted-foreground">
+                    {c.required_xp} XP
+                  </span>
                 </div>
               )}
               <div className="flex items-start justify-between">
@@ -83,7 +147,10 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div className={cn("h-full rounded-full", cm.grad)} style={{ width: `${c.progress}%` }} />
+                  <div
+                    className={cn("h-full rounded-full", cm.grad)}
+                    style={{ width: `${c.progress}%` }}
+                  />
                 </div>
                 {c.done ? (
                   <div className="w-5 h-5 rounded-full bg-green grid place-items-center">
@@ -95,7 +162,15 @@ export function CoursesSection({ courses }: { courses?: Course[] }) {
                   </span>
                 )}
               </div>
-            </Wrapper>
+            </div>
+          );
+
+          return isLocked || !isRealCourse ? (
+            <div key={c.id}>{card}</div>
+          ) : (
+            <Link key={c.id} to="/courses/$courseId" params={{ courseId: c.id }}>
+              {card}
+            </Link>
           );
         })}
       </div>

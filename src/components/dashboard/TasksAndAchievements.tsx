@@ -1,11 +1,38 @@
-import { CheckSquare, Square, CircleDashed, PlayCircle, Award, FileCheck, Trophy, Zap } from "lucide-react";
+import {
+  CheckSquare,
+  Square,
+  CircleDashed,
+  PlayCircle,
+  Award,
+  FileCheck,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const tasks = [
-  { title: "Napisz swoją ofertę", status: "W trakcie", xp: "+150 XP", color: "blue", checked: false },
-  { title: "Stwórz nazwę produktu", status: "Do zrobienia", xp: "+100 XP", color: "muted", checked: false },
-  { title: "Stwórz landing page (link)", status: "Zatwierdzone", xp: "+200 XP", color: "green", checked: true },
+  {
+    title: "Napisz swoją ofertę",
+    status: "W trakcie",
+    xp: "+150 XP",
+    color: "blue",
+    checked: false,
+  },
+  {
+    title: "Stwórz nazwę produktu",
+    status: "Do zrobienia",
+    xp: "+100 XP",
+    color: "muted",
+    checked: false,
+  },
+  {
+    title: "Stwórz landing page (link)",
+    status: "Zatwierdzone",
+    xp: "+200 XP",
+    color: "green",
+    checked: true,
+  },
 ];
 
 const statusStyle = {
@@ -16,8 +43,20 @@ const statusStyle = {
 
 const achievements = [
   { icon: PlayCircle, title: "Obejrzałeś lekcję", xp: "+30 XP", time: "2h temu", color: "violet" },
-  { icon: FileCheck, title: "Przesłałeś zadanie", xp: "+100 XP", time: "1 dzień temu", color: "blue" },
-  { icon: Award, title: "Zatwierdzono Twoje zadanie", xp: "+150 XP", time: "2 dni temu", color: "green" },
+  {
+    icon: FileCheck,
+    title: "Przesłałeś zadanie",
+    xp: "+100 XP",
+    time: "1 dzień temu",
+    color: "blue",
+  },
+  {
+    icon: Award,
+    title: "Zatwierdzono Twoje zadanie",
+    xp: "+150 XP",
+    time: "2 dni temu",
+    color: "green",
+  },
   { icon: Trophy, title: "Ukończyłeś kurs", xp: "+200 XP", time: "3 dni temu", color: "orange" },
 ];
 
@@ -43,14 +82,22 @@ export function TasksAndAchievements() {
                 <Square className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={2.2} />
               )}
               <span className="flex-1 text-sm font-medium text-foreground">{t.title}</span>
-              <span className={cn("text-[11px] font-semibold px-2 py-1 rounded-md", statusStyle[t.color as keyof typeof statusStyle])}>
+              <span
+                className={cn(
+                  "text-[11px] font-semibold px-2 py-1 rounded-md",
+                  statusStyle[t.color as keyof typeof statusStyle],
+                )}
+              >
                 {t.status}
               </span>
               <span className="text-xs font-bold text-violet w-14 text-right">{t.xp}</span>
             </li>
           ))}
         </ul>
-        <Button variant="ghost" className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold">
+        <Button
+          variant="ghost"
+          className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
+        >
           Zobacz wszystkie zadania
         </Button>
       </div>
@@ -66,7 +113,12 @@ export function TasksAndAchievements() {
             const Icon = a.icon;
             return (
               <li key={a.title} className="flex items-center gap-3 py-3">
-                <div className={cn("w-8 h-8 rounded-lg grid place-items-center shrink-0", achColor[a.color as keyof typeof achColor])}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg grid place-items-center shrink-0",
+                    achColor[a.color as keyof typeof achColor],
+                  )}
+                >
                   <Icon className="w-4 h-4" strokeWidth={2.2} />
                 </div>
                 <span className="flex-1 text-sm font-medium text-foreground">{a.title}</span>
@@ -79,7 +131,10 @@ export function TasksAndAchievements() {
             );
           })}
         </ul>
-        <Button variant="ghost" className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold">
+        <Button
+          variant="ghost"
+          className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
+        >
           Zobacz wszystkie osiągnięcia
         </Button>
       </div>

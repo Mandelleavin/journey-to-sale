@@ -21,7 +21,10 @@ export const Route = createFileRoute("/problems")({
   head: () => ({
     meta: [
       { title: "Problemy — 90 Dni" },
-      { name: "description", content: "Zgłoś problem techniczny lub merytoryczny — odpowiemy szybko." },
+      {
+        name: "description",
+        content: "Zgłoś problem techniczny lub merytoryczny — odpowiemy szybko.",
+      },
     ],
   }),
   component: ProblemsPage,
@@ -81,7 +84,9 @@ function ProblemsPage() {
             <div>
               <Label>Kategoria</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="technical">Problem techniczny</SelectItem>
                   <SelectItem value="content">Treść / kurs</SelectItem>
@@ -134,16 +139,22 @@ function ProblemsPage() {
                       r.status === "resolved"
                         ? "border-green/40 text-green"
                         : r.status === "in_progress"
-                        ? "border-blue/40 text-blue"
-                        : "border-orange/40 text-orange"
+                          ? "border-blue/40 text-blue"
+                          : "border-orange/40 text-orange"
                     }
                   >
                     {r.status === "resolved" ? (
-                      <><CheckCircle2 className="w-3 h-3 mr-1" /> Rozwiązane</>
+                      <>
+                        <CheckCircle2 className="w-3 h-3 mr-1" /> Rozwiązane
+                      </>
                     ) : r.status === "in_progress" ? (
-                      <><Clock className="w-3 h-3 mr-1" /> W trakcie</>
+                      <>
+                        <Clock className="w-3 h-3 mr-1" /> W trakcie
+                      </>
                     ) : (
-                      <><AlertTriangle className="w-3 h-3 mr-1" /> Otwarte</>
+                      <>
+                        <AlertTriangle className="w-3 h-3 mr-1" /> Otwarte
+                      </>
                     )}
                   </Badge>
                 </div>

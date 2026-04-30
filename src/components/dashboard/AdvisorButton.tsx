@@ -13,7 +13,9 @@ export function AdvisorButton() {
           <div className="flex items-start justify-between">
             <div>
               <div className="font-display font-bold text-base">Masz pytanie?</div>
-              <div className="text-xs text-muted-foreground">Zapytaj jednego z naszych doradców</div>
+              <div className="text-xs text-muted-foreground">
+                Zapytaj jednego z naszych doradców
+              </div>
             </div>
             <button
               onClick={() => setOpen(false)}
@@ -25,7 +27,12 @@ export function AdvisorButton() {
 
           <div className="mt-4 space-y-2">
             <AdvisorRow icon={Wrench} name="Marcin" role="Techniczny" gradient="bg-gradient-blue" />
-            <AdvisorRow icon={Megaphone} name="Kasia" role="Marketingowy" gradient="bg-gradient-orange" />
+            <AdvisorRow
+              icon={Megaphone}
+              name="Kasia"
+              role="Marketingowy"
+              gradient="bg-gradient-orange"
+            />
           </div>
 
           <Button className="w-full mt-4 rounded-xl bg-gradient-violet text-primary-foreground hover:bg-gradient-violet hover:opacity-95 font-semibold">
@@ -63,7 +70,9 @@ function AdvisorRow({
 }) {
   return (
     <div className="flex items-center gap-3 p-2.5 rounded-xl border border-border hover:bg-muted/50 transition-colors">
-      <div className={cn("w-10 h-10 rounded-xl grid place-items-center text-white shrink-0", gradient)}>
+      <div
+        className={cn("w-10 h-10 rounded-xl grid place-items-center text-white shrink-0", gradient)}
+      >
         <Icon className="w-5 h-5" strokeWidth={2.2} />
       </div>
       <div className="flex-1">

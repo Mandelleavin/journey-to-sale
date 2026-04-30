@@ -66,7 +66,11 @@ export function SketchCrown({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M3 18 L5 6 L10 12 L14 4 L18 12 L23 6 L25 18 Z" fill="oklch(0.85 0.15 90)" stroke="oklch(0.55 0.18 60)" />
+      <path
+        d="M3 18 L5 6 L10 12 L14 4 L18 12 L23 6 L25 18 Z"
+        fill="oklch(0.85 0.15 90)"
+        stroke="oklch(0.55 0.18 60)"
+      />
       <circle cx="5" cy="6" r="1.2" fill="oklch(0.62 0.18 25)" />
       <circle cx="14" cy="4" r="1.2" fill="oklch(0.62 0.18 25)" />
       <circle cx="23" cy="6" r="1.2" fill="oklch(0.62 0.18 25)" />

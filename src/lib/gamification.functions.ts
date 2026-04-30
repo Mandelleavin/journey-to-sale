@@ -12,7 +12,9 @@ export type LeaderRow = {
 // LEADERBOARD: weekly | alltime | path90
 export const getLeaderboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ scope: z.enum(["weekly", "alltime", "path90"]) }).parse(input))
+  .inputValidator((input) =>
+    z.object({ scope: z.enum(["weekly", "alltime", "path90"]) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -139,11 +141,7 @@ export const respondDuel = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: d } = await supabase
-      .from("duels")
-      .select("*")
-      .eq("id", data.duelId)
-      .single();
+    const { data: d } = await supabase.from("duels").select("*").eq("id", data.duelId).single();
     if (!d || d.opponent_id !== userId) return { ok: false, error: "Brak dostępu" };
     if (d.status !== "pending") return { ok: false, error: "Nie można zmienić statusu" };
 
