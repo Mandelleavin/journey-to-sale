@@ -36,9 +36,11 @@ import { Route as OnboardingResultRouteImport } from './routes/onboarding.result
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
 import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
 import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
 import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
+import { Route as AdminCoursesCourseIdLessonsRouteImport } from './routes/admin.courses.$courseId.lessons'
 
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
@@ -175,6 +177,11 @@ const AdminCoursesRoute = AdminCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminModulesModuleIdRoute = AdminModulesModuleIdRouteImport.update({
+  id: '/modules/$moduleId',
+  path: '/modules/$moduleId',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiPublicCronStreakWarningRoute =
   ApiPublicCronStreakWarningRouteImport.update({
     id: '/api/public/cron/streak-warning',
@@ -192,6 +199,12 @@ const ApiPublicCronDailyChallengesRoute =
     id: '/api/public/cron/daily-challenges',
     path: '/api/public/cron/daily-challenges',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminCoursesCourseIdLessonsRoute =
+  AdminCoursesCourseIdLessonsRouteImport.update({
+    id: '/$courseId/lessons',
+    path: '/$courseId/lessons',
+    getParentRoute: () => AdminCoursesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -217,11 +230,13 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
-  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
+  '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
@@ -249,11 +264,13 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
-  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
+  '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
@@ -282,11 +299,13 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
-  '/admin/courses': typeof AdminCoursesRoute
+  '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
+  '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
@@ -321,6 +340,8 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin/modules/$moduleId'
+    | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
@@ -353,6 +374,8 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin/modules/$moduleId'
+    | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
@@ -385,6 +408,8 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin/modules/$moduleId'
+    | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
@@ -611,6 +636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoursesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/modules/$moduleId': {
+      id: '/admin/modules/$moduleId'
+      path: '/modules/$moduleId'
+      fullPath: '/admin/modules/$moduleId'
+      preLoaderRoute: typeof AdminModulesModuleIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/public/cron/streak-warning': {
       id: '/api/public/cron/streak-warning'
       path: '/api/public/cron/streak-warning'
@@ -632,15 +664,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyChallengesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/courses/$courseId/lessons': {
+      id: '/admin/courses/$courseId/lessons'
+      path: '/$courseId/lessons'
+      fullPath: '/admin/courses/$courseId/lessons'
+      preLoaderRoute: typeof AdminCoursesCourseIdLessonsRouteImport
+      parentRoute: typeof AdminCoursesRoute
+    }
   }
 }
 
+interface AdminCoursesRouteChildren {
+  AdminCoursesCourseIdLessonsRoute: typeof AdminCoursesCourseIdLessonsRoute
+}
+
+const AdminCoursesRouteChildren: AdminCoursesRouteChildren = {
+  AdminCoursesCourseIdLessonsRoute: AdminCoursesCourseIdLessonsRoute,
+}
+
+const AdminCoursesRouteWithChildren = AdminCoursesRoute._addFileChildren(
+  AdminCoursesRouteChildren,
+)
+
 interface AdminRouteChildren {
-  AdminCoursesRoute: typeof AdminCoursesRoute
+  AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
+  AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminCoursesRoute: AdminCoursesRoute,
+  AdminCoursesRoute: AdminCoursesRouteWithChildren,
+  AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

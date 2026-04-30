@@ -52,10 +52,13 @@ function AdminModuleLessonsPage() {
     const { data: course } = await supabase.from("courses").select("title").eq("id", mod.course_id).maybeSingle();
     setCourseTitle(course?.title ?? "");
     const { data: ls } = await supabase.from("lessons").select("*").eq("module_id", moduleId).order("position");
-    setLessons(((ls ?? []) as never[]).map((l) => ({
-      ...(l as Lesson),
-      content_blocks: Array.isArray((l as Lesson).content_blocks) ? (l as Lesson).content_blocks : [],
-    })));
+    setLessons(((ls ?? []) as unknown[]).map((l) => {
+      const row = l as Record<string, unknown>;
+      return {
+        ...(row as unknown as Lesson),
+        content_blocks: Array.isArray(row.content_blocks) ? (row.content_blocks as ContentBlock[]) : [],
+      };
+    }));
     const lessonIds = (ls ?? []).map((l) => (l as Lesson).id);
     if (lessonIds.length > 0) {
       const [{ data: t }, { data: a }] = await Promise.all([
