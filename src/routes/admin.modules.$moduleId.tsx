@@ -59,7 +59,7 @@ function AdminModuleLessonsPage() {
         content_blocks: Array.isArray(row.content_blocks) ? (row.content_blocks as ContentBlock[]) : [],
       };
     }));
-    const lessonIds = (ls ?? []).map((l) => (l as Lesson).id);
+    const lessonIds = (ls ?? []).map((l) => (l as { id: string }).id);
     if (lessonIds.length > 0) {
       const [{ data: t }, { data: a }] = await Promise.all([
         supabase.from("lesson_tasks").select("*").in("lesson_id", lessonIds),
