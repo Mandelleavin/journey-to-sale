@@ -16,6 +16,9 @@ dist-ssr
 .nitro
 *.local
 
+# Local PHP configuration
+config.php
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
@@ -25,6 +28,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
