@@ -384,6 +384,8 @@ function CoursesTab() {
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
 
   return (
+    <div>
+      <NewPanelBanner />
     <div className="grid md:grid-cols-[300px_1fr] gap-4">
       {/* Lista kursów */}
       <div className="rounded-3xl border border-border bg-card p-4">
