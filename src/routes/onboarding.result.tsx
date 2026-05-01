@@ -164,7 +164,8 @@ function OnboardingResultPage() {
           )}
 
           <Button
-            onClick={() => navigate({ to: "/" })}
+            onClick={goHome}
+            type="button"
             className="mt-8 w-full rounded-xl bg-gradient-green text-primary-foreground h-12 text-base font-bold"
           >
             Przejdź do mojej misji <ArrowRight className="w-4 h-4 ml-1" />
