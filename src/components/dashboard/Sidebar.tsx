@@ -17,8 +17,11 @@ import {
   CalendarDays,
   BarChart3,
   Bot,
+  Shield,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 const items = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
@@ -40,8 +43,14 @@ const items = [
   { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
 ];
 
+const adminItems = [
+  { icon: Shield, label: "Panel admina", to: "/admin" as const },
+  { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" as const },
+];
+
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
 
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-card border border-border rounded-3xl p-5 shadow-soft sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
@@ -88,6 +97,36 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {isAdmin && (
+          <>
+            <div className="mt-4 mb-1 px-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+              Administracja
+            </div>
+            {adminItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.to === "/admin"
+                  ? pathname === "/admin"
+                  : pathname === item.to || pathname.startsWith(item.to + "/");
+              return (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className={cn(
+                    "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-gradient-violet text-primary-foreground shadow-glow"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-violet-soft to-blue-soft border border-border">
