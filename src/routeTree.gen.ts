@@ -16,12 +16,14 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProblemsRouteImport } from './routes/problems'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GeneratorRouteImport } from './routes/generator'
 import { Route as DuelsRouteImport } from './routes/duels'
+import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CoachRouteImport } from './routes/coach'
@@ -79,6 +81,11 @@ const ProblemsRoute = ProblemsRouteImport.update({
   path: '/problems',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PathRoute = PathRouteImport.update({
   id: '/path',
   path: '/path',
@@ -107,6 +114,11 @@ const GeneratorRoute = GeneratorRouteImport.update({
 const DuelsRoute = DuelsRouteImport.update({
   id: '/duels',
   path: '/duels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreditsRoute = CreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -230,12 +242,14 @@ export interface FileRoutesByFullPath {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -266,12 +280,14 @@ export interface FileRoutesByTo {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -303,12 +319,14 @@ export interface FileRoutesById {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -341,12 +359,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
     | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -377,12 +397,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
     | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -413,12 +435,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
     | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -450,12 +474,14 @@ export interface RootRouteChildren {
   CoachRoute: typeof CoachRoute
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  CreditsRoute: typeof CreditsRoute
   DuelsRoute: typeof DuelsRoute
   GeneratorRoute: typeof GeneratorRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
+  PricingRoute: typeof PricingRoute
   ProblemsRoute: typeof ProblemsRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
@@ -521,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProblemsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/path': {
       id: '/path'
       path: '/path'
@@ -561,6 +594,13 @@ declare module '@tanstack/react-router' {
       path: '/duels'
       fullPath: '/duels'
       preLoaderRoute: typeof DuelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credits': {
+      id: '/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof CreditsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -783,12 +823,14 @@ const rootRouteChildren: RootRouteChildren = {
   CoachRoute: CoachRoute,
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  CreditsRoute: CreditsRoute,
   DuelsRoute: DuelsRoute,
   GeneratorRoute: GeneratorRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
+  PricingRoute: PricingRoute,
   ProblemsRoute: ProblemsRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
