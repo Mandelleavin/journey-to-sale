@@ -16,6 +16,7 @@ function OnboardingResultPage() {
   const { user, loading } = useAuth();
   const [percent, setPercent] = useState<number | null>(null);
   const [acquisitionPlan, setAcquisitionPlan] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -23,20 +24,63 @@ function OnboardingResultPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("survey_responses")
-      .select("readiness_percent, acquisition_plan")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) {
-          navigate({ to: "/onboarding" });
+    let cancelled = false;
+    let attempts = 0;
+
+    const fetchOnce = async (): Promise<void> => {
+      attempts += 1;
+      const { data } = await supabase
+        .from("survey_responses")
+        .select("readiness_percent, acquisition_plan")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (!data) {
+        // Retry up to 3 times — survey insert may race with redirect
+        if (attempts < 3) {
+          setTimeout(fetchOnce, 500);
           return;
         }
-        setPercent(data.readiness_percent ?? 0);
-        setAcquisitionPlan(data.acquisition_plan);
-      });
-  }, [user, navigate]);
+        setNotFound(true);
+        return;
+      }
+      setPercent(data.readiness_percent ?? 0);
+      setAcquisitionPlan(data.acquisition_plan);
+    };
+
+    fetchOnce();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const goHome = () => {
+    try {
+      navigate({ to: "/" });
+    } catch {
+      window.location.assign("/");
+    }
+    // Hard fallback after a tick — guarantees nav even if router is stuck
+    setTimeout(() => {
+      if (typeof window !== "undefined" && window.location.pathname.startsWith("/onboarding")) {
+        window.location.assign("/");
+      }
+    }, 300);
+  };
+
+  if (notFound) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground gap-3 p-6 text-center">
+        <p>Nie znaleziono Twojej ankiety.</p>
+        <button
+          onClick={() => navigate({ to: "/onboarding" })}
+          className="rounded-xl bg-gradient-violet text-primary-foreground px-5 h-11 font-bold"
+        >
+          Wypełnij ankietę
+        </button>
+      </div>
+    );
+  }
 
   if (percent === null) {
     return (
