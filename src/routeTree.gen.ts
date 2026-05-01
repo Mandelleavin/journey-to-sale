@@ -20,6 +20,7 @@ import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as GeneratorRouteImport } from './routes/generator'
 import { Route as DuelsRouteImport } from './routes/duels'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -95,6 +96,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GeneratorRoute = GeneratorRouteImport.update({
+  id: '/generator',
+  path: '/generator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DuelsRoute = DuelsRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/courses'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/courses'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/courses'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DuelsRoute: typeof DuelsRoute
+  GeneratorRoute: typeof GeneratorRoute
   LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
@@ -522,6 +535,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/generator': {
+      id: '/generator'
+      path: '/generator'
+      fullPath: '/generator'
+      preLoaderRoute: typeof GeneratorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/duels': {
@@ -733,6 +753,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DuelsRoute: DuelsRoute,
+  GeneratorRoute: GeneratorRoute,
   LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
