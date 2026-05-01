@@ -16,11 +16,14 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProblemsRouteImport } from './routes/problems'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as GeneratorRouteImport } from './routes/generator'
 import { Route as DuelsRouteImport } from './routes/duels'
+import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CoachRouteImport } from './routes/coach'
@@ -34,6 +37,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
@@ -77,6 +81,11 @@ const ProblemsRoute = ProblemsRouteImport.update({
   path: '/problems',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PathRoute = PathRouteImport.update({
   id: '/path',
   path: '/path',
@@ -97,9 +106,19 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GeneratorRoute = GeneratorRouteImport.update({
+  id: '/generator',
+  path: '/generator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DuelsRoute = DuelsRouteImport.update({
   id: '/duels',
   path: '/duels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreditsRoute = CreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -167,6 +186,11 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   path: '/lessons/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GeneratorSlugRoute = GeneratorSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => GeneratorRoute,
+} as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   id: '/$courseId',
   path: '/$courseId',
@@ -218,11 +242,14 @@ export interface FileRoutesByFullPath {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -232,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -252,11 +280,14 @@ export interface FileRoutesByTo {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -266,6 +297,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -287,11 +319,14 @@ export interface FileRoutesById {
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/pricing': typeof PricingRoute
   '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -301,6 +336,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -323,11 +359,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -337,6 +376,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -357,11 +397,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -371,6 +414,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -391,11 +435,14 @@ export interface FileRouteTypes {
     | '/coach'
     | '/community'
     | '/courses'
+    | '/credits'
     | '/duels'
+    | '/generator'
     | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/pricing'
     | '/problems'
     | '/products'
     | '/profile'
@@ -405,6 +452,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -426,11 +474,14 @@ export interface RootRouteChildren {
   CoachRoute: typeof CoachRoute
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  CreditsRoute: typeof CreditsRoute
   DuelsRoute: typeof DuelsRoute
+  GeneratorRoute: typeof GeneratorRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
+  PricingRoute: typeof PricingRoute
   ProblemsRoute: typeof ProblemsRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
@@ -496,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProblemsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/path': {
       id: '/path'
       path: '/path'
@@ -524,11 +582,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/generator': {
+      id: '/generator'
+      path: '/generator'
+      fullPath: '/generator'
+      preLoaderRoute: typeof GeneratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/duels': {
       id: '/duels'
       path: '/duels'
       fullPath: '/duels'
       preLoaderRoute: typeof DuelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credits': {
+      id: '/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof CreditsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -622,6 +694,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonsLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/generator/$slug': {
+      id: '/generator/$slug'
+      path: '/$slug'
+      fullPath: '/generator/$slug'
+      preLoaderRoute: typeof GeneratorSlugRouteImport
+      parentRoute: typeof GeneratorRoute
+    }
     '/courses/$courseId': {
       id: '/courses/$courseId'
       path: '/$courseId'
@@ -709,6 +788,18 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface GeneratorRouteChildren {
+  GeneratorSlugRoute: typeof GeneratorSlugRoute
+}
+
+const GeneratorRouteChildren: GeneratorRouteChildren = {
+  GeneratorSlugRoute: GeneratorSlugRoute,
+}
+
+const GeneratorRouteWithChildren = GeneratorRoute._addFileChildren(
+  GeneratorRouteChildren,
+)
+
 interface OnboardingRouteChildren {
   OnboardingResultRoute: typeof OnboardingResultRoute
 }
@@ -732,11 +823,14 @@ const rootRouteChildren: RootRouteChildren = {
   CoachRoute: CoachRoute,
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  CreditsRoute: CreditsRoute,
   DuelsRoute: DuelsRoute,
+  GeneratorRoute: GeneratorRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
+  PricingRoute: PricingRoute,
   ProblemsRoute: ProblemsRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,

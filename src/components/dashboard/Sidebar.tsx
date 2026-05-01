@@ -32,7 +32,7 @@ const items = [
   { icon: Trophy, label: "Ranking", to: "/leaderboard" as const },
   { icon: Award, label: "Odznaki", to: "/badges" as const },
   { icon: Swords, label: "Pojedynki", to: "/duels" as const },
-  { icon: Bot, label: "AI Coach", to: "/coach" as const },
+  { icon: Bot, label: "Generator Produktu AI", to: "/generator" as const },
   { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
   { icon: BarChart3, label: "Statystyki", to: "/stats" as const },
   { icon: Package, label: "Mój produkt", to: "/products" as const },
