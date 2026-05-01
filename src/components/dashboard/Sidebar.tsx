@@ -17,8 +17,11 @@ import {
   CalendarDays,
   BarChart3,
   Bot,
+  Shield,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 const items = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
