@@ -47,6 +47,172 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          related_generation_id: string | null
+          type: Database["public"]["Enums"]["ai_credit_tx_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          related_generation_id?: string | null
+          type: Database["public"]["Enums"]["ai_credit_tx_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          related_generation_id?: string | null
+          type?: Database["public"]["Enums"]["ai_credit_tx_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_generation_history: {
+        Row: {
+          created_at: string
+          credits_used: number
+          generator_id: string | null
+          generator_slug: string
+          id: string
+          input_data: Json
+          model: string | null
+          output_data: string | null
+          quality_mode: Database["public"]["Enums"]["ai_quality_mode"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_used?: number
+          generator_id?: string | null
+          generator_slug: string
+          id?: string
+          input_data?: Json
+          model?: string | null
+          output_data?: string | null
+          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_used?: number
+          generator_id?: string | null
+          generator_slug?: string
+          id?: string
+          input_data?: Json
+          model?: string | null
+          output_data?: string | null
+          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_generators: {
+        Row: {
+          category: string | null
+          created_at: string
+          credit_cost: number
+          description: string | null
+          estimated_api_cost_pln: number
+          form_schema: Json
+          id: string
+          max_output_tokens: number
+          model: string
+          name: string
+          position: number
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
+          slug: string
+          status: Database["public"]["Enums"]["ai_generator_status"]
+          supports_quality_modes: boolean
+          system_prompt: string
+          temperature: number
+          updated_at: string
+          user_prompt_template: string
+          version: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          credit_cost?: number
+          description?: string | null
+          estimated_api_cost_pln?: number
+          form_schema?: Json
+          id?: string
+          max_output_tokens?: number
+          model?: string
+          name: string
+          position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          slug: string
+          status?: Database["public"]["Enums"]["ai_generator_status"]
+          supports_quality_modes?: boolean
+          system_prompt: string
+          temperature?: number
+          updated_at?: string
+          user_prompt_template: string
+          version?: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          credit_cost?: number
+          description?: string | null
+          estimated_api_cost_pln?: number
+          form_schema?: Json
+          id?: string
+          max_output_tokens?: number
+          model?: string
+          name?: string
+          position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          slug?: string
+          status?: Database["public"]["Enums"]["ai_generator_status"]
+          supports_quality_modes?: boolean
+          system_prompt?: string
+          temperature?: number
+          updated_at?: string
+          user_prompt_template?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ai_settings: {
+        Row: {
+          credit_value_pln: number
+          default_model: string
+          id: string
+          minimum_margin_multiplier: number
+          updated_at: string
+        }
+        Insert: {
+          credit_value_pln?: number
+          default_model?: string
+          id?: string
+          minimum_margin_multiplier?: number
+          updated_at?: string
+        }
+        Update: {
+          credit_value_pln?: number
+          default_model?: string
+          id?: string
+          minimum_margin_multiplier?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           code: string
@@ -244,6 +410,48 @@ export type Database = {
           slug?: string | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_redemption_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          credits: number
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          redemption_count: number
+          validity_days: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          credits: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemption_count?: number
+          validity_days?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          credits?: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemption_count?: number
+          validity_days?: number
         }
         Relationships: []
       }
@@ -734,30 +942,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ad_budget_ready: string | null
+          admin_notes: string | null
           avatar_url: string | null
           created_at: string
           email: string
           full_name: string | null
           id: string
+          lead_temp: Database["public"]["Enums"]["user_lead_temp"] | null
           phone: string | null
+          social_link: string | null
           updated_at: string
         }
         Insert: {
+          ad_budget_ready?: string | null
+          admin_notes?: string | null
           avatar_url?: string | null
           created_at?: string
           email: string
           full_name?: string | null
           id: string
+          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
           phone?: string | null
+          social_link?: string | null
           updated_at?: string
         }
         Update: {
+          ad_budget_ready?: string | null
+          admin_notes?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string | null
           id?: string
+          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
           phone?: string | null
+          social_link?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -792,6 +1012,48 @@ export type Database = {
           title?: string
           updated_at?: string
           xp_cost?: number
+        }
+        Relationships: []
+      }
+      service_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          service_type: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          service_type: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          service_type?: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -898,6 +1160,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_ai_credits: {
+        Row: {
+          bonus_credits: number
+          bonus_expires_at: string | null
+          created_at: string
+          id: string
+          monthly_credits: number
+          purchased_credits: number
+          reset_at: string
+          updated_at: string
+          used_monthly_credits: number
+          user_id: string
+        }
+        Insert: {
+          bonus_credits?: number
+          bonus_expires_at?: string | null
+          created_at?: string
+          id?: string
+          monthly_credits?: number
+          purchased_credits?: number
+          reset_at?: string
+          updated_at?: string
+          used_monthly_credits?: number
+          user_id: string
+        }
+        Update: {
+          bonus_credits?: number
+          bonus_expires_at?: string | null
+          created_at?: string
+          id?: string
+          monthly_credits?: number
+          purchased_credits?: number
+          reset_at?: string
+          updated_at?: string
+          used_monthly_credits?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       user_badges: {
         Row: {
@@ -1063,6 +1364,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_redeemed_codes: {
+        Row: {
+          code_id: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_rewards: {
         Row: {
           claimed_at: string
@@ -1146,6 +1468,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          free_month_used: boolean
+          id: string
+          paused_until: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          free_month_used?: boolean
+          id?: string
+          paused_until?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          free_month_used?: boolean
+          id?: string
+          paused_until?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_xp_log: {
         Row: {
           amount: number
@@ -1196,6 +1560,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          _amount: number
+          _bonus_validity_days?: number
+          _description: string
+          _type: Database["public"]["Enums"]["ai_credit_tx_type"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       award_badge: {
         Args: { _badge_code: string; _user_id: string }
         Returns: undefined
@@ -1226,6 +1600,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      consume_credits: {
+        Args: {
+          _amount: number
+          _description: string
+          _generation_id?: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      ensure_user_credits: { Args: { _user_id: string }; Returns: undefined }
+      get_available_credits: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1237,11 +1622,28 @@ export type Database = {
         Args: { _lesson_id: string; _user_id: string }
         Returns: string
       }
+      plan_monthly_credits: {
+        Args: { _plan: Database["public"]["Enums"]["subscription_plan"] }
+        Returns: number
+      }
+      redeem_credit_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
+      }
       update_streak: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       acquisition_plan_type: "paid_ads" | "organic_social" | "unsure"
       advisor_type: "technical" | "marketing"
+      ai_credit_tx_type:
+        | "monthly"
+        | "purchase"
+        | "usage"
+        | "bonus"
+        | "refund"
+        | "expired"
+      ai_generator_status: "active" | "inactive"
+      ai_quality_mode: "fast" | "pro" | "premium"
       app_role: "admin" | "user"
       badge_rarity: "common" | "rare" | "epic" | "legendary"
       call_status: "scheduled" | "completed" | "skipped"
@@ -1280,7 +1682,16 @@ export type Database = {
         | "technical"
         | "other"
       product_status: "idea" | "building" | "active" | "paused"
+      service_request_status: "new" | "contacted" | "sold" | "rejected"
       submission_status: "pending" | "approved" | "rejected" | "needs_revision"
+      subscription_plan: "start" | "pro" | "vip"
+      subscription_status:
+        | "active"
+        | "paused"
+        | "cancelled"
+        | "past_due"
+        | "trialing"
+      user_lead_temp: "cold" | "warm" | "hot"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1410,6 +1821,16 @@ export const Constants = {
     Enums: {
       acquisition_plan_type: ["paid_ads", "organic_social", "unsure"],
       advisor_type: ["technical", "marketing"],
+      ai_credit_tx_type: [
+        "monthly",
+        "purchase",
+        "usage",
+        "bonus",
+        "refund",
+        "expired",
+      ],
+      ai_generator_status: ["active", "inactive"],
+      ai_quality_mode: ["fast", "pro", "premium"],
       app_role: ["admin", "user"],
       badge_rarity: ["common", "rare", "epic", "legendary"],
       call_status: ["scheduled", "completed", "skipped"],
@@ -1452,7 +1873,17 @@ export const Constants = {
         "other",
       ],
       product_status: ["idea", "building", "active", "paused"],
+      service_request_status: ["new", "contacted", "sold", "rejected"],
       submission_status: ["pending", "approved", "rejected", "needs_revision"],
+      subscription_plan: ["start", "pro", "vip"],
+      subscription_status: [
+        "active",
+        "paused",
+        "cancelled",
+        "past_due",
+        "trialing",
+      ],
+      user_lead_temp: ["cold", "warm", "hot"],
     },
   },
 } as const
