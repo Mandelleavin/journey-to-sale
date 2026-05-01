@@ -171,12 +171,10 @@ function GeneratorPage() {
     <PageShell
       title={gen.name}
       subtitle={gen.description ?? undefined}
-      actions={
-        <Link to="/generator" className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" /> Wszystkie generatory
-        </Link>
-      }
     >
+      <Link to="/generator" className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground -mt-2">
+        <ArrowLeft className="w-4 h-4" /> Wszystkie generatory
+      </Link>
       <div className="grid lg:grid-cols-[1fr_360px] gap-5">
         <div className="space-y-5">
           <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">

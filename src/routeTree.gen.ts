@@ -35,6 +35,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
@@ -173,6 +174,11 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   path: '/lessons/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GeneratorSlugRoute = GeneratorSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => GeneratorRoute,
+} as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   id: '/$courseId',
   path: '/$courseId',
@@ -225,7 +231,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
-  '/generator': typeof GeneratorRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -260,7 +267,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
-  '/generator': typeof GeneratorRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -296,7 +304,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/duels': typeof DuelsRoute
-  '/generator': typeof GeneratorRoute
+  '/generator': typeof GeneratorRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/courses'
     | '/courses/$courseId'
+    | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
@@ -439,7 +451,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DuelsRoute: typeof DuelsRoute
-  GeneratorRoute: typeof GeneratorRoute
+  GeneratorRoute: typeof GeneratorRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
@@ -642,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonsLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/generator/$slug': {
+      id: '/generator/$slug'
+      path: '/$slug'
+      fullPath: '/generator/$slug'
+      preLoaderRoute: typeof GeneratorSlugRouteImport
+      parentRoute: typeof GeneratorRoute
+    }
     '/courses/$courseId': {
       id: '/courses/$courseId'
       path: '/$courseId'
@@ -729,6 +748,18 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface GeneratorRouteChildren {
+  GeneratorSlugRoute: typeof GeneratorSlugRoute
+}
+
+const GeneratorRouteChildren: GeneratorRouteChildren = {
+  GeneratorSlugRoute: GeneratorSlugRoute,
+}
+
+const GeneratorRouteWithChildren = GeneratorRoute._addFileChildren(
+  GeneratorRouteChildren,
+)
+
 interface OnboardingRouteChildren {
   OnboardingResultRoute: typeof OnboardingResultRoute
 }
@@ -753,7 +784,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DuelsRoute: DuelsRoute,
-  GeneratorRoute: GeneratorRoute,
+  GeneratorRoute: GeneratorRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
