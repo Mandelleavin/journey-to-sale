@@ -190,7 +190,7 @@ function PackagePage() {
       supabase.from("user_subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
       supabase
         .from("subscriptions")
-        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,created_at,environment")
+        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,cancel_at_period_end,created_at,environment")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
       supabase
