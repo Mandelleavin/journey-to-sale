@@ -126,14 +126,52 @@ const PRICE_LABELS: Record<string, string> = {
   credits_pack_700: "Paczka 700 kredytów",
 };
 
-const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  active: { label: "Aktywna", cls: "border-green/40 text-green" },
-  trialing: { label: "Trial", cls: "border-blue/40 text-blue" },
-  past_due: { label: "Zaległa", cls: "border-orange/40 text-orange" },
-  canceled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
-  cancelled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
-  incomplete: { label: "Niekompletna", cls: "border-muted text-muted-foreground" },
-  paused: { label: "Wstrzymana", cls: "border-orange/40 text-orange" },
+const STATUS_LABELS: Record<string, { label: string; cls: string; hint: string }> = {
+  active: {
+    label: "Aktywna",
+    cls: "border-green/40 text-green",
+    hint: "Subskrypcja jest aktywna i opłacona.",
+  },
+  trialing: {
+    label: "Okres próbny",
+    cls: "border-blue/40 text-blue",
+    hint: "Trwa darmowy okres próbny — pełen dostęp.",
+  },
+  past_due: {
+    label: "Zaległa płatność",
+    cls: "border-orange/40 text-orange",
+    hint: "Ostatnia płatność nie powiodła się — Stripe ponawia próbę.",
+  },
+  unpaid: {
+    label: "Nieopłacona",
+    cls: "border-orange/40 text-orange",
+    hint: "Wszystkie próby płatności wyczerpane.",
+  },
+  incomplete: {
+    label: "W trakcie",
+    cls: "border-muted text-muted-foreground",
+    hint: "Płatność nie została jeszcze potwierdzona.",
+  },
+  incomplete_expired: {
+    label: "Wygasła",
+    cls: "border-muted text-muted-foreground",
+    hint: "Czas na dokończenie pierwszej płatności minął.",
+  },
+  canceled: {
+    label: "Anulowana",
+    cls: "border-muted text-muted-foreground",
+    hint: "Subskrypcja została anulowana.",
+  },
+  cancelled: {
+    label: "Anulowana",
+    cls: "border-muted text-muted-foreground",
+    hint: "Subskrypcja została anulowana.",
+  },
+  paused: {
+    label: "Wstrzymana",
+    cls: "border-orange/40 text-orange",
+    hint: "Subskrypcja jest tymczasowo wstrzymana.",
+  },
 };
 
 function PackagePage() {
