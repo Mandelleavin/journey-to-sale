@@ -458,10 +458,23 @@ function PackagePage() {
                 </TableHeader>
                 <TableBody>
                   {stripeSubs.map((s) => {
-                    const st = STATUS_LABELS[s.status] ?? {
+                    const base = STATUS_LABELS[s.status] ?? {
                       label: s.status,
                       cls: "border-muted text-muted-foreground",
+                      hint: `Status Stripe: ${s.status}`,
                     };
+                    const endingSoon =
+                      s.cancel_at_period_end &&
+                      (s.status === "active" || s.status === "trialing");
+                    const st = endingSoon
+                      ? {
+                          label: s.current_period_end
+                            ? `Anulowana — do ${new Date(s.current_period_end).toLocaleDateString("pl-PL")}`
+                            : "Anulowana — do końca okresu",
+                          cls: "border-orange/40 text-orange",
+                          hint: "Anulowana — dostęp aktywny do końca opłaconego okresu.",
+                        }
+                      : base;
                     return (
                       <TableRow key={s.id}>
                         <TableCell className="whitespace-nowrap">
@@ -469,7 +482,7 @@ function PackagePage() {
                         </TableCell>
                         <TableCell>{PRICE_LABELS[s.price_id] ?? s.price_id}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={st.cls}>
+                          <Badge variant="outline" className={st.cls} title={st.hint}>
                             {st.label}
                           </Badge>
                           {s.environment === "sandbox" && (
