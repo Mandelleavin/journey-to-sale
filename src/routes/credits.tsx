@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Check } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/credits")({
   head: () => ({
