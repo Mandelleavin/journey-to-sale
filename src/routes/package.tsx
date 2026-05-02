@@ -387,6 +387,133 @@ function PackagePage() {
         </div>
       </div>
 
+      {/* Historia transakcji */}
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center gap-2 mb-1">
+          <Receipt className="w-5 h-5 text-violet" />
+          <h2 className="font-display font-bold text-lg">Historia transakcji</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Subskrypcje i zakupione paczki kredytów. Identyfikator pochodzi z systemu płatności.
+        </p>
+
+        <div className="mb-6">
+          <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-muted-foreground" /> Subskrypcje
+          </h3>
+          {stripeSubs.length === 0 ? (
+            <div className="text-sm text-muted-foreground rounded-xl bg-muted/40 p-3">
+              Brak transakcji subskrypcyjnych.
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Okres</TableHead>
+                    <TableHead>ID Stripe</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stripeSubs.map((s) => {
+                    const st = STATUS_LABELS[s.status] ?? {
+                      label: s.status,
+                      cls: "border-muted text-muted-foreground",
+                    };
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell className="whitespace-nowrap">
+                          {new Date(s.created_at).toLocaleDateString("pl-PL")}
+                        </TableCell>
+                        <TableCell>{PRICE_LABELS[s.price_id] ?? s.price_id}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={st.cls}>
+                            {st.label}
+                          </Badge>
+                          {s.environment === "sandbox" && (
+                            <Badge variant="outline" className="ml-1 border-orange/40 text-orange text-[10px]">
+                              test
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          {s.current_period_start
+                            ? new Date(s.current_period_start).toLocaleDateString("pl-PL")
+                            : "—"}
+                          {" – "}
+                          {s.current_period_end
+                            ? new Date(s.current_period_end).toLocaleDateString("pl-PL")
+                            : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-[11px] font-mono text-muted-foreground break-all">
+                            {s.stripe_subscription_id}
+                          </code>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <PackageIcon className="w-4 h-4 text-muted-foreground" /> Paczki kredytów
+          </h3>
+          {creditPacks.length === 0 ? (
+            <div className="text-sm text-muted-foreground rounded-xl bg-muted/40 p-3">
+              Brak zakupionych paczek kredytów.
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Pakiet</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>ID sesji Stripe</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {creditPacks.map((p) => (
+                    <TableRow key={p.session_id}>
+                      <TableCell className="whitespace-nowrap">
+                        {new Date(p.created_at).toLocaleDateString("pl-PL")}
+                      </TableCell>
+                      <TableCell>
+                        {p.price_id ? (PRICE_LABELS[p.price_id] ?? p.price_id) : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="border-green/40 text-green">
+                          Opłacone
+                        </Badge>
+                        {p.environment === "sandbox" && (
+                          <Badge variant="outline" className="ml-1 border-orange/40 text-orange text-[10px]">
+                            test
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-[11px] font-mono text-muted-foreground break-all">
+                          {p.session_id}
+                        </code>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Retencja */}
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <h2 className="font-display font-bold text-lg mb-1">Zarządzaj subskrypcją</h2>
