@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { MessageCircle, X, Send, Wrench, Megaphone } from "lucide-react";
+import { MessageCircle, X, Send, Wrench, Megaphone, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
 
 export function AdvisorButton() {
   const [open, setOpen] = useState(false);
@@ -39,6 +40,14 @@ export function AdvisorButton() {
             <Send className="w-4 h-4" />
             Napisz wiadomość
           </Button>
+
+          <Link
+            to="/package"
+            className="mt-2 flex items-center gap-2 justify-center w-full rounded-xl border border-orange/40 bg-orange/10 text-sm font-semibold py-2 text-orange-foreground hover:bg-orange/20"
+          >
+            <Rocket className="w-4 h-4" />
+            Przyspiesz wdrożenie
+          </Link>
         </div>
       )}
 
