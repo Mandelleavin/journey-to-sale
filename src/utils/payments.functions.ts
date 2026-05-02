@@ -64,3 +64,87 @@ export const createPortalSession = createServerFn({ method: "POST" })
     });
     return portal.url;
   });
+
+/**
+ * Anulowanie subskrypcji z dostępem do końca opłaconego okresu.
+ * Strategia: ustawiamy cancel_at_period_end = true (a NIE natychmiastowe anulowanie).
+ * Webhook customer.subscription.updated zaktualizuje DB.
+ */
+export const cancelSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: StripeEnv }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: sub, error: subError } = await supabase
+      .from("subscriptions")
+      .select("stripe_subscription_id, status, cancel_at_period_end")
+      .eq("user_id", userId)
+      .eq("environment", data.environment)
+      .in("status", ["active", "trialing", "past_due"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (subError || !sub?.stripe_subscription_id) {
+      throw new Error("Brak aktywnej subskrypcji do anulowania");
+    }
+
+    const stripe = createStripeClient(data.environment);
+    const updated = await stripe.subscriptions.update(sub.stripe_subscription_id as string, {
+      cancel_at_period_end: true,
+    });
+
+    // Optimistic update — webhook potwierdzi.
+    await supabase
+      .from("subscriptions")
+      .update({
+        cancel_at_period_end: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_subscription_id", sub.stripe_subscription_id as string)
+      .eq("environment", data.environment);
+
+    return {
+      cancelAt: updated.cancel_at ? updated.cancel_at * 1000 : null,
+      currentPeriodEnd: updated.items?.data?.[0]?.current_period_end
+        ? updated.items.data[0].current_period_end * 1000
+        : null,
+    };
+  });
+
+/** Wznowienie subskrypcji oznaczonej do anulowania (przed końcem okresu). */
+export const resumeSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: StripeEnv }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: sub, error: subError } = await supabase
+      .from("subscriptions")
+      .select("stripe_subscription_id")
+      .eq("user_id", userId)
+      .eq("environment", data.environment)
+      .eq("cancel_at_period_end", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (subError || !sub?.stripe_subscription_id) {
+      throw new Error("Brak subskrypcji do wznowienia");
+    }
+
+    const stripe = createStripeClient(data.environment);
+    await stripe.subscriptions.update(sub.stripe_subscription_id as string, {
+      cancel_at_period_end: false,
+    });
+
+    await supabase
+      .from("subscriptions")
+      .update({
+        cancel_at_period_end: false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_subscription_id", sub.stripe_subscription_id as string)
+      .eq("environment", data.environment);
+
+    return { ok: true };
+  });

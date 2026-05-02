@@ -23,6 +23,7 @@ import {
   Crown,
   Receipt,
   Package as PackageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   Table,
@@ -36,6 +37,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useCredits } from "@/hooks/useCredits";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { cancelSubscription, resumeSubscription } from "@/utils/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 export const Route = createFileRoute("/package")({
   head: () => ({
@@ -266,20 +270,59 @@ function PackagePage() {
     }
   };
 
+  const cancelSubFn = useServerFn(cancelSubscription);
+  const resumeSubFn = useServerFn(resumeSubscription);
+
+  // Czy istnieje aktywna subskrypcja Stripe oznaczona do anulowania na koniec okresu?
+  const stripeActive = stripeSubs.find(
+    (s) => s.status === "active" || s.status === "trialing" || s.status === "past_due",
+  );
+  const pendingStripeCancel = !!stripeActive?.cancel_at_period_end;
+  const stripeAccessUntil = stripeActive?.current_period_end ?? null;
+
   const confirmCancel = async () => {
     if (!user) return;
+    // Zapisujemy feedback (best-effort, nie blokuje anulowania).
     await supabase.from("cancellation_feedback").insert({
       user_id: user.id,
       reason,
       comment,
     });
+
+    // Próbujemy anulować subskrypcję w Stripe (jeśli istnieje).
+    let stripeCancelled = false;
+    if (stripeActive) {
+      try {
+        await cancelSubFn({ data: { environment: getStripeEnvironment() } });
+        stripeCancelled = true;
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się anulować w Stripe");
+      }
+    }
+
+    // Lokalne user_subscriptions — oznaczamy jako anulowane (legacy mock).
     await supabase
       .from("user_subscriptions")
       .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
       .eq("user_id", user.id);
-    toast.success("Subskrypcja anulowana. Dziękujemy za feedback.");
+
+    toast.success(
+      stripeCancelled
+        ? "Subskrypcja zostanie anulowana na koniec opłaconego okresu."
+        : "Subskrypcja anulowana. Dziękujemy za feedback.",
+    );
     setShowCancel(false);
     loadSub();
+  };
+
+  const resumeSub = async () => {
+    try {
+      await resumeSubFn({ data: { environment: getStripeEnvironment() } });
+      toast.success("Subskrypcja wznowiona — odnowi się automatycznie.");
+      loadSub();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się wznowić subskrypcji");
+    }
   };
 
   return (
@@ -576,6 +619,22 @@ function PackagePage() {
         <p className="text-sm text-muted-foreground mb-4">
           Zanim zrezygnujesz — sprawdź opcje, które pomagają wielu uczestnikom dokończyć kurs.
         </p>
+        {pendingStripeCancel && (
+          <div className="mb-4 rounded-2xl border border-orange/30 bg-orange/10 p-4 flex items-start gap-3 flex-wrap">
+            <XCircle className="w-5 h-5 text-orange shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-[180px]">
+              <div className="font-semibold text-sm">Subskrypcja zostanie anulowana</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {stripeAccessUntil
+                  ? `Dostęp aktywny do ${new Date(stripeAccessUntil).toLocaleDateString("pl-PL")}. Możesz wznowić w każdej chwili przed tą datą.`
+                  : "Dostęp pozostaje aktywny do końca opłaconego okresu."}
+              </div>
+            </div>
+            <Button size="sm" variant="outline" onClick={resumeSub}>
+              <RotateCcw className="w-4 h-4 mr-1" /> Wznów subskrypcję
+            </Button>
+          </div>
+        )}
         <div className="grid md:grid-cols-2 gap-3">
           <button
             onClick={pauseSub}
@@ -610,12 +669,17 @@ function PackagePage() {
           </button>
           <button
             onClick={() => setShowCancel(true)}
-            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5"
+            disabled={pendingStripeCancel}
+            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5 disabled:opacity-50 disabled:hover:bg-transparent"
           >
             <XCircle className="w-5 h-5 text-destructive mb-2" />
-            <div className="font-semibold text-destructive">Anuluj subskrypcję</div>
+            <div className="font-semibold text-destructive">
+              {pendingStripeCancel ? "Anulowanie zaplanowane" : "Anuluj subskrypcję"}
+            </div>
             <div className="text-xs text-muted-foreground">
-              Stracisz dostęp do kursów i kredytów AI.
+              {pendingStripeCancel
+                ? "Już zaplanowane — dostęp do końca okresu."
+                : "Dostęp do końca opłaconego okresu, potem brak odnowienia."}
             </div>
           </button>
         </div>
