@@ -619,6 +619,22 @@ function PackagePage() {
         <p className="text-sm text-muted-foreground mb-4">
           Zanim zrezygnujesz — sprawdź opcje, które pomagają wielu uczestnikom dokończyć kurs.
         </p>
+        {pendingStripeCancel && (
+          <div className="mb-4 rounded-2xl border border-orange/30 bg-orange/10 p-4 flex items-start gap-3 flex-wrap">
+            <XCircle className="w-5 h-5 text-orange shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-[180px]">
+              <div className="font-semibold text-sm">Subskrypcja zostanie anulowana</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {stripeAccessUntil
+                  ? `Dostęp aktywny do ${new Date(stripeAccessUntil).toLocaleDateString("pl-PL")}. Możesz wznowić w każdej chwili przed tą datą.`
+                  : "Dostęp pozostaje aktywny do końca opłaconego okresu."}
+              </div>
+            </div>
+            <Button size="sm" variant="outline" onClick={resumeSub}>
+              <RotateCcw className="w-4 h-4 mr-1" /> Wznów subskrypcję
+            </Button>
+          </div>
+        )}
         <div className="grid md:grid-cols-2 gap-3">
           <button
             onClick={pauseSub}
