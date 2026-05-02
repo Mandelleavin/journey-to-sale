@@ -18,27 +18,28 @@ export const Route = createFileRoute("/credits")({
   component: CreditsPage,
 });
 
-const PACKS = [
-  { credits: 80, price: 97, popular: false },
-  { credits: 250, price: 247, popular: true },
-  { credits: 700, price: 597, popular: false },
+const PACKS: Array<{ credits: number; price: number; popular: boolean; priceId: string }> = [
+  { credits: 80, price: 97, popular: false, priceId: "credits_pack_80_once" },
+  { credits: 250, price: 247, popular: true, priceId: "credits_pack_250_once" },
+  { credits: 700, price: 597, popular: false, priceId: "credits_pack_700_once" },
 ];
 
 function CreditsPage() {
   const { user } = useAuth();
-  const { credits, refresh } = useCredits();
+  const { credits } = useCredits();
+  const { openCheckout, closeCheckout, isOpen, checkoutElement } = useStripeCheckout();
 
-  const buy = async (amount: number) => {
-    if (!user) return;
-    // MOCK: docelowo Stripe; teraz dopisujemy kredyty od razu jako purchase
-    await supabase.rpc("add_credits", {
-      _user_id: user.id,
-      _amount: amount,
-      _type: "purchase",
-      _description: `Mock: zakup ${amount} kredytów`,
+  const buy = (priceId: string) => {
+    if (!user) {
+      toast.error("Zaloguj się, aby dokupić kredyty");
+      return;
+    }
+    openCheckout({
+      priceId,
+      customerEmail: user.email ?? undefined,
+      userId: user.id,
+      returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-    toast.success(`Dodano ${amount} kredytów (mock)`);
-    refresh();
   };
 
   return (
