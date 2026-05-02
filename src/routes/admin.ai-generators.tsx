@@ -33,7 +33,7 @@ type Generator = {
   model: string;
   system_prompt: string;
   user_prompt_template: string;
-  status: "active" | "draft" | "archived";
+  status: "active" | "inactive";
   position: number;
   supports_quality_modes: boolean;
   required_plan: "start" | "pro" | "vip" | null;
@@ -87,7 +87,7 @@ function AdminAIGenerators() {
     Math.max(1, Math.ceil((apiCostPln * marginMult) / Math.max(0.01, creditValue)));
 
   const toggleStatus = async (g: Generator) => {
-    const next = g.status === "active" ? "draft" : "active";
+    const next: "active" | "inactive" = g.status === "active" ? "inactive" : "active";
     const { error } = await supabase.from("ai_generators").update({ status: next }).eq("id", g.id);
     if (error) toast.error(error.message);
     else {
