@@ -2,6 +2,29 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
+/**
+ * Pobiera status sesji checkout (do strony powrotu).
+ * Zwraca pola potrzebne do rozróżnienia: sukces / w toku / błąd / wygasła.
+ */
+export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
+  .inputValidator((data: { sessionId: string; environment: StripeEnv }) => {
+    if (!/^cs_(test|live)_[a-zA-Z0-9]+$/.test(data.sessionId)) {
+      throw new Error("Invalid sessionId");
+    }
+    return data;
+  })
+  .handler(async ({ data }) => {
+    const stripe = createStripeClient(data.environment);
+    const session = await stripe.checkout.sessions.retrieve(data.sessionId);
+    return {
+      status: session.status, // "open" | "complete" | "expired"
+      paymentStatus: session.payment_status, // "paid" | "unpaid" | "no_payment_required"
+      customerEmail: session.customer_details?.email ?? null,
+      amountTotal: session.amount_total,
+      currency: session.currency,
+    };
+  });
+
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .inputValidator(
     (data: {
