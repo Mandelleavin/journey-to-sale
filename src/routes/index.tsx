@@ -7,6 +7,7 @@ import { MissionCard } from "@/components/dashboard/MissionCard";
 import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
+import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
