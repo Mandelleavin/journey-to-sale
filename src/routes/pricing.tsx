@@ -110,25 +110,25 @@ function PricingPage() {
     })();
   }, [user]);
 
-  const choose = async (plan: Plan) => {
-    if (!user) return;
-    const credits = plan === "start" ? 80 : plan === "pro" ? 250 : 700;
-    // MOCK: docelowo Stripe; teraz zapis subskrypcji + ustawienie miesięcznych kredytów
-    await supabase.from("user_subscriptions").upsert({
-      user_id: user.id,
-      plan,
-      status: "active",
-      current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
-    }, { onConflict: "user_id" });
-    await supabase.rpc("add_credits", {
-      _user_id: user.id,
-      _amount: credits,
-      _type: "monthly",
-      _description: `Aktywacja pakietu ${plan.toUpperCase()}`,
+  const { openCheckout, closeCheckout, isOpen, checkoutElement } = useStripeCheckout();
+
+  const PRICE_BY_PLAN: Record<Plan, string> = {
+    start: "plan_start_monthly",
+    pro: "plan_pro_monthly",
+    vip: "plan_vip_monthly",
+  };
+
+  const choose = (plan: Plan) => {
+    if (!user) {
+      toast.error("Zaloguj się, aby wybrać pakiet");
+      return;
+    }
+    openCheckout({
+      priceId: PRICE_BY_PLAN[plan],
+      customerEmail: user.email ?? undefined,
+      userId: user.id,
+      returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-    setCurrentPlan(plan);
-    toast.success(`Aktywowano pakiet ${plan.toUpperCase()} (mock)`);
   };
 
   return (
