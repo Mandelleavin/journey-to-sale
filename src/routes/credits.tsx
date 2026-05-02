@@ -70,7 +70,7 @@ function CreditsPage() {
               <li className="flex items-center gap-1"><Check className="w-4 h-4 text-green" /> Ważne 12 miesięcy</li>
               <li className="flex items-center gap-1"><Check className="w-4 h-4 text-green" /> Dostępne natychmiast</li>
             </ul>
-            <Button onClick={() => buy(p.credits)} className="w-full mt-4 bg-gradient-violet text-primary-foreground">
+            <Button onClick={() => buy(p.priceId)} className="w-full mt-4 bg-gradient-violet text-primary-foreground">
               Dokup {p.credits} kredytów
             </Button>
           </div>
