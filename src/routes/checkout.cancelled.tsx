@@ -52,7 +52,7 @@ const REASON_TEXT: Record<string, { title: string; desc: string }> = {
 
 function CheckoutCancelled() {
   const { session_id, reason } = Route.useSearch();
-  const r = (reason && REASON_TEXT[reason]) ?? {
+  const r = (reason ? REASON_TEXT[reason] : undefined) ?? {
     title: "Płatność nie została zakończona",
     desc: "Coś poszło nie tak podczas płatności. Możesz spróbować ponownie — nic nie zostało pobrane z Twojej karty.",
   };

@@ -40,6 +40,7 @@ import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
@@ -204,6 +205,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutCancelledRoute = CheckoutCancelledRouteImport.update({
+  id: '/checkout/cancelled',
+  path: '/checkout/cancelled',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCoursesRoute = AdminCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -361,6 +369,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -404,6 +413,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -486,6 +497,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -526,6 +538,7 @@ export interface RootRouteChildren {
   RewardsRoute: typeof RewardsRoute
   StatsRoute: typeof StatsRoute
   TasksRoute: typeof TasksRoute
+  CheckoutCancelledRoute: typeof CheckoutCancelledRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
   UUserIdRoute: typeof UUserIdRoute
@@ -754,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/cancelled': {
+      id: '/checkout/cancelled'
+      path: '/checkout/cancelled'
+      fullPath: '/checkout/cancelled'
+      preLoaderRoute: typeof CheckoutCancelledRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/courses': {
       id: '/admin/courses'
       path: '/courses'
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   RewardsRoute: RewardsRoute,
   StatsRoute: StatsRoute,
   TasksRoute: TasksRoute,
+  CheckoutCancelledRoute: CheckoutCancelledRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
   UUserIdRoute: UUserIdRoute,
