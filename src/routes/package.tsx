@@ -269,20 +269,59 @@ function PackagePage() {
     }
   };
 
+  const cancelSubFn = useServerFn(cancelSubscription);
+  const resumeSubFn = useServerFn(resumeSubscription);
+
+  // Czy istnieje aktywna subskrypcja Stripe oznaczona do anulowania na koniec okresu?
+  const stripeActive = stripeSubs.find(
+    (s) => s.status === "active" || s.status === "trialing" || s.status === "past_due",
+  );
+  const pendingStripeCancel = !!stripeActive?.cancel_at_period_end;
+  const stripeAccessUntil = stripeActive?.current_period_end ?? null;
+
   const confirmCancel = async () => {
     if (!user) return;
+    // Zapisujemy feedback (best-effort, nie blokuje anulowania).
     await supabase.from("cancellation_feedback").insert({
       user_id: user.id,
       reason,
       comment,
     });
+
+    // Próbujemy anulować subskrypcję w Stripe (jeśli istnieje).
+    let stripeCancelled = false;
+    if (stripeActive) {
+      try {
+        await cancelSubFn({ data: { environment: getStripeEnvironment() } });
+        stripeCancelled = true;
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się anulować w Stripe");
+      }
+    }
+
+    // Lokalne user_subscriptions — oznaczamy jako anulowane (legacy mock).
     await supabase
       .from("user_subscriptions")
       .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
       .eq("user_id", user.id);
-    toast.success("Subskrypcja anulowana. Dziękujemy za feedback.");
+
+    toast.success(
+      stripeCancelled
+        ? "Subskrypcja zostanie anulowana na koniec opłaconego okresu."
+        : "Subskrypcja anulowana. Dziękujemy za feedback.",
+    );
     setShowCancel(false);
     loadSub();
+  };
+
+  const resumeSub = async () => {
+    try {
+      await resumeSubFn({ data: { environment: getStripeEnvironment() } });
+      toast.success("Subskrypcja wznowiona — odnowi się automatycznie.");
+      loadSub();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Nie udało się wznowić subskrypcji");
+    }
   };
 
   return (
