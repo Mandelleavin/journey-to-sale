@@ -21,7 +21,17 @@ import {
   XCircle,
   Plus,
   Crown,
+  Receipt,
+  Package as PackageIcon,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useCredits } from "@/hooks/useCredits";
@@ -89,6 +99,43 @@ const CANCEL_REASONS = [
   "Inne",
 ];
 
+type StripeSubRow = {
+  id: string;
+  stripe_subscription_id: string;
+  price_id: string;
+  status: string;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  created_at: string;
+  environment: string;
+};
+
+type CreditPackRow = {
+  session_id: string;
+  price_id: string | null;
+  created_at: string;
+  environment: string;
+};
+
+const PRICE_LABELS: Record<string, string> = {
+  plan_start: "Plan START",
+  plan_pro: "Plan PRO SPRZEDAŻ",
+  plan_vip: "Plan VIP",
+  credits_pack_80: "Paczka 80 kredytów",
+  credits_pack_250: "Paczka 250 kredytów",
+  credits_pack_700: "Paczka 700 kredytów",
+};
+
+const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
+  active: { label: "Aktywna", cls: "border-green/40 text-green" },
+  trialing: { label: "Trial", cls: "border-blue/40 text-blue" },
+  past_due: { label: "Zaległa", cls: "border-orange/40 text-orange" },
+  canceled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
+  cancelled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
+  incomplete: { label: "Niekompletna", cls: "border-muted text-muted-foreground" },
+  paused: { label: "Wstrzymana", cls: "border-orange/40 text-orange" },
+};
+
 function PackagePage() {
   const { user } = useAuth();
   const { credits, refresh } = useCredits();
@@ -96,15 +143,27 @@ function PackagePage() {
   const [showCancel, setShowCancel] = useState(false);
   const [reason, setReason] = useState(CANCEL_REASONS[0]);
   const [comment, setComment] = useState("");
+  const [stripeSubs, setStripeSubs] = useState<StripeSubRow[]>([]);
+  const [creditPacks, setCreditPacks] = useState<CreditPackRow[]>([]);
 
   const loadSub = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("user_subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    setSub(data as Sub | null);
+    const [subRes, stripeRes, packsRes] = await Promise.all([
+      supabase.from("user_subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("subscriptions")
+        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,created_at,environment")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("processed_checkout_sessions")
+        .select("session_id,price_id,created_at,environment")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
+    setSub(subRes.data as Sub | null);
+    setStripeSubs((stripeRes.data ?? []) as StripeSubRow[]);
+    setCreditPacks((packsRes.data ?? []) as CreditPackRow[]);
   };
 
   useEffect(() => {
@@ -325,6 +384,133 @@ function PackagePage() {
               {sub?.status ?? "active"}
             </Badge>
           </div>
+        </div>
+      </div>
+
+      {/* Historia transakcji */}
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center gap-2 mb-1">
+          <Receipt className="w-5 h-5 text-violet" />
+          <h2 className="font-display font-bold text-lg">Historia transakcji</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Subskrypcje i zakupione paczki kredytów. Identyfikator pochodzi z systemu płatności.
+        </p>
+
+        <div className="mb-6">
+          <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-muted-foreground" /> Subskrypcje
+          </h3>
+          {stripeSubs.length === 0 ? (
+            <div className="text-sm text-muted-foreground rounded-xl bg-muted/40 p-3">
+              Brak transakcji subskrypcyjnych.
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Okres</TableHead>
+                    <TableHead>ID Stripe</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stripeSubs.map((s) => {
+                    const st = STATUS_LABELS[s.status] ?? {
+                      label: s.status,
+                      cls: "border-muted text-muted-foreground",
+                    };
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell className="whitespace-nowrap">
+                          {new Date(s.created_at).toLocaleDateString("pl-PL")}
+                        </TableCell>
+                        <TableCell>{PRICE_LABELS[s.price_id] ?? s.price_id}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={st.cls}>
+                            {st.label}
+                          </Badge>
+                          {s.environment === "sandbox" && (
+                            <Badge variant="outline" className="ml-1 border-orange/40 text-orange text-[10px]">
+                              test
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          {s.current_period_start
+                            ? new Date(s.current_period_start).toLocaleDateString("pl-PL")
+                            : "—"}
+                          {" – "}
+                          {s.current_period_end
+                            ? new Date(s.current_period_end).toLocaleDateString("pl-PL")
+                            : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-[11px] font-mono text-muted-foreground break-all">
+                            {s.stripe_subscription_id}
+                          </code>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <PackageIcon className="w-4 h-4 text-muted-foreground" /> Paczki kredytów
+          </h3>
+          {creditPacks.length === 0 ? (
+            <div className="text-sm text-muted-foreground rounded-xl bg-muted/40 p-3">
+              Brak zakupionych paczek kredytów.
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Pakiet</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>ID sesji Stripe</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {creditPacks.map((p) => (
+                    <TableRow key={p.session_id}>
+                      <TableCell className="whitespace-nowrap">
+                        {new Date(p.created_at).toLocaleDateString("pl-PL")}
+                      </TableCell>
+                      <TableCell>
+                        {p.price_id ? (PRICE_LABELS[p.price_id] ?? p.price_id) : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="border-green/40 text-green">
+                          Opłacone
+                        </Badge>
+                        {p.environment === "sandbox" && (
+                          <Badge variant="outline" className="ml-1 border-orange/40 text-orange text-[10px]">
+                            test
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-[11px] font-mono text-muted-foreground break-all">
+                          {p.session_id}
+                        </code>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       </div>
 
