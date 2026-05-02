@@ -61,10 +61,14 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
       await getSupabase().from("user_subscriptions").upsert(
         {
           user_id: userId,
-          plan,
-          status: "active",
-          current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : new Date().toISOString(),
-          current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+          plan: plan as "start" | "pro" | "vip",
+          status: "active" as const,
+          current_period_start: periodStart
+            ? new Date(periodStart * 1000).toISOString()
+            : new Date().toISOString(),
+          current_period_end: periodEnd
+            ? new Date(periodEnd * 1000).toISOString()
+            : new Date(Date.now() + 30 * 86400000).toISOString(),
         },
         { onConflict: "user_id" },
       );
