@@ -104,7 +104,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 max-w-5xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -129,6 +129,10 @@ function AdminPage() {
               <ListChecks className="w-4 h-4 mr-1" />
               Doradca
             </TabsTrigger>
+            <TabsTrigger value="sales">
+              <Phone className="w-4 h-4 mr-1" />
+              Sprzedaż
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hotleads" className="mt-6">
@@ -148,6 +152,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="advisor" className="mt-6">
             <AdvisorTab />
+          </TabsContent>
+          <TabsContent value="sales" className="mt-6">
+            <SalesTab />
           </TabsContent>
         </Tabs>
       </div>
