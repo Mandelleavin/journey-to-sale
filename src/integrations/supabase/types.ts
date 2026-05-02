@@ -967,6 +967,30 @@ export type Database = {
         }
         Relationships: []
       }
+      processed_checkout_sessions: {
+        Row: {
+          created_at: string | null
+          environment: string
+          price_id: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          environment?: string
+          price_id?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          environment?: string
+          price_id?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ad_budget_ready: string | null
@@ -1080,6 +1104,54 @@ export type Database = {
           service_type?: string
           status?: Database["public"]["Enums"]["service_request_status"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          price_id: string
+          product_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id: string
+          product_id: string
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          price_id?: string
+          product_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1638,6 +1710,10 @@ export type Database = {
       }
       ensure_user_credits: { Args: { _user_id: string }; Returns: undefined }
       get_available_credits: { Args: { _user_id: string }; Returns: number }
+      has_active_subscription: {
+        Args: { check_env?: string; user_uuid: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
