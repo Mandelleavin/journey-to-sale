@@ -200,6 +200,15 @@ function PricingPage() {
         Potrzebujesz tylko więcej kredytów?{" "}
         <Link to="/credits" className="font-semibold text-violet underline">Dokup paczkę kredytów</Link>
       </div>
+
+      <Dialog open={isOpen} onOpenChange={(o) => { if (!o) closeCheckout(); }}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>Dokończ płatność</DialogTitle>
+          </DialogHeader>
+          <div className="p-2">{checkoutElement}</div>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
