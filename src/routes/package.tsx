@@ -1,47 +1,215 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard, Check, Sparkles } from "lucide-react";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  CreditCard,
+  Sparkles,
+  PauseCircle,
+  ArrowDownCircle,
+  Gift,
+  XCircle,
+  Plus,
+  Crown,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useCredits } from "@/hooks/useCredits";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/package")({
   head: () => ({
     meta: [
-      { title: "Mój pakiet — 90 Dni" },
-      {
-        name: "description",
-        content: "Twoje aktualne członkostwo w programie 90 Dni do pierwszej sprzedaży.",
-      },
+      { title: "Mój pakiet — Journey to Sale" },
+      { name: "description", content: "Twoja subskrypcja, kredyty AI i opcje retencji." },
     ],
   }),
   component: PackagePage,
 });
 
+type Plan = "start" | "pro" | "vip";
+type Sub = {
+  id: string;
+  plan: Plan;
+  status: "active" | "paused" | "cancelled" | "past_due";
+  current_period_end: string;
+  paused_until: string | null;
+  free_month_used: boolean;
+  cancelled_at: string | null;
+};
+
+const PLAN_INFO: Record<Plan, { name: string; price: string; credits: number; perks: string[] }> = {
+  start: {
+    name: "START",
+    price: "297 zł / mies.",
+    credits: 80,
+    perks: ["Dostęp do kursu", "80 kredytów AI / mies.", "Społeczność"],
+  },
+  pro: {
+    name: "PRO SPRZEDAŻ",
+    price: "497 zł / mies.",
+    credits: 250,
+    perks: [
+      "Wszystko z START",
+      "250 kredytów AI / mies.",
+      "Sprawdzanie zadań przez mentora",
+      "Audyt pomysłu",
+      "Pełny generator lejka i materiały sprzedażowe",
+    ],
+  },
+  vip: {
+    name: "VIP",
+    price: "997 zł / mies.",
+    credits: 700,
+    perks: [
+      "Wszystko z PRO",
+      "700 kredytów AI / mies.",
+      "Konsultacje 1:1 co tydzień",
+      "Priorytetowe wsparcie 24h",
+      "Reklamy i cały system sprzedaży",
+    ],
+  },
+};
+
+const CANCEL_REASONS = [
+  "Brak czasu",
+  "Za drogo",
+  "Brak wyników",
+  "Zmieniłem cele",
+  "Inne",
+];
+
 function PackagePage() {
   const { user } = useAuth();
-  const data = useDashboardData();
+  const { credits, refresh } = useCredits();
+  const [sub, setSub] = useState<Sub | null>(null);
+  const [showCancel, setShowCancel] = useState(false);
+  const [reason, setReason] = useState(CANCEL_REASONS[0]);
+  const [comment, setComment] = useState("");
 
-  const features = [
-    "Pełny dostęp do wszystkich kursów",
-    "Indywidualne zadania od mentora",
-    "Cotygodniowy kontakt z doradcą",
-    "Społeczność uczestników",
-    "System nagród za zdobywane XP",
-    "Hot lead — priorytetowy kontakt sprzedażowy",
-  ];
+  const loadSub = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setSub(data as Sub | null);
+  };
+
+  useEffect(() => {
+    loadSub();
+  }, [user]);
+
+  const currentPlan: Plan = sub?.plan ?? "start";
+  const info = PLAN_INFO[currentPlan];
+
+  const changePlan = async (newPlan: Plan) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("user_subscriptions")
+      .update({ plan: newPlan, status: "active" })
+      .eq("user_id", user.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    // refresh monthly credits to new plan
+    const planCredits = PLAN_INFO[newPlan].credits;
+    await supabase.rpc("add_credits", {
+      _user_id: user.id,
+      _amount: planCredits,
+      _type: "monthly" as never,
+      _description: `Zmiana planu na ${PLAN_INFO[newPlan].name}`,
+      _bonus_validity_days: 30,
+    });
+    toast.success(`Plan zmieniony na ${PLAN_INFO[newPlan].name}`);
+    loadSub();
+    refresh();
+  };
+
+  const pauseSub = async () => {
+    if (!user) return;
+    const until = new Date();
+    until.setDate(until.getDate() + 30);
+    const { error } = await supabase
+      .from("user_subscriptions")
+      .update({ status: "paused", paused_until: until.toISOString() })
+      .eq("user_id", user.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Subskrypcja wstrzymana na 30 dni");
+      loadSub();
+    }
+  };
+
+  const claimFreeMonth = async () => {
+    if (!user || sub?.free_month_used) return;
+    const newEnd = new Date(sub?.current_period_end ?? Date.now());
+    newEnd.setDate(newEnd.getDate() + 30);
+    const { error } = await supabase
+      .from("user_subscriptions")
+      .update({ free_month_used: true, current_period_end: newEnd.toISOString() })
+      .eq("user_id", user.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Otrzymałeś miesiąc gratis 🎁");
+      loadSub();
+    }
+  };
+
+  const confirmCancel = async () => {
+    if (!user) return;
+    await supabase.from("cancellation_feedback").insert({
+      user_id: user.id,
+      reason,
+      comment,
+    });
+    await supabase
+      .from("user_subscriptions")
+      .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+    toast.success("Subskrypcja anulowana. Dziękujemy za feedback.");
+    setShowCancel(false);
+    loadSub();
+  };
 
   return (
-    <PageShell title="Mój pakiet" subtitle="Szczegóły Twojego aktualnego członkostwa">
+    <PageShell title="Mój pakiet" subtitle="Twoja subskrypcja, kredyty AI i opcje retencji">
+      {/* Aktualny plan */}
       <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-6 shadow-soft">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <Badge variant="outline" className="border-violet/40 text-violet mb-2">
-              Aktywne
+            <Badge
+              variant="outline"
+              className={
+                sub?.status === "active"
+                  ? "border-green/40 text-green mb-2"
+                  : sub?.status === "paused"
+                    ? "border-orange/40 text-orange mb-2"
+                    : "border-muted text-muted-foreground mb-2"
+              }
+            >
+              {sub?.status ?? "active"}
             </Badge>
-            <h2 className="font-display font-extrabold text-2xl">Pakiet 90 Dni — Pełny</h2>
-            <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
+            <h2 className="font-display font-extrabold text-2xl">{info.name}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{info.price}</p>
+            {sub?.current_period_end && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Następne odnowienie:{" "}
+                {new Date(sub.current_period_end).toLocaleDateString("pl-PL")}
+              </p>
+            )}
           </div>
           <div className="w-14 h-14 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
             <CreditCard className="w-7 h-7" />
@@ -50,32 +218,93 @@ function PackagePage() {
 
         <div className="grid grid-cols-3 gap-3 mt-5">
           <div className="rounded-2xl bg-card border border-border p-3">
-            <div className="text-[10px] uppercase font-bold text-muted-foreground">Poziom</div>
-            <div className="font-display font-extrabold text-2xl text-violet">{data.level}</div>
+            <div className="text-[10px] uppercase font-bold text-muted-foreground">Kredyty AI</div>
+            <div className="font-display font-extrabold text-2xl text-violet">
+              {credits?.available ?? 0}
+            </div>
           </div>
           <div className="rounded-2xl bg-card border border-border p-3">
-            <div className="text-[10px] uppercase font-bold text-muted-foreground">XP łącznie</div>
-            <div className="font-display font-extrabold text-2xl">{data.totalXp}</div>
+            <div className="text-[10px] uppercase font-bold text-muted-foreground">Wykorzystane</div>
+            <div className="font-display font-extrabold text-2xl">
+              {credits?.used_monthly ?? 0}/{credits?.monthly ?? 0}
+            </div>
           </div>
           <div className="rounded-2xl bg-card border border-border p-3">
-            <div className="text-[10px] uppercase font-bold text-muted-foreground">Kursy</div>
-            <div className="font-display font-extrabold text-2xl">{data.courses.length}</div>
+            <div className="text-[10px] uppercase font-bold text-muted-foreground">Bonus</div>
+            <div className="font-display font-extrabold text-2xl text-orange">
+              {credits?.bonus ?? 0}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
-        <h2 className="font-display font-bold text-lg mb-3">Co zawiera Twój pakiet</h2>
-        <ul className="space-y-2">
-          {features.map((f) => (
-            <li key={f} className="flex items-start gap-2 text-sm">
-              <Check className="w-4 h-4 text-green shrink-0 mt-0.5" />
-              <span>{f}</span>
+        <ul className="mt-5 space-y-1.5 text-sm">
+          {info.perks.map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-violet shrink-0 mt-0.5" />
+              <span>{p}</span>
             </li>
           ))}
         </ul>
       </div>
 
+      {/* Zmiana planu */}
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <h2 className="font-display font-bold text-lg">Zmień plan</h2>
+          <Link to="/pricing" className="text-sm text-violet font-semibold">
+            Zobacz porównanie pakietów →
+          </Link>
+        </div>
+        <div className="grid md:grid-cols-3 gap-3">
+          {(Object.keys(PLAN_INFO) as Plan[]).map((p) => {
+            const isCurrent = p === currentPlan;
+            const isPro = p === "pro";
+            return (
+              <div
+                key={p}
+                className={`rounded-2xl border p-4 ${isCurrent ? "border-violet bg-violet-soft" : isPro ? "border-orange/50" : "border-border"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-display font-extrabold">{PLAN_INFO[p].name}</div>
+                  {isPro && (
+                    <Badge className="bg-orange text-white text-[10px]">
+                      <Crown className="w-3 h-3 mr-1" /> Polecany
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">{PLAN_INFO[p].price}</div>
+                <div className="text-sm mt-2">{PLAN_INFO[p].credits} kredytów AI / mies.</div>
+                <Button
+                  className={`mt-3 w-full ${isPro ? "bg-gradient-violet text-primary-foreground" : ""}`}
+                  variant={isPro || isCurrent ? "default" : "outline"}
+                  disabled={isCurrent}
+                  onClick={() => changePlan(p)}
+                >
+                  {isCurrent ? "Aktywny" : "Wybierz"}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Dokup kredyty */}
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft flex items-center gap-3 flex-wrap">
+        <div className="w-10 h-10 rounded-xl bg-violet-soft text-violet grid place-items-center">
+          <Plus className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-[200px]">
+          <div className="font-semibold">Potrzebujesz więcej kredytów?</div>
+          <div className="text-sm text-muted-foreground">
+            Dokup pakiet kredytów bez zmiany planu.
+          </div>
+        </div>
+        <Link to="/credits">
+          <Button className="bg-gradient-violet text-primary-foreground">Dokup kredyty</Button>
+        </Link>
+      </div>
+
+      {/* Konto */}
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <h2 className="font-display font-bold text-lg mb-3">Konto</h2>
         <div className="grid md:grid-cols-2 gap-3 text-sm">
@@ -85,22 +314,119 @@ function PackagePage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Status</div>
-            <Badge variant="outline" className="border-green/40 text-green">
-              Aktywny
+            <Badge
+              variant="outline"
+              className={
+                sub?.status === "active"
+                  ? "border-green/40 text-green"
+                  : "border-muted text-muted-foreground"
+              }
+            >
+              {sub?.status ?? "active"}
             </Badge>
           </div>
         </div>
-        <div className="flex gap-2 mt-4 flex-wrap">
-          <Link to="/profile">
-            <Button variant="outline">Edytuj profil</Button>
-          </Link>
-          <Link to="/advisor">
-            <Button className="bg-gradient-violet text-primary-foreground">
-              <Sparkles className="w-4 h-4 mr-1" /> Skontaktuj się z doradcą
-            </Button>
-          </Link>
+      </div>
+
+      {/* Retencja */}
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <h2 className="font-display font-bold text-lg mb-1">Zarządzaj subskrypcją</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Zanim zrezygnujesz — sprawdź opcje, które pomagają wielu uczestnikom dokończyć kurs.
+        </p>
+        <div className="grid md:grid-cols-2 gap-3">
+          <button
+            onClick={pauseSub}
+            disabled={sub?.status === "paused"}
+            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+          >
+            <PauseCircle className="w-5 h-5 text-violet mb-2" />
+            <div className="font-semibold">Wstrzymaj na 30 dni</div>
+            <div className="text-xs text-muted-foreground">Wracasz dokładnie tam, gdzie skończyłeś.</div>
+          </button>
+          <button
+            onClick={claimFreeMonth}
+            disabled={!!sub?.free_month_used}
+            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+          >
+            <Gift className="w-5 h-5 text-orange mb-2" />
+            <div className="font-semibold">
+              {sub?.free_month_used ? "Bonus wykorzystany" : "Odbierz miesiąc gratis"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Daj sobie więcej czasu — jednorazowy bonus.
+            </div>
+          </button>
+          <button
+            onClick={() => changePlan("start")}
+            disabled={currentPlan === "start"}
+            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+          >
+            <ArrowDownCircle className="w-5 h-5 text-blue mb-2" />
+            <div className="font-semibold">Zmień na tańszy plan (START)</div>
+            <div className="text-xs text-muted-foreground">Zachowaj postęp i kredyty.</div>
+          </button>
+          <button
+            onClick={() => setShowCancel(true)}
+            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5"
+          >
+            <XCircle className="w-5 h-5 text-destructive mb-2" />
+            <div className="font-semibold text-destructive">Anuluj subskrypcję</div>
+            <div className="text-xs text-muted-foreground">
+              Stracisz dostęp do kursów i kredytów AI.
+            </div>
+          </button>
         </div>
       </div>
+
+      <Dialog open={showCancel} onOpenChange={setShowCancel}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Czy na pewno chcesz zrezygnować?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-xl bg-orange/10 border border-orange/20 p-3 text-sm">
+              💡 Odbierz <strong>miesiąc gratis</strong> lub przejdź na plan START, zamiast tracić
+              cały dotychczasowy postęp.
+            </div>
+            <div>
+              <Label>Powód rezygnacji</Label>
+              <select
+                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              >
+                {CANCEL_REASONS.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label>Komentarz (pomoże nam ulepszyć kurs)</Label>
+              <Textarea
+                rows={3}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCancel(false);
+                claimFreeMonth();
+              }}
+              disabled={!!sub?.free_month_used}
+            >
+              <Gift className="w-4 h-4 mr-1" /> Wezmę miesiąc gratis
+            </Button>
+            <Button variant="destructive" onClick={confirmCancel}>
+              Anuluj subskrypcję
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
