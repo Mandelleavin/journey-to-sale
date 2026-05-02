@@ -129,7 +129,7 @@ function PackagePage() {
     await supabase.rpc("add_credits", {
       _user_id: user.id,
       _amount: planCredits,
-      _type: "monthly" as never,
+      _type: "monthly",
       _description: `Zmiana planu na ${PLAN_INFO[newPlan].name}`,
       _bonus_validity_days: 30,
     });
