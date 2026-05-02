@@ -99,6 +99,43 @@ const CANCEL_REASONS = [
   "Inne",
 ];
 
+type StripeSubRow = {
+  id: string;
+  stripe_subscription_id: string;
+  price_id: string;
+  status: string;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  created_at: string;
+  environment: string;
+};
+
+type CreditPackRow = {
+  session_id: string;
+  price_id: string | null;
+  created_at: string;
+  environment: string;
+};
+
+const PRICE_LABELS: Record<string, string> = {
+  plan_start: "Plan START",
+  plan_pro: "Plan PRO SPRZEDAŻ",
+  plan_vip: "Plan VIP",
+  credits_pack_80: "Paczka 80 kredytów",
+  credits_pack_250: "Paczka 250 kredytów",
+  credits_pack_700: "Paczka 700 kredytów",
+};
+
+const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
+  active: { label: "Aktywna", cls: "border-green/40 text-green" },
+  trialing: { label: "Trial", cls: "border-blue/40 text-blue" },
+  past_due: { label: "Zaległa", cls: "border-orange/40 text-orange" },
+  canceled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
+  cancelled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
+  incomplete: { label: "Niekompletna", cls: "border-muted text-muted-foreground" },
+  paused: { label: "Wstrzymana", cls: "border-orange/40 text-orange" },
+};
+
 function PackagePage() {
   const { user } = useAuth();
   const { credits, refresh } = useCredits();
@@ -106,15 +143,27 @@ function PackagePage() {
   const [showCancel, setShowCancel] = useState(false);
   const [reason, setReason] = useState(CANCEL_REASONS[0]);
   const [comment, setComment] = useState("");
+  const [stripeSubs, setStripeSubs] = useState<StripeSubRow[]>([]);
+  const [creditPacks, setCreditPacks] = useState<CreditPackRow[]>([]);
 
   const loadSub = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("user_subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    setSub(data as Sub | null);
+    const [subRes, stripeRes, packsRes] = await Promise.all([
+      supabase.from("user_subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("subscriptions")
+        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,created_at,environment")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("processed_checkout_sessions")
+        .select("session_id,price_id,created_at,environment")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
+    setSub(subRes.data as Sub | null);
+    setStripeSubs((stripeRes.data ?? []) as StripeSubRow[]);
+    setCreditPacks((packsRes.data ?? []) as CreditPackRow[]);
   };
 
   useEffect(() => {
