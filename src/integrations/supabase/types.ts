@@ -249,6 +249,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellation_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          reason: string
+          retention_offer_accepted: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          retention_offer_accepted?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          retention_offer_accepted?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           badge_code: string | null

@@ -104,7 +104,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 max-w-5xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -129,6 +129,10 @@ function AdminPage() {
               <ListChecks className="w-4 h-4 mr-1" />
               Doradca
             </TabsTrigger>
+            <TabsTrigger value="sales">
+              <Phone className="w-4 h-4 mr-1" />
+              Sprzedaż
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hotleads" className="mt-6">
@@ -148,6 +152,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="advisor" className="mt-6">
             <AdvisorTab />
+          </TabsContent>
+          <TabsContent value="sales" className="mt-6">
+            <SalesTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -2054,5 +2061,149 @@ function EditMentorTaskDialog({ task, onSaved }: { task: MentorTaskRow; onSaved:
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/* ==================== SALES / RETENTION ==================== */
+
+type ServiceReq = {
+  id: string;
+  user_id: string;
+  service_type: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string | null;
+  status: "new" | "contacted" | "won" | "lost";
+  admin_notes: string | null;
+  created_at: string;
+};
+
+type CancelFb = {
+  id: string;
+  user_id: string;
+  reason: string;
+  comment: string | null;
+  retention_offer_accepted: string | null;
+  created_at: string;
+};
+
+function SalesTab() {
+  const [reqs, setReqs] = useState<ServiceReq[]>([]);
+  const [cancels, setCancels] = useState<CancelFb[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = async () => {
+    const [{ data: r }, { data: c }] = await Promise.all([
+      supabase
+        .from("service_requests")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("cancellation_feedback")
+        .select("*")
+        .order("created_at", { ascending: false }),
+    ]);
+    setReqs((r ?? []) as ServiceReq[]);
+    setCancels((c ?? []) as CancelFb[]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  const setStatus = async (id: string, status: ServiceReq["status"]) => {
+    const { error } = await supabase
+      .from("service_requests")
+      .update({ status })
+      .eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Zaktualizowano");
+      refresh();
+    }
+  };
+
+  if (loading) return <div className="text-muted-foreground">Ładowanie…</div>;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="font-display font-bold text-lg mb-3">
+          Zlecenia wdrożeniowe ({reqs.length})
+        </h3>
+        <div className="grid gap-3">
+          {reqs.length === 0 && (
+            <div className="text-sm text-muted-foreground">Brak zleceń.</div>
+          )}
+          {reqs.map((r) => (
+            <div
+              key={r.id}
+              className="rounded-2xl border border-border p-4 flex flex-wrap gap-3 items-start justify-between"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="text-[10px]">{r.service_type}</Badge>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px]",
+                      r.status === "new" && "border-orange/40 text-orange",
+                      r.status === "won" && "border-green/40 text-green",
+                      r.status === "lost" && "border-destructive/40 text-destructive",
+                    )}
+                  >
+                    {r.status}
+                  </Badge>
+                  <span className="font-semibold">{r.name}</span>
+                  <span className="text-xs text-muted-foreground">{r.email}</span>
+                  {r.phone && <span className="text-xs">{r.phone}</span>}
+                </div>
+                {r.message && (
+                  <p className="text-sm text-muted-foreground mt-2">{r.message}</p>
+                )}
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {new Date(r.created_at).toLocaleString("pl-PL")}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "contacted")}>
+                  Skontaktowano
+                </Button>
+                <Button size="sm" onClick={() => setStatus(r.id, "won")}>
+                  Wygrano
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "lost")}>
+                  Utrata
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-display font-bold text-lg mb-3">
+          Powody rezygnacji ({cancels.length})
+        </h3>
+        <div className="grid gap-2">
+          {cancels.length === 0 && (
+            <div className="text-sm text-muted-foreground">Brak rezygnacji 🎉</div>
+          )}
+          {cancels.map((c) => (
+            <div key={c.id} className="rounded-xl border border-border p-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="outline" className="text-[10px]">{c.reason}</Badge>
+                <span className="text-[11px] text-muted-foreground">
+                  {new Date(c.created_at).toLocaleString("pl-PL")}
+                </span>
+              </div>
+              {c.comment && <p className="text-sm mt-2 text-muted-foreground">{c.comment}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
