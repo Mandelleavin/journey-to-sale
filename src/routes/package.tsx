@@ -21,7 +21,17 @@ import {
   XCircle,
   Plus,
   Crown,
+  Receipt,
+  Package as PackageIcon,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useCredits } from "@/hooks/useCredits";
