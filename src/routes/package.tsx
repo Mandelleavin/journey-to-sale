@@ -106,6 +106,7 @@ type StripeSubRow = {
   status: string;
   current_period_start: string | null;
   current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
   created_at: string;
   environment: string;
 };
@@ -126,14 +127,52 @@ const PRICE_LABELS: Record<string, string> = {
   credits_pack_700: "Paczka 700 kredytów",
 };
 
-const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  active: { label: "Aktywna", cls: "border-green/40 text-green" },
-  trialing: { label: "Trial", cls: "border-blue/40 text-blue" },
-  past_due: { label: "Zaległa", cls: "border-orange/40 text-orange" },
-  canceled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
-  cancelled: { label: "Anulowana", cls: "border-muted text-muted-foreground" },
-  incomplete: { label: "Niekompletna", cls: "border-muted text-muted-foreground" },
-  paused: { label: "Wstrzymana", cls: "border-orange/40 text-orange" },
+const STATUS_LABELS: Record<string, { label: string; cls: string; hint: string }> = {
+  active: {
+    label: "Aktywna",
+    cls: "border-green/40 text-green",
+    hint: "Subskrypcja jest aktywna i opłacona.",
+  },
+  trialing: {
+    label: "Okres próbny",
+    cls: "border-blue/40 text-blue",
+    hint: "Trwa darmowy okres próbny — pełen dostęp.",
+  },
+  past_due: {
+    label: "Zaległa płatność",
+    cls: "border-orange/40 text-orange",
+    hint: "Ostatnia płatność nie powiodła się — Stripe ponawia próbę.",
+  },
+  unpaid: {
+    label: "Nieopłacona",
+    cls: "border-orange/40 text-orange",
+    hint: "Wszystkie próby płatności wyczerpane.",
+  },
+  incomplete: {
+    label: "W trakcie",
+    cls: "border-muted text-muted-foreground",
+    hint: "Płatność nie została jeszcze potwierdzona.",
+  },
+  incomplete_expired: {
+    label: "Wygasła",
+    cls: "border-muted text-muted-foreground",
+    hint: "Czas na dokończenie pierwszej płatności minął.",
+  },
+  canceled: {
+    label: "Anulowana",
+    cls: "border-muted text-muted-foreground",
+    hint: "Subskrypcja została anulowana.",
+  },
+  cancelled: {
+    label: "Anulowana",
+    cls: "border-muted text-muted-foreground",
+    hint: "Subskrypcja została anulowana.",
+  },
+  paused: {
+    label: "Wstrzymana",
+    cls: "border-orange/40 text-orange",
+    hint: "Subskrypcja jest tymczasowo wstrzymana.",
+  },
 };
 
 function PackagePage() {
@@ -152,7 +191,7 @@ function PackagePage() {
       supabase.from("user_subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
       supabase
         .from("subscriptions")
-        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,created_at,environment")
+        .select("id,stripe_subscription_id,price_id,status,current_period_start,current_period_end,cancel_at_period_end,created_at,environment")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -419,10 +458,23 @@ function PackagePage() {
                 </TableHeader>
                 <TableBody>
                   {stripeSubs.map((s) => {
-                    const st = STATUS_LABELS[s.status] ?? {
+                    const base = STATUS_LABELS[s.status] ?? {
                       label: s.status,
                       cls: "border-muted text-muted-foreground",
+                      hint: `Status Stripe: ${s.status}`,
                     };
+                    const endingSoon =
+                      s.cancel_at_period_end &&
+                      (s.status === "active" || s.status === "trialing");
+                    const st = endingSoon
+                      ? {
+                          label: s.current_period_end
+                            ? `Anulowana — do ${new Date(s.current_period_end).toLocaleDateString("pl-PL")}`
+                            : "Anulowana — do końca okresu",
+                          cls: "border-orange/40 text-orange",
+                          hint: "Anulowana — dostęp aktywny do końca opłaconego okresu.",
+                        }
+                      : base;
                     return (
                       <TableRow key={s.id}>
                         <TableCell className="whitespace-nowrap">
@@ -430,7 +482,7 @@ function PackagePage() {
                         </TableCell>
                         <TableCell>{PRICE_LABELS[s.price_id] ?? s.price_id}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={st.cls}>
+                          <Badge variant="outline" className={st.cls} title={st.hint}>
                             {st.label}
                           </Badge>
                           {s.environment === "sandbox" && (
@@ -491,7 +543,11 @@ function PackagePage() {
                         {p.price_id ? (PRICE_LABELS[p.price_id] ?? p.price_id) : "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="border-green/40 text-green">
+                        <Badge
+                          variant="outline"
+                          className="border-green/40 text-green"
+                          title="Płatność jednorazowa zakończona sukcesem — kredyty dodane do konta."
+                        >
                           Opłacone
                         </Badge>
                         {p.environment === "sandbox" && (
