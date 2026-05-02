@@ -669,12 +669,17 @@ function PackagePage() {
           </button>
           <button
             onClick={() => setShowCancel(true)}
-            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5"
+            disabled={pendingStripeCancel}
+            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5 disabled:opacity-50 disabled:hover:bg-transparent"
           >
             <XCircle className="w-5 h-5 text-destructive mb-2" />
-            <div className="font-semibold text-destructive">Anuluj subskrypcję</div>
+            <div className="font-semibold text-destructive">
+              {pendingStripeCancel ? "Anulowanie zaplanowane" : "Anuluj subskrypcję"}
+            </div>
             <div className="text-xs text-muted-foreground">
-              Stracisz dostęp do kursów i kredytów AI.
+              {pendingStripeCancel
+                ? "Już zaplanowane — dostęp do końca okresu."
+                : "Dostęp do końca opłaconego okresu, potem brak odnowienia."}
             </div>
           </button>
         </div>
