@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Check } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/credits")({
   head: () => ({
@@ -17,27 +18,28 @@ export const Route = createFileRoute("/credits")({
   component: CreditsPage,
 });
 
-const PACKS = [
-  { credits: 80, price: 97, popular: false },
-  { credits: 250, price: 247, popular: true },
-  { credits: 700, price: 597, popular: false },
+const PACKS: Array<{ credits: number; price: number; popular: boolean; priceId: string }> = [
+  { credits: 80, price: 97, popular: false, priceId: "credits_pack_80_once" },
+  { credits: 250, price: 247, popular: true, priceId: "credits_pack_250_once" },
+  { credits: 700, price: 597, popular: false, priceId: "credits_pack_700_once" },
 ];
 
 function CreditsPage() {
   const { user } = useAuth();
-  const { credits, refresh } = useCredits();
+  const { credits } = useCredits();
+  const { openCheckout, closeCheckout, isOpen, checkoutElement } = useStripeCheckout();
 
-  const buy = async (amount: number) => {
-    if (!user) return;
-    // MOCK: docelowo Stripe; teraz dopisujemy kredyty od razu jako purchase
-    await supabase.rpc("add_credits", {
-      _user_id: user.id,
-      _amount: amount,
-      _type: "purchase",
-      _description: `Mock: zakup ${amount} kredytów`,
+  const buy = (priceId: string) => {
+    if (!user) {
+      toast.error("Zaloguj się, aby dokupić kredyty");
+      return;
+    }
+    openCheckout({
+      priceId,
+      customerEmail: user.email ?? undefined,
+      userId: user.id,
+      returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-    toast.success(`Dodano ${amount} kredytów (mock)`);
-    refresh();
   };
 
   return (
@@ -68,7 +70,7 @@ function CreditsPage() {
               <li className="flex items-center gap-1"><Check className="w-4 h-4 text-green" /> Ważne 12 miesięcy</li>
               <li className="flex items-center gap-1"><Check className="w-4 h-4 text-green" /> Dostępne natychmiast</li>
             </ul>
-            <Button onClick={() => buy(p.credits)} className="w-full mt-4 bg-gradient-violet text-primary-foreground">
+            <Button onClick={() => buy(p.priceId)} className="w-full mt-4 bg-gradient-violet text-primary-foreground">
               Dokup {p.credits} kredytów
             </Button>
           </div>
@@ -84,6 +86,15 @@ function CreditsPage() {
           Zobacz pakiety
         </Link>
       </div>
+
+      <Dialog open={isOpen} onOpenChange={(o) => { if (!o) closeCheckout(); }}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>Dokończ płatność</DialogTitle>
+          </DialogHeader>
+          <div className="p-2">{checkoutElement}</div>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }

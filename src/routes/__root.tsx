@@ -95,10 +95,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 import { AuthProvider } from "@/lib/auth-context";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 function RootComponent() {
   return (
     <AuthProvider>
+      <PaymentTestModeBanner />
       <Outlet />
     </AuthProvider>
   );

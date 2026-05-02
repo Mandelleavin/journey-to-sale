@@ -39,9 +39,11 @@ import { Route as OnboardingResultRouteImport } from './routes/onboarding.result
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
 import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
 import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
@@ -197,6 +199,11 @@ const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   path: '/$courseId',
   getParentRoute: () => CoursesRoute,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCoursesRoute = AdminCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -212,6 +219,12 @@ const AdminModulesModuleIdRoute = AdminModulesModuleIdRouteImport.update({
   path: '/modules/$moduleId',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronStreakWarningRoute =
   ApiPublicCronStreakWarningRouteImport.update({
     id: '/api/public/cron/streak-warning',
@@ -265,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -275,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -304,6 +319,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -314,6 +330,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -344,6 +361,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -354,6 +372,7 @@ export interface FileRoutesById {
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
   '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -385,6 +404,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
     | '/lessons/$lessonId'
@@ -395,6 +415,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -424,6 +445,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
     | '/lessons/$lessonId'
@@ -434,6 +456,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -463,6 +486,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/checkout/return'
     | '/courses/$courseId'
     | '/generator/$slug'
     | '/lessons/$lessonId'
@@ -473,6 +497,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-challenges'
     | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -501,11 +526,13 @@ export interface RootRouteChildren {
   RewardsRoute: typeof RewardsRoute
   StatsRoute: typeof StatsRoute
   TasksRoute: typeof TasksRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
   UUserIdRoute: typeof UUserIdRoute
   ApiPublicCronDailyChallengesRoute: typeof ApiPublicCronDailyChallengesRoute
   ApiPublicCronFinalizeDuelsRoute: typeof ApiPublicCronFinalizeDuelsRoute
   ApiPublicCronStreakWarningRoute: typeof ApiPublicCronStreakWarningRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -720,6 +747,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/courses': {
       id: '/admin/courses'
       path: '/courses'
@@ -740,6 +774,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/modules/$moduleId'
       preLoaderRoute: typeof AdminModulesModuleIdRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/streak-warning': {
       id: '/api/public/cron/streak-warning'
@@ -859,21 +900,14 @@ const rootRouteChildren: RootRouteChildren = {
   RewardsRoute: RewardsRoute,
   StatsRoute: StatsRoute,
   TasksRoute: TasksRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
   UUserIdRoute: UUserIdRoute,
   ApiPublicCronDailyChallengesRoute: ApiPublicCronDailyChallengesRoute,
   ApiPublicCronFinalizeDuelsRoute: ApiPublicCronFinalizeDuelsRoute,
   ApiPublicCronStreakWarningRoute: ApiPublicCronStreakWarningRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

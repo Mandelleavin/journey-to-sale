@@ -2074,7 +2074,7 @@ type ServiceReq = {
   email: string;
   phone: string | null;
   message: string | null;
-  status: "new" | "contacted" | "won" | "lost";
+  status: "new" | "contacted" | "sold" | "rejected";
   admin_notes: string | null;
   created_at: string;
 };
@@ -2150,8 +2150,8 @@ function SalesTab() {
                     className={cn(
                       "text-[10px]",
                       r.status === "new" && "border-orange/40 text-orange",
-                      r.status === "won" && "border-green/40 text-green",
-                      r.status === "lost" && "border-destructive/40 text-destructive",
+                      r.status === "sold" && "border-green/40 text-green",
+                      r.status === "rejected" && "border-destructive/40 text-destructive",
                     )}
                   >
                     {r.status}
@@ -2171,10 +2171,10 @@ function SalesTab() {
                 <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "contacted")}>
                   Skontaktowano
                 </Button>
-                <Button size="sm" onClick={() => setStatus(r.id, "won")}>
+                <Button size="sm" onClick={() => setStatus(r.id, "sold")}>
                   Wygrano
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "lost")}>
+                <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "rejected")}>
                   Utrata
                 </Button>
               </div>
