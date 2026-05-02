@@ -8,6 +8,7 @@ import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
 import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
+import { AccelerateWidget } from "@/components/dashboard/AccelerateWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
@@ -135,6 +136,10 @@ function Index() {
             onAction={() => mission && setSubmitTaskId(mission.id)}
           />
           <MentorTasksSection />
+          <div className="grid lg:grid-cols-2 gap-5">
+            <CreditsWidget />
+            <AccelerateWidget />
+          </div>
           <CoursesSection courses={enrichedCourses} />
           <div className="grid xl:grid-cols-2 gap-5">
             <TasksAndAchievements />
