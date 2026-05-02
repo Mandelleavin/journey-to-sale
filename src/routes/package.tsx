@@ -543,7 +543,11 @@ function PackagePage() {
                         {p.price_id ? (PRICE_LABELS[p.price_id] ?? p.price_id) : "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="border-green/40 text-green">
+                        <Badge
+                          variant="outline"
+                          className="border-green/40 text-green"
+                          title="Płatność jednorazowa zakończona sukcesem — kredyty dodane do konta."
+                        >
                           Opłacone
                         </Badge>
                         {p.environment === "sandbox" && (
