@@ -40,6 +40,7 @@ import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
 import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
 import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
@@ -201,6 +202,11 @@ const AdminCoursesRoute = AdminCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAiGeneratorsRoute = AdminAiGeneratorsRouteImport.update({
+  id: '/ai-generators',
+  path: '/ai-generators',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminModulesModuleIdRoute = AdminModulesModuleIdRouteImport.update({
   id: '/modules/$moduleId',
   path: '/modules/$moduleId',
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -334,6 +342,7 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
+  '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/generator/$slug': typeof GeneratorSlugRoute
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/ai-generators'
     | '/admin/courses'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/ai-generators'
     | '/admin/courses'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/stats'
     | '/tasks'
+    | '/admin/ai-generators'
     | '/admin/courses'
     | '/courses/$courseId'
     | '/generator/$slug'
@@ -715,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoursesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ai-generators': {
+      id: '/admin/ai-generators'
+      path: '/ai-generators'
+      fullPath: '/admin/ai-generators'
+      preLoaderRoute: typeof AdminAiGeneratorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/modules/$moduleId': {
       id: '/admin/modules/$moduleId'
       path: '/modules/$moduleId'
@@ -766,11 +785,13 @@ const AdminCoursesRouteWithChildren = AdminCoursesRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAiGeneratorsRoute: typeof AdminAiGeneratorsRoute
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAiGeneratorsRoute: AdminAiGeneratorsRoute,
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,
 }
