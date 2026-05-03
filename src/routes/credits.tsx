@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, Check, Gift } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 export const Route = createFileRoute("/credits")({
   head: () => ({
