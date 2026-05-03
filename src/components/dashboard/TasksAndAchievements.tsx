@@ -21,6 +21,7 @@ type MentorTask = {
   id: string;
   title: string;
   xp_reward: number;
+  due_date: string | null;
   status: "assigned" | "in_progress" | "submitted" | "approved" | "rejected" | "needs_revision";
 };
 
@@ -82,7 +83,7 @@ export function TasksAndAchievements() {
     setLoading(true);
     const { data } = await supabase
       .from("mentor_assigned_tasks")
-      .select("id, title, xp_reward, status")
+      .select("id, title, xp_reward, due_date, status")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(5);
@@ -163,9 +164,38 @@ export function TasksAndAchievements() {
                   >
                     {renderIcon(t)}
                   </button>
-                  <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">
-                    {t.title}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground line-clamp-1">
+                      {t.title}
+                    </div>
+                    {t.due_date && (() => {
+                      const due = new Date(t.due_date);
+                      const days = Math.ceil(
+                        (due.getTime() - Date.now()) / 86400000,
+                      );
+                      const overdue = days < 0;
+                      const soon = days >= 0 && days <= 2;
+                      return (
+                        <div
+                          className={cn(
+                            "text-[11px] mt-0.5",
+                            overdue
+                              ? "text-destructive font-semibold"
+                              : soon
+                                ? "text-orange font-semibold"
+                                : "text-muted-foreground",
+                          )}
+                        >
+                          Termin: {due.toLocaleDateString("pl-PL")}
+                          {overdue
+                            ? ` · po terminie (${Math.abs(days)} dni)`
+                            : days === 0
+                              ? " · dziś"
+                              : ` · za ${days} dni`}
+                        </div>
+                      );
+                    })()}
+                  </div>
                   <span
                     className={cn(
                       "text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap",
