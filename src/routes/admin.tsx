@@ -31,10 +31,12 @@ import {
   Flame,
   CalendarDays,
   Sparkles,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
+import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -104,7 +106,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 max-w-5xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -133,6 +135,10 @@ function AdminPage() {
               <Phone className="w-4 h-4 mr-1" />
               Sprzedaż
             </TabsTrigger>
+            <TabsTrigger value="promo">
+              <Tag className="w-4 h-4 mr-1" />
+              Kody
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hotleads" className="mt-6">
@@ -155,6 +161,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="sales" className="mt-6">
             <SalesTab />
+          </TabsContent>
+          <TabsContent value="promo" className="mt-6">
+            <PromoCodesTab />
           </TabsContent>
         </Tabs>
       </div>

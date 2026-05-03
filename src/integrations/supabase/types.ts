@@ -1108,6 +1108,72 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_promo_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          duration: string
+          duration_in_months: number | null
+          environment: string
+          expires_at: string | null
+          id: string
+          kind: string
+          max_redemptions: number | null
+          stripe_coupon_id: string
+          stripe_promotion_code_id: string
+          times_redeemed: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          duration: string
+          duration_in_months?: number | null
+          environment?: string
+          expires_at?: string | null
+          id?: string
+          kind: string
+          max_redemptions?: number | null
+          stripe_coupon_id: string
+          stripe_promotion_code_id: string
+          times_redeemed?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          duration?: string
+          duration_in_months?: number | null
+          environment?: string
+          expires_at?: string | null
+          id?: string
+          kind?: string
+          max_redemptions?: number | null
+          stripe_coupon_id?: string
+          stripe_promotion_code_id?: string
+          times_redeemed?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
