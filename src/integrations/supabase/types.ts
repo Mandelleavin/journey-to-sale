@@ -1125,6 +1125,7 @@ export type Database = {
           id: string
           kind: string
           max_redemptions: number | null
+          min_amount: number | null
           stripe_coupon_id: string
           stripe_promotion_code_id: string
           times_redeemed: number
@@ -1146,6 +1147,7 @@ export type Database = {
           id?: string
           kind: string
           max_redemptions?: number | null
+          min_amount?: number | null
           stripe_coupon_id: string
           stripe_promotion_code_id: string
           times_redeemed?: number
@@ -1167,6 +1169,7 @@ export type Database = {
           id?: string
           kind?: string
           max_redemptions?: number | null
+          min_amount?: number | null
           stripe_coupon_id?: string
           stripe_promotion_code_id?: string
           times_redeemed?: number
