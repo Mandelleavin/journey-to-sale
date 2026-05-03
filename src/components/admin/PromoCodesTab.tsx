@@ -359,7 +359,18 @@ function BonusCodesSection() {
   useEffect(() => { reload(); }, []);
 
   const create = async () => {
-    if (!code.trim() || !credits) { toast.error("Podaj kod i liczbę kredytów"); return; }
+    const trimmed = code.trim().toUpperCase();
+    if (!trimmed) { toast.error("Podaj kod"); return; }
+    if (!/^[A-Z0-9_-]{3,40}$/.test(trimmed)) {
+      toast.error("Kod musi mieć 3-40 znaków: A-Z, 0-9, _ lub -");
+      return;
+    }
+    if (!credits || credits < 1) { toast.error("Podaj liczbę kredytów (min. 1)"); return; }
+    if (validityDays < 1) { toast.error("Ważność musi być min. 1 dzień"); return; }
+    if (expiresAt && new Date(expiresAt).getTime() < Date.now()) {
+      toast.error("Data wygaśnięcia musi być w przyszłości");
+      return;
+    }
     setBusy(true);
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("credit_redemption_codes").insert({
