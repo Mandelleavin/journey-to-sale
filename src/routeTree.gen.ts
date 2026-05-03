@@ -34,6 +34,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdvisorRouteImport } from './routes/advisor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
@@ -175,6 +176,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
+} as any)
 const UUserIdRoute = UUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -291,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -308,7 +315,6 @@ export interface FileRoutesByTo {
   '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/credits': typeof CreditsRoute
   '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
@@ -333,6 +339,7 @@ export interface FileRoutesByTo {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/courses': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -376,6 +383,7 @@ export interface FileRoutesById {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -420,6 +428,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/courses/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -437,7 +446,6 @@ export interface FileRouteTypes {
     | '/challenges'
     | '/coach'
     | '/community'
-    | '/courses'
     | '/credits'
     | '/duels'
     | '/generator'
@@ -462,6 +470,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/courses'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -504,6 +513,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/courses/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -725,6 +735,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/': {
+      id: '/courses/'
+      path: '/'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof CoursesRoute
+    }
     '/u/$userId': {
       id: '/u/$userId'
       path: '/u/$userId'
@@ -861,10 +878,12 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesCourseIdRoute: CoursesCourseIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 
 const CoursesRouteWithChildren =
