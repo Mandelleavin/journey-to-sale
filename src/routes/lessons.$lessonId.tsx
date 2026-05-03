@@ -230,6 +230,33 @@ function LessonPage() {
         )}
 
         {/* Status / Mark watched + następna lekcja */}
+        {/* Nawigacja prev/next w obrębie kursu */}
+        <div className="mt-6 flex items-center justify-between gap-2">
+          {prevLessonId ? (
+            <Link
+              to="/lessons/$lessonId"
+              params={{ lessonId: prevLessonId }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold hover:border-violet/40"
+            >
+              <ArrowLeft className="w-4 h-4" /> Poprzednia
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextLessonId ? (
+            <Link
+              to="/lessons/$lessonId"
+              params={{ lessonId: nextLessonId }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold hover:border-violet/40"
+            >
+              Następna <ArrowRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
+
+        {/* Status / Mark watched + następna lekcja */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button
             onClick={markWatched}
