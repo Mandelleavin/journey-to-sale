@@ -142,6 +142,7 @@ function StripeCodesSection() {
                   <td className="p-3 text-xs">
                     {r.max_redemptions ? `Max ${r.max_redemptions}` : "Bez limitu"}
                     {r.expires_at && <div>do {new Date(r.expires_at).toLocaleDateString("pl-PL")}</div>}
+                    {r.min_amount && <div>min. {Number(r.min_amount).toFixed(2)} PLN</div>}
                   </td>
                   <td className="p-3">{r.times_redeemed ?? 0}</td>
                   <td className="p-3">
