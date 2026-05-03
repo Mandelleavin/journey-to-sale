@@ -72,7 +72,7 @@ export const createStripePromoCode = createServerFn({ method: "POST" })
     const coupon = await stripe.coupons.create(couponPayload);
 
     const promo = await stripe.promotionCodes.create({
-      coupon: coupon.id,
+      promotion: { type: "coupon", coupon: coupon.id },
       code: data.code,
       ...(data.maxRedemptions && { max_redemptions: data.maxRedemptions }),
       ...(data.expiresAt && { expires_at: Math.floor(new Date(data.expiresAt).getTime() / 1000) }),
