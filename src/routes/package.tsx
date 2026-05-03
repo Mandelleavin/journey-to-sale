@@ -613,11 +613,11 @@ function PackagePage() {
         </div>
       </div>
 
-      {/* Retencja */}
+      {/* Zarządzaj subskrypcją */}
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <h2 className="font-display font-bold text-lg mb-1">Zarządzaj subskrypcją</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Zanim zrezygnujesz — sprawdź opcje, które pomagają wielu uczestnikom dokończyć kurs.
+          Możesz w każdej chwili anulować subskrypcję — dostęp pozostanie do końca opłaconego okresu.
         </p>
         {pendingStripeCancel && (
           <div className="mb-4 rounded-2xl border border-orange/30 bg-orange/10 p-4 flex items-start gap-3 flex-wrap">
@@ -635,66 +635,99 @@ function PackagePage() {
             </Button>
           </div>
         )}
-        <div className="grid md:grid-cols-2 gap-3">
-          <button
-            onClick={pauseSub}
-            disabled={sub?.status === "paused"}
-            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
-          >
-            <PauseCircle className="w-5 h-5 text-violet mb-2" />
-            <div className="font-semibold">Wstrzymaj na 30 dni</div>
-            <div className="text-xs text-muted-foreground">Wracasz dokładnie tam, gdzie skończyłeś.</div>
-          </button>
-          <button
-            onClick={claimFreeMonth}
-            disabled={!!sub?.free_month_used}
-            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
-          >
-            <Gift className="w-5 h-5 text-orange mb-2" />
-            <div className="font-semibold">
-              {sub?.free_month_used ? "Bonus wykorzystany" : "Odbierz miesiąc gratis"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Daj sobie więcej czasu — jednorazowy bonus.
-            </div>
-          </button>
-          <button
-            onClick={() => changePlan("start")}
-            disabled={currentPlan === "start"}
-            className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
-          >
-            <ArrowDownCircle className="w-5 h-5 text-blue mb-2" />
-            <div className="font-semibold">Zmień na tańszy plan (START)</div>
-            <div className="text-xs text-muted-foreground">Zachowaj postęp i kredyty.</div>
-          </button>
-          <button
-            onClick={() => setShowCancel(true)}
-            disabled={pendingStripeCancel}
-            className="text-left rounded-2xl border border-destructive/30 p-4 hover:bg-destructive/5 disabled:opacity-50 disabled:hover:bg-transparent"
-          >
-            <XCircle className="w-5 h-5 text-destructive mb-2" />
-            <div className="font-semibold text-destructive">
-              {pendingStripeCancel ? "Anulowanie zaplanowane" : "Anuluj subskrypcję"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {pendingStripeCancel
-                ? "Już zaplanowane — dostęp do końca okresu."
-                : "Dostęp do końca opłaconego okresu, potem brak odnowienia."}
-            </div>
-          </button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => setCancelStep("retention")}
+          disabled={pendingStripeCancel}
+          className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
+        >
+          <XCircle className="w-4 h-4 mr-1" />
+          {pendingStripeCancel ? "Anulowanie zaplanowane" : "Anuluj subskrypcję"}
+        </Button>
       </div>
 
-      <Dialog open={showCancel} onOpenChange={setShowCancel}>
+      {/* KROK 1: Plansza retencyjna */}
+      <Dialog
+        open={cancelStep === "retention"}
+        onOpenChange={(o) => !o && setCancelStep(null)}
+      >
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Zanim odejdziesz — sprawdź te opcje</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <button
+              onClick={async () => {
+                await pauseSub();
+                setCancelStep(null);
+              }}
+              disabled={sub?.status === "paused"}
+              className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+            >
+              <PauseCircle className="w-5 h-5 text-violet mb-2" />
+              <div className="font-semibold">Wstrzymaj na 30 dni</div>
+              <div className="text-xs text-muted-foreground">
+                Wracasz dokładnie tam, gdzie skończyłeś swój kurs.
+              </div>
+            </button>
+            <button
+              onClick={async () => {
+                await claimFreeMonth();
+                setCancelStep(null);
+              }}
+              disabled={!!sub?.free_month_used}
+              className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+            >
+              <Gift className="w-5 h-5 text-orange mb-2" />
+              <div className="font-semibold">
+                {sub?.free_month_used ? "Bonus wykorzystany" : "Odbierz miesiąc gratis"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Daj sobie więcej czasu — jednorazowy bonus. Zawsze warto!
+              </div>
+            </button>
+            <button
+              onClick={async () => {
+                await changePlan("start");
+                setCancelStep(null);
+              }}
+              disabled={currentPlan === "start"}
+              className="text-left rounded-2xl border border-border p-4 hover:bg-muted disabled:opacity-50"
+            >
+              <ArrowDownCircle className="w-5 h-5 text-blue mb-2" />
+              <div className="font-semibold">Zmień na tańszy plan (START)</div>
+              <div className="text-xs text-muted-foreground">Zachowaj postęp i kredyty.</div>
+            </button>
+          </div>
+          <DialogFooter className="sm:justify-between gap-2">
+            <Button variant="ghost" onClick={() => setCancelStep(null)}>
+              Wróć
+            </Button>
+            <Button
+              variant="outline"
+              className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
+              onClick={() => setCancelStep("confirm")}
+            >
+              Mimo to anuluj subskrypcję
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* KROK 2: Plansza końcowa - potwierdzenie anulowania */}
+      <Dialog
+        open={cancelStep === "confirm"}
+        onOpenChange={(o) => !o && setCancelStep(null)}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Czy na pewno chcesz zrezygnować?</DialogTitle>
+            <DialogTitle>Anuluj subskrypcję</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="rounded-xl bg-orange/10 border border-orange/20 p-3 text-sm">
-              💡 Odbierz <strong>miesiąc gratis</strong> lub przejdź na plan START, zamiast tracić
-              cały dotychczasowy postęp.
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Po potwierdzeniu Twoja subskrypcja zostanie anulowana. Dostęp do treści pozostaje
+              aktywny do końca opłaconego okresu.
+            </p>
             <div>
               <Label>Powód rezygnacji</Label>
               <select
@@ -716,16 +749,9 @@ function PackagePage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowCancel(false);
-                claimFreeMonth();
-              }}
-              disabled={!!sub?.free_month_used}
-            >
-              <Gift className="w-4 h-4 mr-1" /> Wezmę miesiąc gratis
+          <DialogFooter className="sm:justify-between gap-2">
+            <Button variant="outline" onClick={() => setCancelStep("retention")}>
+              Wróć
             </Button>
             <Button variant="destructive" onClick={confirmCancel}>
               Anuluj subskrypcję
