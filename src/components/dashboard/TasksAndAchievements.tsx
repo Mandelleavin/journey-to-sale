@@ -83,7 +83,7 @@ export function TasksAndAchievements() {
     setLoading(true);
     const { data } = await supabase
       .from("mentor_assigned_tasks")
-      .select("id, title, xp_reward, status")
+      .select("id, title, xp_reward, due_date, status")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(5);
