@@ -68,6 +68,7 @@ function LessonPage() {
   const [watched, setWatched] = useState(false);
   const [submitTask, setSubmitTask] = useState<Task | null>(null);
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
+  const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
