@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play } from "lucide-react";
+import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/$courseId")({
