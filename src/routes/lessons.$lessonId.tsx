@@ -1,11 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Check, Zap, Paperclip, MessageCircle, Send, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Zap,
+  Paperclip,
+  MessageCircle,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
+import { LessonVideoPlayer } from "@/components/lessons/LessonVideoPlayer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ContentBlock } from "@/components/admin/ContentBlocksEditor";
@@ -57,6 +67,7 @@ function LessonPage() {
   const [newComment, setNewComment] = useState("");
   const [watched, setWatched] = useState(false);
   const [submitTask, setSubmitTask] = useState<Task | null>(null);
+  const [nextLessonId, setNextLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -128,17 +139,36 @@ function LessonPage() {
     load(); /* eslint-disable-next-line */
   }, [user, lessonId]);
 
-  const markWatched = async () => {
+  // znajdź następną lekcję w kursie
+  useEffect(() => {
+    if (!lesson) return;
+    (async () => {
+      const { data } = await supabase
+        .from("lessons")
+        .select("id, position")
+        .eq("course_id", lesson.course_id)
+        .eq("is_published", true)
+        .order("position");
+      const list = (data ?? []) as { id: string; position: number }[];
+      const idx = list.findIndex((x) => x.id === lesson.id);
+      setNextLessonId(idx >= 0 && idx < list.length - 1 ? list[idx + 1].id : null);
+    })();
+  }, [lesson]);
+
+  const markWatched = useCallback(async () => {
     if (!user || watched) return;
     const { error } = await supabase
       .from("user_lesson_progress")
       .insert({ user_id: user.id, lesson_id: lessonId });
-    if (error) toast.error(error.message);
-    else {
-      toast.success(`+${lesson?.xp_reward ?? 0} XP!`);
+    if (error) {
+      // 23505 = duplikat (już oznaczona) — ignoruj cicho
+      if (!error.message.toLowerCase().includes("duplicate")) toast.error(error.message);
+      setWatched(true);
+    } else {
+      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona`);
       setWatched(true);
     }
-  };
+  }, [user, watched, lessonId, lesson?.xp_reward]);
 
   const addComment = async () => {
     if (!user || !newComment.trim()) return;
@@ -167,9 +197,6 @@ function LessonPage() {
     );
 
   const subForTask = (taskId: string) => submissions.find((s) => s.task_id === taskId);
-  const ytId = lesson.video_url?.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?]+)/,
-  )?.[1];
 
   return (
     <div className="min-h-screen bg-app">
@@ -186,18 +213,10 @@ function LessonPage() {
           <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
         )}
 
-        {/* Główne wideo */}
-        {ytId ? (
-          <div className="mt-4 aspect-video rounded-2xl overflow-hidden bg-black">
-            <iframe
-              className="w-full h-full"
-              src={`https://www.youtube.com/embed/${ytId}`}
-              allowFullScreen
-            />
-          </div>
-        ) : lesson.video_url ? (
-          <video src={lesson.video_url} controls className="mt-4 w-full rounded-2xl bg-black" />
-        ) : null}
+        {/* Główne wideo z auto-detekcją ukończenia */}
+        {lesson.video_url && (
+          <LessonVideoPlayer videoUrl={lesson.video_url} onCompleted={markWatched} />
+        )}
 
         {/* Bloki treści */}
         {lesson.content_blocks.length > 0 && (
@@ -208,21 +227,41 @@ function LessonPage() {
           </div>
         )}
 
-        {/* Status / Mark watched */}
-        <Button
-          onClick={markWatched}
-          disabled={watched}
-          className="mt-6 rounded-xl bg-gradient-green text-primary-foreground"
-        >
-          {watched ? (
-            <>
-              <Check className="w-4 h-4 mr-1" />
-              Lekcja ukończona (+{lesson.xp_reward} XP)
-            </>
-          ) : (
-            <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
+        {/* Status / Mark watched + następna lekcja */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Button
+            onClick={markWatched}
+            disabled={watched}
+            className="rounded-xl bg-gradient-green text-primary-foreground"
+          >
+            {watched ? (
+              <>
+                <Check className="w-4 h-4 mr-1" />
+                Lekcja ukończona (+{lesson.xp_reward} XP)
+              </>
+            ) : (
+              <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
+            )}
+          </Button>
+          {watched && nextLessonId && (
+            <Button
+              onClick={() => navigate({ to: "/lessons/$lessonId", params: { lessonId: nextLessonId } })}
+              variant="outline"
+              className="rounded-xl"
+            >
+              Następna lekcja <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
           )}
-        </Button>
+          {watched && !nextLessonId && (
+            <Link
+              to="/courses/$courseId"
+              params={{ courseId: lesson.course_id }}
+              className="text-sm font-bold text-violet hover:underline"
+            >
+              Wróć do kursu →
+            </Link>
+          )}
+        </div>
 
         {/* Załączniki */}
         {attachments.length > 0 && (
