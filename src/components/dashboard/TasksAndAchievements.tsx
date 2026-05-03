@@ -21,6 +21,7 @@ type MentorTask = {
   id: string;
   title: string;
   xp_reward: number;
+  due_date: string | null;
   status: "assigned" | "in_progress" | "submitted" | "approved" | "rejected" | "needs_revision";
 };
 
