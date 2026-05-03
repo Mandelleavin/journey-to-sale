@@ -198,6 +198,35 @@ function CourseDetailPage() {
   const watchedCount = lessons.filter((l) => watched.has(l.id)).length;
   const progressPct = totalLessons ? Math.round((watchedCount / totalLessons) * 100) : 0;
 
+  // Znajdź pierwszą dostępną nieukończoną lekcję — dla CTA "Kontynuuj/Rozpocznij"
+  let resumeLessonId: string | null = null;
+  for (const m of modules) {
+    const lInM = lessons.filter((l) => l.module_id === m.id);
+    const mIdx = modules.findIndex((x) => x.id === m.id);
+    const timeOk = moduleUnlockedAt(m) <= new Date();
+    const prevOk = !m.requires_previous_module || mIdx === 0 || moduleCompleted(modules[mIdx - 1]);
+    const moduleAvailable = !lockedByXp && timeOk && prevOk;
+    for (let i = 0; i < lInM.length; i++) {
+      const l = lInM[i];
+      if (watched.has(l.id)) continue;
+      if (lessonStatus(l, i, lInM, moduleAvailable).unlocked) {
+        resumeLessonId = l.id;
+        break;
+      }
+    }
+    if (resumeLessonId) break;
+  }
+  if (!resumeLessonId) {
+    for (let i = 0; i < orphanLessons.length; i++) {
+      const l = orphanLessons[i];
+      if (watched.has(l.id)) continue;
+      if (lessonStatus(l, i, orphanLessons, !lockedByXp).unlocked) {
+        resumeLessonId = l.id;
+        break;
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-app">
       <div className="mx-auto max-w-3xl p-4 md:p-6">
@@ -207,10 +236,36 @@ function CourseDetailPage() {
         >
           <ArrowLeft className="w-3 h-3" /> Powrót
         </Link>
-        <h1 className="font-display text-3xl font-extrabold mt-2">{course.title}</h1>
+
+        {/* Hero z okładką */}
+        {course.cover_url && (
+          <div className="mt-3 aspect-[16/7] rounded-2xl overflow-hidden bg-muted border border-border">
+            <img
+              src={course.cover_url}
+              alt={course.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        <h1 className="font-display text-3xl font-extrabold mt-3">{course.title}</h1>
         {course.description && (
           <p className="text-sm text-muted-foreground mt-1">{course.description}</p>
         )}
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="inline-flex items-center gap-1 rounded-full bg-violet-soft text-violet px-2.5 py-1 font-bold">
+            <BookOpen className="w-3 h-3" /> {totalLessons} lekcji
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted text-foreground/80 px-2.5 py-1 font-bold">
+            <Layers className="w-3 h-3" /> {modules.length} modułów
+          </span>
+          {course.required_xp > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-orange-soft text-orange px-2.5 py-1 font-bold">
+              <Trophy className="w-3 h-3" /> {course.required_xp} XP wymagane
+            </span>
+          )}
+        </div>
 
         {/* Postęp kursu */}
         <div className="mt-4 rounded-2xl border border-border bg-card p-4">
@@ -224,6 +279,22 @@ function CourseDetailPage() {
             <div className="h-full bg-gradient-violet" style={{ width: `${progressPct}%` }} />
           </div>
           <div className="text-xs text-muted-foreground mt-1.5">{progressPct}% ukończone</div>
+
+          {resumeLessonId && (
+            <Link
+              to="/lessons/$lessonId"
+              params={{ lessonId: resumeLessonId }}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-violet text-primary-foreground px-4 py-2.5 font-bold text-sm hover:opacity-90 transition"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              {watchedCount > 0 ? "Kontynuuj naukę" : "Rozpocznij kurs"}
+            </Link>
+          )}
+          {!resumeLessonId && totalLessons > 0 && watchedCount === totalLessons && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-soft text-green px-4 py-2.5 font-bold text-sm">
+              <Check className="w-4 h-4" /> Kurs ukończony!
+            </div>
+          )}
         </div>
 
         {lockedByXp && (
