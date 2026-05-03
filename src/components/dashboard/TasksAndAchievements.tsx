@@ -1,17 +1,18 @@
 import {
   CheckSquare,
   Square,
-  CircleDashed,
   PlayCircle,
   Award,
   FileCheck,
   Trophy,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const tasks = [
+const initialTasks = [
   {
     title: "Napisz swoją ofertę",
     status: "W trakcie",
