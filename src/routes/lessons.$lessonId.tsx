@@ -139,17 +139,36 @@ function LessonPage() {
     load(); /* eslint-disable-next-line */
   }, [user, lessonId]);
 
-  const markWatched = async () => {
+  // znajdź następną lekcję w kursie
+  useEffect(() => {
+    if (!lesson) return;
+    (async () => {
+      const { data } = await supabase
+        .from("lessons")
+        .select("id, position")
+        .eq("course_id", lesson.course_id)
+        .eq("is_published", true)
+        .order("position");
+      const list = (data ?? []) as { id: string; position: number }[];
+      const idx = list.findIndex((x) => x.id === lesson.id);
+      setNextLessonId(idx >= 0 && idx < list.length - 1 ? list[idx + 1].id : null);
+    })();
+  }, [lesson]);
+
+  const markWatched = useCallback(async () => {
     if (!user || watched) return;
     const { error } = await supabase
       .from("user_lesson_progress")
       .insert({ user_id: user.id, lesson_id: lessonId });
-    if (error) toast.error(error.message);
-    else {
-      toast.success(`+${lesson?.xp_reward ?? 0} XP!`);
+    if (error) {
+      // 23505 = duplikat (już oznaczona) — ignoruj cicho
+      if (!error.message.toLowerCase().includes("duplicate")) toast.error(error.message);
+      setWatched(true);
+    } else {
+      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona`);
       setWatched(true);
     }
-  };
+  }, [user, watched, lessonId, lesson?.xp_reward]);
 
   const addComment = async () => {
     if (!user || !newComment.trim()) return;
