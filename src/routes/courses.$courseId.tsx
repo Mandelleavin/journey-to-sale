@@ -186,6 +186,59 @@ function CourseDetailPage() {
     return { unlocked: true, reason: "" };
   };
 
+  // Śledzenie nowo odblokowanych lekcji — komunikat dla użytkownika
+  const [unlockedIds, setUnlockedIds] = useState<Set<string> | null>(null);
+  const [newlyUnlocked, setNewlyUnlocked] = useState<Lesson[]>([]);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Mapa statusu lekcji → set odblokowanych ID (przeliczane gdy zmienia się stan)
+  const currentUnlockedIds = useMemo(() => {
+    if (loading || !course) return null;
+    const set = new Set<string>();
+    for (const m of modules) {
+      const lInM = lessons.filter((l) => l.module_id === m.id);
+      const mIdx = modules.findIndex((x) => x.id === m.id);
+      const timeOk = moduleUnlockedAt(m) <= new Date();
+      const prevOk =
+        !m.requires_previous_module || mIdx === 0 || moduleCompleted(modules[mIdx - 1]);
+      const moduleAvailable = !lockedByXp && timeOk && prevOk;
+      lInM.forEach((l, i) => {
+        if (lessonStatus(l, i, lInM, moduleAvailable).unlocked) set.add(l.id);
+      });
+    }
+    const orphans = lessons.filter((l) => !l.module_id);
+    orphans.forEach((l, i) => {
+      if (lessonStatus(l, i, orphans, !lockedByXp).unlocked) set.add(l.id);
+    });
+    return set;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, course, modules, lessons, watched, tasks, submissions, totalXp, enrolledAt]);
+
+  useEffect(() => {
+    if (!currentUnlockedIds) return;
+    if (unlockedIds === null) {
+      // pierwszy render — zapamiętaj baseline bez powiadomień
+      setUnlockedIds(currentUnlockedIds);
+      return;
+    }
+    const fresh = lessons.filter(
+      (l) => currentUnlockedIds.has(l.id) && !unlockedIds.has(l.id) && !watched.has(l.id),
+    );
+    if (fresh.length > 0) {
+      setNewlyUnlocked((prev) => {
+        const ids = new Set(prev.map((p) => p.id));
+        return [...prev, ...fresh.filter((l) => !ids.has(l.id))];
+      });
+      setBannerDismissed(false);
+      toast.success(
+        fresh.length === 1
+          ? `🔓 Odblokowano lekcję: ${fresh[0].title}`
+          : `🔓 Odblokowano ${fresh.length} nowych lekcji!`,
+      );
+    }
+    setUnlockedIds(currentUnlockedIds);
+  }, [currentUnlockedIds, lessons, watched, unlockedIds]);
+
   if (loading || !course)
     return (
       <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
