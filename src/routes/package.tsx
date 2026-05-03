@@ -183,7 +183,7 @@ function PackagePage() {
   const { user } = useAuth();
   const { credits, refresh } = useCredits();
   const [sub, setSub] = useState<Sub | null>(null);
-  const [showCancel, setShowCancel] = useState(false);
+  const [cancelStep, setCancelStep] = useState<null | "retention" | "confirm">(null);
   const [reason, setReason] = useState(CANCEL_REASONS[0]);
   const [comment, setComment] = useState("");
   const [stripeSubs, setStripeSubs] = useState<StripeSubRow[]>([]);
