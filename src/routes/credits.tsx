@@ -103,3 +103,52 @@ function CreditsPage() {
     </PageShell>
   );
 }
+
+function BonusCodeRedeemer() {
+  const { user } = useAuth();
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const redeem = async () => {
+    if (!user) { toast.error("Zaloguj się"); return; }
+    if (!code.trim()) return;
+    setBusy(true);
+    const { data, error } = await supabase.rpc("redeem_credit_code", {
+      _user_id: user.id,
+      _code: code.trim().toUpperCase(),
+    });
+    setBusy(false);
+    const result = data as { ok: boolean; credits?: number; error?: string } | null;
+    if (error || !result?.ok) {
+      toast.error(result?.error ?? error?.message ?? "Błąd realizacji kodu");
+      return;
+    }
+    toast.success(`Dodano +${result.credits} kredytów bonusowych!`);
+    setCode("");
+    setTimeout(() => window.location.reload(), 800);
+  };
+
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-center gap-2 mb-1">
+        <Gift className="w-5 h-5 text-violet" />
+        <div className="font-semibold">Masz kod bonusowy?</div>
+      </div>
+      <div className="text-sm text-muted-foreground mb-3">
+        Wpisz kod z webinaru lub promocji, aby otrzymać dodatkowe kredyty AI bez zakupu.
+      </div>
+      <div className="flex gap-2">
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder="np. WEBINAR50"
+          className="font-mono"
+        />
+        <Button onClick={redeem} disabled={busy || !code.trim()} className="bg-gradient-violet text-primary-foreground">
+          {busy ? "Sprawdzam…" : "Aktywuj kod"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
