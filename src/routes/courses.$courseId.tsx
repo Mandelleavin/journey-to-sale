@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play } from "lucide-react";
+import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/$courseId")({
@@ -185,6 +186,59 @@ function CourseDetailPage() {
     return { unlocked: true, reason: "" };
   };
 
+  // Śledzenie nowo odblokowanych lekcji — komunikat dla użytkownika
+  const [unlockedIds, setUnlockedIds] = useState<Set<string> | null>(null);
+  const [newlyUnlocked, setNewlyUnlocked] = useState<Lesson[]>([]);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Mapa statusu lekcji → set odblokowanych ID (przeliczane gdy zmienia się stan)
+  const currentUnlockedIds = useMemo(() => {
+    if (loading || !course) return null;
+    const set = new Set<string>();
+    for (const m of modules) {
+      const lInM = lessons.filter((l) => l.module_id === m.id);
+      const mIdx = modules.findIndex((x) => x.id === m.id);
+      const timeOk = moduleUnlockedAt(m) <= new Date();
+      const prevOk =
+        !m.requires_previous_module || mIdx === 0 || moduleCompleted(modules[mIdx - 1]);
+      const moduleAvailable = !lockedByXp && timeOk && prevOk;
+      lInM.forEach((l, i) => {
+        if (lessonStatus(l, i, lInM, moduleAvailable).unlocked) set.add(l.id);
+      });
+    }
+    const orphans = lessons.filter((l) => !l.module_id);
+    orphans.forEach((l, i) => {
+      if (lessonStatus(l, i, orphans, !lockedByXp).unlocked) set.add(l.id);
+    });
+    return set;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, course, modules, lessons, watched, tasks, submissions, totalXp, enrolledAt]);
+
+  useEffect(() => {
+    if (!currentUnlockedIds) return;
+    if (unlockedIds === null) {
+      // pierwszy render — zapamiętaj baseline bez powiadomień
+      setUnlockedIds(currentUnlockedIds);
+      return;
+    }
+    const fresh = lessons.filter(
+      (l) => currentUnlockedIds.has(l.id) && !unlockedIds.has(l.id) && !watched.has(l.id),
+    );
+    if (fresh.length > 0) {
+      setNewlyUnlocked((prev) => {
+        const ids = new Set(prev.map((p) => p.id));
+        return [...prev, ...fresh.filter((l) => !ids.has(l.id))];
+      });
+      setBannerDismissed(false);
+      toast.success(
+        fresh.length === 1
+          ? `🔓 Odblokowano lekcję: ${fresh[0].title}`
+          : `🔓 Odblokowano ${fresh.length} nowych lekcji!`,
+      );
+    }
+    setUnlockedIds(currentUnlockedIds);
+  }, [currentUnlockedIds, lessons, watched, unlockedIds]);
+
   if (loading || !course)
     return (
       <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
@@ -296,6 +350,43 @@ function CourseDetailPage() {
             </div>
           )}
         </div>
+
+        {/* Baner: nowo odblokowane lekcje */}
+        {newlyUnlocked.length > 0 && !bannerDismissed && (
+          <div className="mt-4 rounded-2xl border border-violet/40 bg-gradient-to-br from-violet-soft/40 to-violet-soft/10 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2 flex-1 min-w-0">
+                <Sparkles className="w-5 h-5 text-violet shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-bold text-sm">
+                    {newlyUnlocked.length === 1
+                      ? "Nowa lekcja odblokowana!"
+                      : `Odblokowano ${newlyUnlocked.length} nowych lekcji!`}
+                  </div>
+                  <ul className="mt-1 space-y-0.5">
+                    {newlyUnlocked.slice(0, 3).map((l) => (
+                      <li key={l.id} className="text-xs text-muted-foreground truncate">
+                        • {l.title}
+                      </li>
+                    ))}
+                    {newlyUnlocked.length > 3 && (
+                      <li className="text-xs text-muted-foreground">
+                        + {newlyUnlocked.length - 3} więcej
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+              <button
+                onClick={() => setBannerDismissed(true)}
+                className="text-muted-foreground hover:text-foreground shrink-0"
+                aria-label="Zamknij"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {lockedByXp && (
           <div className="mt-4 rounded-2xl border border-orange/40 bg-orange-soft/30 p-4 text-sm">
