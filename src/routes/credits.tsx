@@ -80,6 +80,8 @@ function CreditsPage() {
         ))}
       </div>
 
+      <BonusCodeRedeemer />
+
       <div className="rounded-3xl border border-border bg-card p-5">
         <div className="font-semibold mb-1">Mało wykorzystujesz kredyty?</div>
         <div className="text-sm text-muted-foreground mb-3">
