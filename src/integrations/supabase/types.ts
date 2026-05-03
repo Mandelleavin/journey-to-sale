@@ -1802,6 +1802,7 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: Json
       }
+      send_task_due_reminders: { Args: never; Returns: undefined }
       update_streak: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
