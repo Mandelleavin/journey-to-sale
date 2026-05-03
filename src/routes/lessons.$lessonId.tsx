@@ -1,11 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Check, Zap, Paperclip, MessageCircle, Send, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Zap,
+  Paperclip,
+  MessageCircle,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
+import { LessonVideoPlayer } from "@/components/lessons/LessonVideoPlayer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ContentBlock } from "@/components/admin/ContentBlocksEditor";
