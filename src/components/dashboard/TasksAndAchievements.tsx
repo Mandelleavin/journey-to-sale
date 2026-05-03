@@ -151,6 +151,7 @@ export function TasksAndAchievements() {
         </ul>
         <Button
           variant="ghost"
+          onClick={() => navigate({ to: "/badges" })}
           className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
         >
           Zobacz wszystkie osiągnięcia
