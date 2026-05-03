@@ -142,6 +142,7 @@ function StripeCodesSection() {
                   <td className="p-3 text-xs">
                     {r.max_redemptions ? `Max ${r.max_redemptions}` : "Bez limitu"}
                     {r.expires_at && <div>do {new Date(r.expires_at).toLocaleDateString("pl-PL")}</div>}
+                    {r.min_amount && <div>min. {Number(r.min_amount).toFixed(2)} PLN</div>}
                   </td>
                   <td className="p-3">{r.times_redeemed ?? 0}</td>
                   <td className="p-3">
@@ -180,6 +181,7 @@ function NewStripeCodeForm({
   const [durationInMonths, setDurationInMonths] = useState<number>(3);
   const [maxRedemptions, setMaxRedemptions] = useState<string>("");
   const [expiresAt, setExpiresAt] = useState<string>("");
+  const [minAmount, setMinAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
@@ -190,6 +192,22 @@ function NewStripeCodeForm({
 
   const submit = async () => {
     if (!code.trim()) { toast.error("Podaj kod"); return; }
+    if (!/^[A-Z0-9_-]{3,40}$/.test(code.trim().toUpperCase())) {
+      toast.error("Kod musi mieć 3-40 znaków: A-Z, 0-9, _ lub -");
+      return;
+    }
+    if (!discountValue || discountValue <= 0) {
+      toast.error("Podaj wartość rabatu większą od 0");
+      return;
+    }
+    if (discountType === "percent" && discountValue > 100) {
+      toast.error("Procent nie może przekraczać 100");
+      return;
+    }
+    if (expiresAt && new Date(expiresAt).getTime() < Date.now()) {
+      toast.error("Data wygaśnięcia musi być w przyszłości");
+      return;
+    }
     setBusy(true);
     try {
       await createStripePromoCode({
@@ -204,6 +222,7 @@ function NewStripeCodeForm({
           durationInMonths: duration === "repeating" ? Number(durationInMonths) : undefined,
           maxRedemptions: maxRedemptions ? Number(maxRedemptions) : undefined,
           expiresAt: expiresAt || null,
+          minAmount: minAmount ? Number(minAmount) : undefined,
           description: description || undefined,
         },
       });
@@ -288,6 +307,21 @@ function NewStripeCodeForm({
       </div>
 
       <div>
+        <Label>Minimalna kwota zamówienia (PLN, opcj.)</Label>
+        <Input
+          type="number"
+          min={0}
+          step="0.01"
+          value={minAmount}
+          onChange={(e) => setMinAmount(e.target.value)}
+          placeholder="np. 100 — kod ważny tylko od zakupu 100 zł"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Stripe odrzuci kod przy checkoutie jeśli koszyk będzie mniejszy.
+        </p>
+      </div>
+
+      <div>
         <Label>Opis wewnętrzny (opcj.)</Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)}
           placeholder="np. Webinar 03.05 — kod dla uczestników" />
@@ -325,7 +359,18 @@ function BonusCodesSection() {
   useEffect(() => { reload(); }, []);
 
   const create = async () => {
-    if (!code.trim() || !credits) { toast.error("Podaj kod i liczbę kredytów"); return; }
+    const trimmed = code.trim().toUpperCase();
+    if (!trimmed) { toast.error("Podaj kod"); return; }
+    if (!/^[A-Z0-9_-]{3,40}$/.test(trimmed)) {
+      toast.error("Kod musi mieć 3-40 znaków: A-Z, 0-9, _ lub -");
+      return;
+    }
+    if (!credits || credits < 1) { toast.error("Podaj liczbę kredytów (min. 1)"); return; }
+    if (validityDays < 1) { toast.error("Ważność musi być min. 1 dzień"); return; }
+    if (expiresAt && new Date(expiresAt).getTime() < Date.now()) {
+      toast.error("Data wygaśnięcia musi być w przyszłości");
+      return;
+    }
     setBusy(true);
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("credit_redemption_codes").insert({
