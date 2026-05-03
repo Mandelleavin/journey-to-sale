@@ -153,6 +153,7 @@ function LessonPage() {
       const list = (data ?? []) as { id: string; position: number }[];
       const idx = list.findIndex((x) => x.id === lesson.id);
       setNextLessonId(idx >= 0 && idx < list.length - 1 ? list[idx + 1].id : null);
+      setPrevLessonId(idx > 0 ? list[idx - 1].id : null);
     })();
   }, [lesson]);
 
