@@ -1,46 +1,48 @@
+import { useEffect, useState } from "react";
 import {
   CheckSquare,
   Square,
+  CircleDashed,
   PlayCircle,
   Award,
   FileCheck,
   Trophy,
   Zap,
+  Lock,
 } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
+import { toast } from "sonner";
 
-const initialTasks = [
-  {
-    title: "Napisz swoją ofertę",
-    status: "W trakcie",
-    xp: "+150 XP",
-    color: "blue",
-    checked: false,
-  },
-  {
-    title: "Stwórz nazwę produktu",
-    status: "Do zrobienia",
-    xp: "+100 XP",
-    color: "muted",
-    checked: false,
-  },
-  {
-    title: "Stwórz landing page (link)",
-    status: "Zatwierdzone",
-    xp: "+200 XP",
-    color: "green",
-    checked: true,
-  },
-];
+type MentorTask = {
+  id: string;
+  title: string;
+  xp_reward: number;
+  status: "assigned" | "in_progress" | "submitted" | "approved" | "rejected" | "needs_revision";
+};
 
-const statusStyle = {
-  blue: "bg-blue-soft text-blue",
-  muted: "bg-muted text-muted-foreground",
-  green: "bg-green-soft text-green",
-} as const;
+const STATUS_META: Record<
+  MentorTask["status"],
+  { label: string; tone: string; userToggleable: boolean }
+> = {
+  assigned: {
+    label: "Do zrobienia",
+    tone: "bg-muted text-muted-foreground",
+    userToggleable: true,
+  },
+  in_progress: { label: "W trakcie", tone: "bg-blue-soft text-blue", userToggleable: true },
+  submitted: { label: "Wysłane", tone: "bg-violet-soft text-violet", userToggleable: false },
+  approved: { label: "Zatwierdzone", tone: "bg-green-soft text-green", userToggleable: false },
+  rejected: {
+    label: "Odrzucone",
+    tone: "bg-destructive/10 text-destructive",
+    userToggleable: false,
+  },
+  needs_revision: { label: "Do poprawy", tone: "bg-orange-soft text-orange", userToggleable: true },
+};
 
 const achievements = [
   { icon: PlayCircle, title: "Obejrzałeś lekcję", xp: "+30 XP", time: "2h temu", color: "violet" },
@@ -70,12 +72,59 @@ const achColor = {
 
 export function TasksAndAchievements() {
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState(initialTasks);
+  const { user } = useAuth();
+  const [tasks, setTasks] = useState<MentorTask[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
-  const toggleTask = (title: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.title === title ? { ...t, checked: !t.checked } : t)),
-    );
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data } = await supabase
+      .from("mentor_assigned_tasks")
+      .select("id, title, xp_reward, status")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setTasks((data ?? []) as MentorTask[]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, [user]);
+
+  const toggleStatus = async (t: MentorTask) => {
+    const meta = STATUS_META[t.status];
+    if (!meta.userToggleable) {
+      toast.info("Tylko administrator może zmienić ten status");
+      return;
+    }
+    // Cycle: assigned -> in_progress -> assigned. needs_revision -> in_progress.
+    const next: MentorTask["status"] =
+      t.status === "in_progress" ? "assigned" : "in_progress";
+    setPendingId(t.id);
+    const { error } = await supabase
+      .from("mentor_assigned_tasks")
+      .update({ status: next })
+      .eq("id", t.id);
+    setPendingId(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, status: next } : x)));
+  };
+
+  const renderIcon = (t: MentorTask) => {
+    if (t.status === "approved")
+      return <CheckSquare className="w-4 h-4 text-green" strokeWidth={2.2} />;
+    if (t.status === "submitted")
+      return <CircleDashed className="w-4 h-4 text-violet animate-spin-slow" strokeWidth={2.2} />;
+    if (t.status === "in_progress")
+      return <CircleDashed className="w-4 h-4 text-blue" strokeWidth={2.2} />;
+    if (t.status === "rejected") return <Lock className="w-4 h-4 text-destructive" strokeWidth={2.2} />;
+    return <Square className="w-4 h-4 text-muted-foreground" strokeWidth={2.2} />;
   };
 
   return (
@@ -83,34 +132,56 @@ export function TasksAndAchievements() {
       {/* Tasks */}
       <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
         <h3 className="font-display font-bold text-base mb-3">Moje zadania od mentora</h3>
-        <ul className="divide-y divide-border">
-          {tasks.map((t) => (
-            <li key={t.title} className="flex items-center gap-3 py-3">
-              <button
-                type="button"
-                onClick={() => toggleTask(t.title)}
-                aria-label={t.checked ? "Odznacz zadanie" : "Zaznacz zadanie"}
-                className="shrink-0"
-              >
-                {t.checked ? (
-                  <CheckSquare className="w-4 h-4 text-green" strokeWidth={2.2} />
-                ) : (
-                  <Square className="w-4 h-4 text-muted-foreground" strokeWidth={2.2} />
-                )}
-              </button>
-              <span className="flex-1 text-sm font-medium text-foreground">{t.title}</span>
-              <span
-                className={cn(
-                  "text-[11px] font-semibold px-2 py-1 rounded-md",
-                  statusStyle[t.color as keyof typeof statusStyle],
-                )}
-              >
-                {t.status}
-              </span>
-              <span className="text-xs font-bold text-violet w-14 text-right">{t.xp}</span>
-            </li>
-          ))}
-        </ul>
+        {loading ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">Ładowanie…</div>
+        ) : tasks.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Brak zadań od mentora
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {tasks.map((t) => {
+              const meta = STATUS_META[t.status];
+              return (
+                <li key={t.id} className="flex items-center gap-3 py-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(t)}
+                    disabled={pendingId === t.id || !meta.userToggleable}
+                    aria-label="Zmień status"
+                    className={cn(
+                      "shrink-0",
+                      meta.userToggleable
+                        ? "cursor-pointer hover:opacity-70"
+                        : "cursor-not-allowed opacity-90",
+                    )}
+                    title={
+                      meta.userToggleable
+                        ? "Kliknij, aby oznaczyć jako w trakcie / do zrobienia"
+                        : "Status zarządzany przez administratora"
+                    }
+                  >
+                    {renderIcon(t)}
+                  </button>
+                  <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">
+                    {t.title}
+                  </span>
+                  <span
+                    className={cn(
+                      "text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap",
+                      meta.tone,
+                    )}
+                  >
+                    {meta.label}
+                  </span>
+                  <span className="text-xs font-bold text-violet w-14 text-right">
+                    +{t.xp_reward} XP
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
         <Button
           variant="ghost"
           onClick={() => navigate({ to: "/tasks" })}
