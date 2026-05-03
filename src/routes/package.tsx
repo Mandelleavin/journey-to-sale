@@ -311,7 +311,7 @@ function PackagePage() {
         ? "Subskrypcja zostanie anulowana na koniec opłaconego okresu."
         : "Subskrypcja anulowana. Dziękujemy za feedback.",
     );
-    setShowCancel(false);
+    setCancelStep(null);
     loadSub();
   };
 
