@@ -351,6 +351,43 @@ function CourseDetailPage() {
           )}
         </div>
 
+        {/* Baner: nowo odblokowane lekcje */}
+        {newlyUnlocked.length > 0 && !bannerDismissed && (
+          <div className="mt-4 rounded-2xl border border-violet/40 bg-gradient-to-br from-violet-soft/40 to-violet-soft/10 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2 flex-1 min-w-0">
+                <Sparkles className="w-5 h-5 text-violet shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-bold text-sm">
+                    {newlyUnlocked.length === 1
+                      ? "Nowa lekcja odblokowana!"
+                      : `Odblokowano ${newlyUnlocked.length} nowych lekcji!`}
+                  </div>
+                  <ul className="mt-1 space-y-0.5">
+                    {newlyUnlocked.slice(0, 3).map((l) => (
+                      <li key={l.id} className="text-xs text-muted-foreground truncate">
+                        • {l.title}
+                      </li>
+                    ))}
+                    {newlyUnlocked.length > 3 && (
+                      <li className="text-xs text-muted-foreground">
+                        + {newlyUnlocked.length - 3} więcej
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+              <button
+                onClick={() => setBannerDismissed(true)}
+                className="text-muted-foreground hover:text-foreground shrink-0"
+                aria-label="Zamknij"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {lockedByXp && (
           <div className="mt-4 rounded-2xl border border-orange/40 bg-orange-soft/30 p-4 text-sm">
             <div className="font-bold text-orange flex items-center gap-2">
