@@ -106,7 +106,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 max-w-5xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -134,6 +134,10 @@ function AdminPage() {
             <TabsTrigger value="sales">
               <Phone className="w-4 h-4 mr-1" />
               Sprzedaż
+            </TabsTrigger>
+            <TabsTrigger value="promo">
+              <Tag className="w-4 h-4 mr-1" />
+              Kody
             </TabsTrigger>
           </TabsList>
 
