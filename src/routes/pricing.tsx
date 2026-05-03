@@ -184,6 +184,50 @@ function PricingPage() {
         })}
       </div>
 
+      {/* Gwarancja 90 dni — diagnoza 1:1 */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-violet/40 bg-gradient-to-br from-violet-soft via-card to-blue-soft p-6 md:p-8 shadow-glow">
+        <div className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-gradient-violet text-primary-foreground text-[10px] font-bold tracking-wide shadow-glow">
+          GWARANCJA 90 DNI
+        </div>
+        <div className="flex items-start gap-4 flex-wrap md:flex-nowrap">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-violet text-primary-foreground grid place-items-center shrink-0 shadow-glow">
+            <ShieldCheck className="w-7 h-7" />
+          </div>
+          <div className="flex-1 min-w-[260px]">
+            <h2 className="font-display font-extrabold text-2xl">
+              Jeśli w 90 dni nie sprzedasz produktu — przychodzimy do Ciebie osobiście
+            </h2>
+            <p className="mt-3 text-sm text-foreground/80 leading-relaxed">
+              Włożyliśmy mnóstwo wysiłku w stworzenie tych narzędzi i szkoleń, aby były
+              absolutnie najlepsze z możliwych. Teraz Twoja kolej, by je wdrożyć — a my
+              będziemy Ci towarzyszyć przez cały czas.
+            </p>
+            <p className="mt-3 text-sm text-foreground/80 leading-relaxed">
+              <strong>Jeżeli mimo realizacji programu w ciągu 90 dni nie sprzedasz swojego produktu,</strong>{" "}
+              nasz zespół osobiście przeprowadzi kompleksową diagnozę Twojego produktu cyfrowego
+              i wskaże konkretne kroki, które domkną sprzedaż.
+            </p>
+            <ul className="mt-4 grid sm:grid-cols-2 gap-2 text-sm">
+              {[
+                "Indywidualna diagnoza 1:1 z naszym zespołem",
+                "Audyt oferty, lejka i komunikacji",
+                "Plan naprawczy krok po kroku",
+                "Bez dodatkowych kosztów — w ramach pakietu",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-green shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Gwarancja dotyczy pakietów <strong>PRO SPRZEDAŻ</strong> i <strong>VIP WDROŻENIE</strong>{" "}
+              przy ukończeniu min. 80% lekcji i zadań w 90 dni.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
         <h2 className="font-display font-extrabold text-xl">Dlaczego większość osób wybiera PRO SPRZEDAŻ?</h2>
         <p className="mt-2 text-sm text-muted-foreground">
