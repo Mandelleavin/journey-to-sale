@@ -1836,6 +1836,7 @@ export type Database = {
         | "approved"
         | "rejected"
         | "needs_revision"
+        | "in_progress"
       notification_type:
         | "task_approved"
         | "task_rejected"
@@ -2024,6 +2025,7 @@ export const Constants = {
         "approved",
         "rejected",
         "needs_revision",
+        "in_progress",
       ],
       notification_type: [
         "task_approved",
