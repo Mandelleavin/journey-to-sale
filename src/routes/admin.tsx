@@ -31,10 +31,12 @@ import {
   Flame,
   CalendarDays,
   Sparkles,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
+import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
