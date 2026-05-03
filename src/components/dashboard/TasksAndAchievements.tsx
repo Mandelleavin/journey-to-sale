@@ -1,17 +1,18 @@
 import {
   CheckSquare,
   Square,
-  CircleDashed,
   PlayCircle,
   Award,
   FileCheck,
   Trophy,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const tasks = [
+const initialTasks = [
   {
     title: "Napisz swoją ofertę",
     status: "W trakcie",
@@ -68,6 +69,15 @@ const achColor = {
 } as const;
 
 export function TasksAndAchievements() {
+  const navigate = useNavigate();
+  const [tasks, setTasks] = useState(initialTasks);
+
+  const toggleTask = (title: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.title === title ? { ...t, checked: !t.checked } : t)),
+    );
+  };
+
   return (
     <div className="grid lg:grid-cols-2 gap-4">
       {/* Tasks */}
@@ -76,11 +86,18 @@ export function TasksAndAchievements() {
         <ul className="divide-y divide-border">
           {tasks.map((t) => (
             <li key={t.title} className="flex items-center gap-3 py-3">
-              {t.checked ? (
-                <CheckSquare className="w-4 h-4 text-green shrink-0" strokeWidth={2.2} />
-              ) : (
-                <Square className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={2.2} />
-              )}
+              <button
+                type="button"
+                onClick={() => toggleTask(t.title)}
+                aria-label={t.checked ? "Odznacz zadanie" : "Zaznacz zadanie"}
+                className="shrink-0"
+              >
+                {t.checked ? (
+                  <CheckSquare className="w-4 h-4 text-green" strokeWidth={2.2} />
+                ) : (
+                  <Square className="w-4 h-4 text-muted-foreground" strokeWidth={2.2} />
+                )}
+              </button>
               <span className="flex-1 text-sm font-medium text-foreground">{t.title}</span>
               <span
                 className={cn(
@@ -96,6 +113,7 @@ export function TasksAndAchievements() {
         </ul>
         <Button
           variant="ghost"
+          onClick={() => navigate({ to: "/tasks" })}
           className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
         >
           Zobacz wszystkie zadania
@@ -133,6 +151,7 @@ export function TasksAndAchievements() {
         </ul>
         <Button
           variant="ghost"
+          onClick={() => navigate({ to: "/badges" })}
           className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
         >
           Zobacz wszystkie osiągnięcia
