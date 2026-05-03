@@ -306,6 +306,21 @@ function NewStripeCodeForm({
       </div>
 
       <div>
+        <Label>Minimalna kwota zamówienia (PLN, opcj.)</Label>
+        <Input
+          type="number"
+          min={0}
+          step="0.01"
+          value={minAmount}
+          onChange={(e) => setMinAmount(e.target.value)}
+          placeholder="np. 100 — kod ważny tylko od zakupu 100 zł"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Stripe odrzuci kod przy checkoutie jeśli koszyk będzie mniejszy.
+        </p>
+      </div>
+
+      <div>
         <Label>Opis wewnętrzny (opcj.)</Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)}
           placeholder="np. Webinar 03.05 — kod dla uczestników" />
