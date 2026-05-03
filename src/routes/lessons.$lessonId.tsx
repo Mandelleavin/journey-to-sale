@@ -197,9 +197,6 @@ function LessonPage() {
     );
 
   const subForTask = (taskId: string) => submissions.find((s) => s.task_id === taskId);
-  const ytId = lesson.video_url?.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?]+)/,
-  )?.[1];
 
   return (
     <div className="min-h-screen bg-app">
