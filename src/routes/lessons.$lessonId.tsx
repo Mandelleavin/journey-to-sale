@@ -216,18 +216,10 @@ function LessonPage() {
           <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
         )}
 
-        {/* Główne wideo */}
-        {ytId ? (
-          <div className="mt-4 aspect-video rounded-2xl overflow-hidden bg-black">
-            <iframe
-              className="w-full h-full"
-              src={`https://www.youtube.com/embed/${ytId}`}
-              allowFullScreen
-            />
-          </div>
-        ) : lesson.video_url ? (
-          <video src={lesson.video_url} controls className="mt-4 w-full rounded-2xl bg-black" />
-        ) : null}
+        {/* Główne wideo z auto-detekcją ukończenia */}
+        {lesson.video_url && (
+          <LessonVideoPlayer videoUrl={lesson.video_url} onCompleted={markWatched} />
+        )}
 
         {/* Bloki treści */}
         {lesson.content_blocks.length > 0 && (
@@ -238,21 +230,41 @@ function LessonPage() {
           </div>
         )}
 
-        {/* Status / Mark watched */}
-        <Button
-          onClick={markWatched}
-          disabled={watched}
-          className="mt-6 rounded-xl bg-gradient-green text-primary-foreground"
-        >
-          {watched ? (
-            <>
-              <Check className="w-4 h-4 mr-1" />
-              Lekcja ukończona (+{lesson.xp_reward} XP)
-            </>
-          ) : (
-            <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
+        {/* Status / Mark watched + następna lekcja */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Button
+            onClick={markWatched}
+            disabled={watched}
+            className="rounded-xl bg-gradient-green text-primary-foreground"
+          >
+            {watched ? (
+              <>
+                <Check className="w-4 h-4 mr-1" />
+                Lekcja ukończona (+{lesson.xp_reward} XP)
+              </>
+            ) : (
+              <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
+            )}
+          </Button>
+          {watched && nextLessonId && (
+            <Button
+              onClick={() => navigate({ to: "/lessons/$lessonId", params: { lessonId: nextLessonId } })}
+              variant="outline"
+              className="rounded-xl"
+            >
+              Następna lekcja <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
           )}
-        </Button>
+          {watched && !nextLessonId && (
+            <Link
+              to="/courses/$courseId"
+              params={{ courseId: lesson.course_id }}
+              className="text-sm font-bold text-violet hover:underline"
+            >
+              Wróć do kursu →
+            </Link>
+          )}
+        </div>
 
         {/* Załączniki */}
         {attachments.length > 0 && (
