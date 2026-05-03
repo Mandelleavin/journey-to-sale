@@ -162,6 +162,9 @@ function AdminPage() {
           <TabsContent value="sales" className="mt-6">
             <SalesTab />
           </TabsContent>
+          <TabsContent value="promo" className="mt-6">
+            <PromoCodesTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
