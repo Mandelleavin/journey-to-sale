@@ -101,14 +101,19 @@ export function CoursesSection({ courses, fullName }: { courses?: Course[]; full
   return (
     <section>
       <div className="flex items-end justify-between mb-3">
-        <h3 className="font-display font-bold text-lg flex items-center gap-2">
-          <span className="text-violet">Twoje kursy{firstName ? `, ${firstName}` : ""}</span>
-        </h3>
+        <div>
+          <h2 className="font-display font-bold text-2xl">
+            Cześć{firstName ? `, ${firstName}` : ""} 👋
+          </h2>
+          <h3 className="font-display font-bold text-lg flex items-center gap-2 mt-1">
+            <span className="text-violet">▾</span> Twoje kursy
+          </h3>
+        </div>
         <div className="hidden md:flex items-center gap-2 relative">
           <span className="font-hand text-orange text-base font-bold leading-tight text-right max-w-[200px]">
             Kursy odblokowywane
             <br />
-            za XP lub postÄ™py
+            za XP lub postępy
           </span>
           <SketchArrow direction="right" className="w-20 h-10 rotate-12 text-orange" />
         </div>
