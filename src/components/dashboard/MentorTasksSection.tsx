@@ -74,14 +74,17 @@ export function MentorTasksSection() {
 
   if (tasks.length === 0) return null;
 
-  const statusLabel = (s: MentorTask["status"]) =>
-    ({
+  const statusLabel = (s: MentorTask["status"]) => {
+    const map = {
       assigned: { label: "Do zrobienia", tone: "border-blue/40 text-blue" },
+      in_progress: { label: "W trakcie", tone: "border-violet/40 text-violet" },
       submitted: { label: "Wysłane", tone: "border-violet/40 text-violet" },
       approved: { label: "Zatwierdzone", tone: "border-green/40 text-green" },
       rejected: { label: "Odrzucone", tone: "border-destructive/40 text-destructive" },
       needs_revision: { label: "Do poprawy", tone: "border-orange/40 text-orange" },
-    })[s];
+    } as Record<string, { label: string; tone: string }>;
+    return map[s] ?? { label: s ?? "—", tone: "border-border text-muted-foreground" };
+  };
 
   return (
     <section className="bg-card rounded-3xl border border-border shadow-card p-5 lg:p-6">
