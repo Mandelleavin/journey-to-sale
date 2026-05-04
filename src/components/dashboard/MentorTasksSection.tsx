@@ -15,16 +15,26 @@ import { Sparkles, Calendar, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+type TaskStatus =
+  | "assigned"
+  | "in_progress"
+  | "submitted"
+  | "approved"
+  | "rejected"
+  | "needs_revision";
+
 type MentorTask = {
   id: string;
   title: string;
   instructions: string | null;
   xp_reward: number;
   due_date: string | null;
-  status: "assigned" | "submitted" | "approved" | "rejected" | "needs_revision";
+  status: TaskStatus;
   admin_feedback: string | null;
   submission_content: string | null;
 };
+
+type FilterKey = "all" | "in_progress" | "assigned" | "approved";
 
 export function MentorTasksSection() {
   const { user } = useAuth();
