@@ -107,6 +107,7 @@ function Index() {
         <Sidebar />
 
         <main className="flex-1 min-w-0 space-y-5">
+          <MobileTopNav />
           <TopBar fullName={fullName} notificationsCount={data.notificationsCount} />
           <StatCards
             level={data.level}
