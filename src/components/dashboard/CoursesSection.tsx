@@ -95,13 +95,14 @@ const fallback: Course[] = [
   },
 ];
 
-export function CoursesSection({ courses }: { courses?: Course[] }) {
+export function CoursesSection({ courses, fullName }: { courses?: Course[]; fullName?: string }) {
   const data = courses && courses.length > 0 ? courses : fallback;
+  const firstName = fullName?.trim().split(/\s+/)[0];
   return (
     <section>
       <div className="flex items-end justify-between mb-3">
         <h3 className="font-display font-bold text-lg flex items-center gap-2">
-          <span className="text-violet">â–ľ</span> Twoje kursy
+          <span className="text-violet">Twoje kursy{firstName ? `, ${firstName}` : ""}</span>
         </h3>
         <div className="hidden md:flex items-center gap-2 relative">
           <span className="font-hand text-orange text-base font-bold leading-tight text-right max-w-[200px]">
