@@ -240,6 +240,58 @@ export function MentorTasksSection() {
         })()}
       </div>
 
+      {(() => {
+        const isOpen = (s: TaskStatus) =>
+          s === "assigned" || s === "in_progress" || s === "needs_revision";
+        const now = Date.now();
+        const weekEnd = now + 7 * 86400000;
+        const totalXp = tasks
+          .filter((t) => isOpen(t.status))
+          .reduce((sum, t) => sum + (t.xp_reward ?? 0), 0);
+        const weekXp = tasks
+          .filter(
+            (t) =>
+              isOpen(t.status) &&
+              t.due_date &&
+              new Date(t.due_date).getTime() <= weekEnd,
+          )
+          .reduce((sum, t) => sum + (t.xp_reward ?? 0), 0);
+        const earnedXp = tasks
+          .filter((t) => t.status === "approved")
+          .reduce((sum, t) => sum + (t.xp_reward ?? 0), 0);
+        return (
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-yellow-note/40 to-orange-soft p-3">
+              <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                W tym tygodniu
+              </div>
+              <div className="font-display font-extrabold text-orange text-xl leading-tight mt-0.5 inline-flex items-center gap-1">
+                <Zap className="w-4 h-4 fill-orange" />+{weekXp}
+                <span className="text-[10px] font-semibold text-muted-foreground ml-0.5">XP</span>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-3">
+              <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                Do zdobycia
+              </div>
+              <div className="font-display font-extrabold text-violet text-xl leading-tight mt-0.5 inline-flex items-center gap-1">
+                <Zap className="w-4 h-4 fill-violet" />+{totalXp}
+                <span className="text-[10px] font-semibold text-muted-foreground ml-0.5">XP</span>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-gradient-to-br from-green-soft to-blue-soft p-3">
+              <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                Zdobyte
+              </div>
+              <div className="font-display font-extrabold text-green text-xl leading-tight mt-0.5 inline-flex items-center gap-1">
+                <Zap className="w-4 h-4 fill-green" />+{earnedXp}
+                <span className="text-[10px] font-semibold text-muted-foreground ml-0.5">XP</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <Dialog open={!!active} onOpenChange={(v) => !v && setActive(null)}>
         <DialogContent>
           <DialogHeader>
