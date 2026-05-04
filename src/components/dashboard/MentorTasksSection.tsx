@@ -210,7 +210,8 @@ export function MentorTasksSection() {
               )}
             </div>
           );
-        })}
+          });
+        })()}
       </div>
 
       <Dialog open={!!active} onOpenChange={(v) => !v && setActive(null)}>
