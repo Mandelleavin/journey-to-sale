@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: gen.max_output_tokens,
+        max_tokens: Math.max(Number(gen.max_output_tokens) || 0, 4000),
         temperature: Number(gen.temperature),
       }),
     });
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: "Błąd modelu AI" }), {
+      return new Response(JSON.stringify({ error: `Błąd modelu AI (${aiRes.status}): ${txt.slice(0, 200)}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -139,6 +139,13 @@ Deno.serve(async (req) => {
 
     const aiData = await aiRes.json();
     const output = aiData.choices?.[0]?.message?.content ?? "";
+    if (!output || !output.trim()) {
+      console.error("AI returned empty output:", JSON.stringify(aiData).slice(0, 500));
+      return new Response(JSON.stringify({ error: "Model AI zwrócił pustą odpowiedź. Spróbuj ponownie." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Zapisz historię
     const { data: hist } = await admin

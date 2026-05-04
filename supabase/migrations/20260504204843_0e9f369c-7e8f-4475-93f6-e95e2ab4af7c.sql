@@ -1,0 +1,1 @@
+UPDATE public.ai_generators SET max_output_tokens = 4000 WHERE max_output_tokens < 4000;
