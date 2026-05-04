@@ -32,6 +32,10 @@ type MentorTask = {
   status: TaskStatus;
   admin_feedback: string | null;
   submission_content: string | null;
+  created_at: string;
+  updated_at: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
 };
 
 type FilterKey = "all" | "in_progress" | "assigned" | "approved";
