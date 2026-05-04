@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Zap, ChevronDown, History } from "lucide-react";
+import { Sparkles, Calendar, Zap, ChevronDown, History, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +48,7 @@ export function MentorTasksSection() {
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const approvedIdsRef = useRef<Set<string> | null>(null);
   const toggleExpand = (id: string) =>
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -62,11 +63,68 @@ export function MentorTasksSection() {
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-    setTasks((data ?? []) as MentorTask[]);
+    const next = (data ?? []) as MentorTask[];
+
+    // Detect newly approved tasks and notify with XP gained
+    const prevApproved = approvedIdsRef.current;
+    const currentApproved = new Set(
+      next.filter((t) => t.status === "approved").map((t) => t.id),
+    );
+    if (prevApproved) {
+      const weekAgo = Date.now() - 7 * 86400000;
+      const newlyApprovedTasks = next.filter(
+        (t) => t.status === "approved" && !prevApproved.has(t.id),
+      );
+      if (newlyApprovedTasks.length > 0) {
+        const totalGained = newlyApprovedTasks.reduce(
+          (s, t) => s + (t.xp_reward ?? 0),
+          0,
+        );
+        const weekGained = newlyApprovedTasks
+          .filter((t) => {
+            const d = t.reviewed_at ?? t.updated_at;
+            return d && new Date(d).getTime() >= weekAgo;
+          })
+          .reduce((s, t) => s + (t.xp_reward ?? 0), 0);
+        const titles = newlyApprovedTasks.map((t) => t.title).join(", ");
+        toast.success(`🏆 Zadanie zatwierdzone: +${totalGained} XP`, {
+          description:
+            `${titles}` +
+            (weekGained > 0
+              ? ` · W tym tygodniu: +${weekGained} XP · Łącznie zdobyte: +${totalGained} XP`
+              : ` · Łącznie zdobyte: +${totalGained} XP`),
+          icon: <Trophy className="w-4 h-4 text-green" />,
+          duration: 7000,
+        });
+      }
+    }
+    approvedIdsRef.current = currentApproved;
+    setTasks(next);
   };
 
   useEffect(() => {
     load();
+  }, [user]);
+
+  // Realtime: nasłuchuj zmian zadań i odśwież (co wyzwoli toast jeśli pojawi się nowe zatwierdzenie)
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`mentor-tasks-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "mentor_assigned_tasks",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const open = (t: MentorTask) => {
