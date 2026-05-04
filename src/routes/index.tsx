@@ -12,6 +12,7 @@ import { AccelerateWidget } from "@/components/dashboard/AccelerateWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
+import { MobileTopNav } from "@/components/dashboard/MobileTopNav";
 import { useAuth } from "@/lib/auth-context";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,6 +107,7 @@ function Index() {
         <Sidebar />
 
         <main className="flex-1 min-w-0 space-y-5">
+          <MobileTopNav />
           <TopBar fullName={fullName} notificationsCount={data.notificationsCount} />
           <StatCards
             level={data.level}
