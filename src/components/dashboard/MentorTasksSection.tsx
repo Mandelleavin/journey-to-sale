@@ -11,7 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Zap } from "lucide-react";
+import { Sparkles, Calendar, Zap, ChevronDown, History } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
