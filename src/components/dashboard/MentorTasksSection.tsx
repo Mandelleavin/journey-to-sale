@@ -180,12 +180,38 @@ export function MentorTasksSection() {
                     <span className="inline-flex items-center gap-1 font-bold text-violet">
                       <Zap className="w-3 h-3" />+{t.xp_reward} XP
                     </span>
-                    {t.due_date && (
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(t.due_date).toLocaleDateString("pl-PL")}
-                      </span>
-                    )}
+                    {t.due_date && (() => {
+                      const due = new Date(t.due_date);
+                      const days = Math.ceil((due.getTime() - Date.now()) / 86400000);
+                      const overdue = days < 0;
+                      const today = days === 0;
+                      const soon = days > 0 && days <= 3;
+                      const label = overdue
+                        ? `po terminie (${Math.abs(days)} dni)`
+                        : today
+                          ? "dziś!"
+                          : days === 1
+                            ? "jutro"
+                            : `za ${days} dni`;
+                      return (
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-md",
+                            overdue
+                              ? "bg-destructive/10 text-destructive"
+                              : today
+                                ? "bg-orange-soft text-orange"
+                                : soon
+                                  ? "bg-yellow-note/40 text-foreground"
+                                  : "text-muted-foreground",
+                          )}
+                          title={`Termin: ${due.toLocaleDateString("pl-PL")}`}
+                        >
+                          <Calendar className="w-3 h-3" />
+                          {due.toLocaleDateString("pl-PL")} · {label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
