@@ -55,6 +55,7 @@ export function PageShell({
       <div className="max-w-[1600px] mx-auto p-4 md:p-6 flex gap-6">
         <Sidebar />
         <main className="flex-1 min-w-0 space-y-5">
+          <MobileTopNav />
           <TopBar fullName={fullName} notificationsCount={notifCount} />
           <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
             <h1 className="font-display font-extrabold text-2xl text-foreground">{title}</h1>
