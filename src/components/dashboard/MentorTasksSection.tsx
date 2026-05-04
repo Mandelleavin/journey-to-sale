@@ -15,16 +15,26 @@ import { Sparkles, Calendar, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+type TaskStatus =
+  | "assigned"
+  | "in_progress"
+  | "submitted"
+  | "approved"
+  | "rejected"
+  | "needs_revision";
+
 type MentorTask = {
   id: string;
   title: string;
   instructions: string | null;
   xp_reward: number;
   due_date: string | null;
-  status: "assigned" | "submitted" | "approved" | "rejected" | "needs_revision";
+  status: TaskStatus;
   admin_feedback: string | null;
   submission_content: string | null;
 };
+
+type FilterKey = "all" | "in_progress" | "assigned" | "approved";
 
 export function MentorTasksSection() {
   const { user } = useAuth();
@@ -32,6 +42,7 @@ export function MentorTasksSection() {
   const [active, setActive] = useState<MentorTask | null>(null);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [filter, setFilter] = useState<FilterKey>("all");
 
   const load = async () => {
     if (!user) return;
@@ -100,8 +111,56 @@ export function MentorTasksSection() {
         </div>
       </div>
 
+      {(() => {
+        const counts = {
+          all: tasks.length,
+          in_progress: tasks.filter((t) => t.status === "in_progress").length,
+          assigned: tasks.filter((t) => t.status === "assigned" || t.status === "needs_revision")
+            .length,
+          approved: tasks.filter((t) => t.status === "approved").length,
+        };
+        const filters: { key: FilterKey; label: string }[] = [
+          { key: "all", label: "Wszystkie" },
+          { key: "in_progress", label: "W trakcie" },
+          { key: "assigned", label: "Do zrobienia" },
+          { key: "approved", label: "Zatwierdzone" },
+        ];
+        return (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {filters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wide transition-colors",
+                  filter === f.key
+                    ? "bg-gradient-violet text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent",
+                )}
+              >
+                {f.label} · {counts[f.key]}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
+
       <div className="space-y-2">
-        {tasks.map((t) => {
+        {(() => {
+          const filtered = tasks.filter((t) => {
+            if (filter === "all") return true;
+            if (filter === "assigned")
+              return t.status === "assigned" || t.status === "needs_revision";
+            return t.status === filter;
+          });
+          if (filtered.length === 0) {
+            return (
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                Brak zadań w tej kategorii
+              </div>
+            );
+          }
+          return filtered.map((t) => {
           const tag = statusLabel(t.status);
           const interactive = t.status === "assigned" || t.status === "needs_revision";
           return (
@@ -151,7 +210,8 @@ export function MentorTasksSection() {
               )}
             </div>
           );
-        })}
+          });
+        })()}
       </div>
 
       <Dialog open={!!active} onOpenChange={(v) => !v && setActive(null)}>
