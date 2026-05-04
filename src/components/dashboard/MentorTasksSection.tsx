@@ -47,6 +47,13 @@ export function MentorTasksSection() {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpand = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const load = async () => {
     if (!user) return;
