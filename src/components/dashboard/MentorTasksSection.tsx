@@ -42,6 +42,7 @@ export function MentorTasksSection() {
   const [active, setActive] = useState<MentorTask | null>(null);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [filter, setFilter] = useState<FilterKey>("all");
 
   const load = async () => {
     if (!user) return;
