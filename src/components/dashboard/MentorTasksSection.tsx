@@ -174,20 +174,61 @@ export function MentorTasksSection() {
           return filtered.map((t) => {
           const tag = statusLabel(t.status);
           const interactive = t.status === "assigned" || t.status === "needs_revision";
+          const isExpanded = expanded.has(t.id);
+          const fmt = (d: string | null) =>
+            d ? new Date(d).toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" }) : null;
+          const history: { label: string; date: string | null; tone: string }[] = [
+            { label: "Przypisano przez mentora", date: fmt(t.created_at), tone: "bg-blue" },
+            t.submitted_at
+              ? { label: "Wysłano do recenzji", date: fmt(t.submitted_at), tone: "bg-violet" }
+              : null,
+            t.reviewed_at
+              ? {
+                  label:
+                    t.status === "approved"
+                      ? "Zatwierdzone przez mentora"
+                      : t.status === "rejected"
+                        ? "Odrzucone przez mentora"
+                        : t.status === "needs_revision"
+                          ? "Zwrócone do poprawy"
+                          : "Zrecenzowane",
+                  date: fmt(t.reviewed_at),
+                  tone:
+                    t.status === "approved"
+                      ? "bg-green"
+                      : t.status === "rejected"
+                        ? "bg-destructive"
+                        : "bg-orange",
+                }
+              : null,
+          ].filter(Boolean) as { label: string; date: string | null; tone: string }[];
           return (
             <div
               key={t.id}
               className="rounded-2xl border border-border p-4 hover:border-violet/40 transition-colors"
             >
               <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm">{t.title}</div>
-                  {t.instructions && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                <button
+                  type="button"
+                  onClick={() => toggleExpand(t.id)}
+                  className="flex-1 min-w-0 text-left"
+                  aria-expanded={isExpanded}
+                >
+                  <div className="flex items-center gap-2">
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 text-muted-foreground shrink-0 transition-transform",
+                        isExpanded && "rotate-180",
+                      )}
+                    />
+                    <div className="font-bold text-sm">{t.title}</div>
+                  </div>
+                  {t.instructions && !isExpanded && (
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 pl-6">
                       {t.instructions}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground pl-6 flex-wrap">
                     <span className="inline-flex items-center gap-1 font-bold text-violet">
                       <Zap className="w-3 h-3" />+{t.xp_reward} XP
                     </span>
@@ -224,7 +265,7 @@ export function MentorTasksSection() {
                       );
                     })()}
                   </div>
-                </div>
+                </button>
                 <div className="flex flex-col items-end gap-2">
                   <Badge variant="outline" className={cn("text-[10px]", tag.tone)}>
                     {tag.label}
@@ -240,11 +281,70 @@ export function MentorTasksSection() {
                   )}
                 </div>
               </div>
-              {t.admin_feedback && (t.status === "needs_revision" || t.status === "rejected") && (
-                <div className="mt-2 text-xs rounded-lg bg-orange/10 border border-orange/30 p-2">
-                  <b>Mentor:</b> {t.admin_feedback}
+
+              {isExpanded && (
+                <div className="mt-3 pl-6 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {t.instructions && (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">
+                        Instrukcje mentora
+                      </div>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">
+                        {t.instructions}
+                      </p>
+                    </div>
+                  )}
+                  {t.admin_feedback && (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">
+                        Feedback mentora
+                      </div>
+                      <p className="text-sm rounded-lg bg-orange/10 border border-orange/30 p-2 whitespace-pre-wrap">
+                        {t.admin_feedback}
+                      </p>
+                    </div>
+                  )}
+                  {t.submission_content && (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">
+                        Twoje rozwiązanie
+                      </div>
+                      <p className="text-sm rounded-lg bg-muted p-2 whitespace-pre-wrap">
+                        {t.submission_content}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1">
+                      <History className="w-3 h-3" /> Historia statusu
+                    </div>
+                    <ol className="relative border-l border-border pl-4 space-y-2">
+                      {history.map((h, i) => (
+                        <li key={i} className="text-xs">
+                          <span
+                            className={cn(
+                              "absolute -left-[5px] w-2.5 h-2.5 rounded-full",
+                              h.tone,
+                            )}
+                          />
+                          <div className="font-semibold text-foreground">{h.label}</div>
+                          {h.date && (
+                            <div className="text-muted-foreground">{h.date}</div>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
               )}
+
+              {!isExpanded &&
+                t.admin_feedback &&
+                (t.status === "needs_revision" || t.status === "rejected") && (
+                  <div className="mt-2 text-xs rounded-lg bg-orange/10 border border-orange/30 p-2 ml-6">
+                    <b>Mentor:</b> {t.admin_feedback}
+                  </div>
+                )}
             </div>
           );
           });
