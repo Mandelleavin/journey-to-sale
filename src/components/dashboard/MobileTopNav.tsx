@@ -1,11 +1,63 @@
-import { Link } from "@tanstack/react-router";
-import { Menu, Sparkles, Plus, Home } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import {
+  Menu,
+  Sparkles,
+  Plus,
+  Home,
+  LayoutDashboard,
+  Route as RouteIcon,
+  GraduationCap,
+  ListChecks,
+  Target,
+  Trophy,
+  Award,
+  Swords,
+  Bot,
+  CalendarDays,
+  BarChart3,
+  Package,
+  Users,
+  MessageCircleQuestion,
+  AlertTriangle,
+  CreditCard,
+  Shield,
+  BookOpen,
+} from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Sidebar } from "./Sidebar";
 import { useCredits } from "@/hooks/useCredits";
+import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
+
+const items = [
+  { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
+  { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
+  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
+  { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
+  { icon: Target, label: "Wyzwania", to: "/challenges" as const },
+  { icon: Trophy, label: "Ranking", to: "/leaderboard" as const },
+  { icon: Award, label: "Odznaki", to: "/badges" as const },
+  { icon: Swords, label: "Pojedynki", to: "/duels" as const },
+  { icon: Bot, label: "Generator AI", to: "/generator" as const },
+  { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
+  { icon: BarChart3, label: "Statystyki", to: "/stats" as const },
+  { icon: Package, label: "Mój produkt", to: "/products" as const },
+  { icon: Users, label: "Społeczność", to: "/community" as const },
+  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
+  { icon: MessageCircleQuestion, label: "Doradca", to: "/advisor" as const },
+  { icon: AlertTriangle, label: "Problemy", to: "/problems" as const },
+  { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
+];
+
+const adminItems = [
+  { icon: Shield, label: "Panel admina", to: "/admin" as const },
+  { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" as const },
+  { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" as const },
+];
 
 export function MobileTopNav() {
   const { credits, loading } = useCredits();
+  const { isAdmin } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const available = credits?.available ?? 0;
 
   return (
@@ -19,13 +71,68 @@ export function MobileTopNav() {
             <Menu className="w-5 h-5 text-foreground" strokeWidth={2.2} />
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-[280px] bg-transparent border-0">
-          <div className="p-2 h-full overflow-y-auto">
-            {/* Re-use desktop sidebar inside sheet (forces visible) */}
-            <div className="block [&>aside]:flex [&>aside]:sticky-0 [&>aside]:max-h-none">
-              <Sidebar />
+        <SheetContent side="left" className="p-4 w-[280px] overflow-y-auto">
+          <Link to="/" className="flex items-center gap-3 pb-4 border-b border-border">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
+              <span className="font-display font-extrabold text-base">90</span>
             </div>
-          </div>
+            <div className="leading-tight">
+              <div className="font-display font-extrabold text-foreground text-sm">90 DNI</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                do pierwszej sprzedaży online
+              </div>
+            </div>
+          </Link>
+          <nav className="flex flex-col gap-1 mt-4">
+            {items.map((it) => {
+              const Icon = it.icon;
+              const active =
+                it.to === "/"
+                  ? pathname === "/"
+                  : pathname === it.to || pathname.startsWith(it.to + "/");
+              return (
+                <Link
+                  key={it.label}
+                  to={it.to}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    active
+                      ? "bg-gradient-violet text-primary-foreground shadow-glow"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                  <span>{it.label}</span>
+                </Link>
+              );
+            })}
+            {isAdmin && (
+              <>
+                <div className="mt-3 mb-1 px-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                  Administracja
+                </div>
+                {adminItems.map((it) => {
+                  const Icon = it.icon;
+                  const active = pathname === it.to || pathname.startsWith(it.to + "/");
+                  return (
+                    <Link
+                      key={it.label}
+                      to={it.to}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                        active
+                          ? "bg-gradient-violet text-primary-foreground shadow-glow"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      )}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                      <span>{it.label}</span>
+                    </Link>
+                  );
+                })}
+              </>
+            )}
+          </nav>
         </SheetContent>
       </Sheet>
 
