@@ -142,7 +142,7 @@ function Index() {
             <CreditsWidget />
             <AccelerateWidget />
           </div>
-          <CoursesSection courses={enrichedCourses} />
+          <CoursesSection courses={enrichedCourses} fullName={fullName} />
           <div className="grid xl:grid-cols-2 gap-5">
             <TasksAndAchievements />
             <ProgressPath />
