@@ -75,7 +75,7 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
         <Link
           to="/profile"
           title="Twój profil"
-          className="w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
+          className="hidden sm:block w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
         >
           <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
             {initials}
