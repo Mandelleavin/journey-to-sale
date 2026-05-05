@@ -10,7 +10,7 @@ import {
   Zap,
   Lock,
 } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -71,7 +71,7 @@ const achColor = {
 } as const;
 
 export function TasksAndAchievements() {
-  const navigate = useNavigate();
+  
   const { user } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
   const [loading, setLoading] = useState(true);
