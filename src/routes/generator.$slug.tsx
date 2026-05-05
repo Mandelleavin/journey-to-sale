@@ -264,9 +264,22 @@ function GeneratorPage() {
                 className="bg-gradient-violet text-primary-foreground hover:opacity-95"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                {enough ? "Wygeneruj" : "Brak kredytów"}
+                {submitting ? "Generuję…" : enough ? "Wygeneruj" : "Brak kredytów"}
               </Button>
             </div>
+
+            {submitting && (
+              <div className="mt-4 rounded-2xl border border-violet/30 bg-violet-soft/50 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-violet">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generuję produkt… To może potrwać kilka–kilkanaście sekund.
+                </div>
+                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-violet/10">
+                  <div className="h-full w-1/3 rounded-full bg-gradient-violet animate-[progress_1.4s_ease-in-out_infinite]" />
+                </div>
+                <style>{`@keyframes progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }`}</style>
+              </div>
+            )}
 
             {!enough && (
               <div className="mt-3 text-sm p-3 rounded-xl bg-orange/10 border border-orange/20">
