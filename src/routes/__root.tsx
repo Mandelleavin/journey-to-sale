@@ -96,12 +96,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 import { AuthProvider } from "@/lib/auth-context";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { Toaster } from "@/components/ui/sonner";
 
 function RootComponent() {
   return (
     <AuthProvider>
       <PaymentTestModeBanner />
       <Outlet />
+      <Toaster position="top-center" richColors closeButton />
     </AuthProvider>
   );
 }
