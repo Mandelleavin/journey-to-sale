@@ -117,6 +117,9 @@ function GeneratorPage() {
       }
     }
     setSubmitting(true);
+    const toastId = toast.loading(revision_type ? "Przerabiam treść…" : "Generuję produkt…", {
+      description: "To może potrwać kilka–kilkanaście sekund. Nie zamykaj strony.",
+    });
     try {
       const { data, error } = await supabase.functions.invoke("generate-ai", {
         body: {
@@ -131,21 +134,21 @@ function GeneratorPage() {
         if (ctx) {
           try {
             const j = await ctx.json();
-            toast.error(j.error ?? "Błąd generowania");
+            toast.error(j.error ?? "Błąd generowania", { id: toastId });
           } catch {
-            toast.error("Błąd generowania");
+            toast.error("Błąd generowania", { id: toastId });
           }
         } else {
-          toast.error(error.message ?? "Błąd generowania");
+          toast.error(error.message ?? "Błąd generowania", { id: toastId });
         }
         return;
       }
       if (!data?.ok) {
-        toast.error(data?.error ?? "Błąd generowania");
+        toast.error(data?.error ?? "Błąd generowania", { id: toastId });
         return;
       }
       setOutput(data.output);
-      toast.success(`Wygenerowano! Zużyto ${data.credits_used} kredytów`);
+      toast.success(`Wygenerowano! Zużyto ${data.credits_used} kredytów`, { id: toastId });
       refresh();
     } finally {
       setSubmitting(false);
