@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,16 +43,19 @@ const CATEGORIES: Record<string, { label: string; color: string }> = {
 
 function GeneratorListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { credits } = useCredits();
   const [generators, setGenerators] = useState<Generator[]>([]);
   const [loading, setLoading] = useState(true);
+  const isGeneratorIndex = location.pathname === "/generator";
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
+    if (!isGeneratorIndex) return;
     (async () => {
       const { data } = await supabase
         .from("ai_generators")
@@ -62,7 +65,11 @@ function GeneratorListPage() {
       setGenerators(data ?? []);
       setLoading(false);
     })();
-  }, []);
+  }, [isGeneratorIndex]);
+
+  if (!isGeneratorIndex) {
+    return <Outlet />;
+  }
 
   return (
     <PageShell
