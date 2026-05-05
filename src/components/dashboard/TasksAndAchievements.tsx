@@ -10,8 +10,7 @@ import {
   Zap,
   Lock,
 } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -72,7 +71,7 @@ const achColor = {
 } as const;
 
 export function TasksAndAchievements() {
-  const navigate = useNavigate();
+  
   const { user } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,13 +158,6 @@ export function TasksAndAchievements() {
             );
           })}
         </ul>
-        <Button
-          variant="ghost"
-          onClick={() => navigate({ to: "/badges" })}
-          className="w-full mt-3 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-semibold"
-        >
-          Zobacz wszystkie osiągnięcia
-        </Button>
       </div>
     </div>
   );
