@@ -94,6 +94,8 @@ function GeneratorPage() {
         .order("created_at", { ascending: false })
         .limit(10);
       setHistory(data ?? []);
+      // Auto-przywróć ostatni wynik, jeśli nie ma jeszcze nic na ekranie
+      setOutput((curr) => curr ?? data?.[0]?.output_data ?? null);
     })();
   }, [user, gen, output]);
 
