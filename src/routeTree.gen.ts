@@ -20,16 +20,13 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GeneratorRouteImport } from './routes/generator'
-import { Route as DuelsRouteImport } from './routes/duels'
 import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as BadgesRouteImport } from './routes/badges'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdvisorRouteImport } from './routes/advisor'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -47,7 +44,6 @@ import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generat
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/public/cron/streak-warning'
-import { Route as ApiPublicCronFinalizeDuelsRouteImport } from './routes/api/public/cron/finalize-duels'
 import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
 import { Route as AdminCoursesCourseIdLessonsRouteImport } from './routes/admin.courses.$courseId.lessons'
 
@@ -106,19 +102,9 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const GeneratorRoute = GeneratorRouteImport.update({
   id: '/generator',
   path: '/generator',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DuelsRoute = DuelsRouteImport.update({
-  id: '/duels',
-  path: '/duels',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreditsRoute = CreditsRouteImport.update({
@@ -149,11 +135,6 @@ const ChallengesRoute = ChallengesRouteImport.update({
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BadgesRoute = BadgesRouteImport.update({
-  id: '/badges',
-  path: '/badges',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -243,12 +224,6 @@ const ApiPublicCronStreakWarningRoute =
     path: '/api/public/cron/streak-warning',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicCronFinalizeDuelsRoute =
-  ApiPublicCronFinalizeDuelsRouteImport.update({
-    id: '/api/public/cron/finalize-duels',
-    path: '/api/public/cron/finalize-duels',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicCronDailyChallengesRoute =
   ApiPublicCronDailyChallengesRouteImport.update({
     id: '/api/public/cron/daily-challenges',
@@ -267,16 +242,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
-  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/credits': typeof CreditsRoute
-  '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
-  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -301,7 +273,6 @@ export interface FileRoutesByFullPath {
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
-  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -310,15 +281,12 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
-  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/credits': typeof CreditsRoute
-  '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
-  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -343,7 +311,6 @@ export interface FileRoutesByTo {
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
-  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -353,16 +320,13 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
-  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
   '/credits': typeof CreditsRoute
-  '/duels': typeof DuelsRoute
   '/generator': typeof GeneratorRouteWithChildren
-  '/leaderboard': typeof LeaderboardRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
@@ -387,7 +351,6 @@ export interface FileRoutesById {
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
-  '/api/public/cron/finalize-duels': typeof ApiPublicCronFinalizeDuelsRoute
   '/api/public/cron/streak-warning': typeof ApiPublicCronStreakWarningRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -398,16 +361,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/advisor'
     | '/auth'
-    | '/badges'
     | '/calendar'
     | '/challenges'
     | '/coach'
     | '/community'
     | '/courses'
     | '/credits'
-    | '/duels'
     | '/generator'
-    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -432,7 +392,6 @@ export interface FileRouteTypes {
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
-    | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -441,15 +400,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/advisor'
     | '/auth'
-    | '/badges'
     | '/calendar'
     | '/challenges'
     | '/coach'
     | '/community'
     | '/credits'
-    | '/duels'
     | '/generator'
-    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -474,7 +430,6 @@ export interface FileRouteTypes {
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
-    | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
     | '/api/public/payments/webhook'
   id:
@@ -483,16 +438,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/advisor'
     | '/auth'
-    | '/badges'
     | '/calendar'
     | '/challenges'
     | '/coach'
     | '/community'
     | '/courses'
     | '/credits'
-    | '/duels'
     | '/generator'
-    | '/leaderboard'
     | '/onboarding'
     | '/package'
     | '/path'
@@ -517,7 +469,6 @@ export interface FileRouteTypes {
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
-    | '/api/public/cron/finalize-duels'
     | '/api/public/cron/streak-warning'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -527,16 +478,13 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AdvisorRoute: typeof AdvisorRoute
   AuthRoute: typeof AuthRoute
-  BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
   ChallengesRoute: typeof ChallengesRoute
   CoachRoute: typeof CoachRoute
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   CreditsRoute: typeof CreditsRoute
-  DuelsRoute: typeof DuelsRoute
   GeneratorRoute: typeof GeneratorRouteWithChildren
-  LeaderboardRoute: typeof LeaderboardRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
@@ -553,7 +501,6 @@ export interface RootRouteChildren {
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
   UUserIdRoute: typeof UUserIdRoute
   ApiPublicCronDailyChallengesRoute: typeof ApiPublicCronDailyChallengesRoute
-  ApiPublicCronFinalizeDuelsRoute: typeof ApiPublicCronFinalizeDuelsRoute
   ApiPublicCronStreakWarningRoute: typeof ApiPublicCronStreakWarningRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -637,25 +584,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/leaderboard': {
-      id: '/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/generator': {
       id: '/generator'
       path: '/generator'
       fullPath: '/generator'
       preLoaderRoute: typeof GeneratorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/duels': {
-      id: '/duels'
-      path: '/duels'
-      fullPath: '/duels'
-      preLoaderRoute: typeof DuelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/credits': {
@@ -698,13 +631,6 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/badges': {
-      id: '/badges'
-      path: '/badges'
-      fullPath: '/badges'
-      preLoaderRoute: typeof BadgesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -826,13 +752,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronStreakWarningRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/cron/finalize-duels': {
-      id: '/api/public/cron/finalize-duels'
-      path: '/api/public/cron/finalize-duels'
-      fullPath: '/api/public/cron/finalize-duels'
-      preLoaderRoute: typeof ApiPublicCronFinalizeDuelsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/cron/daily-challenges': {
       id: '/api/public/cron/daily-challenges'
       path: '/api/public/cron/daily-challenges'
@@ -918,16 +837,13 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AdvisorRoute: AdvisorRoute,
   AuthRoute: AuthRoute,
-  BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
   ChallengesRoute: ChallengesRoute,
   CoachRoute: CoachRoute,
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
   CreditsRoute: CreditsRoute,
-  DuelsRoute: DuelsRoute,
   GeneratorRoute: GeneratorRouteWithChildren,
-  LeaderboardRoute: LeaderboardRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
@@ -944,7 +860,6 @@ const rootRouteChildren: RootRouteChildren = {
   LessonsLessonIdRoute: LessonsLessonIdRoute,
   UUserIdRoute: UUserIdRoute,
   ApiPublicCronDailyChallengesRoute: ApiPublicCronDailyChallengesRoute,
-  ApiPublicCronFinalizeDuelsRoute: ApiPublicCronFinalizeDuelsRoute,
   ApiPublicCronStreakWarningRoute: ApiPublicCronStreakWarningRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
