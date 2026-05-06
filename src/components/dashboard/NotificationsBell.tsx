@@ -6,6 +6,24 @@ import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useNavigate } from "@tanstack/react-router";
+
+function getNotificationLink(n: { type: string; title: string }): string {
+  const t = (n.title || "").toLowerCase();
+  if (t.includes("hot lead")) return "/admin";
+  if (t.includes("zgłoszenie zadania od użytkownika")) return "/admin";
+  if (t.includes("mentor")) return "/tasks";
+  switch (n.type) {
+    case "task_approved":
+    case "task_rejected":
+    case "task_revision":
+      return "/tasks";
+    case "xp_awarded":
+      return "/stats";
+    default:
+      return "/";
+  }
+}
 
 type Notification = {
   id: string;
