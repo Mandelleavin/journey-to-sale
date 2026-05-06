@@ -6,6 +6,24 @@ import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useNavigate } from "@tanstack/react-router";
+
+function getNotificationLink(n: { type: string; title: string }): string {
+  const t = (n.title || "").toLowerCase();
+  if (t.includes("hot lead")) return "/admin";
+  if (t.includes("zgłoszenie zadania od użytkownika")) return "/admin";
+  if (t.includes("mentor")) return "/tasks";
+  switch (n.type) {
+    case "task_approved":
+    case "task_rejected":
+    case "task_revision":
+      return "/tasks";
+    case "xp_awarded":
+      return "/stats";
+    default:
+      return "/";
+  }
+}
 
 type Notification = {
   id: string;
@@ -18,6 +36,7 @@ type Notification = {
 
 export function NotificationsBell({ initialCount = 0 }: { initialCount?: number }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(initialCount);
   const [open, setOpen] = useState(false);
@@ -91,10 +110,18 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
             <div className="p-6 text-center text-sm text-muted-foreground">Brak powiadomień</div>
           )}
           {items.map((n) => (
-            <div
+            <button
               key={n.id}
+              onClick={async () => {
+                if (!n.is_read) {
+                  await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+                }
+                setOpen(false);
+                navigate({ to: getNotificationLink(n) });
+                load();
+              }}
               className={cn(
-                "px-4 py-3 border-b last:border-0 text-sm",
+                "w-full text-left px-4 py-3 border-b last:border-0 text-sm hover:bg-muted/50 transition-colors",
                 !n.is_read && "bg-violet-soft/30",
               )}
             >
@@ -103,7 +130,7 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
               <div className="text-[10px] text-muted-foreground mt-1">
                 {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: pl })}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </PopoverContent>
