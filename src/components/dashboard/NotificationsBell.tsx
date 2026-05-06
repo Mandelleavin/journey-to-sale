@@ -110,10 +110,18 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
             <div className="p-6 text-center text-sm text-muted-foreground">Brak powiadomień</div>
           )}
           {items.map((n) => (
-            <div
+            <button
               key={n.id}
+              onClick={async () => {
+                if (!n.is_read) {
+                  await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+                }
+                setOpen(false);
+                navigate({ to: getNotificationLink(n) });
+                load();
+              }}
               className={cn(
-                "px-4 py-3 border-b last:border-0 text-sm",
+                "w-full text-left px-4 py-3 border-b last:border-0 text-sm hover:bg-muted/50 transition-colors",
                 !n.is_read && "bg-violet-soft/30",
               )}
             >
@@ -122,7 +130,7 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
               <div className="text-[10px] text-muted-foreground mt-1">
                 {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: pl })}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </PopoverContent>
