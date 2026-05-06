@@ -47,14 +47,14 @@ export function ProgressPath({ currentDay = 1 }: Props) {
         </div>
       </div>
 
-      <div className="relative pt-2">
-        <div className="absolute left-0 right-0 top-[34px] mx-8 h-1 rounded-full bg-muted" />
+      <div className="relative pt-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible">
+        <div className="absolute left-0 right-0 top-[30px] sm:top-[34px] mx-6 sm:mx-8 h-1 rounded-full bg-muted hidden sm:block" />
         <div
-          className="absolute left-0 top-[34px] ml-8 h-1 rounded-full bg-gradient-to-r from-green via-violet to-blue transition-all"
+          className="absolute left-0 top-[34px] ml-8 h-1 rounded-full bg-gradient-to-r from-green via-violet to-blue transition-all hidden sm:block"
           style={{ width: `calc(${progressPct}% - 1rem)` }}
         />
 
-        <div className="relative grid grid-cols-7 gap-2">
+        <div className="relative grid grid-cols-7 gap-1 sm:gap-2 min-w-[560px] sm:min-w-0">
           {STEPS.map((s, i) => {
             const Icon = s.icon;
             const nextDay = STEPS[i + 1]?.day ?? 91;
@@ -64,7 +64,7 @@ export function ProgressPath({ currentDay = 1 }: Props) {
               <div key={s.day} className="flex flex-col items-center text-center">
                 <div
                   className={cn(
-                    "relative w-16 h-16 rounded-full grid place-items-center transition-all",
+                    "relative w-12 h-12 sm:w-16 sm:h-16 rounded-full grid place-items-center transition-all",
                     done && "bg-gradient-green text-white shadow-soft",
                     current && "bg-gradient-violet text-white shadow-glow scale-110",
                     !done &&
