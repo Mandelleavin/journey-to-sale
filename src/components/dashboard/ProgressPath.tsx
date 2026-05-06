@@ -87,7 +87,7 @@ export function ProgressPath({ currentDay = 1 }: Props) {
                 >
                   Dzień {s.day}
                 </div>
-                <div className="text-[11px] text-muted-foreground">{s.label}</div>
+                <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{s.label}</div>
               </div>
             );
           })}
