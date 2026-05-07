@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, Plus, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  ArrowUp,
+  ArrowDown,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+const pathSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Tytuł musi mieć min. 3 znaki")
+    .max(100, "Maks. 100 znaków"),
+  total_days: z
+    .number()
+    .int("Liczba dni musi być całkowita")
+    .min(1, "Min. 1 dzień")
+    .max(365, "Maks. 365 dni"),
+  description: z.string().max(500, "Opis maks. 500 znaków").nullable(),
+});
+
+const stepSchema = z
+  .object({
+    label: z
+      .string()
+      .trim()
+      .min(2, "Etykieta min. 2 znaki")
+      .max(60, "Maks. 60 znaków"),
+    day_number: z.number().int().min(1, "Min. dzień 1"),
+    icon: z.string().min(1, "Wybierz ikonę"),
+    course_id: z.string().nullable(),
+    module_id: z.string().nullable(),
+  })
+  .refine((s) => s.course_id || s.module_id, {
+    message: "Powiąż krok z kursem lub modułem",
+    path: ["course_id"],
+  });
+
 
 type Path = {
   id: string;
@@ -76,13 +118,43 @@ export function LearningPathsTab() {
     load();
   }, []);
 
+  // Mapa błędów: pathId/stepId -> { field: msg }
+  const [pathErrors, setPathErrors] = useState<Record<string, Record<string, string>>>({});
+  const [stepErrors, setStepErrors] = useState<Record<string, Record<string, string>>>({});
+
+  // Konflikty dni w danej ścieżce: stepId -> komunikat
+  const dayConflicts = useMemo(() => {
+    const conflicts: Record<string, string> = {};
+    const byPath = new Map<string, Step[]>();
+    for (const s of steps) {
+      const arr = byPath.get(s.path_id) ?? [];
+      arr.push(s);
+      byPath.set(s.path_id, arr);
+    }
+    for (const arr of byPath.values()) {
+      const counts = new Map<number, number>();
+      arr.forEach((s) => counts.set(s.day_number, (counts.get(s.day_number) ?? 0) + 1));
+      arr.forEach((s) => {
+        if ((counts.get(s.day_number) ?? 0) > 1) {
+          conflicts[s.id] = `Dzień ${s.day_number} powtarza się w ścieżce`;
+        }
+      });
+    }
+    return conflicts;
+  }, [steps]);
+
   const createPath = async () => {
     const title = window.prompt("Tytuł nowej ścieżki:");
     if (!title) return;
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+    const parsed = pathSchema.pick({ title: true }).safeParse({ title });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    const slug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
     const { error } = await supabase
       .from("learning_paths")
-      .insert({ title, slug, total_days: 90, position: paths.length });
+      .insert({ title: parsed.data.title, slug, total_days: 90, position: paths.length });
     if (error) toast.error(error.message);
     else {
       toast.success("Utworzono ścieżkę");
@@ -91,12 +163,37 @@ export function LearningPathsTab() {
   };
 
   const updatePath = async (id: string, patch: Partial<Path>) => {
+    // walidacja pola które się zmienia (jeżeli jest w schemie)
+    const current = paths.find((p) => p.id === id);
+    if (!current) return;
+    const merged = { ...current, ...patch };
+    const parsed = pathSchema.safeParse({
+      title: merged.title,
+      total_days: merged.total_days,
+      description: merged.description,
+    });
+    const errs: Record<string, string> = {};
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as string;
+        // pokazuj błąd tylko dla edytowanego pola
+        if (key in patch) errs[key] = issue.message;
+      }
+    }
+    setPathErrors((prev) => ({ ...prev, [id]: errs }));
+    if (Object.keys(errs).length > 0) {
+      // optymistyczna zmiana lokalna by user widział co wpisał, ale bez zapisu
+      setPaths((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+      return;
+    }
+
     const { error } = await supabase.from("learning_paths").update(patch).eq("id", id);
     if (error) toast.error(error.message);
     else {
       setPaths((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
     }
   };
+
 
   const setDefault = async (id: string) => {
     await supabase.from("learning_paths").update({ is_default: false }).neq("id", id);
@@ -124,10 +221,37 @@ export function LearningPathsTab() {
   };
 
   const updateStep = async (id: string, patch: Partial<Step>) => {
+    const current = steps.find((s) => s.id === id);
+    if (!current) return;
+    const merged = { ...current, ...patch };
+    const parsed = stepSchema.safeParse({
+      label: merged.label,
+      day_number: merged.day_number,
+      icon: merged.icon,
+      course_id: merged.course_id,
+      module_id: merged.module_id,
+    });
+    const errs: Record<string, string> = {};
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as string;
+        // pokazuj tylko dla edytowanego pola lub powiązania (course/module)
+        if (key in patch || key === "course_id" || key === "module_id") {
+          errs[key] = issue.message;
+        }
+      }
+    }
+    setStepErrors((prev) => ({ ...prev, [id]: errs }));
+
+    // pokaż lokalnie nawet jeśli błąd, ale nie zapisuj jeśli krytyczne pole nie przeszło
+    setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+    const blocking = ["label", "day_number", "icon"].some((k) => k in patch && errs[k]);
+    if (blocking) return;
+
     const { error } = await supabase.from("learning_path_steps").update(patch).eq("id", id);
     if (error) toast.error(error.message);
-    else setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   };
+
 
   const deleteStep = async (id: string) => {
     await supabase.from("learning_path_steps").delete().eq("id", id);
@@ -227,7 +351,11 @@ export function LearningPathsTab() {
                     <Input
                       value={p.title}
                       onChange={(e) => updatePath(p.id, { title: e.target.value })}
+                      className={cn(pathErrors[p.id]?.title && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.title && (
+                      <p className="text-xs text-destructive mt-1">{pathErrors[p.id].title}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Liczba dni</Label>
@@ -235,16 +363,28 @@ export function LearningPathsTab() {
                       type="number"
                       value={p.total_days}
                       onChange={(e) =>
-                        updatePath(p.id, { total_days: parseInt(e.target.value) || 90 })
+                        updatePath(p.id, { total_days: parseInt(e.target.value) || 0 })
                       }
+                      className={cn(pathErrors[p.id]?.total_days && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.total_days && (
+                      <p className="text-xs text-destructive mt-1">
+                        {pathErrors[p.id].total_days}
+                      </p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <Label>Opis</Label>
                     <Textarea
                       value={p.description ?? ""}
                       onChange={(e) => updatePath(p.id, { description: e.target.value })}
+                      className={cn(pathErrors[p.id]?.description && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.description && (
+                      <p className="text-xs text-destructive mt-1">
+                        {pathErrors[p.id].description}
+                      </p>
+                    )}
                   </div>
                   <label className="flex items-center gap-2 text-sm">
                     <Switch
@@ -270,123 +410,170 @@ export function LearningPathsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  {stepsForPath.map((s, idx) => (
-                    <div
-                      key={s.id}
-                      className="grid md:grid-cols-12 gap-2 items-end p-3 rounded-xl border border-border bg-app"
-                    >
-                      <div className="md:col-span-1 flex md:flex-col gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2"
-                          disabled={idx === 0}
-                          onClick={() => moveStep(p.id, idx, -1)}
-                          title="W górę"
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2"
-                          disabled={idx === stepsForPath.length - 1}
-                          onClick={() => moveStep(p.id, idx, 1)}
-                          title="W dół"
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </Button>
+                  {stepsForPath.map((s, idx) => {
+                    const errs = stepErrors[s.id] ?? {};
+                    const dayConflict = dayConflicts[s.id];
+                    const noLink = !s.course_id && !s.module_id;
+                    const hasIssues = Object.keys(errs).length > 0 || dayConflict || noLink;
+                    return (
+                      <div
+                        key={s.id}
+                        className={cn(
+                          "rounded-xl border bg-app p-3",
+                          hasIssues ? "border-destructive/60" : "border-border",
+                        )}
+                      >
+                        <div className="grid md:grid-cols-12 gap-2 items-end">
+                          <div className="md:col-span-1 flex md:flex-col gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              disabled={idx === 0}
+                              onClick={() => moveStep(p.id, idx, -1)}
+                              title="W górę"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              disabled={idx === stepsForPath.length - 1}
+                              onClick={() => moveStep(p.id, idx, 1)}
+                              title="W dół"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          <div className="md:col-span-1">
+                            <Label className="text-[10px]">Dzień</Label>
+                            <Input
+                              type="number"
+                              value={s.day_number}
+                              onChange={(e) =>
+                                updateStep(s.id, {
+                                  day_number: parseInt(e.target.value) || 0,
+                                })
+                              }
+                              className={cn(
+                                (errs.day_number || dayConflict) && "border-destructive",
+                              )}
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Etykieta</Label>
+                            <Input
+                              value={s.label}
+                              onChange={(e) => updateStep(s.id, { label: e.target.value })}
+                              className={cn(errs.label && "border-destructive")}
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Ikona</Label>
+                            <Select
+                              value={s.icon}
+                              onValueChange={(v) => updateStep(s.id, { icon: v })}
+                            >
+                              <SelectTrigger className={cn(errs.icon && "border-destructive")}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ICONS.map((i) => (
+                                  <SelectItem key={i} value={i}>
+                                    {i}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-3">
+                            <Label className="text-[10px]">Kurs</Label>
+                            <Select
+                              value={s.course_id ?? "none"}
+                              onValueChange={(v) =>
+                                updateStep(s.id, {
+                                  course_id: v === "none" ? null : v,
+                                  module_id: v === "none" ? s.module_id : null,
+                                })
+                              }
+                            >
+                              <SelectTrigger className={cn(noLink && "border-destructive")}>
+                                <SelectValue placeholder="—" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">— brak —</SelectItem>
+                                {courses.map((c) => (
+                                  <SelectItem key={c.id} value={c.id}>
+                                    {c.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Moduł</Label>
+                            <Select
+                              value={s.module_id ?? "none"}
+                              onValueChange={(v) =>
+                                updateStep(s.id, {
+                                  module_id: v === "none" ? null : v,
+                                  course_id: v === "none" ? s.course_id : null,
+                                })
+                              }
+                            >
+                              <SelectTrigger className={cn(noLink && "border-destructive")}>
+                                <SelectValue placeholder="—" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">— brak —</SelectItem>
+                                {modules.map((m) => (
+                                  <SelectItem key={m.id} value={m.id}>
+                                    {m.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-1 flex justify-end">
+                            <Button size="sm" variant="ghost" onClick={() => deleteStep(s.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        {hasIssues && (
+                          <div className="mt-2 space-y-0.5">
+                            {errs.label && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.label}
+                              </p>
+                            )}
+                            {errs.day_number && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.day_number}
+                              </p>
+                            )}
+                            {dayConflict && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {dayConflict}
+                              </p>
+                            )}
+                            {noLink && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> Wybierz kurs lub moduł dla
+                                tego kroku
+                              </p>
+                            )}
+                            {errs.icon && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.icon}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="md:col-span-1">
-                        <Label className="text-[10px]">Dzień</Label>
-                        <Input
-                          type="number"
-                          value={s.day_number}
-                          onChange={(e) =>
-                            updateStep(s.id, { day_number: parseInt(e.target.value) || 1 })
-                          }
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Etykieta</Label>
-                        <Input
-                          value={s.label}
-                          onChange={(e) => updateStep(s.id, { label: e.target.value })}
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Ikona</Label>
-                        <Select
-                          value={s.icon}
-                          onValueChange={(v) => updateStep(s.id, { icon: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ICONS.map((i) => (
-                              <SelectItem key={i} value={i}>
-                                {i}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-3">
-                        <Label className="text-[10px]">Kurs</Label>
-                        <Select
-                          value={s.course_id ?? "none"}
-                          onValueChange={(v) =>
-                            updateStep(s.id, {
-                              course_id: v === "none" ? null : v,
-                              module_id: v === "none" ? s.module_id : null,
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">— brak —</SelectItem>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Moduł</Label>
-                        <Select
-                          value={s.module_id ?? "none"}
-                          onValueChange={(v) =>
-                            updateStep(s.id, {
-                              module_id: v === "none" ? null : v,
-                              course_id: v === "none" ? s.course_id : null,
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">— brak —</SelectItem>
-                            {modules.map((m) => (
-                              <SelectItem key={m.id} value={m.id}>
-                                {m.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-1 flex justify-end">
-                        <Button size="sm" variant="ghost" onClick={() => deleteStep(s.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
