@@ -118,13 +118,43 @@ export function LearningPathsTab() {
     load();
   }, []);
 
+  // Mapa błędów: pathId/stepId -> { field: msg }
+  const [pathErrors, setPathErrors] = useState<Record<string, Record<string, string>>>({});
+  const [stepErrors, setStepErrors] = useState<Record<string, Record<string, string>>>({});
+
+  // Konflikty dni w danej ścieżce: stepId -> komunikat
+  const dayConflicts = useMemo(() => {
+    const conflicts: Record<string, string> = {};
+    const byPath = new Map<string, Step[]>();
+    for (const s of steps) {
+      const arr = byPath.get(s.path_id) ?? [];
+      arr.push(s);
+      byPath.set(s.path_id, arr);
+    }
+    for (const arr of byPath.values()) {
+      const counts = new Map<number, number>();
+      arr.forEach((s) => counts.set(s.day_number, (counts.get(s.day_number) ?? 0) + 1));
+      arr.forEach((s) => {
+        if ((counts.get(s.day_number) ?? 0) > 1) {
+          conflicts[s.id] = `Dzień ${s.day_number} powtarza się w ścieżce`;
+        }
+      });
+    }
+    return conflicts;
+  }, [steps]);
+
   const createPath = async () => {
     const title = window.prompt("Tytuł nowej ścieżki:");
     if (!title) return;
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+    const parsed = pathSchema.pick({ title: true }).safeParse({ title });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    const slug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
     const { error } = await supabase
       .from("learning_paths")
-      .insert({ title, slug, total_days: 90, position: paths.length });
+      .insert({ title: parsed.data.title, slug, total_days: 90, position: paths.length });
     if (error) toast.error(error.message);
     else {
       toast.success("Utworzono ścieżkę");
@@ -133,12 +163,37 @@ export function LearningPathsTab() {
   };
 
   const updatePath = async (id: string, patch: Partial<Path>) => {
+    // walidacja pola które się zmienia (jeżeli jest w schemie)
+    const current = paths.find((p) => p.id === id);
+    if (!current) return;
+    const merged = { ...current, ...patch };
+    const parsed = pathSchema.safeParse({
+      title: merged.title,
+      total_days: merged.total_days,
+      description: merged.description,
+    });
+    const errs: Record<string, string> = {};
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as string;
+        // pokazuj błąd tylko dla edytowanego pola
+        if (key in patch) errs[key] = issue.message;
+      }
+    }
+    setPathErrors((prev) => ({ ...prev, [id]: errs }));
+    if (Object.keys(errs).length > 0) {
+      // optymistyczna zmiana lokalna by user widział co wpisał, ale bez zapisu
+      setPaths((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+      return;
+    }
+
     const { error } = await supabase.from("learning_paths").update(patch).eq("id", id);
     if (error) toast.error(error.message);
     else {
       setPaths((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
     }
   };
+
 
   const setDefault = async (id: string) => {
     await supabase.from("learning_paths").update({ is_default: false }).neq("id", id);
