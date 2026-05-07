@@ -569,6 +569,106 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_path_steps: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          day_number: number
+          icon: string
+          id: string
+          label: string
+          module_id: string | null
+          path_id: string
+          position: number
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          day_number: number
+          icon?: string
+          id?: string
+          label: string
+          module_id?: string | null
+          path_id: string
+          position?: number
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          day_number?: number
+          icon?: string
+          id?: string
+          label?: string
+          module_id?: string | null
+          path_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_steps_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_steps_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_steps_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          position: number
+          requires_purchase: boolean
+          slug: string
+          title: string
+          total_days: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          position?: number
+          requires_purchase?: boolean
+          slug: string
+          title: string
+          total_days?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          position?: number
+          requires_purchase?: boolean
+          slug?: string
+          title?: string
+          total_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_attachments: {
         Row: {
           created_at: string
@@ -1463,6 +1563,35 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_learning_paths: {
+        Row: {
+          id: string
+          path_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          path_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          path_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_paths_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
             referencedColumns: ["id"]
           },
         ]
