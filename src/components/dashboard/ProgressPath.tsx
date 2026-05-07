@@ -1,35 +1,65 @@
-import {
-  Lightbulb,
-  FileText,
-  MonitorPlay,
-  MessageSquare,
-  Megaphone,
-  TrendingUp,
-  Rocket,
-  Check,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import * as Icons from "lucide-react";
+import { Check, Rocket } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
+import { supabase } from "@/integrations/supabase/client";
 
-const STEPS = [
-  { day: 1, label: "Pomysł", icon: Lightbulb },
-  { day: 7, label: "Oferta", icon: FileText },
-  { day: 14, label: "Strona", icon: MonitorPlay },
-  { day: 30, label: "Pierwsze rozmowy", icon: MessageSquare },
-  { day: 45, label: "Reklamy", icon: Megaphone },
-  { day: 60, label: "Optymalizacja", icon: TrendingUp },
-  { day: 90, label: "Skalowanie", icon: Rocket },
-];
-
-type Props = {
-  /** Bieżący dzień programu (1-90) */
-  currentDay?: number;
+type Step = {
+  id: string;
+  day_number: number;
+  label: string;
+  icon: string;
+  course_id: string | null;
+  module_id: string | null;
+};
+type Path = {
+  id: string;
+  title: string;
+  total_days: number;
 };
 
-export function ProgressPath({ currentDay = 1 }: Props) {
-  const day = Math.max(1, Math.min(90, currentDay));
-  // % postępu na linii: 1 -> 0%, 90 -> 100%
-  const progressPct = Math.round(((day - 1) / 89) * 100);
+type Props = {
+  /** Bieżący dzień programu */
+  currentDay?: number;
+  /** Konkretne id ścieżki (opcjonalnie) — domyślnie ładuje is_default */
+  pathId?: string;
+};
+
+export function ProgressPath({ currentDay = 1, pathId }: Props) {
+  const navigate = useNavigate();
+  const [path, setPath] = useState<Path | null>(null);
+  const [steps, setSteps] = useState<Step[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const q = supabase.from("learning_paths").select("id, title, total_days").eq("is_active", true);
+      const { data: p } = pathId
+        ? await q.eq("id", pathId).maybeSingle()
+        : await q.eq("is_default", true).maybeSingle();
+      if (!p) return;
+      setPath(p as Path);
+      const { data: s } = await supabase
+        .from("learning_path_steps")
+        .select("id, day_number, label, icon, course_id, module_id")
+        .eq("path_id", (p as Path).id)
+        .order("position");
+      setSteps((s ?? []) as Step[]);
+    })();
+  }, [pathId]);
+
+  const totalDays = path?.total_days ?? 90;
+  const day = Math.max(1, Math.min(totalDays, currentDay));
+  const progressPct = totalDays > 1 ? Math.round(((day - 1) / (totalDays - 1)) * 100) : 0;
+
+  const handleStepClick = (s: Step) => {
+    if (s.module_id) navigate({ to: "/admin/modules/$moduleId", params: { moduleId: s.module_id } }).catch(() => {
+      navigate({ to: "/courses" });
+    });
+    else if (s.course_id) navigate({ to: "/courses/$courseId", params: { courseId: s.course_id } });
+    else navigate({ to: "/courses" });
+  };
 
   return (
     <section className="bg-card rounded-3xl border border-border shadow-card p-6 relative overflow-hidden">
@@ -39,60 +69,82 @@ export function ProgressPath({ currentDay = 1 }: Props) {
       <div className="relative flex items-center justify-between mb-6 flex-wrap gap-2">
         <h3 className="font-display font-extrabold text-lg flex items-center gap-2">
           <Rocket className="w-5 h-5 text-violet" />
-          Ścieżka 90 dni
+          {path?.title ?? "Ścieżka"}
         </h3>
         <div className="flex items-center gap-2">
-          <span className="font-hand text-violet text-base font-bold">Dzień {day} / 90</span>
+          <span className="font-hand text-violet text-base font-bold">
+            Dzień {day} / {totalDays}
+          </span>
           <SketchArrow direction="right" className="w-16 h-8 text-violet" />
         </div>
       </div>
 
-      <div className="relative pt-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible">
-        <div className="absolute left-0 right-0 top-[30px] sm:top-[34px] mx-6 sm:mx-8 h-1 rounded-full bg-muted hidden sm:block" />
-        <div
-          className="absolute left-0 top-[34px] ml-8 h-1 rounded-full bg-gradient-to-r from-green via-violet to-blue transition-all hidden sm:block"
-          style={{ width: `calc(${progressPct}% - 1rem)` }}
-        />
+      {steps.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-4">Brak zdefiniowanych kroków</p>
+      ) : (
+        <div className="relative pt-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible">
+          <div
+            className="absolute left-0 right-0 top-[30px] sm:top-[34px] mx-6 sm:mx-8 h-1 rounded-full bg-muted hidden sm:block"
+          />
+          <div
+            className="absolute left-0 top-[34px] ml-8 h-1 rounded-full bg-gradient-to-r from-green via-violet to-blue transition-all hidden sm:block"
+            style={{ width: `calc(${progressPct}% - 1rem)` }}
+          />
 
-        <div className="relative grid grid-cols-7 gap-1 sm:gap-2 min-w-[560px] sm:min-w-0">
-          {STEPS.map((s, i) => {
-            const Icon = s.icon;
-            const nextDay = STEPS[i + 1]?.day ?? 91;
-            const done = day > s.day && day >= nextDay;
-            const current = day >= s.day && day < nextDay;
-            return (
-              <div key={s.day} className="flex flex-col items-center text-center">
-                <div
-                  className={cn(
-                    "relative w-12 h-12 sm:w-16 sm:h-16 rounded-full grid place-items-center transition-all",
-                    done && "bg-gradient-green text-white shadow-soft",
-                    current && "bg-gradient-violet text-white shadow-glow scale-110",
-                    !done &&
-                      !current &&
-                      "bg-muted text-muted-foreground border-2 border-dashed border-border",
-                  )}
+          <div
+            className="relative grid gap-1 sm:gap-2"
+            style={{
+              gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))`,
+              minWidth: steps.length > 5 ? `${steps.length * 80}px` : undefined,
+            }}
+          >
+            {steps.map((s, i) => {
+              const Icon =
+                ((Icons as unknown) as Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>>)[s.icon] ??
+                Icons.Lightbulb;
+              const nextDay = steps[i + 1]?.day_number ?? totalDays + 1;
+              const done = day > s.day_number && day >= nextDay;
+              const current = day >= s.day_number && day < nextDay;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => handleStepClick(s)}
+                  className="flex flex-col items-center text-center group"
                 >
-                  {done ? (
-                    <Check className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} />
-                  ) : (
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.2} />
-                  )}
-                  {current && <span className="absolute inset-0 rounded-full pulse-ring" />}
-                </div>
-                <div
-                  className={cn(
-                    "mt-2 text-[10px] sm:text-xs font-bold",
-                    current ? "text-violet" : "text-foreground",
-                  )}
-                >
-                  Dzień {s.day}
-                </div>
-                <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{s.label}</div>
-              </div>
-            );
-          })}
+                  <div
+                    className={cn(
+                      "relative w-12 h-12 sm:w-16 sm:h-16 rounded-full grid place-items-center transition-all group-hover:scale-105",
+                      done && "bg-gradient-green text-white shadow-soft",
+                      current && "bg-gradient-violet text-white shadow-glow scale-110",
+                      !done &&
+                        !current &&
+                        "bg-muted text-muted-foreground border-2 border-dashed border-border",
+                    )}
+                  >
+                    {done ? (
+                      <Check className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} />
+                    ) : (
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.2} />
+                    )}
+                    {current && <span className="absolute inset-0 rounded-full pulse-ring" />}
+                  </div>
+                  <div
+                    className={cn(
+                      "mt-2 text-[10px] sm:text-xs font-bold",
+                      current ? "text-violet" : "text-foreground",
+                    )}
+                  >
+                    Dzień {s.day_number}
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight px-1">
+                    {s.label}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
