@@ -410,123 +410,170 @@ export function LearningPathsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  {stepsForPath.map((s, idx) => (
-                    <div
-                      key={s.id}
-                      className="grid md:grid-cols-12 gap-2 items-end p-3 rounded-xl border border-border bg-app"
-                    >
-                      <div className="md:col-span-1 flex md:flex-col gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2"
-                          disabled={idx === 0}
-                          onClick={() => moveStep(p.id, idx, -1)}
-                          title="W górę"
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2"
-                          disabled={idx === stepsForPath.length - 1}
-                          onClick={() => moveStep(p.id, idx, 1)}
-                          title="W dół"
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </Button>
+                  {stepsForPath.map((s, idx) => {
+                    const errs = stepErrors[s.id] ?? {};
+                    const dayConflict = dayConflicts[s.id];
+                    const noLink = !s.course_id && !s.module_id;
+                    const hasIssues = Object.keys(errs).length > 0 || dayConflict || noLink;
+                    return (
+                      <div
+                        key={s.id}
+                        className={cn(
+                          "rounded-xl border bg-app p-3",
+                          hasIssues ? "border-destructive/60" : "border-border",
+                        )}
+                      >
+                        <div className="grid md:grid-cols-12 gap-2 items-end">
+                          <div className="md:col-span-1 flex md:flex-col gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              disabled={idx === 0}
+                              onClick={() => moveStep(p.id, idx, -1)}
+                              title="W górę"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              disabled={idx === stepsForPath.length - 1}
+                              onClick={() => moveStep(p.id, idx, 1)}
+                              title="W dół"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          <div className="md:col-span-1">
+                            <Label className="text-[10px]">Dzień</Label>
+                            <Input
+                              type="number"
+                              value={s.day_number}
+                              onChange={(e) =>
+                                updateStep(s.id, {
+                                  day_number: parseInt(e.target.value) || 0,
+                                })
+                              }
+                              className={cn(
+                                (errs.day_number || dayConflict) && "border-destructive",
+                              )}
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Etykieta</Label>
+                            <Input
+                              value={s.label}
+                              onChange={(e) => updateStep(s.id, { label: e.target.value })}
+                              className={cn(errs.label && "border-destructive")}
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Ikona</Label>
+                            <Select
+                              value={s.icon}
+                              onValueChange={(v) => updateStep(s.id, { icon: v })}
+                            >
+                              <SelectTrigger className={cn(errs.icon && "border-destructive")}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ICONS.map((i) => (
+                                  <SelectItem key={i} value={i}>
+                                    {i}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-3">
+                            <Label className="text-[10px]">Kurs</Label>
+                            <Select
+                              value={s.course_id ?? "none"}
+                              onValueChange={(v) =>
+                                updateStep(s.id, {
+                                  course_id: v === "none" ? null : v,
+                                  module_id: v === "none" ? s.module_id : null,
+                                })
+                              }
+                            >
+                              <SelectTrigger className={cn(noLink && "border-destructive")}>
+                                <SelectValue placeholder="—" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">— brak —</SelectItem>
+                                {courses.map((c) => (
+                                  <SelectItem key={c.id} value={c.id}>
+                                    {c.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-[10px]">Moduł</Label>
+                            <Select
+                              value={s.module_id ?? "none"}
+                              onValueChange={(v) =>
+                                updateStep(s.id, {
+                                  module_id: v === "none" ? null : v,
+                                  course_id: v === "none" ? s.course_id : null,
+                                })
+                              }
+                            >
+                              <SelectTrigger className={cn(noLink && "border-destructive")}>
+                                <SelectValue placeholder="—" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">— brak —</SelectItem>
+                                {modules.map((m) => (
+                                  <SelectItem key={m.id} value={m.id}>
+                                    {m.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="md:col-span-1 flex justify-end">
+                            <Button size="sm" variant="ghost" onClick={() => deleteStep(s.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        {hasIssues && (
+                          <div className="mt-2 space-y-0.5">
+                            {errs.label && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.label}
+                              </p>
+                            )}
+                            {errs.day_number && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.day_number}
+                              </p>
+                            )}
+                            {dayConflict && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {dayConflict}
+                              </p>
+                            )}
+                            {noLink && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> Wybierz kurs lub moduł dla
+                                tego kroku
+                              </p>
+                            )}
+                            {errs.icon && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errs.icon}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="md:col-span-1">
-                        <Label className="text-[10px]">Dzień</Label>
-                        <Input
-                          type="number"
-                          value={s.day_number}
-                          onChange={(e) =>
-                            updateStep(s.id, { day_number: parseInt(e.target.value) || 1 })
-                          }
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Etykieta</Label>
-                        <Input
-                          value={s.label}
-                          onChange={(e) => updateStep(s.id, { label: e.target.value })}
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Ikona</Label>
-                        <Select
-                          value={s.icon}
-                          onValueChange={(v) => updateStep(s.id, { icon: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ICONS.map((i) => (
-                              <SelectItem key={i} value={i}>
-                                {i}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-3">
-                        <Label className="text-[10px]">Kurs</Label>
-                        <Select
-                          value={s.course_id ?? "none"}
-                          onValueChange={(v) =>
-                            updateStep(s.id, {
-                              course_id: v === "none" ? null : v,
-                              module_id: v === "none" ? s.module_id : null,
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">— brak —</SelectItem>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-[10px]">Moduł</Label>
-                        <Select
-                          value={s.module_id ?? "none"}
-                          onValueChange={(v) =>
-                            updateStep(s.id, {
-                              module_id: v === "none" ? null : v,
-                              course_id: v === "none" ? s.course_id : null,
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">— brak —</SelectItem>
-                            {modules.map((m) => (
-                              <SelectItem key={m.id} value={m.id}>
-                                {m.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="md:col-span-1 flex justify-end">
-                        <Button size="sm" variant="ghost" onClick={() => deleteStep(s.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
