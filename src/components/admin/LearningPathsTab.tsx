@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, Plus, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  ArrowUp,
+  ArrowDown,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+const pathSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Tytuł musi mieć min. 3 znaki")
+    .max(100, "Maks. 100 znaków"),
+  total_days: z
+    .number()
+    .int("Liczba dni musi być całkowita")
+    .min(1, "Min. 1 dzień")
+    .max(365, "Maks. 365 dni"),
+  description: z.string().max(500, "Opis maks. 500 znaków").nullable(),
+});
+
+const stepSchema = z
+  .object({
+    label: z
+      .string()
+      .trim()
+      .min(2, "Etykieta min. 2 znaki")
+      .max(60, "Maks. 60 znaków"),
+    day_number: z.number().int().min(1, "Min. dzień 1"),
+    icon: z.string().min(1, "Wybierz ikonę"),
+    course_id: z.string().nullable(),
+    module_id: z.string().nullable(),
+  })
+  .refine((s) => s.course_id || s.module_id, {
+    message: "Powiąż krok z kursem lub modułem",
+    path: ["course_id"],
+  });
+
 
 type Path = {
   id: string;
