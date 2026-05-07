@@ -351,7 +351,11 @@ export function LearningPathsTab() {
                     <Input
                       value={p.title}
                       onChange={(e) => updatePath(p.id, { title: e.target.value })}
+                      className={cn(pathErrors[p.id]?.title && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.title && (
+                      <p className="text-xs text-destructive mt-1">{pathErrors[p.id].title}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Liczba dni</Label>
@@ -359,16 +363,28 @@ export function LearningPathsTab() {
                       type="number"
                       value={p.total_days}
                       onChange={(e) =>
-                        updatePath(p.id, { total_days: parseInt(e.target.value) || 90 })
+                        updatePath(p.id, { total_days: parseInt(e.target.value) || 0 })
                       }
+                      className={cn(pathErrors[p.id]?.total_days && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.total_days && (
+                      <p className="text-xs text-destructive mt-1">
+                        {pathErrors[p.id].total_days}
+                      </p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <Label>Opis</Label>
                     <Textarea
                       value={p.description ?? ""}
                       onChange={(e) => updatePath(p.id, { description: e.target.value })}
+                      className={cn(pathErrors[p.id]?.description && "border-destructive")}
                     />
+                    {pathErrors[p.id]?.description && (
+                      <p className="text-xs text-destructive mt-1">
+                        {pathErrors[p.id].description}
+                      </p>
+                    )}
                   </div>
                   <label className="flex items-center gap-2 text-sm">
                     <Switch
