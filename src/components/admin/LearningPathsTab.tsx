@@ -221,10 +221,37 @@ export function LearningPathsTab() {
   };
 
   const updateStep = async (id: string, patch: Partial<Step>) => {
+    const current = steps.find((s) => s.id === id);
+    if (!current) return;
+    const merged = { ...current, ...patch };
+    const parsed = stepSchema.safeParse({
+      label: merged.label,
+      day_number: merged.day_number,
+      icon: merged.icon,
+      course_id: merged.course_id,
+      module_id: merged.module_id,
+    });
+    const errs: Record<string, string> = {};
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as string;
+        // pokazuj tylko dla edytowanego pola lub powiązania (course/module)
+        if (key in patch || key === "course_id" || key === "module_id") {
+          errs[key] = issue.message;
+        }
+      }
+    }
+    setStepErrors((prev) => ({ ...prev, [id]: errs }));
+
+    // pokaż lokalnie nawet jeśli błąd, ale nie zapisuj jeśli krytyczne pole nie przeszło
+    setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+    const blocking = ["label", "day_number", "icon"].some((k) => k in patch && errs[k]);
+    if (blocking) return;
+
     const { error } = await supabase.from("learning_path_steps").update(patch).eq("id", id);
     if (error) toast.error(error.message);
-    else setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   };
+
 
   const deleteStep = async (id: string) => {
     await supabase.from("learning_path_steps").delete().eq("id", id);
