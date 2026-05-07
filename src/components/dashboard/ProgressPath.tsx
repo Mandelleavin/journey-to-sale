@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Icons from "lucide-react";
-import { Check, Rocket } from "lucide-react";
+import { Check, Rocket, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { SketchArrow } from "./Sketch";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
+import { toast } from "sonner";
 
 type Step = {
   id: string;
@@ -21,43 +24,117 @@ type Path = {
 };
 
 type Props = {
-  /** Bieżący dzień programu */
+  /** Override bieżącego dnia (np. policzone z profilu) */
   currentDay?: number;
-  /** Konkretne id ścieżki (opcjonalnie) — domyślnie ładuje is_default */
+  /** Konkretne id ścieżki — domyślnie aktywna usera lub default */
   pathId?: string;
 };
 
-export function ProgressPath({ currentDay = 1, pathId }: Props) {
+export function ProgressPath({ currentDay, pathId }: Props) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [path, setPath] = useState<Path | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
+  const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(new Set());
+  const [startedAt, setStartedAt] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const q = supabase.from("learning_paths").select("id, title, total_days").eq("is_active", true);
-      const { data: p } = pathId
-        ? await q.eq("id", pathId).maybeSingle()
-        : await q.eq("is_default", true).maybeSingle();
-      if (!p) return;
-      setPath(p as Path);
-      const { data: s } = await supabase
+  const load = useCallback(async () => {
+    if (!user) return;
+
+    let chosen: Path | null = null;
+    let started: string | null = null;
+
+    if (pathId) {
+      const { data } = await supabase
+        .from("learning_paths")
+        .select("id, title, total_days")
+        .eq("id", pathId)
+        .maybeSingle();
+      chosen = (data as Path) ?? null;
+      const { data: ulp } = await supabase
+        .from("user_learning_paths")
+        .select("started_at")
+        .eq("user_id", user.id)
+        .eq("path_id", pathId)
+        .maybeSingle();
+      started = ulp?.started_at ?? null;
+    } else {
+      // 1) aktualna ścieżka użytkownika
+      const { data: current } = await supabase
+        .from("user_learning_paths")
+        .select("path_id, started_at, learning_paths(id, title, total_days)")
+        .eq("user_id", user.id)
+        .eq("is_current", true)
+        .maybeSingle();
+
+      if (current?.learning_paths) {
+        chosen = current.learning_paths as unknown as Path;
+        started = current.started_at;
+      } else {
+        // 2) domyślna z biblioteki — auto-startuj
+        const { data: def } = await supabase
+          .from("learning_paths")
+          .select("id, title, total_days")
+          .eq("is_default", true)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (def) {
+          chosen = def as Path;
+          const { data: inserted } = await supabase
+            .from("user_learning_paths")
+            .insert({ user_id: user.id, path_id: def.id, is_current: true })
+            .select("started_at")
+            .maybeSingle();
+          started = inserted?.started_at ?? new Date().toISOString();
+        }
+      }
+    }
+
+    if (!chosen) {
+      setPath(null);
+      setSteps([]);
+      return;
+    }
+
+    setPath(chosen);
+    setStartedAt(started);
+
+    const [{ data: s }, { data: cs }] = await Promise.all([
+      supabase
         .from("learning_path_steps")
         .select("id, day_number, label, icon, course_id, module_id")
-        .eq("path_id", (p as Path).id)
-        .order("position");
-      setSteps((s ?? []) as Step[]);
-    })();
-  }, [pathId]);
+        .eq("path_id", chosen.id)
+        .order("position"),
+      supabase
+        .from("user_learning_path_steps")
+        .select("step_id")
+        .eq("user_id", user.id),
+    ]);
+    setSteps((s ?? []) as Step[]);
+    setCompletedStepIds(new Set((cs ?? []).map((x) => x.step_id)));
+  }, [user, pathId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const totalDays = path?.total_days ?? 90;
-  const day = Math.max(1, Math.min(totalDays, currentDay));
+  const computedDay = startedAt
+    ? Math.max(
+        1,
+        Math.min(
+          totalDays,
+          Math.floor((Date.now() - new Date(startedAt).getTime()) / 86400000) + 1,
+        ),
+      )
+    : 1;
+  const day = currentDay ?? computedDay;
   const progressPct = totalDays > 1 ? Math.round(((day - 1) / (totalDays - 1)) * 100) : 0;
 
-  const handleStepClick = async (s: Step) => {
+  const goToStep = async (s: Step) => {
     if (s.course_id) {
       navigate({ to: "/courses/$courseId", params: { courseId: s.course_id } });
     } else if (s.module_id) {
-      // znajdź kurs nadrzędny modułu
       const { data } = await supabase
         .from("modules")
         .select("course_id")
@@ -70,6 +147,32 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
       }
     } else {
       navigate({ to: "/courses" });
+    }
+  };
+
+  const toggleComplete = async (s: Step, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    const isDone = completedStepIds.has(s.id);
+    if (isDone) {
+      const { error } = await supabase
+        .from("user_learning_path_steps")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("step_id", s.id);
+      if (error) return toast.error(error.message);
+      setCompletedStepIds((prev) => {
+        const n = new Set(prev);
+        n.delete(s.id);
+        return n;
+      });
+    } else {
+      const { error } = await supabase
+        .from("user_learning_path_steps")
+        .insert({ user_id: user.id, step_id: s.id });
+      if (error) return toast.error(error.message);
+      setCompletedStepIds((prev) => new Set(prev).add(s.id));
+      toast.success(`✓ ${s.label}`);
     }
   };
 
@@ -95,9 +198,7 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
         <p className="text-sm text-muted-foreground text-center py-4">Brak zdefiniowanych kroków</p>
       ) : (
         <div className="relative pt-2 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible">
-          <div
-            className="absolute left-0 right-0 top-[30px] sm:top-[34px] mx-6 sm:mx-8 h-1 rounded-full bg-muted hidden sm:block"
-          />
+          <div className="absolute left-0 right-0 top-[30px] sm:top-[34px] mx-6 sm:mx-8 h-1 rounded-full bg-muted hidden sm:block" />
           <div
             className="absolute left-0 top-[34px] ml-8 h-1 rounded-full bg-gradient-to-r from-green via-violet to-blue transition-all hidden sm:block"
             style={{ width: `calc(${progressPct}% - 1rem)` }}
@@ -112,20 +213,23 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
           >
             {steps.map((s, i) => {
               const Icon =
-                ((Icons as unknown) as Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>>)[s.icon] ??
-                Icons.Lightbulb;
+                ((Icons as unknown) as Record<
+                  string,
+                  React.ComponentType<{ className?: string; strokeWidth?: number }>
+                >)[s.icon] ?? Icons.Lightbulb;
               const nextDay = steps[i + 1]?.day_number ?? totalDays + 1;
-              const done = day > s.day_number && day >= nextDay;
-              const current = day >= s.day_number && day < nextDay;
+              const userDone = completedStepIds.has(s.id);
+              const dayDone = day > s.day_number && day >= nextDay;
+              const done = userDone || dayDone;
+              const current = !done && day >= s.day_number && day < nextDay;
               return (
-                <button
-                  key={s.id}
-                  onClick={() => handleStepClick(s)}
-                  className="flex flex-col items-center text-center group"
-                >
-                  <div
+                <div key={s.id} className="flex flex-col items-center text-center group">
+                  <button
+                    onClick={() => goToStep(s)}
+                    onDoubleClick={(e) => toggleComplete(s, e)}
+                    title="Kliknij aby otworzyć, kliknij ✓ aby oznaczyć"
                     className={cn(
-                      "relative w-12 h-12 sm:w-16 sm:h-16 rounded-full grid place-items-center transition-all group-hover:scale-105",
+                      "relative w-12 h-12 sm:w-16 sm:h-16 rounded-full grid place-items-center transition-all hover:scale-105",
                       done && "bg-gradient-green text-white shadow-soft",
                       current && "bg-gradient-violet text-white shadow-glow scale-110",
                       !done &&
@@ -139,7 +243,7 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
                       <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.2} />
                     )}
                     {current && <span className="absolute inset-0 rounded-full pulse-ring" />}
-                  </div>
+                  </button>
                   <div
                     className={cn(
                       "mt-2 text-[10px] sm:text-xs font-bold",
@@ -151,7 +255,17 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
                   <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight px-1">
                     {s.label}
                   </div>
-                </button>
+                  <button
+                    onClick={(e) => toggleComplete(s, e)}
+                    className={cn(
+                      "mt-1 text-[10px] inline-flex items-center gap-1 transition-colors",
+                      userDone ? "text-green font-bold" : "text-muted-foreground hover:text-violet",
+                    )}
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    {userDone ? "Zrobione" : "Oznacz"}
+                  </button>
+                </div>
               );
             })}
           </div>
