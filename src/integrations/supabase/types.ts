@@ -1567,21 +1567,53 @@ export type Database = {
           },
         ]
       }
+      user_learning_path_steps: {
+        Row: {
+          completed_at: string
+          id: string
+          step_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          step_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          step_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_path_steps_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "learning_path_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_learning_paths: {
         Row: {
           id: string
+          is_current: boolean
           path_id: string
           started_at: string
           user_id: string
         }
         Insert: {
           id?: string
+          is_current?: boolean
           path_id: string
           started_at?: string
           user_id: string
         }
         Update: {
           id?: string
+          is_current?: boolean
           path_id?: string
           started_at?: string
           user_id?: string
