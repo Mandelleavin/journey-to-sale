@@ -270,11 +270,33 @@ export function LearningPathsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  {stepsForPath.map((s) => (
+                  {stepsForPath.map((s, idx) => (
                     <div
                       key={s.id}
                       className="grid md:grid-cols-12 gap-2 items-end p-3 rounded-xl border border-border bg-app"
                     >
+                      <div className="md:col-span-1 flex md:flex-col gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2"
+                          disabled={idx === 0}
+                          onClick={() => moveStep(p.id, idx, -1)}
+                          title="W górę"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2"
+                          disabled={idx === stepsForPath.length - 1}
+                          onClick={() => moveStep(p.id, idx, 1)}
+                          title="W dół"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                       <div className="md:col-span-1">
                         <Label className="text-[10px]">Dzień</Label>
                         <Input
@@ -285,7 +307,7 @@ export function LearningPathsTab() {
                           }
                         />
                       </div>
-                      <div className="md:col-span-3">
+                      <div className="md:col-span-2">
                         <Label className="text-[10px]">Etykieta</Label>
                         <Input
                           value={s.label}
