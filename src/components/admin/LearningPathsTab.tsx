@@ -134,6 +134,47 @@ export function LearningPathsTab() {
     load();
   };
 
+  // Reorder: zamienia dwa kroki miejscami i przepisuje position + day_number wg kolejności.
+  // day_number sortowane rosnąco — zachowujemy oryginalne wartości dni, zmieniamy tylko ich przypisanie do pozycji.
+  const moveStep = async (pathId: string, index: number, direction: -1 | 1) => {
+    const list = steps
+      .filter((s) => s.path_id === pathId)
+      .sort((a, b) => a.position - b.position);
+    const target = index + direction;
+    if (target < 0 || target >= list.length) return;
+
+    // nowa kolejność po zamianie
+    const reordered = [...list];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+
+    // posortowane dni (zachowujemy istniejące wartości, ale przypisujemy je rosnąco do nowych pozycji)
+    const sortedDays = [...list.map((s) => s.day_number)].sort((a, b) => a - b);
+
+    // aktualizacja per krok
+    const updates = reordered.map((s, i) => ({
+      id: s.id,
+      position: i,
+      day_number: sortedDays[i],
+    }));
+
+    // optymistyczna zmiana lokalna
+    setSteps((prev) =>
+      prev.map((s) => {
+        const u = updates.find((x) => x.id === s.id);
+        return u ? { ...s, position: u.position, day_number: u.day_number } : s;
+      }),
+    );
+
+    // batch updates
+    for (const u of updates) {
+      await supabase
+        .from("learning_path_steps")
+        .update({ position: u.position, day_number: u.day_number })
+        .eq("id", u.id);
+    }
+  };
+
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
