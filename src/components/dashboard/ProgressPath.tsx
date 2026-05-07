@@ -53,12 +53,24 @@ export function ProgressPath({ currentDay = 1, pathId }: Props) {
   const day = Math.max(1, Math.min(totalDays, currentDay));
   const progressPct = totalDays > 1 ? Math.round(((day - 1) / (totalDays - 1)) * 100) : 0;
 
-  const handleStepClick = (s: Step) => {
-    if (s.module_id) navigate({ to: "/admin/modules/$moduleId", params: { moduleId: s.module_id } }).catch(() => {
+  const handleStepClick = async (s: Step) => {
+    if (s.course_id) {
+      navigate({ to: "/courses/$courseId", params: { courseId: s.course_id } });
+    } else if (s.module_id) {
+      // znajdź kurs nadrzędny modułu
+      const { data } = await supabase
+        .from("modules")
+        .select("course_id")
+        .eq("id", s.module_id)
+        .maybeSingle();
+      if (data?.course_id) {
+        navigate({ to: "/courses/$courseId", params: { courseId: data.course_id } });
+      } else {
+        navigate({ to: "/courses" });
+      }
+    } else {
       navigate({ to: "/courses" });
-    });
-    else if (s.course_id) navigate({ to: "/courses/$courseId", params: { courseId: s.course_id } });
-    else navigate({ to: "/courses" });
+    }
   };
 
   return (
