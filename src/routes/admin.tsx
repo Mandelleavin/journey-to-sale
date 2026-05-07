@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
+import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -106,7 +107,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 max-w-6xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -139,6 +140,10 @@ function AdminPage() {
               <Tag className="w-4 h-4 mr-1" />
               Kody
             </TabsTrigger>
+            <TabsTrigger value="paths">
+              <CalendarDays className="w-4 h-4 mr-1" />
+              Ścieżki
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hotleads" className="mt-6">
@@ -164,6 +169,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="promo" className="mt-6">
             <PromoCodesTab />
+          </TabsContent>
+          <TabsContent value="paths" className="mt-6">
+            <LearningPathsTab />
           </TabsContent>
         </Tabs>
       </div>
