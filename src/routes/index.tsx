@@ -30,6 +30,8 @@ function Index() {
   const [readiness, setReadiness] = useState(0);
   const [profileCreated, setProfileCreated] = useState<string | null>(null);
   const [submitTaskId, setSubmitTaskId] = useState<string | null>(null);
+  const [pathStartedAt, setPathStartedAt] = useState<string | null>(null);
+  const [pathTotalDays, setPathTotalDays] = useState<number>(90);
 
   // Guard: niezalogowany -> /auth
   useEffect(() => {
@@ -52,6 +54,18 @@ function Index() {
       setProfileCreated(prof?.created_at ?? null);
       setHasSurvey(!!survey);
       setReadiness(survey?.readiness_percent ?? 0);
+
+      const { data: ulp } = await supabase
+        .from("user_learning_paths")
+        .select("started_at, learning_paths(total_days)")
+        .eq("user_id", user.id)
+        .eq("is_current", true)
+        .maybeSingle();
+      if (ulp) {
+        setPathStartedAt(ulp.started_at ?? null);
+        const td = (ulp.learning_paths as { total_days?: number } | null)?.total_days;
+        if (td) setPathTotalDays(td);
+      }
     })();
   }, [user]);
 
@@ -115,20 +129,21 @@ function Index() {
             xpToNext={data.xpToNext}
             pctToNext={Math.round(data.pctToNext)}
             pathDay={(() => {
-              if (!profileCreated) return 1;
-              const d =
-                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
-              return Math.max(1, Math.min(90, d));
+              const base = pathStartedAt ?? profileCreated;
+              if (!base) return 1;
+              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
+              return Math.max(1, Math.min(pathTotalDays, d));
             })()}
             pathPct={(() => {
-              if (!profileCreated) return 0;
-              const d =
-                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
-              const day = Math.max(1, Math.min(90, d));
-              return Math.round(((day - 1) / 89) * 100);
+              const base = pathStartedAt ?? profileCreated;
+              if (!base) return 0;
+              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
+              const day = Math.max(1, Math.min(pathTotalDays, d));
+              return pathTotalDays > 1 ? Math.round(((day - 1) / (pathTotalDays - 1)) * 100) : 0;
             })()}
             successPct={readiness}
           />
+          <ProgressPath />
           <MissionCard
             title={mission?.title}
             description={mission?.instructions ?? undefined}
@@ -143,10 +158,7 @@ function Index() {
             <AccelerateWidget />
           </div>
           <CoursesSection courses={enrichedCourses} fullName={fullName} />
-          <div className="grid xl:grid-cols-2 gap-5">
-            <TasksAndAchievements />
-            <ProgressPath />
-          </div>
+          <TasksAndAchievements />
         </main>
       </div>
 
