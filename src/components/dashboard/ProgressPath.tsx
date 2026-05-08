@@ -28,9 +28,11 @@ type Props = {
   currentDay?: number;
   /** Konkretne id ścieżki — domyślnie aktywna usera lub default */
   pathId?: string;
+  /** Callback z aktualnym dniem / total / % — używane np. przez StatCards */
+  onProgress?: (info: { day: number; totalDays: number; pct: number }) => void;
 };
 
-export function ProgressPath({ currentDay, pathId }: Props) {
+export function ProgressPath({ currentDay, pathId, onProgress }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [path, setPath] = useState<Path | null>(null);
@@ -130,6 +132,10 @@ export function ProgressPath({ currentDay, pathId }: Props) {
     : 1;
   const day = currentDay ?? computedDay;
   const progressPct = totalDays > 1 ? Math.round(((day - 1) / (totalDays - 1)) * 100) : 0;
+
+  useEffect(() => {
+    if (path) onProgress?.({ day, totalDays, pct: progressPct });
+  }, [day, totalDays, progressPct, path, onProgress]);
 
   const goToStep = async (s: Step) => {
     if (s.course_id) {
