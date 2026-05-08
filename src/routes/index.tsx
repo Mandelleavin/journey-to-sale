@@ -130,13 +130,13 @@ function Index() {
             totalXp={data.totalXp}
             xpToNext={data.xpToNext}
             pctToNext={Math.round(data.pctToNext)}
-            pathDay={(() => {
+            pathDay={livePathDay ?? (() => {
               const base = pathStartedAt ?? profileCreated;
               if (!base) return 1;
               const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
               return Math.max(1, Math.min(pathTotalDays, d));
             })()}
-            pathPct={(() => {
+            pathPct={livePathPct ?? (() => {
               const base = pathStartedAt ?? profileCreated;
               if (!base) return 0;
               const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
@@ -145,7 +145,13 @@ function Index() {
             })()}
             successPct={readiness}
           />
-          <ProgressPath />
+          <ProgressPath
+            onProgress={({ day, totalDays, pct }) => {
+              setLivePathDay(day);
+              setLivePathPct(pct);
+              setPathTotalDays(totalDays);
+            }}
+          />
           <MissionCard
             title={mission?.title}
             description={mission?.instructions ?? undefined}
