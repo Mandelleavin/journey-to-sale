@@ -28,9 +28,11 @@ type Props = {
   currentDay?: number;
   /** Konkretne id ścieżki — domyślnie aktywna usera lub default */
   pathId?: string;
+  /** Callback z aktualnym dniem / total / % — używane np. przez StatCards */
+  onProgress?: (info: { day: number; totalDays: number; pct: number }) => void;
 };
 
-export function ProgressPath({ currentDay, pathId }: Props) {
+export function ProgressPath({ currentDay, pathId, onProgress }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [path, setPath] = useState<Path | null>(null);
