@@ -35,6 +35,15 @@ function Index() {
   const [livePathDay, setLivePathDay] = useState<number | null>(null);
   const [livePathPct, setLivePathPct] = useState<number | null>(null);
 
+  const handlePathProgress = useCallback(
+    ({ day, totalDays, pct }: { day: number; totalDays: number; pct: number }) => {
+      setLivePathDay(day);
+      setLivePathPct(pct);
+      setPathTotalDays(totalDays);
+    },
+    [],
+  );
+
   // Guard: niezalogowany -> /auth
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
