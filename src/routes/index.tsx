@@ -32,6 +32,8 @@ function Index() {
   const [submitTaskId, setSubmitTaskId] = useState<string | null>(null);
   const [pathStartedAt, setPathStartedAt] = useState<string | null>(null);
   const [pathTotalDays, setPathTotalDays] = useState<number>(90);
+  const [livePathDay, setLivePathDay] = useState<number | null>(null);
+  const [livePathPct, setLivePathPct] = useState<number | null>(null);
 
   // Guard: niezalogowany -> /auth
   useEffect(() => {
