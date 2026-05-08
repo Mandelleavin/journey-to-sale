@@ -129,20 +129,21 @@ function Index() {
             xpToNext={data.xpToNext}
             pctToNext={Math.round(data.pctToNext)}
             pathDay={(() => {
-              if (!profileCreated) return 1;
-              const d =
-                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
-              return Math.max(1, Math.min(90, d));
+              const base = pathStartedAt ?? profileCreated;
+              if (!base) return 1;
+              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
+              return Math.max(1, Math.min(pathTotalDays, d));
             })()}
             pathPct={(() => {
-              if (!profileCreated) return 0;
-              const d =
-                Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
-              const day = Math.max(1, Math.min(90, d));
-              return Math.round(((day - 1) / 89) * 100);
+              const base = pathStartedAt ?? profileCreated;
+              if (!base) return 0;
+              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
+              const day = Math.max(1, Math.min(pathTotalDays, d));
+              return pathTotalDays > 1 ? Math.round(((day - 1) / (pathTotalDays - 1)) * 100) : 0;
             })()}
             successPct={readiness}
           />
+          <ProgressPath />
           <MissionCard
             title={mission?.title}
             description={mission?.instructions ?? undefined}
@@ -157,10 +158,7 @@ function Index() {
             <AccelerateWidget />
           </div>
           <CoursesSection courses={enrichedCourses} fullName={fullName} />
-          <div className="grid xl:grid-cols-2 gap-5">
-            <TasksAndAchievements />
-            <ProgressPath />
-          </div>
+          <TasksAndAchievements />
         </main>
       </div>
 
