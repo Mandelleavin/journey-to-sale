@@ -54,6 +54,18 @@ function Index() {
       setProfileCreated(prof?.created_at ?? null);
       setHasSurvey(!!survey);
       setReadiness(survey?.readiness_percent ?? 0);
+
+      const { data: ulp } = await supabase
+        .from("user_learning_paths")
+        .select("started_at, learning_paths(total_days)")
+        .eq("user_id", user.id)
+        .eq("is_current", true)
+        .maybeSingle();
+      if (ulp) {
+        setPathStartedAt(ulp.started_at ?? null);
+        const td = (ulp.learning_paths as { total_days?: number } | null)?.total_days;
+        if (td) setPathTotalDays(td);
+      }
     })();
   }, [user]);
 
