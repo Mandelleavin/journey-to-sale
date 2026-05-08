@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { StatCards } from "@/components/dashboard/StatCards";
@@ -34,6 +34,15 @@ function Index() {
   const [pathTotalDays, setPathTotalDays] = useState<number>(90);
   const [livePathDay, setLivePathDay] = useState<number | null>(null);
   const [livePathPct, setLivePathPct] = useState<number | null>(null);
+
+  const handlePathProgress = useCallback(
+    ({ day, totalDays, pct }: { day: number; totalDays: number; pct: number }) => {
+      setLivePathDay(day);
+      setLivePathPct(pct);
+      setPathTotalDays(totalDays);
+    },
+    [],
+  );
 
   // Guard: niezalogowany -> /auth
   useEffect(() => {
@@ -145,13 +154,7 @@ function Index() {
             })()}
             successPct={readiness}
           />
-          <ProgressPath
-            onProgress={({ day, totalDays, pct }) => {
-              setLivePathDay(day);
-              setLivePathPct(pct);
-              setPathTotalDays(totalDays);
-            }}
-          />
+          <ProgressPath onProgress={handlePathProgress} />
           <MissionCard
             title={mission?.title}
             description={mission?.instructions ?? undefined}
