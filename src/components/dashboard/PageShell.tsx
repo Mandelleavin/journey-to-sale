@@ -40,6 +40,12 @@ export function PageShell({
       ]);
       setFullName(prof?.full_name ?? undefined);
       setNotifCount(count ?? 0);
+      // Bump last_seen for online presence
+      supabase
+        .from("profiles")
+        .update({ last_seen: new Date().toISOString() })
+        .eq("id", user.id)
+        .then(() => {});
     })();
   }, [user]);
 
