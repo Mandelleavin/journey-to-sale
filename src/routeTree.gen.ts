@@ -26,6 +26,7 @@ import { Route as CoachRouteImport } from './routes/coach'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AccelerateRouteImport } from './routes/accelerate'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
@@ -128,6 +129,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccelerateRoute = AccelerateRouteImport.update({
+  id: '/accelerate',
+  path: '/accelerate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -215,6 +221,7 @@ const AdminCoursesCourseIdLessonsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
@@ -250,6 +257,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
@@ -285,6 +293,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accelerate'
     | '/admin'
     | '/auth'
     | '/calendar'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accelerate'
     | '/admin'
     | '/auth'
     | '/calendar'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/accelerate'
     | '/admin'
     | '/auth'
     | '/calendar'
@@ -427,6 +439,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccelerateRoute: typeof AccelerateRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CalendarRoute: typeof CalendarRoute
@@ -572,6 +585,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accelerate': {
+      id: '/accelerate'
+      path: '/accelerate'
+      fullPath: '/accelerate'
+      preLoaderRoute: typeof AccelerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -754,6 +774,7 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccelerateRoute: AccelerateRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CalendarRoute: CalendarRoute,
@@ -782,3 +803,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

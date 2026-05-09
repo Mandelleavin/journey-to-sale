@@ -1,0 +1,355 @@
+export type BuilderItem = { key: string; label: string };
+export type BuilderModule = {
+  key: string;
+  num: number;
+  title: string;
+  emoji: string;
+  color: "violet" | "blue" | "orange" | "green" | "pink" | "cyan" | "yellow";
+  lessons: BuilderItem[];
+  tasks: BuilderItem[];
+  checklist: BuilderItem[];
+  workbook: BuilderItem[];
+};
+
+const M = (
+  num: number,
+  key: string,
+  title: string,
+  emoji: string,
+  color: BuilderModule["color"],
+  lessons: string[],
+  tasks: string[],
+  checklist: string[],
+  workbook: string[],
+): BuilderModule => ({
+  num,
+  key,
+  title,
+  emoji,
+  color,
+  lessons: lessons.map((l, i) => ({ key: `${key}-l-${i}`, label: l })),
+  tasks: tasks.map((l, i) => ({ key: `${key}-t-${i}`, label: l })),
+  checklist: checklist.map((l, i) => ({ key: `${key}-c-${i}`, label: l })),
+  workbook: workbook.map((l, i) => ({ key: `${key}-w-${i}`, label: l })),
+});
+
+export const PRODUCT_MODULES: BuilderModule[] = [
+  M(
+    1,
+    "fundament",
+    "Fundament Produktu",
+    "🔥",
+    "orange",
+    [
+      "Jak znaleźć pomysł na produkt",
+      "Jak znaleźć problem klientów",
+      "Jak wybrać prosty produkt na start",
+      "Jak sprawdzić czy ludzie tego chcą",
+      "Jak nie utknąć w perfekcjonizmie",
+      "Jak wybrać niszę",
+      "Jak wykorzystać AI do generowania pomysłów",
+    ],
+    [
+      "Wypisz 10 pomysłów na produkt",
+      "Określ grupę docelową",
+      "Znajdź 3 problemy klientów",
+      "Wybierz 1 produkt startowy",
+      "Opisz transformację klienta",
+    ],
+    [
+      "Mam pomysł na produkt",
+      "Znam grupę docelową",
+      "Znam problem klienta",
+      "Wybrałem prosty produkt",
+      "Mam nazwę roboczą produktu",
+    ],
+    [
+      "Arkusz pomysłów",
+      "Analiza klienta",
+      "Avatar klienta",
+      "Problem → rozwiązanie",
+      "Burza mózgów AI",
+      "Notatki do produktu",
+    ],
+  ),
+  M(
+    2,
+    "oferta",
+    "Oferta, Która Sprzedaje",
+    "💰",
+    "violet",
+    [
+      "Jak stworzyć ofertę",
+      "Jak stworzyć nazwę produktu",
+      "Jak napisać obietnicę",
+      "Jak ustalić cenę",
+      "Jak stworzyć bonusy",
+      "Jak zrobić pakiety START/PRO/VIP",
+      "Jak zwiększyć wartość produktu",
+    ],
+    [
+      "Stwórz nazwę produktu",
+      "Napisz obietnicę",
+      "Ustal cenę",
+      "Rozpisz pakiety",
+      "Dodaj 3 bonusy",
+    ],
+    [
+      "Mam nazwę produktu",
+      "Mam obietnicę",
+      "Mam cenę",
+      "Mam bonusy",
+      "Mam strukturę oferty",
+    ],
+    [
+      "Generator nazw",
+      "Arkusz budowy oferty",
+      "Rozpiska bonusów",
+      "Ćwiczenia pricingowe",
+      "Transformacja klienta",
+      "Oferta krok po kroku",
+    ],
+  ),
+  M(
+    3,
+    "budowa",
+    "Budowa Produktu",
+    "🛠️",
+    "blue",
+    [
+      "Jak stworzyć MVP produktu",
+      "Jak nagrywać lekcje",
+      "Jak tworzyć moduły",
+      "Jak stworzyć e-book",
+      "Jak stworzyć kurs online",
+      "Jak uporządkować materiał",
+      "Jak wykorzystać AI do tworzenia treści",
+    ],
+    [
+      "Rozpisz moduły produktu",
+      "Nagraj pierwszą lekcję",
+      "Stwórz pierwszy materiał PDF",
+      "Dodaj zadania do lekcji",
+      "Opublikuj MVP produktu",
+    ],
+    [
+      "Mam strukturę produktu",
+      "Mam pierwsze lekcje",
+      "Mam moduły",
+      "Mam materiały PDF",
+      "Produkt jest gotowy do publikacji",
+    ],
+    [
+      "Plan produktu",
+      "Struktura modułów",
+      "Plan lekcji",
+      "Skrypt nagrań",
+      "Plan publikacji",
+      "Organizacja materiałów",
+    ],
+  ),
+  M(
+    4,
+    "landing",
+    "Landing Page i Sprzedaż",
+    "🎯",
+    "green",
+    [
+      "Jak stworzyć landing page",
+      "Jak napisać skuteczny headline",
+      "Jak budować CTA",
+      "Jak stworzyć sekcję sprzedażową",
+      "Jak zbudować koszyk",
+      "Jak podłączyć płatności",
+      "Jak zwiększyć konwersję",
+    ],
+    [
+      "Stwórz landing page",
+      "Dodaj CTA",
+      "Dodaj formularz",
+      "Dodaj sekcję oferty",
+      "Podłącz płatności",
+    ],
+    [
+      "Landing page działa",
+      "Formularz działa",
+      "CTA działa",
+      "Koszyk działa",
+      "Można kupić produkt",
+    ],
+    [
+      "Szablon LP",
+      "Struktura sekcji",
+      "Generator headline",
+      "CTA builder",
+      "Plan konwersji",
+      "Analiza UX",
+    ],
+  ),
+  M(
+    5,
+    "pozyskiwanie",
+    "Pozyskiwanie Klientów",
+    "📣",
+    "pink",
+    [
+      "Jak zdobywać pierwszych klientów",
+      "Jak nagrywać rolki",
+      "Jak tworzyć hooki",
+      "Jak działa ManyChat",
+      "Jak działa mailing",
+      "Jak stworzyć lead magnet",
+      "Jak zrobić webinar",
+    ],
+    [
+      "Nagraj 3 rolki",
+      "Stwórz lead magnet",
+      "Skonfiguruj ManyChat",
+      "Napisz pierwszy mailing",
+      "Opublikuj CTA",
+    ],
+    [
+      "Mam content",
+      "Mam CTA",
+      "Mam lead magnet",
+      "Mam mailing",
+      "Mam pierwszych leadów",
+    ],
+    [
+      "Generator hooków",
+      "Plan rolek",
+      "Plan webinaru",
+      "Pomysły na content",
+      "CTA i skrypty",
+      "Plan publikacji",
+    ],
+  ),
+  M(
+    6,
+    "reklamy",
+    "Reklamy i Optymalizacja",
+    "📊",
+    "cyan",
+    [
+      "Jak uruchomić reklamy",
+      "Jak działa Meta Ads",
+      "Jak analizować reklamy",
+      "Jak poprawiać CTR",
+      "Jak obniżać CPL",
+      "Jak działa remarketing",
+      "Jak skalować reklamy",
+    ],
+    [
+      "Uruchom pierwszą reklamę",
+      "Dodaj pixel",
+      "Stwórz remarketing",
+      "Przetestuj 3 kreacje",
+      "Przeanalizuj wyniki",
+    ],
+    [
+      "Reklamy działają",
+      "Pixel działa",
+      "Remarketing działa",
+      "Mam wyniki reklam",
+      "Kampania jest aktywna",
+    ],
+    [
+      "Analiza reklam",
+      "Plan testów",
+      "Budżet reklamowy",
+      "CTR/CPL tracker",
+      "Remarketing plan",
+      "Skalowanie kampanii",
+    ],
+  ),
+  M(
+    7,
+    "skalowanie",
+    "Skalowanie Produktu",
+    "🚀",
+    "yellow",
+    [
+      "Jak skalować produkt",
+      "Jak zrobić upsell",
+      "Jak stworzyć subskrypcję",
+      "Jak budować społeczność",
+      "Jak automatyzować biznes",
+      "Jak rozwijać markę osobistą",
+      "Jak zwiększać LTV klienta",
+    ],
+    [
+      "Dodaj upsell",
+      "Dodaj subskrypcję",
+      "Stwórz plan community",
+      "Dodaj automatyzacje",
+      "Rozpisz plan skalowania",
+    ],
+    [
+      "Mam upsell",
+      "Mam dodatkowe źródło przychodu",
+      "Mam automatyzacje",
+      "Mam community",
+      "Mam plan skalowania",
+    ],
+    [
+      "Plan skalowania",
+      "Model przychodów",
+      "Strategia community",
+      "Automatyzacje",
+      "Strategia marki",
+      "Rozwój produktu",
+    ],
+  ),
+];
+
+export const COLOR_CLASSES: Record<
+  BuilderModule["color"],
+  { bg: string; text: string; ring: string; gradient: string }
+> = {
+  violet: {
+    bg: "bg-violet-soft",
+    text: "text-violet",
+    ring: "ring-violet/30",
+    gradient: "from-violet to-blue",
+  },
+  blue: {
+    bg: "bg-blue-soft",
+    text: "text-blue",
+    ring: "ring-blue/30",
+    gradient: "from-blue to-cyan-500",
+  },
+  orange: {
+    bg: "bg-orange-soft",
+    text: "text-orange",
+    ring: "ring-orange/30",
+    gradient: "from-orange to-pink-500",
+  },
+  green: {
+    bg: "bg-green/10",
+    text: "text-green",
+    ring: "ring-green/30",
+    gradient: "from-green to-emerald-500",
+  },
+  pink: {
+    bg: "bg-pink-100 dark:bg-pink-900/20",
+    text: "text-pink-600 dark:text-pink-400",
+    ring: "ring-pink-400/30",
+    gradient: "from-pink-500 to-rose-500",
+  },
+  cyan: {
+    bg: "bg-cyan-100 dark:bg-cyan-900/20",
+    text: "text-cyan-600 dark:text-cyan-400",
+    ring: "ring-cyan-400/30",
+    gradient: "from-cyan-500 to-blue-500",
+  },
+  yellow: {
+    bg: "bg-yellow-100 dark:bg-yellow-900/20",
+    text: "text-yellow-700 dark:text-yellow-400",
+    ring: "ring-yellow-400/30",
+    gradient: "from-yellow-500 to-orange",
+  },
+};
+
+export function totalItemsInModule(m: BuilderModule) {
+  return m.lessons.length + m.tasks.length + m.checklist.length + m.workbook.length;
+}
