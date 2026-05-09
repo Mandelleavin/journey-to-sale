@@ -257,6 +257,35 @@ function AdminModuleLessonsPage() {
     else load();
   };
 
+  const saveMentorTpl = async () => {
+    if (!editingMentor) return;
+    const { lessonId, tpl } = editingMentor;
+    const payload = {
+      lesson_id: lessonId,
+      title: tpl.title?.trim() || "Nowe zadanie mentora",
+      instructions: tpl.instructions ?? null,
+      xp_reward: tpl.xp_reward ?? 100,
+      due_in_days: tpl.due_in_days ?? 7,
+      is_active: tpl.is_active ?? true,
+    };
+    const { error } = tpl.id
+      ? await supabase.from("mentor_task_templates").update(payload).eq("id", tpl.id)
+      : await supabase.from("mentor_task_templates").insert(payload);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Zapisano szablon");
+      setEditingMentor(null);
+      load();
+    }
+  };
+
+  const deleteMentorTpl = async (id: string) => {
+    if (!confirm("Usunąć szablon zadania mentora?")) return;
+    const { error } = await supabase.from("mentor_task_templates").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else load();
+  };
+
   const uploadAttachment = async (lessonId: string, file: File) => {
     const path = `attachments/${lessonId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
     const { error } = await supabase.storage.from("course-files").upload(path, file);
