@@ -22,8 +22,24 @@ import {
   Shield,
   Check,
   X,
+  Search,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+const FAKE_NAMES = [
+  "Anna","Marek","Kasia","Tomek","Magda","Piotr","Ola","Bartek",
+  "Natalia","Krzysiek","Justyna","Adam","Ewa","Michał","Paulina","Wojtek",
+];
+
+const hashString = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
+
+const firstName = (full?: string | null) =>
+  (full ?? "Użytkownik").trim().split(/\s+/)[0] || "Użytkownik";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
