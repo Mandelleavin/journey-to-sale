@@ -292,6 +292,39 @@ function CommunityPage() {
         </div>
       </div>
 
+      {/* SEARCH + SORT */}
+      <div className="flex gap-2 flex-wrap items-center">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Szukaj wpisów lub autorów..."
+            className="pl-9"
+          />
+        </div>
+        <div className="flex bg-muted rounded-lg p-1">
+          <button
+            onClick={() => setSort("newest")}
+            className={cn(
+              "px-3 py-1.5 rounded-md text-xs font-bold",
+              sort === "newest" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            Najnowsze
+          </button>
+          <button
+            onClick={() => setSort("oldest")}
+            className={cn(
+              "px-3 py-1.5 rounded-md text-xs font-bold",
+              sort === "oldest" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            Najstarsze
+          </button>
+        </div>
+      </div>
+
       {/* FILTER BAR */}
       <div className="flex gap-1 flex-wrap items-center">
         <button
