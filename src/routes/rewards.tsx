@@ -166,7 +166,16 @@ function RewardsPage() {
 
       {claims.length > 0 && (
         <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
-          <h2 className="font-display font-bold text-lg mb-3">Twoje nagrody</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-lg">Historia odebranych nagród</h2>
+            <div className="text-xs text-muted-foreground">
+              Łącznie: <span className="font-bold text-foreground">{claims.length}</span> · Wydane
+              XP:{" "}
+              <span className="font-bold text-foreground">
+                {claims.reduce((s, c) => s + c.xp_spent, 0)}
+              </span>
+            </div>
+          </div>
           <div className="space-y-2">
             {claims.map((c) => {
               const reward = rewards.find((r) => r.id === c.reward_id);
@@ -175,17 +184,38 @@ function RewardsPage() {
                   key={c.id}
                   className="flex items-center justify-between rounded-xl border border-border p-3"
                 >
-                  <div>
-                    <div className="font-semibold text-sm">{reward?.title ?? "Nagroda"}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(c.claimed_at).toLocaleDateString("pl-PL")} · {c.xp_spent} XP
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-violet-soft grid place-items-center">
+                      <Gift className="w-4 h-4 text-violet" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm">{reward?.title ?? "Nagroda"}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(c.claimed_at).toLocaleString("pl-PL", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })}{" "}
+                        · −{c.xp_spent} XP
+                      </div>
                     </div>
                   </div>
-                  {reward && (
-                    <Button size="sm" variant="outline" onClick={() => setOpen(reward)}>
-                      <Download className="w-4 h-4 mr-1" /> Otwórz
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={
+                        c.status === "delivered"
+                          ? "border-green/40 text-green"
+                          : "border-violet/40 text-violet"
+                      }
+                    >
+                      {c.status === "delivered" ? "Dostarczone" : c.status}
+                    </Badge>
+                    {reward && (
+                      <Button size="sm" variant="outline" onClick={() => setOpen(reward)}>
+                        <Download className="w-4 h-4 mr-1" /> Otwórz
+                      </Button>
+                    )}
+                  </div>
                 </div>
               );
             })}
