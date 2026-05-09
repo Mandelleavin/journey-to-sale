@@ -56,6 +56,15 @@ type LessonTask = {
   xp_reward: number;
   is_required: boolean;
 };
+type MentorTemplate = {
+  id: string;
+  lesson_id: string;
+  title: string;
+  instructions: string | null;
+  xp_reward: number;
+  due_in_days: number;
+  is_active: boolean;
+};
 type Attachment = {
   id: string;
   lesson_id: string;
@@ -77,11 +86,16 @@ function AdminModuleLessonsPage() {
   const [courseTitle, setCourseTitle] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [tasksByLesson, setTasksByLesson] = useState<Record<string, LessonTask[]>>({});
+  const [mentorByLesson, setMentorByLesson] = useState<Record<string, MentorTemplate[]>>({});
   const [attachByLesson, setAttachByLesson] = useState<Record<string, Attachment[]>>({});
   const [editing, setEditing] = useState<Partial<Lesson> | null>(null);
   const [editingTask, setEditingTask] = useState<{
     lessonId: string;
     task: Partial<LessonTask>;
+  } | null>(null);
+  const [editingMentor, setEditingMentor] = useState<{
+    lessonId: string;
+    tpl: Partial<MentorTemplate>;
   } | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
 
@@ -126,13 +140,18 @@ function AdminModuleLessonsPage() {
     );
     const lessonIds = (ls ?? []).map((l) => (l as { id: string }).id);
     if (lessonIds.length > 0) {
-      const [{ data: t }, { data: a }] = await Promise.all([
+      const [{ data: t }, { data: a }, { data: mt }] = await Promise.all([
         supabase.from("lesson_tasks").select("*").in("lesson_id", lessonIds),
         supabase
           .from("lesson_attachments")
           .select("*")
           .in("lesson_id", lessonIds)
           .order("position"),
+        supabase
+          .from("mentor_task_templates")
+          .select("*")
+          .in("lesson_id", lessonIds)
+          .order("created_at"),
       ]);
       const byL: Record<string, LessonTask[]> = {};
       (t ?? []).forEach((task) => {
@@ -144,9 +163,15 @@ function AdminModuleLessonsPage() {
         (byA[(at as Attachment).lesson_id] ||= []).push(at as Attachment);
       });
       setAttachByLesson(byA);
+      const byM: Record<string, MentorTemplate[]> = {};
+      (mt ?? []).forEach((tpl) => {
+        (byM[(tpl as MentorTemplate).lesson_id] ||= []).push(tpl as MentorTemplate);
+      });
+      setMentorByLesson(byM);
     } else {
       setTasksByLesson({});
       setAttachByLesson({});
+      setMentorByLesson({});
     }
   };
 
@@ -228,6 +253,35 @@ function AdminModuleLessonsPage() {
   const deleteTask = async (id: string) => {
     if (!confirm("Usunąć zadanie?")) return;
     const { error } = await supabase.from("lesson_tasks").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else load();
+  };
+
+  const saveMentorTpl = async () => {
+    if (!editingMentor) return;
+    const { lessonId, tpl } = editingMentor;
+    const payload = {
+      lesson_id: lessonId,
+      title: tpl.title?.trim() || "Nowe zadanie mentora",
+      instructions: tpl.instructions ?? null,
+      xp_reward: tpl.xp_reward ?? 100,
+      due_in_days: tpl.due_in_days ?? 7,
+      is_active: tpl.is_active ?? true,
+    };
+    const { error } = tpl.id
+      ? await supabase.from("mentor_task_templates").update(payload).eq("id", tpl.id)
+      : await supabase.from("mentor_task_templates").insert(payload);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Zapisano szablon");
+      setEditingMentor(null);
+      load();
+    }
+  };
+
+  const deleteMentorTpl = async (id: string) => {
+    if (!confirm("Usunąć szablon zadania mentora?")) return;
+    const { error } = await supabase.from("mentor_task_templates").delete().eq("id", id);
     if (error) toast.error(error.message);
     else load();
   };
@@ -434,6 +488,78 @@ function AdminModuleLessonsPage() {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => deleteTask(t.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* MENTOR TASK TEMPLATES */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-bold flex items-center gap-1.5">
+                            <ListChecks className="w-4 h-4 text-violet" /> Auto-zadania od mentora po lekcji
+                          </h4>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setEditingMentor({
+                                lessonId: l.id,
+                                tpl: {
+                                  title: "",
+                                  xp_reward: 100,
+                                  due_in_days: 7,
+                                  is_active: true,
+                                },
+                              })
+                            }
+                          >
+                            <Plus className="w-3.5 h-3.5 mr-1" /> Dodaj szablon
+                          </Button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mb-2">
+                          Po ukończeniu tej lekcji każdy kursant automatycznie dostanie te zadania od mentora do wykonania.
+                        </p>
+                        {(mentorByLesson[l.id] ?? []).length === 0 ? (
+                          <div className="text-xs text-muted-foreground italic">Brak szablonów</div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {(mentorByLesson[l.id] ?? []).map((tpl) => (
+                              <div
+                                key={tpl.id}
+                                className="flex items-center gap-2 rounded-lg bg-card border border-border p-2"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-bold truncate">
+                                    {tpl.title}{" "}
+                                    {!tpl.is_active && (
+                                      <span className="text-[10px] text-muted-foreground">
+                                        (nieaktywny)
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    +{tpl.xp_reward} XP · termin: {tpl.due_in_days} dni od ukończenia
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    setEditingMentor({ lessonId: l.id, tpl })
+                                  }
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => deleteMentorTpl(tpl.id)}
                                   className="text-destructive"
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -673,6 +799,104 @@ function AdminModuleLessonsPage() {
               Anuluj
             </Button>
             <Button onClick={saveTask} className="bg-gradient-violet text-primary-foreground">
+              Zapisz
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG: MENTOR TEMPLATE */}
+      <Dialog open={!!editingMentor} onOpenChange={(v) => !v && setEditingMentor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMentor?.tpl.id ? "Edytuj szablon" : "Nowy szablon zadania mentora"}
+            </DialogTitle>
+          </DialogHeader>
+          {editingMentor && (
+            <div className="space-y-3">
+              <div>
+                <Label>Tytuł zadania</Label>
+                <Input
+                  value={editingMentor.tpl.title ?? ""}
+                  onChange={(e) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, title: e.target.value },
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Instrukcje dla kursanta</Label>
+                <Textarea
+                  rows={4}
+                  value={editingMentor.tpl.instructions ?? ""}
+                  onChange={(e) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, instructions: e.target.value },
+                    })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>XP</Label>
+                  <Input
+                    type="number"
+                    value={editingMentor.tpl.xp_reward ?? 100}
+                    onChange={(e) =>
+                      setEditingMentor({
+                        ...editingMentor,
+                        tpl: {
+                          ...editingMentor.tpl,
+                          xp_reward: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Termin (dni od ukończenia lekcji)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editingMentor.tpl.due_in_days ?? 7}
+                    onChange={(e) =>
+                      setEditingMentor({
+                        ...editingMentor,
+                        tpl: {
+                          ...editingMentor.tpl,
+                          due_in_days: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-muted/30 px-3 py-2">
+                <Label>Aktywny (auto-twórz po ukończeniu lekcji)</Label>
+                <Switch
+                  checked={editingMentor.tpl.is_active ?? true}
+                  onCheckedChange={(v) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, is_active: v },
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingMentor(null)}>
+              Anuluj
+            </Button>
+            <Button
+              onClick={saveMentorTpl}
+              className="bg-gradient-violet text-primary-foreground"
+            >
               Zapisz
             </Button>
           </DialogFooter>
