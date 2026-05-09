@@ -144,9 +144,17 @@ export function MentorTasksSection() {
       })
       .eq("id", active.id);
     setSubmitting(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error("Nie udało się wysłać", { description: error.message });
     else {
-      toast.success("Wysłano do mentora");
+      const now = new Date();
+      const dateStr = now.toLocaleString("pl-PL", {
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+      toast.success("✅ Zadanie wysłane do mentora", {
+        description: `"${active.title}" · Status: Wysłane · ${dateStr}`,
+        duration: 6000,
+      });
       setActive(null);
       load();
     }
