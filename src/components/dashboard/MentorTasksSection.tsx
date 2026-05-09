@@ -408,7 +408,9 @@ export function MentorTasksSection() {
                       >
                         {t.status === "needs_revision"
                           ? "Popraw i wyślij ponownie"
-                          : "Wykonaj zadanie i wyślij do mentora"}
+                          : t.status === "in_progress"
+                            ? "Kontynuuj i wyślij do mentora"
+                            : "Wykonaj zadanie i wyślij do mentora"}
                       </Button>
                     </div>
                   )}
