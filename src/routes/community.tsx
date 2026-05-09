@@ -91,6 +91,8 @@ function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
   const [onlineCount, setOnlineCount] = useState(34);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
   const load = async () => {
     setLoading(true);
