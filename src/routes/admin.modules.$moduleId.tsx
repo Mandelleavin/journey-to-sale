@@ -86,11 +86,16 @@ function AdminModuleLessonsPage() {
   const [courseTitle, setCourseTitle] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [tasksByLesson, setTasksByLesson] = useState<Record<string, LessonTask[]>>({});
+  const [mentorByLesson, setMentorByLesson] = useState<Record<string, MentorTemplate[]>>({});
   const [attachByLesson, setAttachByLesson] = useState<Record<string, Attachment[]>>({});
   const [editing, setEditing] = useState<Partial<Lesson> | null>(null);
   const [editingTask, setEditingTask] = useState<{
     lessonId: string;
     task: Partial<LessonTask>;
+  } | null>(null);
+  const [editingMentor, setEditingMentor] = useState<{
+    lessonId: string;
+    tpl: Partial<MentorTemplate>;
   } | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
 
