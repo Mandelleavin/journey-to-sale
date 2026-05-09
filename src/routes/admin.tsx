@@ -32,12 +32,14 @@ import {
   CalendarDays,
   Sparkles,
   Tag,
+  Gift,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
+import { RewardsTab } from "@/components/admin/RewardsTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
