@@ -337,7 +337,11 @@ export function MentorTasksSection() {
                       onClick={() => open(t)}
                       className="bg-gradient-violet text-primary-foreground h-7 text-xs"
                     >
-                      {t.status === "needs_revision" ? "Popraw" : "Wykonaj"}
+                      {t.status === "needs_revision"
+                        ? "Popraw"
+                        : t.status === "in_progress"
+                          ? "Kontynuuj"
+                          : "Wykonaj"}
                     </Button>
                   )}
                 </div>
