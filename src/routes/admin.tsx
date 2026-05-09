@@ -32,12 +32,14 @@ import {
   CalendarDays,
   Sparkles,
   Tag,
+  Gift,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
+import { RewardsTab } from "@/components/admin/RewardsTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -107,7 +109,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9 max-w-6xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-10 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -144,6 +146,10 @@ function AdminPage() {
               <CalendarDays className="w-4 h-4 mr-1" />
               Ścieżki
             </TabsTrigger>
+            <TabsTrigger value="rewards">
+              <Gift className="w-4 h-4 mr-1" />
+              Nagrody
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hotleads" className="mt-6">
@@ -172,6 +178,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="paths" className="mt-6">
             <LearningPathsTab />
+          </TabsContent>
+          <TabsContent value="rewards" className="mt-6">
+            <RewardsTab />
           </TabsContent>
         </Tabs>
       </div>
