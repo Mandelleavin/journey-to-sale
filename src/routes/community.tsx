@@ -113,11 +113,13 @@ function CommunityPage() {
     const nameMap = new Map((prof ?? []).map((x) => [x.id, x.full_name]));
     const enrichedPosts = ((p ?? []) as Post[]).map((x) => ({
       ...x,
-      author_name: nameMap.get(x.user_id) ?? "Użytkownik",
+      author_name: x.is_example
+        ? FAKE_NAMES[hashString(x.id) % FAKE_NAMES.length]
+        : firstName(nameMap.get(x.user_id)),
     }));
     const grouped: Record<string, Comment[]> = {};
     ((c ?? []) as Comment[]).forEach((cm) => {
-      const enriched = { ...cm, author_name: nameMap.get(cm.user_id) ?? "Użytkownik" };
+      const enriched = { ...cm, author_name: firstName(nameMap.get(cm.user_id)) };
       (grouped[cm.post_id] ??= []).push(enriched);
     });
     setPosts(enrichedPosts);
