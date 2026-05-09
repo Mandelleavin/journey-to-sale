@@ -56,6 +56,15 @@ type LessonTask = {
   xp_reward: number;
   is_required: boolean;
 };
+type MentorTemplate = {
+  id: string;
+  lesson_id: string;
+  title: string;
+  instructions: string | null;
+  xp_reward: number;
+  due_in_days: number;
+  is_active: boolean;
+};
 type Attachment = {
   id: string;
   lesson_id: string;
