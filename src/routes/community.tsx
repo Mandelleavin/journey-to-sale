@@ -22,8 +22,24 @@ import {
   Shield,
   Check,
   X,
+  Search,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+const FAKE_NAMES = [
+  "Anna","Marek","Kasia","Tomek","Magda","Piotr","Ola","Bartek",
+  "Natalia","Krzysiek","Justyna","Adam","Ewa","Michał","Paulina","Wojtek",
+];
+
+const hashString = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
+
+const firstName = (full?: string | null) =>
+  (full ?? "Użytkownik").trim().split(/\s+/)[0] || "Użytkownik";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
@@ -75,6 +91,8 @@ function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
   const [onlineCount, setOnlineCount] = useState(34);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
   const load = async () => {
     setLoading(true);
@@ -95,11 +113,13 @@ function CommunityPage() {
     const nameMap = new Map((prof ?? []).map((x) => [x.id, x.full_name]));
     const enrichedPosts = ((p ?? []) as Post[]).map((x) => ({
       ...x,
-      author_name: nameMap.get(x.user_id) ?? "Użytkownik",
+      author_name: x.is_example
+        ? FAKE_NAMES[hashString(x.id) % FAKE_NAMES.length]
+        : firstName(nameMap.get(x.user_id)),
     }));
     const grouped: Record<string, Comment[]> = {};
     ((c ?? []) as Comment[]).forEach((cm) => {
-      const enriched = { ...cm, author_name: nameMap.get(cm.user_id) ?? "Użytkownik" };
+      const enriched = { ...cm, author_name: firstName(nameMap.get(cm.user_id)) };
       (grouped[cm.post_id] ??= []).push(enriched);
     });
     setPosts(enrichedPosts);
@@ -161,12 +181,25 @@ function CommunityPage() {
     load();
   };
 
-  const visible = posts.filter((p) => {
-    if (!p.is_approved && !isAdmin && p.user_id !== user?.id) return false;
-    if (filter === "all") return true;
-    if (filter === "pending") return !p.is_approved;
-    return p.category === filter;
-  });
+  const q = search.trim().toLowerCase();
+  const visible = posts
+    .filter((p) => {
+      if (!p.is_approved && !isAdmin && p.user_id !== user?.id) return false;
+      if (filter === "pending") return !p.is_approved;
+      if (filter !== "all" && p.category !== filter) return false;
+      if (q) {
+        return (
+          p.content.toLowerCase().includes(q) ||
+          (p.author_name ?? "").toLowerCase().includes(q)
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const da = new Date(a.created_at).getTime();
+      const db = new Date(b.created_at).getTime();
+      return sort === "newest" ? db - da : da - db;
+    });
 
   const pendingCount = posts.filter((p) => !p.is_approved).length;
 
@@ -256,6 +289,39 @@ function CommunityPage() {
               <Shield className="w-3 h-3" /> Wpisy w tej kategorii są moderowane przed publikacją.
             </p>
           )}
+        </div>
+      </div>
+
+      {/* SEARCH + SORT */}
+      <div className="flex gap-2 flex-wrap items-center">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Szukaj wpisów lub autorów..."
+            className="pl-9"
+          />
+        </div>
+        <div className="flex bg-muted rounded-lg p-1">
+          <button
+            onClick={() => setSort("newest")}
+            className={cn(
+              "px-3 py-1.5 rounded-md text-xs font-bold",
+              sort === "newest" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            Najnowsze
+          </button>
+          <button
+            onClick={() => setSort("oldest")}
+            className={cn(
+              "px-3 py-1.5 rounded-md text-xs font-bold",
+              sort === "oldest" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            Najstarsze
+          </button>
         </div>
       </div>
 
