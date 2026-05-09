@@ -231,7 +231,10 @@ export function MentorTasksSection() {
           }
           return filtered.map((t) => {
           const tag = statusLabel(t.status);
-          const interactive = t.status === "assigned" || t.status === "needs_revision";
+          const interactive =
+            t.status === "assigned" ||
+            t.status === "in_progress" ||
+            t.status === "needs_revision";
           const isExpanded = expanded.has(t.id);
           const fmt = (d: string | null) =>
             d ? new Date(d).toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" }) : null;
