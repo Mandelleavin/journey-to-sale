@@ -231,7 +231,10 @@ export function MentorTasksSection() {
           }
           return filtered.map((t) => {
           const tag = statusLabel(t.status);
-          const interactive = t.status === "assigned" || t.status === "needs_revision";
+          const interactive =
+            t.status === "assigned" ||
+            t.status === "in_progress" ||
+            t.status === "needs_revision";
           const isExpanded = expanded.has(t.id);
           const fmt = (d: string | null) =>
             d ? new Date(d).toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" }) : null;
@@ -334,7 +337,11 @@ export function MentorTasksSection() {
                       onClick={() => open(t)}
                       className="bg-gradient-violet text-primary-foreground h-7 text-xs"
                     >
-                      {t.status === "needs_revision" ? "Popraw" : "Wykonaj"}
+                      {t.status === "needs_revision"
+                        ? "Popraw"
+                        : t.status === "in_progress"
+                          ? "Kontynuuj"
+                          : "Wykonaj"}
                     </Button>
                   )}
                 </div>
@@ -401,7 +408,9 @@ export function MentorTasksSection() {
                       >
                         {t.status === "needs_revision"
                           ? "Popraw i wyślij ponownie"
-                          : "Wykonaj zadanie i wyślij do mentora"}
+                          : t.status === "in_progress"
+                            ? "Kontynuuj i wyślij do mentora"
+                            : "Wykonaj zadanie i wyślij do mentora"}
                       </Button>
                     </div>
                   )}
