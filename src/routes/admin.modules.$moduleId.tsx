@@ -140,13 +140,18 @@ function AdminModuleLessonsPage() {
     );
     const lessonIds = (ls ?? []).map((l) => (l as { id: string }).id);
     if (lessonIds.length > 0) {
-      const [{ data: t }, { data: a }] = await Promise.all([
+      const [{ data: t }, { data: a }, { data: mt }] = await Promise.all([
         supabase.from("lesson_tasks").select("*").in("lesson_id", lessonIds),
         supabase
           .from("lesson_attachments")
           .select("*")
           .in("lesson_id", lessonIds)
           .order("position"),
+        supabase
+          .from("mentor_task_templates")
+          .select("*")
+          .in("lesson_id", lessonIds)
+          .order("created_at"),
       ]);
       const byL: Record<string, LessonTask[]> = {};
       (t ?? []).forEach((task) => {
@@ -158,9 +163,15 @@ function AdminModuleLessonsPage() {
         (byA[(at as Attachment).lesson_id] ||= []).push(at as Attachment);
       });
       setAttachByLesson(byA);
+      const byM: Record<string, MentorTemplate[]> = {};
+      (mt ?? []).forEach((tpl) => {
+        (byM[(tpl as MentorTemplate).lesson_id] ||= []).push(tpl as MentorTemplate);
+      });
+      setMentorByLesson(byM);
     } else {
       setTasksByLesson({});
       setAttachByLesson({});
+      setMentorByLesson({});
     }
   };
 
