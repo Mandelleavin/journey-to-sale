@@ -498,6 +498,78 @@ function AdminModuleLessonsPage() {
                         )}
                       </div>
 
+                      {/* MENTOR TASK TEMPLATES */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-bold flex items-center gap-1.5">
+                            <ListChecks className="w-4 h-4 text-violet" /> Auto-zadania od mentora po lekcji
+                          </h4>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setEditingMentor({
+                                lessonId: l.id,
+                                tpl: {
+                                  title: "",
+                                  xp_reward: 100,
+                                  due_in_days: 7,
+                                  is_active: true,
+                                },
+                              })
+                            }
+                          >
+                            <Plus className="w-3.5 h-3.5 mr-1" /> Dodaj szablon
+                          </Button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mb-2">
+                          Po ukończeniu tej lekcji każdy kursant automatycznie dostanie te zadania od mentora do wykonania.
+                        </p>
+                        {(mentorByLesson[l.id] ?? []).length === 0 ? (
+                          <div className="text-xs text-muted-foreground italic">Brak szablonów</div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {(mentorByLesson[l.id] ?? []).map((tpl) => (
+                              <div
+                                key={tpl.id}
+                                className="flex items-center gap-2 rounded-lg bg-card border border-border p-2"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-bold truncate">
+                                    {tpl.title}{" "}
+                                    {!tpl.is_active && (
+                                      <span className="text-[10px] text-muted-foreground">
+                                        (nieaktywny)
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    +{tpl.xp_reward} XP · termin: {tpl.due_in_days} dni od ukończenia
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    setEditingMentor({ lessonId: l.id, tpl })
+                                  }
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => deleteMentorTpl(tpl.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       {/* ATTACHMENTS */}
                       <div>
                         <div className="flex items-center justify-between mb-2">
