@@ -181,12 +181,25 @@ function CommunityPage() {
     load();
   };
 
-  const visible = posts.filter((p) => {
-    if (!p.is_approved && !isAdmin && p.user_id !== user?.id) return false;
-    if (filter === "all") return true;
-    if (filter === "pending") return !p.is_approved;
-    return p.category === filter;
-  });
+  const q = search.trim().toLowerCase();
+  const visible = posts
+    .filter((p) => {
+      if (!p.is_approved && !isAdmin && p.user_id !== user?.id) return false;
+      if (filter === "pending") return !p.is_approved;
+      if (filter !== "all" && p.category !== filter) return false;
+      if (q) {
+        return (
+          p.content.toLowerCase().includes(q) ||
+          (p.author_name ?? "").toLowerCase().includes(q)
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const da = new Date(a.created_at).getTime();
+      const db = new Date(b.created_at).getTime();
+      return sort === "newest" ? db - da : da - db;
+    });
 
   const pendingCount = posts.filter((p) => !p.is_approved).length;
 
