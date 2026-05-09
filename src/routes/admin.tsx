@@ -109,7 +109,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9 max-w-6xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-10 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -145,6 +145,10 @@ function AdminPage() {
             <TabsTrigger value="paths">
               <CalendarDays className="w-4 h-4 mr-1" />
               Ścieżki
+            </TabsTrigger>
+            <TabsTrigger value="rewards">
+              <Gift className="w-4 h-4 mr-1" />
+              Nagrody
             </TabsTrigger>
           </TabsList>
 
