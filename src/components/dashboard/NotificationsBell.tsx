@@ -19,7 +19,7 @@ function getNotificationLink(n: { type: string; title: string }): string {
     case "task_revision":
       return "/tasks";
     case "xp_awarded":
-      return "/stats";
+      return "/";
     default:
       return "/";
   }

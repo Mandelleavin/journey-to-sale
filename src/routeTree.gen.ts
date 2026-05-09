@@ -10,12 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TasksRouteImport } from './routes/tasks'
-import { Route as StatsRouteImport } from './routes/stats'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
-import { Route as ProblemsRouteImport } from './routes/problems'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
@@ -25,11 +23,10 @@ import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CoachRouteImport } from './routes/coach'
-import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdvisorRouteImport } from './routes/advisor'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AccelerateRouteImport } from './routes/accelerate'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
@@ -52,11 +49,6 @@ const TasksRoute = TasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatsRoute = StatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RewardsRoute = RewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
@@ -75,11 +67,6 @@ const ProfileRoute = ProfileRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProblemsRoute = ProblemsRouteImport.update({
-  id: '/problems',
-  path: '/problems',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -127,11 +114,6 @@ const CoachRoute = CoachRouteImport.update({
   path: '/coach',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChallengesRoute = ChallengesRouteImport.update({
-  id: '/challenges',
-  path: '/challenges',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -142,14 +124,14 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdvisorRoute = AdvisorRouteImport.update({
-  id: '/advisor',
-  path: '/advisor',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccelerateRoute = AccelerateRouteImport.update({
+  id: '/accelerate',
+  path: '/accelerate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -239,11 +221,10 @@ const AdminCoursesCourseIdLessonsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
-  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
@@ -253,12 +234,10 @@ export interface FileRoutesByFullPath {
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
   '/pricing': typeof PricingRoute
-  '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
-  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
@@ -278,11 +257,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
-  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/credits': typeof CreditsRoute
@@ -291,12 +269,10 @@ export interface FileRoutesByTo {
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
   '/pricing': typeof PricingRoute
-  '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
-  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
@@ -317,11 +293,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accelerate': typeof AccelerateRoute
   '/admin': typeof AdminRouteWithChildren
-  '/advisor': typeof AdvisorRoute
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
-  '/challenges': typeof ChallengesRoute
   '/coach': typeof CoachRoute
   '/community': typeof CommunityRoute
   '/courses': typeof CoursesRouteWithChildren
@@ -331,12 +306,10 @@ export interface FileRoutesById {
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
   '/pricing': typeof PricingRoute
-  '/problems': typeof ProblemsRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
-  '/stats': typeof StatsRoute
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
@@ -358,11 +331,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accelerate'
     | '/admin'
-    | '/advisor'
     | '/auth'
     | '/calendar'
-    | '/challenges'
     | '/coach'
     | '/community'
     | '/courses'
@@ -372,12 +344,10 @@ export interface FileRouteTypes {
     | '/package'
     | '/path'
     | '/pricing'
-    | '/problems'
     | '/products'
     | '/profile'
     | '/reset-password'
     | '/rewards'
-    | '/stats'
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
@@ -397,11 +367,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accelerate'
     | '/admin'
-    | '/advisor'
     | '/auth'
     | '/calendar'
-    | '/challenges'
     | '/coach'
     | '/community'
     | '/credits'
@@ -410,12 +379,10 @@ export interface FileRouteTypes {
     | '/package'
     | '/path'
     | '/pricing'
-    | '/problems'
     | '/products'
     | '/profile'
     | '/reset-password'
     | '/rewards'
-    | '/stats'
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
@@ -435,11 +402,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/accelerate'
     | '/admin'
-    | '/advisor'
     | '/auth'
     | '/calendar'
-    | '/challenges'
     | '/coach'
     | '/community'
     | '/courses'
@@ -449,12 +415,10 @@ export interface FileRouteTypes {
     | '/package'
     | '/path'
     | '/pricing'
-    | '/problems'
     | '/products'
     | '/profile'
     | '/reset-password'
     | '/rewards'
-    | '/stats'
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
@@ -475,11 +439,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccelerateRoute: typeof AccelerateRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AdvisorRoute: typeof AdvisorRoute
   AuthRoute: typeof AuthRoute
   CalendarRoute: typeof CalendarRoute
-  ChallengesRoute: typeof ChallengesRoute
   CoachRoute: typeof CoachRoute
   CommunityRoute: typeof CommunityRoute
   CoursesRoute: typeof CoursesRouteWithChildren
@@ -489,12 +452,10 @@ export interface RootRouteChildren {
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
   PricingRoute: typeof PricingRoute
-  ProblemsRoute: typeof ProblemsRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
-  StatsRoute: typeof StatsRoute
   TasksRoute: typeof TasksRoute
   CheckoutCancelledRoute: typeof CheckoutCancelledRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -512,13 +473,6 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks'
       preLoaderRoute: typeof TasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stats': {
-      id: '/stats'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: typeof StatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rewards': {
@@ -547,13 +501,6 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/problems': {
-      id: '/problems'
-      path: '/problems'
-      fullPath: '/problems'
-      preLoaderRoute: typeof ProblemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -619,13 +566,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/challenges': {
-      id: '/challenges'
-      path: '/challenges'
-      fullPath: '/challenges'
-      preLoaderRoute: typeof ChallengesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/calendar': {
       id: '/calendar'
       path: '/calendar'
@@ -640,18 +580,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/advisor': {
-      id: '/advisor'
-      path: '/advisor'
-      fullPath: '/advisor'
-      preLoaderRoute: typeof AdvisorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accelerate': {
+      id: '/accelerate'
+      path: '/accelerate'
+      fullPath: '/accelerate'
+      preLoaderRoute: typeof AccelerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -834,11 +774,10 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccelerateRoute: AccelerateRoute,
   AdminRoute: AdminRouteWithChildren,
-  AdvisorRoute: AdvisorRoute,
   AuthRoute: AuthRoute,
   CalendarRoute: CalendarRoute,
-  ChallengesRoute: ChallengesRoute,
   CoachRoute: CoachRoute,
   CommunityRoute: CommunityRoute,
   CoursesRoute: CoursesRouteWithChildren,
@@ -848,12 +787,10 @@ const rootRouteChildren: RootRouteChildren = {
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
   PricingRoute: PricingRoute,
-  ProblemsRoute: ProblemsRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
-  StatsRoute: StatsRoute,
   TasksRoute: TasksRoute,
   CheckoutCancelledRoute: CheckoutCancelledRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,

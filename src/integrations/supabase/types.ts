@@ -380,6 +380,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_approved: boolean
+          is_example: boolean
           updated_at: string
           user_id: string
         }
@@ -388,6 +390,8 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_approved?: boolean
+          is_example?: boolean
           updated_at?: string
           user_id: string
         }
@@ -396,6 +400,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_approved?: boolean
+          is_example?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -1135,6 +1141,39 @@ export type Database = {
         }
         Relationships: []
       }
+      product_builder_progress: {
+        Row: {
+          id: string
+          item_key: string
+          item_type: string
+          module_key: string
+          notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_key: string
+          item_type: string
+          module_key: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_key?: string
+          item_type?: string
+          module_key?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ad_budget_ready: string | null
@@ -1144,6 +1183,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          last_seen: string | null
           lead_temp: Database["public"]["Enums"]["user_lead_temp"] | null
           phone: string | null
           social_link: string | null
@@ -1157,6 +1197,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          last_seen?: string | null
           lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
           phone?: string | null
           social_link?: string | null
@@ -1170,6 +1211,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          last_seen?: string | null
           lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
           phone?: string | null
           social_link?: string | null
@@ -1183,6 +1225,8 @@ export type Database = {
           description: string | null
           id: string
           is_available: boolean
+          payload_content: string | null
+          payload_url: string | null
           position: number
           title: string
           updated_at: string
@@ -1193,6 +1237,8 @@ export type Database = {
           description?: string | null
           id?: string
           is_available?: boolean
+          payload_content?: string | null
+          payload_url?: string | null
           position?: number
           title: string
           updated_at?: string
@@ -1203,6 +1249,8 @@ export type Database = {
           description?: string | null
           id?: string
           is_available?: boolean
+          payload_content?: string | null
+          payload_url?: string | null
           position?: number
           title?: string
           updated_at?: string
