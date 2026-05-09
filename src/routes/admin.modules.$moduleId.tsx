@@ -804,6 +804,104 @@ function AdminModuleLessonsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* DIALOG: MENTOR TEMPLATE */}
+      <Dialog open={!!editingMentor} onOpenChange={(v) => !v && setEditingMentor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMentor?.tpl.id ? "Edytuj szablon" : "Nowy szablon zadania mentora"}
+            </DialogTitle>
+          </DialogHeader>
+          {editingMentor && (
+            <div className="space-y-3">
+              <div>
+                <Label>Tytuł zadania</Label>
+                <Input
+                  value={editingMentor.tpl.title ?? ""}
+                  onChange={(e) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, title: e.target.value },
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Instrukcje dla kursanta</Label>
+                <Textarea
+                  rows={4}
+                  value={editingMentor.tpl.instructions ?? ""}
+                  onChange={(e) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, instructions: e.target.value },
+                    })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>XP</Label>
+                  <Input
+                    type="number"
+                    value={editingMentor.tpl.xp_reward ?? 100}
+                    onChange={(e) =>
+                      setEditingMentor({
+                        ...editingMentor,
+                        tpl: {
+                          ...editingMentor.tpl,
+                          xp_reward: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Termin (dni od ukończenia lekcji)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editingMentor.tpl.due_in_days ?? 7}
+                    onChange={(e) =>
+                      setEditingMentor({
+                        ...editingMentor,
+                        tpl: {
+                          ...editingMentor.tpl,
+                          due_in_days: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-muted/30 px-3 py-2">
+                <Label>Aktywny (auto-twórz po ukończeniu lekcji)</Label>
+                <Switch
+                  checked={editingMentor.tpl.is_active ?? true}
+                  onCheckedChange={(v) =>
+                    setEditingMentor({
+                      ...editingMentor,
+                      tpl: { ...editingMentor.tpl, is_active: v },
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingMentor(null)}>
+              Anuluj
+            </Button>
+            <Button
+              onClick={saveMentorTpl}
+              className="bg-gradient-violet text-primary-foreground"
+            >
+              Zapisz
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
