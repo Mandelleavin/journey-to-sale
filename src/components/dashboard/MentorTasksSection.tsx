@@ -393,6 +393,18 @@ export function MentorTasksSection() {
                       ))}
                     </ol>
                   </div>
+                  {interactive && (
+                    <div className="pt-2">
+                      <Button
+                        onClick={() => open(t)}
+                        className="w-full bg-gradient-violet text-primary-foreground"
+                      >
+                        {t.status === "needs_revision"
+                          ? "Popraw i wyślij ponownie"
+                          : "Wykonaj zadanie i wyślij do mentora"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
