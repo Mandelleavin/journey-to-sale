@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState, useMemo } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { StatCards } from "@/components/dashboard/StatCards";
@@ -7,6 +7,10 @@ import { MissionCard } from "@/components/dashboard/MissionCard";
 import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
 import { AccelerateWidget } from "@/components/dashboard/AccelerateWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
@@ -21,6 +25,15 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+type MentorTask = {
+  id: string;
+  title: string;
+  instructions: string | null;
+  xp_reward: number;
+  due_date: string | null;
+  status: "assigned" | "submitted" | "approved" | "rejected" | "needs_revision";
+};
+
 function Index() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -30,53 +43,33 @@ function Index() {
   const [readiness, setReadiness] = useState(0);
   const [profileCreated, setProfileCreated] = useState<string | null>(null);
   const [submitTaskId, setSubmitTaskId] = useState<string | null>(null);
-  const [pathStartedAt, setPathStartedAt] = useState<string | null>(null);
-  const [pathTotalDays, setPathTotalDays] = useState<number>(90);
-  const [livePathDay, setLivePathDay] = useState<number | null>(null);
-  const [livePathPct, setLivePathPct] = useState<number | null>(null);
+  const [submitTaskTitle, setSubmitTaskTitle] = useState<string | undefined>();
+  const [mentorTasks, setMentorTasks] = useState<MentorTask[]>([]);
 
-  const handlePathProgress = useCallback(
-    ({ day, totalDays, pct }: { day: number; totalDays: number; pct: number }) => {
-      setLivePathDay(day);
-      setLivePathPct(pct);
-      setPathTotalDays(totalDays);
-    },
-    [],
-  );
-
-  // Guard: niezalogowany -> /auth
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
 
-  // Sprawdź ankietę i pobierz profil
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: prof }, { data: survey }] = await Promise.all([
+      const [{ data: prof }, { data: survey }, { data: mt }] = await Promise.all([
         supabase.from("profiles").select("full_name, created_at").eq("id", user.id).maybeSingle(),
         supabase
           .from("survey_responses")
           .select("id, readiness_percent")
           .eq("user_id", user.id)
           .maybeSingle(),
+        supabase
+          .from("mentor_assigned_tasks")
+          .select("id, title, instructions, xp_reward, due_date, status")
+          .eq("user_id", user.id),
       ]);
       setFullName(prof?.full_name ?? undefined);
       setProfileCreated(prof?.created_at ?? null);
       setHasSurvey(!!survey);
       setReadiness(survey?.readiness_percent ?? 0);
-
-      const { data: ulp } = await supabase
-        .from("user_learning_paths")
-        .select("started_at, learning_paths(total_days)")
-        .eq("user_id", user.id)
-        .eq("is_current", true)
-        .maybeSingle();
-      if (ulp) {
-        setPathStartedAt(ulp.started_at ?? null);
-        const td = (ulp.learning_paths as { total_days?: number } | null)?.total_days;
-        if (td) setPathTotalDays(td);
-      }
+      setMentorTasks((mt ?? []) as MentorTask[]);
     })();
   }, [user]);
 
@@ -84,17 +77,40 @@ function Index() {
     if (hasSurvey === false) navigate({ to: "/onboarding" });
   }, [hasSurvey, navigate]);
 
-  // Najbliższa misja: pierwsze nieukończone zadanie z pierwszej dostępnej lekcji
+  // Bieżący dzień programu — taka sama logika jak na /path
+  const currentDay = useMemo(() => {
+    if (!profileCreated) return 1;
+    const days = Math.floor((Date.now() - new Date(profileCreated).getTime()) / 86400000) + 1;
+    return Math.max(1, Math.min(90, days));
+  }, [profileCreated]);
+
+  const today = new Date().toISOString().slice(0, 10);
+
   const mission = useMemo(() => {
     if (data.tasks.length === 0) return null;
     const completed = new Set(
       data.submissions.filter((s) => s.status === "approved").map((s) => s.task_id),
     );
-    const next = data.tasks.find((t) => !completed.has(t.id));
-    return next ?? null;
+    return data.tasks.find((t) => !completed.has(t.id)) ?? null;
   }, [data.tasks, data.submissions]);
 
-  // Kursy: oblicz unlocked/progress
+  const courseTasksToday = useMemo(() => {
+    const submissionsByTask = new Map(data.submissions.map((s) => [s.task_id, s] as const));
+    const open = data.tasks.filter((t) => {
+      const s = submissionsByTask.get(t.id);
+      return !s || s.status === "rejected" || s.status === "needs_revision";
+    });
+    return open.slice(0, 3).map((t) => ({ ...t, sub: submissionsByTask.get(t.id) }));
+  }, [data.tasks, data.submissions]);
+
+  const mentorToday = useMemo(() => {
+    return mentorTasks.filter((t) => {
+      if (t.status !== "assigned" && t.status !== "needs_revision") return false;
+      if (!t.due_date) return true;
+      return t.due_date <= today;
+    });
+  }, [mentorTasks, today]);
+
   const enrichedCourses = useMemo(() => {
     return data.courses.slice(0, 4).map((c, i) => {
       const lessonsForCourse = data.lessons.filter((l) => l.course_id === c.id);
@@ -118,6 +134,26 @@ function Index() {
 
   const upcoming = useMemo(() => data.tasks.slice(0, 3).map((t) => t.title), [data.tasks]);
 
+  const submitMentor = async (t: MentorTask) => {
+    const txt = window.prompt(`Opisz wykonanie zadania:\n\n${t.title}`, "");
+    if (!txt || txt.trim().length < 5) return;
+    const { error } = await supabase
+      .from("mentor_assigned_tasks")
+      .update({
+        submission_content: txt,
+        status: "submitted",
+        submitted_at: new Date().toISOString(),
+      })
+      .eq("id", t.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Wysłano do mentora");
+      setMentorTasks((prev) =>
+        prev.map((x) => (x.id === t.id ? { ...x, status: "submitted" } : x)),
+      );
+    }
+  };
+
   if (authLoading || !user) {
     return (
       <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
@@ -125,6 +161,8 @@ function Index() {
       </div>
     );
   }
+
+  const pathPct = Math.round(((currentDay - 1) / 89) * 100);
 
   return (
     <div className="min-h-screen bg-app">
@@ -139,29 +177,89 @@ function Index() {
             totalXp={data.totalXp}
             xpToNext={data.xpToNext}
             pctToNext={Math.round(data.pctToNext)}
-            pathDay={livePathDay ?? (() => {
-              const base = pathStartedAt ?? profileCreated;
-              if (!base) return 1;
-              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
-              return Math.max(1, Math.min(pathTotalDays, d));
-            })()}
-            pathPct={livePathPct ?? (() => {
-              const base = pathStartedAt ?? profileCreated;
-              if (!base) return 0;
-              const d = Math.floor((Date.now() - new Date(base).getTime()) / 86400000) + 1;
-              const day = Math.max(1, Math.min(pathTotalDays, d));
-              return pathTotalDays > 1 ? Math.round(((day - 1) / (pathTotalDays - 1)) * 100) : 0;
-            })()}
+            pathDay={currentDay}
+            pathPct={pathPct}
             successPct={readiness}
           />
-          <ProgressPath onProgress={handlePathProgress} />
+          <ProgressPath currentDay={currentDay} />
+
+          {/* Plan na dziś — taki sam jak w „Moja ścieżka" */}
+          <section className="bg-card rounded-3xl border border-border shadow-card p-5 lg:p-6">
+            <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-violet grid place-items-center">
+                  <Calendar className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="font-display font-extrabold text-lg">Twój plan na dziś</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Dzień {currentDay} z 90 — zadania ze ścieżki
+                  </p>
+                </div>
+              </div>
+              <Link to="/path" className="text-xs font-bold text-violet">
+                Zobacz całą ścieżkę →
+              </Link>
+            </div>
+
+            {mentorToday.length === 0 && courseTasksToday.length === 0 ? (
+              <div className="text-sm text-muted-foreground p-6 text-center">
+                🎉 Brak zaległych zadań. Świetna robota! Otwórz{" "}
+                <Link to="/courses" className="text-violet font-bold">
+                  Kursy
+                </Link>
+                , żeby ruszyć dalej.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {mentorToday.map((t) => (
+                  <TaskRow
+                    key={`m-${t.id}`}
+                    badge="Mentor"
+                    title={t.title}
+                    instructions={t.instructions}
+                    xp={t.xp_reward}
+                    dueLabel={
+                      t.due_date ? new Date(t.due_date).toLocaleDateString("pl-PL") : undefined
+                    }
+                    status={t.status === "needs_revision" ? "revise" : "todo"}
+                    onAction={() => submitMentor(t)}
+                    actionLabel={t.status === "needs_revision" ? "Popraw" : "Oznacz jako zrobione"}
+                  />
+                ))}
+                {courseTasksToday.map((t) => (
+                  <TaskRow
+                    key={`c-${t.id}`}
+                    badge="Kurs"
+                    title={t.title}
+                    instructions={t.instructions}
+                    xp={t.xp_reward}
+                    status={t.sub?.status === "needs_revision" ? "revise" : "todo"}
+                    onAction={() => {
+                      setSubmitTaskId(t.id);
+                      setSubmitTaskTitle(t.title);
+                    }}
+                    actionLabel={
+                      t.sub?.status === "needs_revision" ? "Popraw" : "Wyślij rozwiązanie"
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
           <MissionCard
             title={mission?.title}
             description={mission?.instructions ?? undefined}
             xpReward={mission?.xp_reward ?? 120}
             unlocked={!!mission}
             upcoming={upcoming}
-            onAction={() => mission && setSubmitTaskId(mission.id)}
+            onAction={() => {
+              if (mission) {
+                setSubmitTaskId(mission.id);
+                setSubmitTaskTitle(mission.title);
+              }
+            }}
           />
           <MentorTasksSection />
           <div className="grid lg:grid-cols-2 gap-5">
@@ -177,11 +275,77 @@ function Index() {
 
       <SubmitTaskDialog
         taskId={submitTaskId}
-        taskTitle={mission?.title}
+        taskTitle={submitTaskTitle}
         open={!!submitTaskId}
-        onOpenChange={(v) => !v && setSubmitTaskId(null)}
+        onOpenChange={(v) => {
+          if (!v) {
+            setSubmitTaskId(null);
+            setSubmitTaskTitle(undefined);
+          }
+        }}
         onSubmitted={data.refresh}
       />
+    </div>
+  );
+}
+
+function TaskRow({
+  badge,
+  title,
+  instructions,
+  xp,
+  dueLabel,
+  status,
+  onAction,
+  actionLabel,
+}: {
+  badge: string;
+  title: string;
+  instructions: string | null;
+  xp: number;
+  dueLabel?: string;
+  status: "todo" | "revise";
+  onAction: () => void;
+  actionLabel: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border p-4 hover:border-violet/40 transition-colors">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className={cn(
+                "text-[10px] font-bold uppercase rounded px-1.5 py-0.5",
+                badge === "Mentor" ? "bg-violet-soft text-violet" : "bg-blue-soft text-blue",
+              )}
+            >
+              {badge}
+            </span>
+            {status === "revise" && (
+              <span className="text-[10px] font-bold uppercase rounded px-1.5 py-0.5 bg-orange-soft text-orange inline-flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> Do poprawy
+              </span>
+            )}
+            {dueLabel && (
+              <span className="text-[10px] text-muted-foreground inline-flex items-center gap-1">
+                <Clock className="w-3 h-3" /> {dueLabel}
+              </span>
+            )}
+          </div>
+          <div className="font-bold text-sm mt-1">{title}</div>
+          {instructions && (
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{instructions}</p>
+          )}
+          <div className="text-xs font-bold text-violet mt-2">+{xp} XP</div>
+        </div>
+        <Button
+          size="sm"
+          onClick={onAction}
+          className="bg-gradient-violet text-primary-foreground h-8 text-xs"
+        >
+          {actionLabel}
+        </Button>
+      </div>
     </div>
   );
 }
