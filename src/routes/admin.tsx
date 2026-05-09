@@ -179,6 +179,9 @@ function AdminPage() {
           <TabsContent value="paths" className="mt-6">
             <LearningPathsTab />
           </TabsContent>
+          <TabsContent value="rewards" className="mt-6">
+            <RewardsTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
