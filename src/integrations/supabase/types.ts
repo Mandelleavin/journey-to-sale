@@ -954,6 +954,50 @@ export type Database = {
         }
         Relationships: []
       }
+      mentor_task_templates: {
+        Row: {
+          created_at: string
+          due_in_days: number
+          id: string
+          instructions: string | null
+          is_active: boolean
+          lesson_id: string
+          title: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          created_at?: string
+          due_in_days?: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          lesson_id: string
+          title: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          created_at?: string
+          due_in_days?: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          lesson_id?: string
+          title?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_task_templates_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           course_id: string
