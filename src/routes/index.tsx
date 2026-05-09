@@ -8,7 +8,7 @@ import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Calendar, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
