@@ -92,6 +92,7 @@ export function CourseTasksTab() {
       instructions: editing.instructions ?? null,
       xp_reward: editing.xp_reward ?? 50,
       is_required: editing.is_required ?? false,
+      due_in_days: editing.due_in_days ?? null,
     };
     const { error } = editing.id
       ? await supabase.from("lesson_tasks").update(payload).eq("id", editing.id)
