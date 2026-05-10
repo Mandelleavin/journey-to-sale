@@ -89,12 +89,12 @@ function LessonPage() {
           .maybeSingle(),
         supabase
           .from("lesson_tasks")
-          .select("id, title, instructions, xp_reward, is_required")
+          .select("id, title, instructions, xp_reward, is_required, due_in_days")
           .eq("lesson_id", lessonId),
         supabase.from("task_submissions").select("id, task_id, status").eq("user_id", user.id),
         supabase
           .from("user_lesson_progress")
-          .select("id")
+          .select("id, created_at")
           .eq("user_id", user.id)
           .eq("lesson_id", lessonId)
           .maybeSingle(),
