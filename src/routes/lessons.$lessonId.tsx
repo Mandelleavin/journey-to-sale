@@ -173,6 +173,8 @@ function LessonPage() {
     } else {
       toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona`);
       setWatched(true);
+      setWatchedAt(new Date());
+      load();
     }
   }, [user, watched, lessonId, lesson?.xp_reward]);
 
