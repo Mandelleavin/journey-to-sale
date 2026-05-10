@@ -31,6 +31,7 @@ type LessonTask = {
   instructions: string | null;
   xp_reward: number;
   is_required: boolean;
+  due_in_days: number | null;
 };
 
 export function CourseTasksTab() {
@@ -91,6 +92,7 @@ export function CourseTasksTab() {
       instructions: editing.instructions ?? null,
       xp_reward: editing.xp_reward ?? 50,
       is_required: editing.is_required ?? false,
+      due_in_days: editing.due_in_days ?? null,
     };
     const { error } = editing.id
       ? await supabase.from("lesson_tasks").update(payload).eq("id", editing.id)
@@ -128,7 +130,7 @@ export function CourseTasksTab() {
         </div>
         <Button
           onClick={() =>
-            setEditing({ title: "", xp_reward: 50, is_required: false, instructions: "" })
+            setEditing({ title: "", xp_reward: 50, is_required: false, instructions: "", due_in_days: 7 })
           }
           className="bg-gradient-violet text-primary-foreground rounded-xl"
         >
@@ -202,6 +204,11 @@ export function CourseTasksTab() {
                     <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-soft text-violet">
                       +{t.xp_reward} XP
                     </span>
+                    {t.due_in_days != null && (
+                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue/15 text-blue">
+                        termin: {t.due_in_days} dni
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {course?.title ?? "—"} · Lekcja: {lesson?.title ?? "(brak)"}
@@ -293,15 +300,27 @@ export function CourseTasksTab() {
                     }
                   />
                 </div>
-                <div className="flex items-end gap-2">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={editing.is_required ?? false}
-                      onCheckedChange={(v) => setEditing({ ...editing, is_required: v })}
-                    />
-                    <Label>Wymagane do ukończenia lekcji</Label>
-                  </div>
+                <div>
+                  <Label>Termin (dni od ukończenia lekcji)</Label>
+                  <Input
+                    type="number"
+                    placeholder="np. 7"
+                    value={editing.due_in_days ?? ""}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        due_in_days: e.target.value === "" ? null : parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
                 </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={editing.is_required ?? false}
+                  onCheckedChange={(v) => setEditing({ ...editing, is_required: v })}
+                />
+                <Label>Wymagane do ukończenia lekcji</Label>
               </div>
             </div>
           )}
