@@ -110,7 +110,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-10 max-w-6xl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-11 max-w-6xl">
             <TabsTrigger value="hotleads">
               <Flame className="w-4 h-4 mr-1" />
               Hot leady
@@ -130,6 +130,10 @@ function AdminPage() {
             <TabsTrigger value="courses">
               <GraduationCap className="w-4 h-4 mr-1" />
               Kursy
+            </TabsTrigger>
+            <TabsTrigger value="course-tasks">
+              <ListChecks className="w-4 h-4 mr-1" />
+              Zadania
             </TabsTrigger>
             <TabsTrigger value="advisor">
               <ListChecks className="w-4 h-4 mr-1" />
