@@ -67,6 +67,7 @@ function LessonPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [watched, setWatched] = useState(false);
+  const [watchedAt, setWatchedAt] = useState<Date | null>(null);
   const [submitTask, setSubmitTask] = useState<Task | null>(null);
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
