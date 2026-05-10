@@ -121,6 +121,8 @@ function LessonPage() {
     setTasks((t ?? []) as Task[]);
     setSubmissions((s ?? []) as Sub[]);
     setWatched(!!prog);
+    const progRow = prog as { created_at?: string } | null;
+    setWatchedAt(progRow?.created_at ? new Date(progRow.created_at) : null);
     setAttachments((a ?? []) as never);
 
     // pobierz nazwy autorów komentarzy
