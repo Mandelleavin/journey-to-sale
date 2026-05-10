@@ -221,6 +221,53 @@ function LessonPage() {
           <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
         )}
 
+        {/* Szybkie CTA do zadania, jeśli są jakieś do wykonania */}
+        {(() => {
+          const pendingTasks = tasks.filter((t) => {
+            const s = subForTask(t.id);
+            return !s || s.status === "needs_revision" || s.status === "rejected";
+          });
+          if (pendingTasks.length === 0) return null;
+          const first = pendingTasks[0];
+          return (
+            <div className="mt-4 rounded-2xl border-2 border-orange/50 bg-gradient-to-br from-orange-soft/60 to-card p-4 flex flex-wrap items-center gap-3 justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-orange grid place-items-center shrink-0">
+                  <Zap className="w-5 h-5 fill-white text-white" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-display font-extrabold text-sm">
+                    {pendingTasks.length === 1
+                      ? "Masz zadanie do wykonania"
+                      : `Masz ${pendingTasks.length} zadań do wykonania`}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">{first.title}</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setSubmitTask(first)}
+                  className="bg-gradient-violet text-primary-foreground"
+                >
+                  <Check className="w-4 h-4 mr-1" /> Wykonaj zadanie
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    document
+                      .getElementById("lesson-tasks")
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  Zobacz wszystkie
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Główne wideo z auto-detekcją ukończenia */}
         {lesson.video_url && (
           <LessonVideoPlayer videoUrl={lesson.video_url} onCompleted={markWatched} />
@@ -318,7 +365,7 @@ function LessonPage() {
         )}
 
         {/* Zadania */}
-        <div className="mt-8">
+        <div id="lesson-tasks" className="mt-8 scroll-mt-24">
           <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
             <Zap className="w-5 h-5 text-orange fill-orange" /> Zadania do wykonania
           </h2>
