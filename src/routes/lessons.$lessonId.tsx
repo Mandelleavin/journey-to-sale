@@ -313,7 +313,9 @@ function LessonPage() {
 
         {/* Zadania */}
         <div className="mt-8">
-          <h2 className="font-display font-bold text-lg mb-3">Zadania do wykonania</h2>
+          <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-orange fill-orange" /> Zadania do wykonania
+          </h2>
           {tasks.length === 0 && (
             <div className="text-sm text-muted-foreground">Brak zadań w tej lekcji</div>
           )}
@@ -321,24 +323,30 @@ function LessonPage() {
             {tasks.map((t) => {
               const sub = subForTask(t.id);
               return (
-                <div key={t.id} className="rounded-2xl border border-border bg-card p-4">
+                <div
+                  key={t.id}
+                  className={cn(
+                    "rounded-2xl border-2 p-4 shadow-sm transition-all",
+                    t.is_required
+                      ? "border-orange/60 bg-gradient-to-br from-orange-soft/60 to-card ring-2 ring-orange/20"
+                      : "border-border bg-card",
+                  )}
+                >
+                  {t.is_required && (
+                    <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-orange px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
+                      <Zap className="w-3 h-3 fill-white" /> Zadanie obowiązkowe
+                    </div>
+                  )}
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1">
-                      <div className="font-bold flex items-center gap-2 flex-wrap">
-                        {t.title}
-                        {t.is_required && (
-                          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
-                            wymagane
-                          </span>
-                        )}
-                      </div>
+                      <div className="font-display font-extrabold text-base">{t.title}</div>
                       {t.instructions && (
                         <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
                           {t.instructions}
                         </p>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-violet flex items-center gap-1 shrink-0">
+                    <span className="text-xs font-bold text-violet flex items-center gap-1 shrink-0 rounded-full bg-violet-soft px-2.5 py-1">
                       <Zap className="w-3 h-3 fill-violet" />+{t.xp_reward} XP
                     </span>
                   </div>
