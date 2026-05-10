@@ -322,16 +322,6 @@ export function CourseTasksTab() {
                 />
                 <Label>Wymagane do ukończenia lekcji</Label>
               </div>
-                <div className="flex items-end gap-2">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={editing.is_required ?? false}
-                      onCheckedChange={(v) => setEditing({ ...editing, is_required: v })}
-                    />
-                    <Label>Wymagane do ukończenia lekcji</Label>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
           <DialogFooter>
