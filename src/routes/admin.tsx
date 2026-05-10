@@ -40,6 +40,7 @@ import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
 import { RewardsTab } from "@/components/admin/RewardsTab";
+import { CourseTasksTab } from "@/components/admin/CourseTasksTab";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
