@@ -130,7 +130,7 @@ export function CourseTasksTab() {
         </div>
         <Button
           onClick={() =>
-            setEditing({ title: "", xp_reward: 50, is_required: false, instructions: "" })
+            setEditing({ title: "", xp_reward: 50, is_required: false, instructions: "", due_in_days: 7 })
           }
           className="bg-gradient-violet text-primary-foreground rounded-xl"
         >
