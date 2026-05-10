@@ -172,6 +172,9 @@ function AdminPage() {
           <TabsContent value="courses" className="mt-6">
             <CoursesTab />
           </TabsContent>
+          <TabsContent value="course-tasks" className="mt-6">
+            <CourseTasksTab />
+          </TabsContent>
           <TabsContent value="advisor" className="mt-6">
             <AdvisorTab />
           </TabsContent>
