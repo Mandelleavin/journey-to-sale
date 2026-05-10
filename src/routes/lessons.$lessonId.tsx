@@ -41,6 +41,7 @@ type Task = {
   instructions: string | null;
   xp_reward: number;
   is_required: boolean;
+  due_in_days: number | null;
 };
 type Sub = { id: string; task_id: string; status: string };
 type Comment = {
