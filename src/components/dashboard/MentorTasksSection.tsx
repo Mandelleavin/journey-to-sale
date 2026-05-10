@@ -301,7 +301,7 @@ export function MentorTasksSection() {
                     <span className="inline-flex items-center gap-1 font-bold text-violet">
                       <Zap className="w-3 h-3" />+{t.xp_reward} XP
                     </span>
-                    {t.due_date && (() => {
+                    {t.due_date ? (() => {
                       const due = new Date(t.due_date);
                       const days = Math.ceil((due.getTime() - Date.now()) / 86400000);
                       const overdue = days < 0;
@@ -324,15 +324,22 @@ export function MentorTasksSection() {
                                 ? "bg-orange-soft text-orange"
                                 : soon
                                   ? "bg-yellow-note/40 text-foreground"
-                                  : "text-muted-foreground",
+                                  : "bg-muted text-foreground",
                           )}
                           title={`Termin: ${due.toLocaleDateString("pl-PL")}`}
                         >
                           <Calendar className="w-3 h-3" />
-                          {due.toLocaleDateString("pl-PL")} · {label}
+                          Termin: {due.toLocaleDateString("pl-PL")} · {label}
                         </span>
                       );
-                    })()}
+                    })() : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
+                        <Calendar className="w-3 h-3" /> Termin: brak
+                      </span>
+                    )}
+                    <Badge variant="outline" className={cn("text-[10px]", tag.tone)}>
+                      Status: {tag.label}
+                    </Badge>
                   </div>
                 </button>
                 <div className="flex flex-col items-end gap-2">
