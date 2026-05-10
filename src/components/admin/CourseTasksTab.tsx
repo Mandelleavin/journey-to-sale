@@ -300,6 +300,28 @@ export function CourseTasksTab() {
                     }
                   />
                 </div>
+                <div>
+                  <Label>Termin (dni od ukończenia lekcji)</Label>
+                  <Input
+                    type="number"
+                    placeholder="np. 7"
+                    value={editing.due_in_days ?? ""}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        due_in_days: e.target.value === "" ? null : parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={editing.is_required ?? false}
+                  onCheckedChange={(v) => setEditing({ ...editing, is_required: v })}
+                />
+                <Label>Wymagane do ukończenia lekcji</Label>
+              </div>
                 <div className="flex items-end gap-2">
                   <div className="flex items-center gap-2">
                     <Switch
