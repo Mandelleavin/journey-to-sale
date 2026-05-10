@@ -243,17 +243,7 @@ function LessonPage() {
           ) : (
             <span />
           )}
-          {nextLessonId ? (
-            <Link
-              to="/lessons/$lessonId"
-              params={{ lessonId: nextLessonId }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold hover:border-violet/40"
-            >
-              Następna <ArrowRight className="w-4 h-4" />
-            </Link>
-          ) : (
-            <span />
-          )}
+          <span />
         </div>
 
         {/* Status / Mark watched + następna lekcja */}
