@@ -328,6 +328,17 @@ function LessonPage() {
           <div className="space-y-3">
             {tasks.map((t) => {
               const sub = subForTask(t.id);
+              const statusLabels: Record<string, string> = {
+                pending: "W trakcie oceny",
+                approved: "Zatwierdzone",
+                rejected: "Odrzucone",
+                needs_revision: "Do poprawy",
+              };
+              const deadline =
+                t.due_in_days != null && watchedAt
+                  ? new Date(watchedAt.getTime() + t.due_in_days * 86400000)
+                  : null;
+              const overdue = deadline ? deadline.getTime() < Date.now() && sub?.status !== "approved" : false;
               return (
                 <div
                   key={t.id}
@@ -338,11 +349,31 @@ function LessonPage() {
                       : "border-border bg-card",
                   )}
                 >
-                  {t.is_required && (
-                    <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-orange px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
-                      <Zap className="w-3 h-3 fill-white" /> Zadanie obowiązkowe
-                    </div>
-                  )}
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    {t.is_required && (
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-orange px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
+                        <Zap className="w-3 h-3 fill-white" /> Zadanie obowiązkowe
+                      </div>
+                    )}
+                    {t.due_in_days != null && (
+                      <div className="inline-flex items-center gap-1 rounded-full bg-blue/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-blue">
+                        Termin: {t.due_in_days} dni od ukończenia lekcji
+                      </div>
+                    )}
+                    {deadline && (
+                      <div
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide",
+                          overdue
+                            ? "bg-destructive/15 text-destructive"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {overdue ? "Po terminie: " : "Do: "}
+                        {deadline.toLocaleDateString("pl-PL")}
+                      </div>
+                    )}
+                  </div>
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1">
                       <div className="font-display font-extrabold text-base">{t.title}</div>
@@ -356,7 +387,7 @@ function LessonPage() {
                       <Zap className="w-3 h-3 fill-violet" />+{t.xp_reward} XP
                     </span>
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-2">
+                  <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                     {sub ? (
                       <span className="text-xs font-bold uppercase">
                         Status:{" "}
@@ -368,11 +399,11 @@ function LessonPage() {
                             sub.status === "pending" && "text-blue",
                           )}
                         >
-                          {sub.status}
+                          {statusLabels[sub.status] ?? sub.status}
                         </span>
                       </span>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Nie wysłano</span>
+                      <span className="text-xs text-muted-foreground">Jeszcze nie wykonane</span>
                     )}
                     {(!sub || sub.status === "needs_revision" || sub.status === "rejected") && (
                       <Button
@@ -380,7 +411,8 @@ function LessonPage() {
                         onClick={() => setSubmitTask(t)}
                         className="bg-gradient-violet text-primary-foreground"
                       >
-                        {sub ? "Wyślij ponownie" : "Wyślij rozwiązanie"}
+                        <Check className="w-4 h-4 mr-1" />
+                        {sub ? "Wykonaj ponownie" : "Wykonaj zadanie"}
                       </Button>
                     )}
                   </div>
