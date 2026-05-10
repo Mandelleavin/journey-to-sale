@@ -204,6 +204,11 @@ export function CourseTasksTab() {
                     <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-soft text-violet">
                       +{t.xp_reward} XP
                     </span>
+                    {t.due_in_days != null && (
+                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue/15 text-blue">
+                        termin: {t.due_in_days} dni
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {course?.title ?? "—"} · Lekcja: {lesson?.title ?? "(brak)"}
