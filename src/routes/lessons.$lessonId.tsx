@@ -365,7 +365,7 @@ function LessonPage() {
         )}
 
         {/* Zadania */}
-        <div className="mt-8">
+        <div id="lesson-tasks" className="mt-8 scroll-mt-24">
           <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
             <Zap className="w-5 h-5 text-orange fill-orange" /> Zadania do wykonania
           </h2>
