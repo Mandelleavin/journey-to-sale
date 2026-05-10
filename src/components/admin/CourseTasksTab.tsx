@@ -31,6 +31,7 @@ type LessonTask = {
   instructions: string | null;
   xp_reward: number;
   is_required: boolean;
+  due_in_days: number | null;
 };
 
 export function CourseTasksTab() {
