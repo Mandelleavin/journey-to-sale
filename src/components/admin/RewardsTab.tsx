@@ -14,6 +14,13 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Gift } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +33,10 @@ type Reward = {
   payload_url: string | null;
   payload_content: string | null;
   position: number;
+  course_id: string | null;
 };
+
+type CourseOpt = { id: string; title: string };
 
 const empty: Omit<Reward, "id"> = {
   title: "",
@@ -36,6 +46,7 @@ const empty: Omit<Reward, "id"> = {
   payload_url: "",
   payload_content: "",
   position: 0,
+  course_id: null,
 };
 
 export function RewardsTab() {
