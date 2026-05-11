@@ -280,6 +280,11 @@ function AdminCoursesPage() {
                               szkic
                             </span>
                           )}
+                          {c.is_free && (
+                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-soft text-green">
+                              bezpłatny
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {mods.length} modułów · {lessonCounts[c.id] ?? 0} lekcji · wymaga{" "}
