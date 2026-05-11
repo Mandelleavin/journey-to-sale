@@ -261,6 +261,28 @@ export function RewardsTab() {
                 onChange={(e) => setForm({ ...form, payload_content: e.target.value })}
               />
             </div>
+            <div>
+              <Label>Przypisz do kursu (opcjonalnie)</Label>
+              <Select
+                value={form.course_id ?? "none"}
+                onValueChange={(v) => setForm({ ...form, course_id: v === "none" ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Globalna (bez kursu)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Globalna (bez kursu)</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Nagroda przypisana do kursu jest widoczna w sekcji nagród tego kursu i opłacana XP zdobytym w nim.
+              </p>
+            </div>
             <div className="flex items-center gap-2">
               <Switch
                 checked={form.is_available}
