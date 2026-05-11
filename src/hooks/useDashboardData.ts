@@ -8,6 +8,7 @@ export type CourseRow = {
   description: string | null;
   required_xp: number;
   position: number;
+  is_free?: boolean;
 };
 
 export type LessonRow = {

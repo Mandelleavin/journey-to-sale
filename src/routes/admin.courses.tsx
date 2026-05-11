@@ -41,6 +41,7 @@ type Course = {
   required_xp: number;
   position: number;
   is_published: boolean;
+  is_free: boolean;
   cover_url: string | null;
 };
 type Module = {
@@ -108,6 +109,7 @@ function AdminCoursesPage() {
       required_xp: editingCourse.required_xp ?? 0,
       position: editingCourse.position ?? courses.length,
       is_published: editingCourse.is_published ?? true,
+      is_free: editingCourse.is_free ?? false,
       cover_url: editingCourse.cover_url ?? null,
     };
     const { error } = editingCourse.id
@@ -276,6 +278,11 @@ function AdminCoursesPage() {
                           {!c.is_published && (
                             <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
                               szkic
+                            </span>
+                          )}
+                          {c.is_free && (
+                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-soft text-green">
+                              bezpłatny
                             </span>
                           )}
                         </div>
@@ -471,6 +478,18 @@ function AdminCoursesPage() {
                 <Switch
                   checked={editingCourse.is_published ?? true}
                   onCheckedChange={(v) => setEditingCourse({ ...editingCourse, is_published: v })}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-green-soft/40 border border-green/30 px-3 py-2">
+                <div>
+                  <Label>Bezpłatny kurs</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Dostępny dla wszystkich, bez wymagania abonamentu.
+                  </p>
+                </div>
+                <Switch
+                  checked={editingCourse.is_free ?? false}
+                  onCheckedChange={(v) => setEditingCourse({ ...editingCourse, is_free: v })}
                 />
               </div>
             </div>

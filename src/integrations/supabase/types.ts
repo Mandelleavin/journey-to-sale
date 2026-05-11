@@ -413,6 +413,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_free: boolean
           is_published: boolean
           position: number
           required_xp: number
@@ -425,6 +426,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_free?: boolean
           is_published?: boolean
           position?: number
           required_xp?: number
@@ -437,6 +439,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_free?: boolean
           is_published?: boolean
           position?: number
           required_xp?: number
@@ -1221,6 +1224,7 @@ export type Database = {
       }
       rewards: {
         Row: {
+          course_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -1233,6 +1237,7 @@ export type Database = {
           xp_cost: number
         }
         Insert: {
+          course_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -1245,6 +1250,7 @@ export type Database = {
           xp_cost?: number
         }
         Update: {
+          course_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -1256,7 +1262,15 @@ export type Database = {
           updated_at?: string
           xp_cost?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rewards_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_requests: {
         Row: {

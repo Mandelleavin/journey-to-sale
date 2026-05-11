@@ -14,6 +14,13 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Gift } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +33,10 @@ type Reward = {
   payload_url: string | null;
   payload_content: string | null;
   position: number;
+  course_id: string | null;
 };
+
+type CourseOpt = { id: string; title: string };
 
 const empty: Omit<Reward, "id"> = {
   title: "",
@@ -36,10 +46,12 @@ const empty: Omit<Reward, "id"> = {
   payload_url: "",
   payload_content: "",
   position: 0,
+  course_id: null,
 };
 
 export function RewardsTab() {
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [courses, setCourses] = useState<CourseOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Reward | null>(null);
@@ -47,13 +59,17 @@ export function RewardsTab() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("rewards")
-      .select("*")
-      .order("position")
-      .order("created_at", { ascending: false });
+    const [{ data, error }, { data: cs }] = await Promise.all([
+      supabase
+        .from("rewards")
+        .select("*")
+        .order("position")
+        .order("created_at", { ascending: false }),
+      supabase.from("courses").select("id, title").order("position"),
+    ]);
     if (error) toast.error(error.message);
     setRewards((data ?? []) as Reward[]);
+    setCourses((cs ?? []) as CourseOpt[]);
     setLoading(false);
   };
 
@@ -77,6 +93,7 @@ export function RewardsTab() {
       payload_url: r.payload_url ?? "",
       payload_content: r.payload_content ?? "",
       position: r.position,
+      course_id: r.course_id ?? null,
     });
     setOpen(true);
   };
@@ -91,6 +108,7 @@ export function RewardsTab() {
       payload_url: form.payload_url?.trim() || null,
       payload_content: form.payload_content?.trim() || null,
       position: Number(form.position) || 0,
+      course_id: form.course_id || null,
     };
     const { error } = editing
       ? await supabase.from("rewards").update(payload).eq("id", editing.id)
@@ -153,6 +171,11 @@ export function RewardsTab() {
                   {r.xp_cost} XP
                 </Badge>
               </div>
+              {r.course_id && (
+                <Badge variant="outline" className="border-blue/40 text-blue self-start">
+                  Kurs: {courses.find((c) => c.id === r.course_id)?.title ?? "—"}
+                </Badge>
+              )}
               {r.description && (
                 <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
               )}
@@ -237,6 +260,28 @@ export function RewardsTab() {
                 value={form.payload_content ?? ""}
                 onChange={(e) => setForm({ ...form, payload_content: e.target.value })}
               />
+            </div>
+            <div>
+              <Label>Przypisz do kursu (opcjonalnie)</Label>
+              <Select
+                value={form.course_id ?? "none"}
+                onValueChange={(v) => setForm({ ...form, course_id: v === "none" ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Globalna (bez kursu)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Globalna (bez kursu)</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Nagroda przypisana do kursu jest widoczna w sekcji nagród tego kursu i opłacana XP zdobytym w nim.
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Switch

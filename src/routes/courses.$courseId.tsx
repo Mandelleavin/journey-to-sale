@@ -16,6 +16,7 @@ type Course = {
   description: string | null;
   required_xp: number;
   cover_url: string | null;
+  is_free: boolean;
 };
 type Module = {
   id: string;
@@ -72,7 +73,7 @@ function CourseDetailPage() {
         await Promise.all([
           supabase
             .from("courses")
-            .select("id, title, description, required_xp, cover_url")
+            .select("id, title, description, required_xp, cover_url, is_free")
             .eq("id", courseId)
             .maybeSingle(),
           supabase
