@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { Lock, CheckCircle2, PlayCircle } from "lucide-react";
+import { Lock, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/courses/")({
   head: () => ({
@@ -19,11 +22,32 @@ export const Route = createFileRoute("/courses/")({
 
 function CoursesPage() {
   const data = useDashboardData();
+  const { user } = useAuth();
+  const [hasSub, setHasSub] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: subs } = await supabase
+        .from("subscriptions")
+        .select("status, current_period_end")
+        .eq("user_id", user.id);
+      const active = (subs ?? []).some(
+        (s) =>
+          (["active", "trialing"].includes(s.status) &&
+            (!s.current_period_end || new Date(s.current_period_end) > new Date())) ||
+          (s.status === "canceled" &&
+            s.current_period_end &&
+            new Date(s.current_period_end) > new Date()),
+      );
+      setHasSub(active);
+    })();
+  }, [user]);
 
   return (
     <PageShell
       title="Kursy"
-      subtitle="Odblokuj kolejne kursy zdobywając XP. Każdy kurs przybliża Cię do sprzedaży."
+      subtitle="Bezpłatny kurs Fundamenty oferty dostępny dla wszystkich. Pozostałe kursy w abonamencie."
     >
       {data.loading ? (
         <div className="text-sm text-muted-foreground p-6">Ładowanie...</div>
@@ -35,7 +59,9 @@ function CoursesPage() {
             const progress = lessonsForCourse.length
               ? Math.round((watched / lessonsForCourse.length) * 100)
               : 0;
-            const unlocked = data.totalXp >= c.required_xp;
+            const xpOk = data.totalXp >= c.required_xp;
+            const subOk = c.is_free || hasSub === true;
+            const unlocked = xpOk && subOk;
             const done = progress === 100 && lessonsForCourse.length > 0;
 
             return (
@@ -44,6 +70,7 @@ function CoursesPage() {
                 className={cn(
                   "rounded-3xl border border-border p-5 bg-card shadow-soft flex flex-col gap-3",
                   !unlocked && "opacity-70",
+                  c.is_free && "border-green/40",
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -56,11 +83,23 @@ function CoursesPage() {
                     <PlayCircle className="w-5 h-5 text-violet shrink-0" />
                   )}
                 </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {c.is_free ? (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-soft text-green inline-flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Bezpłatny
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-violet-soft text-violet">
+                      W abonamencie
+                    </span>
+                  )}
+                </div>
                 {c.description && (
                   <p className="text-sm text-muted-foreground line-clamp-3">{c.description}</p>
                 )}
                 <div className="text-xs text-muted-foreground">
-                  {lessonsForCourse.length} lekcji · wymaga {c.required_xp} XP
+                  {lessonsForCourse.length} lekcji
+                  {c.required_xp > 0 && <> · wymaga {c.required_xp} XP</>}
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                   <div className="h-full bg-gradient-violet" style={{ width: `${progress}%` }} />
@@ -73,6 +112,13 @@ function CoursesPage() {
                     className="mt-auto inline-flex items-center justify-center rounded-xl bg-gradient-violet text-primary-foreground text-sm font-bold py-2.5 shadow-glow"
                   >
                     {done ? "Powtórz kurs" : progress > 0 ? "Kontynuuj" : "Rozpocznij"}
+                  </Link>
+                ) : !subOk ? (
+                  <Link
+                    to="/pricing"
+                    className="mt-auto inline-flex items-center justify-center rounded-xl bg-muted text-foreground text-sm font-bold py-2.5"
+                  >
+                    Wymaga abonamentu
                   </Link>
                 ) : (
                   <button
