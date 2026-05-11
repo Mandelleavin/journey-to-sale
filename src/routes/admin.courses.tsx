@@ -475,6 +475,18 @@ function AdminCoursesPage() {
                   onCheckedChange={(v) => setEditingCourse({ ...editingCourse, is_published: v })}
                 />
               </div>
+              <div className="flex items-center justify-between rounded-xl bg-green-soft/40 border border-green/30 px-3 py-2">
+                <div>
+                  <Label>Bezpłatny kurs</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Dostępny dla wszystkich, bez wymagania abonamentu.
+                  </p>
+                </div>
+                <Switch
+                  checked={editingCourse.is_free ?? false}
+                  onCheckedChange={(v) => setEditingCourse({ ...editingCourse, is_free: v })}
+                />
+              </div>
             </div>
           )}
           <DialogFooter>
