@@ -109,6 +109,7 @@ function AdminCoursesPage() {
       required_xp: editingCourse.required_xp ?? 0,
       position: editingCourse.position ?? courses.length,
       is_published: editingCourse.is_published ?? true,
+      is_free: editingCourse.is_free ?? false,
       cover_url: editingCourse.cover_url ?? null,
     };
     const { error } = editingCourse.id
