@@ -41,6 +41,7 @@ type Course = {
   required_xp: number;
   position: number;
   is_published: boolean;
+  is_free: boolean;
   cover_url: string | null;
 };
 type Module = {
