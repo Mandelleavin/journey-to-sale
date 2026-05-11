@@ -73,7 +73,7 @@ function CourseDetailPage() {
         await Promise.all([
           supabase
             .from("courses")
-            .select("id, title, description, required_xp, cover_url")
+            .select("id, title, description, required_xp, cover_url, is_free")
             .eq("id", courseId)
             .maybeSingle(),
           supabase
