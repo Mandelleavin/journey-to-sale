@@ -51,6 +51,7 @@ const empty: Omit<Reward, "id"> = {
 
 export function RewardsTab() {
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [courses, setCourses] = useState<CourseOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Reward | null>(null);
@@ -58,13 +59,17 @@ export function RewardsTab() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("rewards")
-      .select("*")
-      .order("position")
-      .order("created_at", { ascending: false });
+    const [{ data, error }, { data: cs }] = await Promise.all([
+      supabase
+        .from("rewards")
+        .select("*")
+        .order("position")
+        .order("created_at", { ascending: false }),
+      supabase.from("courses").select("id, title").order("position"),
+    ]);
     if (error) toast.error(error.message);
     setRewards((data ?? []) as Reward[]);
+    setCourses((cs ?? []) as CourseOpt[]);
     setLoading(false);
   };
 
@@ -88,6 +93,7 @@ export function RewardsTab() {
       payload_url: r.payload_url ?? "",
       payload_content: r.payload_content ?? "",
       position: r.position,
+      course_id: r.course_id ?? null,
     });
     setOpen(true);
   };
@@ -102,6 +108,7 @@ export function RewardsTab() {
       payload_url: form.payload_url?.trim() || null,
       payload_content: form.payload_content?.trim() || null,
       position: Number(form.position) || 0,
+      course_id: form.course_id || null,
     };
     const { error } = editing
       ? await supabase.from("rewards").update(payload).eq("id", editing.id)
