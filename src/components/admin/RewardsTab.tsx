@@ -171,6 +171,11 @@ export function RewardsTab() {
                   {r.xp_cost} XP
                 </Badge>
               </div>
+              {r.course_id && (
+                <Badge variant="outline" className="border-blue/40 text-blue self-start">
+                  Kurs: {courses.find((c) => c.id === r.course_id)?.title ?? "—"}
+                </Badge>
+              )}
               {r.description && (
                 <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
               )}
