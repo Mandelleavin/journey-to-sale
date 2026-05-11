@@ -16,6 +16,7 @@ type Course = {
   description: string | null;
   required_xp: number;
   cover_url: string | null;
+  is_free: boolean;
 };
 type Module = {
   id: string;
