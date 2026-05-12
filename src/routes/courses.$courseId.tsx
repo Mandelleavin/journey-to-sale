@@ -130,6 +130,19 @@ function CourseDetailPage() {
         setTasks((t ?? []) as LessonTask[]);
         setSubmissions((s ?? []) as Sub[]);
       }
+      // Nagrody przypisane do tego kursu
+      const [{ data: rw }, { data: ur }] = await Promise.all([
+        supabase
+          .from("rewards")
+          .select("id, title, description, xp_cost, is_available, course_id")
+          .eq("course_id", courseId)
+          .eq("is_available", true)
+          .order("xp_cost"),
+        supabase.from("user_rewards").select("reward_id").eq("user_id", user.id),
+      ]);
+      setRewards((rw ?? []) as Reward[]);
+      setClaimedRewards(new Set((ur ?? []).map((r) => r.reward_id)));
+
       setLoading(false);
     })();
   }, [user, courseId]);
