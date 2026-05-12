@@ -62,6 +62,8 @@ function CourseDetailPage() {
   const [watched, setWatched] = useState<Set<string>>(new Set());
   const [enrolledAt, setEnrolledAt] = useState<Date | null>(null);
   const [totalXp, setTotalXp] = useState(0);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [claimedRewards, setClaimedRewards] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
