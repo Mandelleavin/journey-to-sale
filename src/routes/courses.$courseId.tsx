@@ -569,26 +569,87 @@ function CourseDetailPage() {
                       )}
                     </div>
 
-                    {/* CTA — zawsze styl pigułki violet outline */}
-                    <Link
-                      to="/rewards"
+                    {/* CTA — odbiór nagrody bez wychodzenia z kursu */}
+                    <button
+                      type="button"
+                      disabled={!claimed && (!canAfford || claimingId === r.id)}
+                      onClick={() => {
+                        if (claimed) setOpenReward(r);
+                        else if (canAfford) claimReward(r);
+                      }}
                       className={cn(
-                        "shrink-0 self-center inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition border bg-card",
+                        "shrink-0 self-center inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition border bg-card disabled:opacity-60 disabled:cursor-not-allowed",
                         claimed
                           ? "border-green/40 text-green hover:bg-green-soft/30"
                           : canAfford
-                            ? "border-orange/60 text-orange hover:bg-orange-soft/40 shadow-sm"
-                            : "border-violet/30 text-violet hover:bg-violet-soft/40",
+                            ? "border-orange bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90 shadow-sm"
+                            : "border-violet/30 text-violet",
                       )}
                     >
                       <Gift className="w-4 h-4" />
-                      {claimed ? "Zobacz w Nagrody" : canAfford ? "Odbierz nagrodę" : "Zobacz nagrody"}
-                    </Link>
+                      {claimed
+                        ? "Pokaż nagrodę"
+                        : claimingId === r.id
+                          ? "Odbieranie..."
+                          : canAfford
+                            ? "Odbierz nagrodę"
+                            : "Niedostępna"}
+                    </button>
                   </div>
                 );
               })}
             </div>
           </section>
+        )}
+
+        {/* Dialog z treścią odebranej nagrody */}
+        {openReward && (
+          <div
+            className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+            onClick={() => setOpenReward(null)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-orange" />
+                  <h3 className="font-display font-extrabold text-lg">{openReward.title}</h3>
+                </div>
+                <button
+                  onClick={() => setOpenReward(null)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              {openReward.description && (
+                <p className="text-sm text-muted-foreground mb-4">{openReward.description}</p>
+              )}
+              {openReward.payload_content && (
+                <div className="rounded-xl bg-muted/40 p-3 text-sm whitespace-pre-wrap mb-3">
+                  {openReward.payload_content}
+                </div>
+              )}
+              {openReward.payload_url ? (
+                <a
+                  href={openReward.payload_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90"
+                >
+                  <Gift className="w-4 h-4" /> Pobierz / otwórz materiał
+                </a>
+              ) : (
+                !openReward.payload_content && (
+                  <p className="text-xs text-muted-foreground italic">
+                    Materiały zostaną dostarczone przez mentora.
+                  </p>
+                )
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>
