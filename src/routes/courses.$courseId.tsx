@@ -466,15 +466,28 @@ function CourseDetailPage() {
         </div>
 
         {rewards.length > 0 && (
-          <section className="mt-8">
-            <div className="flex items-center gap-2 mb-3">
+          <section className="mt-10">
+            {/* Separator "KOLEJNY KROK" */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-violet/30" />
+              <div className="flex flex-col items-center gap-1">
+                <Sparkles className="w-4 h-4 text-violet" />
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-violet">
+                  Kolejny krok
+                </span>
+              </div>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-violet/30" />
+            </div>
+
+            <div className="flex items-center gap-2 mb-1">
               <Gift className="w-5 h-5 text-orange" />
-              <h2 className="font-display font-bold text-xl">Nagrody do odblokowania</h2>
+              <h2 className="font-display font-extrabold text-xl">Nagrody do odblokowania</h2>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Zdobywaj XP w tym kursie i wymieniaj je na bonusy.
             </p>
-            <div className="grid sm:grid-cols-2 gap-3">
+
+            <div className="space-y-3">
               {rewards.map((r) => {
                 const claimed = claimedRewards.has(r.id);
                 const canAfford = totalXp >= r.xp_cost;
@@ -483,56 +496,70 @@ function CourseDetailPage() {
                   <div
                     key={r.id}
                     className={cn(
-                      "rounded-2xl border p-4 bg-card flex flex-col gap-2",
+                      "relative overflow-hidden rounded-2xl border-2 p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4",
                       claimed
-                        ? "border-green/40 bg-green-soft/20"
+                        ? "border-green/40 bg-gradient-to-r from-green-soft/40 to-card"
                         : canAfford
-                          ? "border-orange/40 shadow-soft"
-                          : "border-border",
+                          ? "border-orange/50 bg-gradient-to-r from-orange-soft/50 to-card shadow-soft"
+                          : "border-orange/20 bg-gradient-to-r from-orange-soft/20 to-card",
                     )}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="font-display font-bold text-base leading-tight flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-orange shrink-0" />
-                        {r.title}
+                    {/* Sparkle decoration */}
+                    <Sparkles className="absolute top-3 right-3 w-3.5 h-3.5 text-orange/60" />
+
+                    {/* Ikona */}
+                    <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-orange-soft to-orange/30 grid place-items-center border border-orange/30">
+                      <Gift className="w-10 h-10 text-orange" strokeWidth={1.5} />
+                    </div>
+
+                    {/* Treść */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display font-extrabold text-lg leading-tight">
+                          {r.title}
+                        </h3>
+                        {claimed && (
+                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-soft text-green">
+                            odebrana
+                          </span>
+                        )}
                       </div>
-                      {claimed && (
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-soft text-green shrink-0">
-                          odebrana
-                        </span>
+                      {r.description && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                          {r.description}
+                        </p>
+                      )}
+                      {!claimed && (
+                        <div className="mt-3">
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-orange to-orange/60 transition-all"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between text-xs mt-1.5">
+                            <span className="font-extrabold text-orange">{r.xp_cost} XP</span>
+                            <span className="text-muted-foreground font-medium">
+                              {canAfford ? "Możesz odebrać!" : `Brakuje ${r.xp_cost - totalXp} XP`}
+                            </span>
+                          </div>
+                        </div>
                       )}
                     </div>
-                    {r.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
-                    )}
-                    {!claimed && (
-                      <>
-                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-1">
-                          <div
-                            className="h-full bg-gradient-to-r from-orange to-orange/60"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-orange">{r.xp_cost} XP</span>
-                          <span className="text-muted-foreground">
-                            {canAfford ? "Możesz odebrać!" : `Brakuje ${r.xp_cost - totalXp} XP`}
-                          </span>
-                        </div>
-                      </>
-                    )}
+
+                    {/* CTA */}
                     <Link
                       to="/rewards"
                       className={cn(
-                        "mt-2 inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition",
+                        "shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition border-2",
                         claimed
-                          ? "bg-muted text-muted-foreground"
+                          ? "border-green/40 bg-card text-green hover:bg-green-soft/30"
                           : canAfford
-                            ? "bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90"
-                            : "bg-muted text-foreground hover:bg-muted/70",
+                            ? "border-orange bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90"
+                            : "border-orange/30 bg-card text-orange hover:bg-orange-soft/30",
                       )}
                     >
-                      <Gift className="w-3.5 h-3.5" />
+                      <Gift className="w-4 h-4" />
                       {claimed ? "Zobacz w Nagrody" : canAfford ? "Odbierz nagrodę" : "Zobacz nagrody"}
                     </Link>
                   </div>
