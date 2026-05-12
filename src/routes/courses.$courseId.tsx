@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +40,15 @@ type Lesson = {
 };
 type LessonTask = { id: string; lesson_id: string; is_required: boolean };
 type Sub = { task_id: string; status: string };
+type Reward = {
+  id: string;
+  title: string;
+  description: string | null;
+  xp_cost: number;
+  is_available: boolean;
+  course_id: string | null;
+};
+type UserReward = { reward_id: string };
 
 function CourseDetailPage() {
   const { courseId } = Route.useParams();
@@ -53,6 +62,8 @@ function CourseDetailPage() {
   const [watched, setWatched] = useState<Set<string>>(new Set());
   const [enrolledAt, setEnrolledAt] = useState<Date | null>(null);
   const [totalXp, setTotalXp] = useState(0);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [claimedRewards, setClaimedRewards] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -119,6 +130,19 @@ function CourseDetailPage() {
         setTasks((t ?? []) as LessonTask[]);
         setSubmissions((s ?? []) as Sub[]);
       }
+      // Nagrody przypisane do tego kursu
+      const [{ data: rw }, { data: ur }] = await Promise.all([
+        supabase
+          .from("rewards")
+          .select("id, title, description, xp_cost, is_available, course_id")
+          .eq("course_id", courseId)
+          .eq("is_available", true)
+          .order("xp_cost"),
+        supabase.from("user_rewards").select("reward_id").eq("user_id", user.id),
+      ]);
+      setRewards((rw ?? []) as Reward[]);
+      setClaimedRewards(new Set((ur ?? []).map((r) => r.reward_id)));
+
       setLoading(false);
     })();
   }, [user, courseId]);
@@ -440,6 +464,83 @@ function CourseDetailPage() {
             <div className="text-sm text-muted-foreground p-4">Brak lekcji w tym kursie.</div>
           )}
         </div>
+
+        {rewards.length > 0 && (
+          <section className="mt-8">
+            <div className="flex items-center gap-2 mb-3">
+              <Gift className="w-5 h-5 text-orange" />
+              <h2 className="font-display font-bold text-xl">Nagrody do odblokowania</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Zdobywaj XP w tym kursie i wymieniaj je na bonusy.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {rewards.map((r) => {
+                const claimed = claimedRewards.has(r.id);
+                const canAfford = totalXp >= r.xp_cost;
+                const pct = Math.min(100, Math.round((totalXp / r.xp_cost) * 100));
+                return (
+                  <div
+                    key={r.id}
+                    className={cn(
+                      "rounded-2xl border p-4 bg-card flex flex-col gap-2",
+                      claimed
+                        ? "border-green/40 bg-green-soft/20"
+                        : canAfford
+                          ? "border-orange/40 shadow-soft"
+                          : "border-border",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="font-display font-bold text-base leading-tight flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-orange shrink-0" />
+                        {r.title}
+                      </div>
+                      {claimed && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-soft text-green shrink-0">
+                          odebrana
+                        </span>
+                      )}
+                    </div>
+                    {r.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
+                    )}
+                    {!claimed && (
+                      <>
+                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-1">
+                          <div
+                            className="h-full bg-gradient-to-r from-orange to-orange/60"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-orange">{r.xp_cost} XP</span>
+                          <span className="text-muted-foreground">
+                            {canAfford ? "Możesz odebrać!" : `Brakuje ${r.xp_cost - totalXp} XP`}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <Link
+                      to="/rewards"
+                      className={cn(
+                        "mt-2 inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition",
+                        claimed
+                          ? "bg-muted text-muted-foreground"
+                          : canAfford
+                            ? "bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90"
+                            : "bg-muted text-foreground hover:bg-muted/70",
+                      )}
+                    >
+                      <Gift className="w-3.5 h-3.5" />
+                      {claimed ? "Zobacz w Nagrody" : canAfford ? "Odbierz nagrodę" : "Zobacz nagrody"}
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
