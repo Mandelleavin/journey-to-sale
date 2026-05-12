@@ -496,26 +496,24 @@ function CourseDetailPage() {
                   <div
                     key={r.id}
                     className={cn(
-                      "relative overflow-hidden rounded-2xl border-2 p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4",
+                      "relative overflow-hidden rounded-2xl border p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-5",
                       claimed
-                        ? "border-green/40 bg-gradient-to-r from-green-soft/40 to-card"
-                        : canAfford
-                          ? "border-orange/50 bg-gradient-to-r from-orange-soft/50 to-card shadow-soft"
-                          : "border-orange/20 bg-gradient-to-r from-orange-soft/20 to-card",
+                        ? "border-green/30 bg-gradient-to-r from-green-soft/30 via-card to-card"
+                        : "border-orange/20 bg-gradient-to-r from-orange-soft/40 via-card to-card",
                     )}
                   >
-                    {/* Sparkle decoration */}
-                    <Sparkles className="absolute top-3 right-3 w-3.5 h-3.5 text-orange/60" />
+                    {/* Sparkle dekoracja w rogu */}
+                    <Sparkles className="absolute top-3 right-3 w-3 h-3 text-orange/50" />
 
                     {/* Ikona */}
-                    <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-orange-soft to-orange/30 grid place-items-center border border-orange/30">
-                      <Gift className="w-10 h-10 text-orange" strokeWidth={1.5} />
+                    <div className="shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br from-card to-orange-soft/60 grid place-items-center border border-orange/20 shadow-sm">
+                      <BookOpen className="w-9 h-9 text-orange/80" strokeWidth={1.5} />
                     </div>
 
                     {/* Treść */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-display font-extrabold text-lg leading-tight">
+                        <h3 className="font-display font-extrabold text-xl leading-tight">
                           {r.title}
                         </h3>
                         {claimed && (
@@ -531,15 +529,17 @@ function CourseDetailPage() {
                       )}
                       {!claimed && (
                         <div className="mt-3">
-                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                          <div className="h-1 w-full rounded-full bg-orange/10 overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-orange to-orange/60 transition-all"
+                              className="h-full bg-orange transition-all rounded-full"
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <div className="flex items-center justify-between text-xs mt-1.5">
-                            <span className="font-extrabold text-orange">{r.xp_cost} XP</span>
-                            <span className="text-muted-foreground font-medium">
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="font-display font-extrabold text-orange text-base">
+                              {r.xp_cost} XP
+                            </span>
+                            <span className="text-xs text-muted-foreground">
                               {canAfford ? "Możesz odebrać!" : `Brakuje ${r.xp_cost - totalXp} XP`}
                             </span>
                           </div>
@@ -547,16 +547,16 @@ function CourseDetailPage() {
                       )}
                     </div>
 
-                    {/* CTA */}
+                    {/* CTA — zawsze styl pigułki violet outline */}
                     <Link
                       to="/rewards"
                       className={cn(
-                        "shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition border-2",
+                        "shrink-0 self-center inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition border bg-card",
                         claimed
-                          ? "border-green/40 bg-card text-green hover:bg-green-soft/30"
+                          ? "border-green/40 text-green hover:bg-green-soft/30"
                           : canAfford
-                            ? "border-orange bg-gradient-to-r from-orange to-orange/80 text-white hover:opacity-90"
-                            : "border-orange/30 bg-card text-orange hover:bg-orange-soft/30",
+                            ? "border-orange/60 text-orange hover:bg-orange-soft/40 shadow-sm"
+                            : "border-violet/30 text-violet hover:bg-violet-soft/40",
                       )}
                     >
                       <Gift className="w-4 h-4" />
