@@ -66,7 +66,27 @@ function CourseDetailPage() {
   const [totalXp, setTotalXp] = useState(0);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [claimedRewards, setClaimedRewards] = useState<Set<string>>(new Set());
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [openReward, setOpenReward] = useState<Reward | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const claimReward = async (r: Reward) => {
+    if (!user) return;
+    if (totalXp < r.xp_cost) return toast.error("Za mało XP");
+    if (!confirm(`Odebrać "${r.title}" za ${r.xp_cost} XP?`)) return;
+    setClaimingId(r.id);
+    const { error } = await supabase.from("user_rewards").insert({
+      user_id: user.id,
+      reward_id: r.id,
+      xp_spent: r.xp_cost,
+      status: "delivered",
+    });
+    setClaimingId(null);
+    if (error) return toast.error(error.message);
+    toast.success("Nagroda odebrana!");
+    setClaimedRewards((s) => new Set([...s, r.id]));
+    setOpenReward(r);
+  };
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
