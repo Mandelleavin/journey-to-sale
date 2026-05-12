@@ -40,6 +40,15 @@ type Lesson = {
 };
 type LessonTask = { id: string; lesson_id: string; is_required: boolean };
 type Sub = { task_id: string; status: string };
+type Reward = {
+  id: string;
+  title: string;
+  description: string | null;
+  xp_cost: number;
+  is_available: boolean;
+  course_id: string | null;
+};
+type UserReward = { reward_id: string };
 
 function CourseDetailPage() {
   const { courseId } = Route.useParams();
