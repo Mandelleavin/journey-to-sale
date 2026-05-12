@@ -47,6 +47,8 @@ type Reward = {
   xp_cost: number;
   is_available: boolean;
   course_id: string | null;
+  payload_url: string | null;
+  payload_content: string | null;
 };
 type UserReward = { reward_id: string };
 
