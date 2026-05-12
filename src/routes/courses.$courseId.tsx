@@ -467,16 +467,16 @@ function CourseDetailPage() {
 
         {rewards.length > 0 && (
           <section className="mt-10">
-            {/* Separator "KOLEJNY KROK" */}
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-violet/30" />
-              <div className="flex flex-col items-center gap-1">
-                <Sparkles className="w-4 h-4 text-violet" />
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-violet">
+            {/* Separator "KOLEJNY KROK" — cienka linia przez całą szerokość z diamentem */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-violet/20" />
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rotate-45 bg-violet/40 rounded-[2px]" />
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-violet/70">
                   Kolejny krok
                 </span>
               </div>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-violet/30" />
+              <div className="h-px flex-1 bg-violet/20" />
             </div>
 
             <div className="flex items-center gap-2 mb-1">
