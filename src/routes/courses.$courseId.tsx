@@ -136,7 +136,7 @@ function CourseDetailPage() {
       const [{ data: rw }, { data: ur }] = await Promise.all([
         supabase
           .from("rewards")
-          .select("id, title, description, xp_cost, is_available, course_id")
+          .select("id, title, description, xp_cost, is_available, course_id, payload_url, payload_content")
           .eq("course_id", courseId)
           .eq("is_available", true)
           .order("xp_cost"),
