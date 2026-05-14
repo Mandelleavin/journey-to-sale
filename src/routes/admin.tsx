@@ -335,6 +335,7 @@ function UsersTab() {
             <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
               <th className="py-2 px-2">Użytkownik</th>
               <th className="py-2 px-2">Gotowość</th>
+              <th className="py-2 px-2">Kurs bezpłatny</th>
               <th className="py-2 px-2">Pozyskiwanie</th>
               <th className="py-2 px-2">Pomysł / Oferta</th>
               <th className="py-2 px-2">XP</th>
@@ -372,6 +373,35 @@ function UsersTab() {
                         {tag.label}
                       </Badge>
                     </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      ankieta {r.survey_percent}% + kurs +{r.readiness_percent - r.survey_percent}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2">
+                    {!r.has_free_course ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="w-14 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full",
+                              r.free_course_done ? "bg-green" : "bg-gradient-orange",
+                            )}
+                            style={{ width: `${r.free_course_percent}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold">{r.free_course_percent}%</span>
+                        {r.free_course_done && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] border-green/40 text-green"
+                          >
+                            ukończony
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 px-2 text-xs">{planLabel(r.acquisition_plan)}</td>
                   <td className="py-3 px-2 text-xs">
