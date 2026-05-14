@@ -356,6 +356,11 @@ function OnboardingPage() {
               </Button>
             )}
           </div>
+          {submitError && (
+            <p className="mt-3 text-sm text-red-600 text-right" role="alert">
+              {submitError}
+            </p>
+          )}
         </div>
       </div>
     </div>
