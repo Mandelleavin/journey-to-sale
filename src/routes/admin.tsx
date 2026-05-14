@@ -203,11 +203,15 @@ type UserRow = {
   email: string;
   full_name: string | null;
   created_at: string;
+  survey_percent: number;
   readiness_percent: number;
   acquisition_plan: string | null;
   has_product_idea: boolean | null;
   has_offer: boolean | null;
   total_xp: number;
+  free_course_percent: number;
+  free_course_done: boolean;
+  has_free_course: boolean;
 };
 
 function UsersTab() {
@@ -217,13 +221,40 @@ function UsersTab() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: profiles }, { data: surveys }, { data: xpLogs }] = await Promise.all([
+    const [
+      { data: profiles },
+      { data: surveys },
+      { data: xpLogs },
+      { data: freeCourses },
+      { data: progress },
+    ] = await Promise.all([
       supabase.from("profiles").select("id, email, full_name, created_at"),
       supabase
         .from("survey_responses")
         .select("user_id, readiness_percent, acquisition_plan, has_product_idea, has_offer"),
       supabase.from("user_xp_log").select("user_id, amount"),
+      supabase.from("courses").select("id").eq("is_free", true).eq("is_published", true),
+      supabase.from("user_lesson_progress").select("user_id, lesson_id"),
     ]);
+
+    const freeCourseIds = new Set((freeCourses ?? []).map((c) => c.id));
+    let freeLessonIds = new Set<string>();
+    if (freeCourseIds.size > 0) {
+      const { data: lessons } = await supabase
+        .from("lessons")
+        .select("id, course_id")
+        .eq("is_published", true)
+        .in("course_id", Array.from(freeCourseIds));
+      freeLessonIds = new Set((lessons ?? []).map((l) => l.id));
+    }
+    const totalFreeLessons = freeLessonIds.size;
+
+    const watchedFreeByUser = new Map<string, number>();
+    (progress ?? []).forEach((p) => {
+      if (freeLessonIds.has(p.lesson_id)) {
+        watchedFreeByUser.set(p.user_id, (watchedFreeByUser.get(p.user_id) ?? 0) + 1);
+      }
+    });
 
     const surveyMap = new Map((surveys ?? []).map((s) => [s.user_id, s]));
     const xpMap = new Map<string, number>();
@@ -233,16 +264,28 @@ function UsersTab() {
 
     const merged: UserRow[] = (profiles ?? []).map((p) => {
       const s = surveyMap.get(p.id);
+      const surveyPct = s?.readiness_percent ?? 0;
+      const watched = watchedFreeByUser.get(p.id) ?? 0;
+      const freePct =
+        totalFreeLessons > 0 ? Math.round((watched / totalFreeLessons) * 100) : 0;
+      const freeDone = totalFreeLessons > 0 && watched >= totalFreeLessons;
+      // Free course progress is a strong intent signal — boost up to +25 pts.
+      const courseBoost = Math.round((freePct / 100) * 25);
+      const readiness = Math.min(100, surveyPct + courseBoost);
       return {
         id: p.id,
         email: p.email,
         full_name: p.full_name,
         created_at: p.created_at,
-        readiness_percent: s?.readiness_percent ?? 0,
+        survey_percent: surveyPct,
+        readiness_percent: readiness,
         acquisition_plan: s?.acquisition_plan ?? null,
         has_product_idea: s?.has_product_idea ?? null,
         has_offer: s?.has_offer ?? null,
         total_xp: xpMap.get(p.id) ?? 0,
+        free_course_percent: freePct,
+        free_course_done: freeDone,
+        has_free_course: totalFreeLessons > 0,
       };
     });
     merged.sort((a, b) => b.readiness_percent - a.readiness_percent);
@@ -292,6 +335,7 @@ function UsersTab() {
             <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
               <th className="py-2 px-2">Użytkownik</th>
               <th className="py-2 px-2">Gotowość</th>
+              <th className="py-2 px-2">Kurs bezpłatny</th>
               <th className="py-2 px-2">Pozyskiwanie</th>
               <th className="py-2 px-2">Pomysł / Oferta</th>
               <th className="py-2 px-2">XP</th>
@@ -329,6 +373,35 @@ function UsersTab() {
                         {tag.label}
                       </Badge>
                     </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      ankieta {r.survey_percent}% + kurs +{r.readiness_percent - r.survey_percent}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2">
+                    {!r.has_free_course ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="w-14 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full",
+                              r.free_course_done ? "bg-green" : "bg-gradient-orange",
+                            )}
+                            style={{ width: `${r.free_course_percent}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold">{r.free_course_percent}%</span>
+                        {r.free_course_done && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] border-green/40 text-green"
+                          >
+                            ukończony
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 px-2 text-xs">{planLabel(r.acquisition_plan)}</td>
                   <td className="py-3 px-2 text-xs">
