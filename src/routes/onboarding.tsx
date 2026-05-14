@@ -36,25 +36,39 @@ function OnboardingPage() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
-  // jeżeli ankieta już istnieje — przekieruj
+  const [existingId, setExistingId] = useState<string | null>(null);
+
+  // Wczytaj istniejącą ankietę (jeśli jest) — pozwól na ponowne wypełnienie / nadpisanie
   useEffect(() => {
     if (!user) return;
     supabase
       .from("survey_responses")
-      .select("id")
+      .select("*")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) navigate({ to: "/" });
+        if (data) {
+          setExistingId(data.id);
+          setForm({
+            has_product_idea: data.has_product_idea,
+            product_idea_details: data.product_idea_details ?? "",
+            has_offer: data.has_offer,
+            has_landing_page: data.has_landing_page,
+            biggest_problem: data.biggest_problem ?? "",
+            goal_90_days: data.goal_90_days ?? "",
+            weekly_hours: data.weekly_hours ?? 5,
+            acquisition_plan: (data.acquisition_plan as AcquisitionPlan | null) ?? null,
+          });
+        }
       });
-  }, [user, navigate]);
+  }, [user]);
 
   const readiness = useMemo(() => computeReadiness(form), [form]);
 
   const submit = async () => {
     if (!user) return;
     setBusy(true);
-    const { error } = await supabase.from("survey_responses").insert({
+    const payload = {
       user_id: user.id,
       has_product_idea: form.has_product_idea,
       product_idea_details: form.has_product_idea ? form.product_idea_details : null,
@@ -66,7 +80,10 @@ function OnboardingPage() {
       acquisition_plan: form.acquisition_plan,
       readiness_score: readiness.score,
       readiness_percent: readiness.percent,
-    });
+    };
+    const { error } = existingId
+      ? await supabase.from("survey_responses").update(payload).eq("id", existingId)
+      : await supabase.from("survey_responses").insert(payload);
     setBusy(false);
     if (!error) navigate({ to: "/onboarding/result" });
   };
