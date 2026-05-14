@@ -20,6 +20,7 @@ function OnboardingPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     has_product_idea: null as boolean | null,
@@ -68,6 +69,7 @@ function OnboardingPage() {
   const submit = async () => {
     if (!user) return;
     setBusy(true);
+    setSubmitError(null);
     const payload = {
       user_id: user.id,
       has_product_idea: form.has_product_idea,
@@ -85,7 +87,26 @@ function OnboardingPage() {
       ? await supabase.from("survey_responses").update(payload).eq("id", existingId)
       : await supabase.from("survey_responses").insert(payload);
     setBusy(false);
-    if (!error) navigate({ to: "/onboarding/result" });
+    if (error) {
+      console.error("[onboarding] zapis ankiety nieudany", error);
+      setSubmitError(error.message ?? "Nie udało się zapisać ankiety. Spróbuj jeszcze raz.");
+      return;
+    }
+    // Zawsze przekieruj na świeży wynik — z twardym fallbackiem na wypadek wstrzymanego routera
+    try {
+      await navigate({ to: "/onboarding/result" });
+    } catch {
+      window.location.assign("/onboarding/result");
+      return;
+    }
+    setTimeout(() => {
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/onboarding/result")
+      ) {
+        window.location.assign("/onboarding/result");
+      }
+    }, 300);
   };
 
   const next = () => setStep((s) => Math.min(TOTAL_STEPS - 1, s + 1));
@@ -335,6 +356,11 @@ function OnboardingPage() {
               </Button>
             )}
           </div>
+          {submitError && (
+            <p className="mt-3 text-sm text-red-600 text-right" role="alert">
+              {submitError}
+            </p>
+          )}
         </div>
       </div>
     </div>
