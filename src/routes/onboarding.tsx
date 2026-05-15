@@ -93,19 +93,19 @@ function OnboardingPage() {
       setSubmitError(error.message ?? "Nie udało się zapisać ankiety. Spróbuj jeszcze raz.");
       return;
     }
-    // Zawsze przekieruj na świeży wynik — z twardym fallbackiem na wypadek wstrzymanego routera
+    setCelebrate(true);
+  };
+
+  const goToApp = () => {
     try {
-      await navigate({ to: "/onboarding/result" });
+      navigate({ to: "/" });
     } catch {
-      window.location.assign("/onboarding/result");
+      window.location.assign("/");
       return;
     }
     setTimeout(() => {
-      if (
-        typeof window !== "undefined" &&
-        !window.location.pathname.startsWith("/onboarding/result")
-      ) {
-        window.location.assign("/onboarding/result");
+      if (typeof window !== "undefined" && window.location.pathname.startsWith("/onboarding")) {
+        window.location.assign("/");
       }
     }, 300);
   };
