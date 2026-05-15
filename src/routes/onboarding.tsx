@@ -21,6 +21,7 @@ function OnboardingPage() {
   const { user, loading } = useAuth();
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     has_product_idea: null as boolean | null,
