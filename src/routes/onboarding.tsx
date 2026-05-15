@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { computeReadiness, type AcquisitionPlan } from "@/lib/scoring";
-import { Sparkles } from "lucide-react";
+import { Sparkles, PartyPopper, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
   component: OnboardingPage,
