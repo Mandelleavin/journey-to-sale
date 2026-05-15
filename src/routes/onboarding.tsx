@@ -153,6 +153,58 @@ function OnboardingPage() {
     back();
   };
 
+  if (celebrate) {
+    return (
+      <div className="min-h-screen bg-app px-4 py-10 grid place-items-center relative overflow-hidden">
+        {/* konfetti */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from({ length: 40 }).map((_, i) => {
+            const colors = ["#a78bfa", "#34d399", "#fbbf24", "#60a5fa", "#f472b6"];
+            const left = (i * 97) % 100;
+            const delay = (i % 10) * 0.15;
+            const duration = 2.5 + ((i * 13) % 20) / 10;
+            const color = colors[i % colors.length];
+            return (
+              <span
+                key={i}
+                className="absolute top-[-20px] w-2 h-3 rounded-sm"
+                style={{
+                  left: `${left}%`,
+                  background: color,
+                  animation: `confetti-fall ${duration}s linear ${delay}s infinite`,
+                  transform: `rotate(${(i * 37) % 360}deg)`,
+                }}
+              />
+            );
+          })}
+        </div>
+        <style>{`@keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0.7; } }`}</style>
+
+        <div className="relative mx-auto max-w-xl w-full rounded-3xl border border-border bg-card p-8 sm:p-10 shadow-card text-center animate-scale-in">
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-green grid place-items-center shadow-lg animate-scale-in">
+            <CheckCircle2 className="w-10 h-10 text-primary-foreground" />
+          </div>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-violet-soft px-3 py-1 text-xs font-bold uppercase tracking-wider text-violet">
+            <PartyPopper className="w-3 h-3" /> Gratulacje!
+          </div>
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl font-extrabold">
+            Ankieta wypełniona pomyślnie 🎉
+          </h1>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+            Świetna robota! Zawsze możesz wrócić i uzupełnić ją ponownie — dzięki temu mentor zobaczy
+            Twoje zaangażowanie i postępy.
+          </p>
+          <Button
+            onClick={goToApp}
+            className="mt-8 w-full rounded-xl bg-gradient-violet text-primary-foreground h-12 text-base font-bold"
+          >
+            Przejdź do aplikacji <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-app px-4 py-10">
       <div className="mx-auto max-w-2xl">
