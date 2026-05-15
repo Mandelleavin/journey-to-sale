@@ -23,6 +23,7 @@ function OnboardingPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [celebrate, setCelebrate] = useState(false);
   const [step, setStep] = useState(0);
+  const [socialLinks, setSocialLinks] = useState("");
   const [form, setForm] = useState({
     has_product_idea: null as boolean | null,
     product_idea_details: "",
@@ -51,9 +52,12 @@ function OnboardingPage() {
       .then(({ data }) => {
         if (data) {
           setExistingId(data.id);
+          const raw = data.product_idea_details ?? "";
+          const m = raw.match(/^([\s\S]*?)\n\nLinki:\s*([\s\S]*)$/);
+          setSocialLinks(m ? m[2].trim() : "");
           setForm({
             has_product_idea: data.has_product_idea,
-            product_idea_details: data.product_idea_details ?? "",
+            product_idea_details: m ? m[1].trim() : raw,
             has_offer: data.has_offer,
             has_landing_page: data.has_landing_page,
             biggest_problem: data.biggest_problem ?? "",
@@ -74,7 +78,9 @@ function OnboardingPage() {
     const payload = {
       user_id: user.id,
       has_product_idea: form.has_product_idea,
-      product_idea_details: form.has_product_idea ? form.product_idea_details : null,
+      product_idea_details: form.has_product_idea
+        ? form.product_idea_details + (socialLinks.trim() ? `\n\nLinki: ${socialLinks.trim()}` : "")
+        : null,
       has_offer: form.has_offer,
       has_landing_page: form.has_landing_page,
       biggest_problem: form.biggest_problem,
@@ -259,6 +265,20 @@ function OnboardingPage() {
               <p className="mt-2 text-xs text-muted-foreground">
                 Im konkretniej, tym lepiej dopasujemy misje i przykłady.
               </p>
+              <div className="mt-4">
+                <Label className="text-sm">
+                  Podaj również swój link do social mediów lub strony (jeśli masz)
+                </Label>
+                <Textarea
+                  value={socialLinks}
+                  onChange={(e) => setSocialLinks(e.target.value)}
+                  placeholder="np. https://instagram.com/twojprofil, https://twojastrona.pl"
+                  className="mt-2 min-h-[70px]"
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Opcjonalnie — pomoże mentorowi lepiej zrozumieć Twoją obecność online.
+                </p>
+              </div>
             </div>
           )}
 

@@ -71,6 +71,7 @@ function LessonPage() {
   const [submitTask, setSubmitTask] = useState<Task | null>(null);
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
+  const [fanfare, setFanfare] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -171,9 +172,36 @@ function LessonPage() {
       if (!error.message.toLowerCase().includes("duplicate")) toast.error(error.message);
       setWatched(true);
     } else {
-      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona`);
+      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona 🎉`);
       setWatched(true);
       setWatchedAt(new Date());
+      setFanfare(true);
+      try {
+        const AudioCtx =
+          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+            .AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((f, i) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = "triangle";
+            o.frequency.value = f;
+            g.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.12);
+            g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + i * 0.12 + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.12 + 0.35);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(ctx.currentTime + i * 0.12);
+            o.stop(ctx.currentTime + i * 0.12 + 0.4);
+          });
+        }
+      } catch {
+        /* noop */
+      }
+      window.setTimeout(() => setFanfare(false), 3500);
       load();
     }
   }, [user, watched, lessonId, lesson?.xp_reward]);
@@ -208,6 +236,39 @@ function LessonPage() {
 
   return (
     <div className="min-h-screen bg-app">
+      {fanfare && (
+        <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
+          <style>{`@keyframes lessonConfetti{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}`}</style>
+          {Array.from({ length: 60 }).map((_, i) => {
+            const colors = ["#a855f7", "#3b82f6", "#22c55e", "#f97316", "#eab308", "#ec4899"];
+            const left = Math.random() * 100;
+            const delay = Math.random() * 0.6;
+            const dur = 1.8 + Math.random() * 1.4;
+            const size = 6 + Math.random() * 8;
+            const bg = colors[i % colors.length];
+            return (
+              <span
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: `${left}%`,
+                  top: "-5vh",
+                  width: size,
+                  height: size,
+                  background: bg,
+                  borderRadius: i % 3 === 0 ? "50%" : "2px",
+                  animation: `lessonConfetti ${dur}s ${delay}s ease-in forwards`,
+                }}
+              />
+            );
+          })}
+          <div className="absolute inset-x-0 top-1/3 text-center">
+            <div className="inline-block rounded-2xl bg-gradient-violet px-6 py-3 text-primary-foreground shadow-glow font-display font-extrabold text-2xl animate-scale-in">
+              🎉 Brawo! Lekcja ukończona!
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-3xl p-4 md:p-6">
         <Link
           to="/courses/$courseId"
