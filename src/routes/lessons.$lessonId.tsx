@@ -71,6 +71,7 @@ function LessonPage() {
   const [submitTask, setSubmitTask] = useState<Task | null>(null);
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
+  const [fanfare, setFanfare] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -171,9 +172,36 @@ function LessonPage() {
       if (!error.message.toLowerCase().includes("duplicate")) toast.error(error.message);
       setWatched(true);
     } else {
-      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona`);
+      toast.success(`+${lesson?.xp_reward ?? 0} XP! Lekcja ukończona 🎉`);
       setWatched(true);
       setWatchedAt(new Date());
+      setFanfare(true);
+      try {
+        const AudioCtx =
+          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+            .AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((f, i) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = "triangle";
+            o.frequency.value = f;
+            g.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.12);
+            g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + i * 0.12 + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.12 + 0.35);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(ctx.currentTime + i * 0.12);
+            o.stop(ctx.currentTime + i * 0.12 + 0.4);
+          });
+        }
+      } catch {
+        /* noop */
+      }
+      window.setTimeout(() => setFanfare(false), 3500);
       load();
     }
   }, [user, watched, lessonId, lesson?.xp_reward]);
