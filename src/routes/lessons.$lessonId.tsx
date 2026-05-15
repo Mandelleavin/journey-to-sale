@@ -236,6 +236,39 @@ function LessonPage() {
 
   return (
     <div className="min-h-screen bg-app">
+      {fanfare && (
+        <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
+          <style>{`@keyframes lessonConfetti{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}`}</style>
+          {Array.from({ length: 60 }).map((_, i) => {
+            const colors = ["#a855f7", "#3b82f6", "#22c55e", "#f97316", "#eab308", "#ec4899"];
+            const left = Math.random() * 100;
+            const delay = Math.random() * 0.6;
+            const dur = 1.8 + Math.random() * 1.4;
+            const size = 6 + Math.random() * 8;
+            const bg = colors[i % colors.length];
+            return (
+              <span
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: `${left}%`,
+                  top: "-5vh",
+                  width: size,
+                  height: size,
+                  background: bg,
+                  borderRadius: i % 3 === 0 ? "50%" : "2px",
+                  animation: `lessonConfetti ${dur}s ${delay}s ease-in forwards`,
+                }}
+              />
+            );
+          })}
+          <div className="absolute inset-x-0 top-1/3 text-center">
+            <div className="inline-block rounded-2xl bg-gradient-violet px-6 py-3 text-primary-foreground shadow-glow font-display font-extrabold text-2xl animate-scale-in">
+              🎉 Brawo! Lekcja ukończona!
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-3xl p-4 md:p-6">
         <Link
           to="/courses/$courseId"
