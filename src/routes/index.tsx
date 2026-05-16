@@ -20,6 +20,7 @@ import { MobileTopNav } from "@/components/dashboard/MobileTopNav";
 import { useAuth } from "@/lib/auth-context";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export const Route = createFileRoute("/")({
   component: Index,
