@@ -20,6 +20,7 @@ import { MobileTopNav } from "@/components/dashboard/MobileTopNav";
 import { useAuth } from "@/lib/auth-context";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -46,9 +47,8 @@ function Index() {
   const [submitTaskTitle, setSubmitTaskTitle] = useState<string | undefined>();
   const [mentorTasks, setMentorTasks] = useState<MentorTask[]>([]);
 
-  useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/auth" });
-  }, [authLoading, user, navigate]);
+  // Unauthenticated users see the landing page (no redirect)
+
 
   useEffect(() => {
     if (!user) return;
@@ -154,12 +154,16 @@ function Index() {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
       <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
         Ładowanie...
       </div>
     );
+  }
+
+  if (!user) {
+    return <LandingPage />;
   }
 
   const pathPct = Math.round(((currentDay - 1) / 89) * 100);
