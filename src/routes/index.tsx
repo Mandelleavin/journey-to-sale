@@ -47,9 +47,8 @@ function Index() {
   const [submitTaskTitle, setSubmitTaskTitle] = useState<string | undefined>();
   const [mentorTasks, setMentorTasks] = useState<MentorTask[]>([]);
 
-  useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/auth" });
-  }, [authLoading, user, navigate]);
+  // Unauthenticated users see the landing page (no redirect)
+
 
   useEffect(() => {
     if (!user) return;
