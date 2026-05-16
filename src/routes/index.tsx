@@ -154,12 +154,16 @@ function Index() {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
       <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
         Ładowanie...
       </div>
     );
+  }
+
+  if (!user) {
+    return <LandingPage />;
   }
 
   const pathPct = Math.round(((currentDay - 1) / 89) * 100);
