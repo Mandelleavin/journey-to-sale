@@ -123,7 +123,27 @@ export function LandingPage() {
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
     els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+
+    // ACTIVE-IN-VIEW tracker: highlight cards near viewport center
+    const cards = document.querySelectorAll<HTMLElement>(".active-card");
+    const activeObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio > 0.6) {
+            e.target.classList.add("is-active");
+          } else {
+            e.target.classList.remove("is-active");
+          }
+        });
+      },
+      { threshold: [0, 0.4, 0.6, 0.8, 1], rootMargin: "-25% 0px -25% 0px" },
+    );
+    cards.forEach((el) => activeObs.observe(el));
+
+    return () => {
+      obs.disconnect();
+      activeObs.disconnect();
+    };
   }, []);
 
   return (
