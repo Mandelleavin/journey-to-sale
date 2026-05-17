@@ -30,17 +30,25 @@ import {
   CheckCircle2,
   Lock,
   CircleDot,
+  Award,
+  Gift,
+  ClipboardCheck,
+  BadgeCheck,
+  MessageSquare,
+  Eye,
+  HeartHandshake,
+  Coins,
 } from "lucide-react";
 
 const products = [
-  { icon: BookOpen, label: "Ebook", color: "from-violet-500 to-purple-500" },
-  { icon: GraduationCap, label: "Kurs online", color: "from-blue-500 to-cyan-500" },
-  { icon: Bot, label: "Produkt AI", color: "from-emerald-500 to-teal-500" },
-  { icon: Smartphone, label: "Aplikacja", color: "from-orange-500 to-pink-500" },
-  { icon: MessageCircle, label: "Mentoring", color: "from-rose-500 to-red-500" },
-  { icon: Users, label: "Społeczność premium", color: "from-amber-500 to-orange-500" },
-  { icon: Mail, label: "Newsletter premium", color: "from-sky-500 to-indigo-500" },
-  { icon: Brain, label: "Konsultacje online", color: "from-fuchsia-500 to-purple-500" },
+  { icon: BookOpen, label: "Ebook", emoji: "📘", price: "47–197 zł", example: "„Mini-przewodnik 30 stron”", desc: "Najszybsza droga do pierwszej sprzedaży online.", gradient: "from-violet-500 via-purple-500 to-fuchsia-500", glow: "shadow-violet-500/40", bg: "from-violet-50 to-fuchsia-50", time: "14–30 dni" },
+  { icon: GraduationCap, label: "Kurs online", emoji: "🎓", price: "297–1997 zł", example: "„Kurs wideo 5 modułów”", desc: "Skalowalny produkt premium z wysoką marżą.", gradient: "from-blue-500 via-cyan-500 to-sky-500", glow: "shadow-blue-500/40", bg: "from-blue-50 to-cyan-50", time: "45–90 dni" },
+  { icon: Bot, label: "Produkt AI", emoji: "🤖", price: "97–497 zł / mies.", example: "„Generator postów AI”", desc: "Subskrypcja, która zarabia 24/7 w tle.", gradient: "from-emerald-500 via-teal-500 to-green-500", glow: "shadow-emerald-500/40", bg: "from-emerald-50 to-teal-50", time: "30–60 dni" },
+  { icon: Smartphone, label: "Aplikacja / SaaS", emoji: "📱", price: "49–299 zł / mies.", example: "„Mini-aplikacja w no-code”", desc: "Powtarzalny przychód i wysoka wycena biznesu.", gradient: "from-orange-500 via-pink-500 to-rose-500", glow: "shadow-orange-500/40", bg: "from-orange-50 to-pink-50", time: "60–90 dni" },
+  { icon: MessageCircle, label: "Mentoring 1:1", emoji: "💬", price: "500–3000 zł / sesja", example: "„Pakiet 4 spotkań”", desc: "Najwyższe stawki bez budowania produktu.", gradient: "from-rose-500 via-red-500 to-orange-500", glow: "shadow-rose-500/40", bg: "from-rose-50 to-red-50", time: "od 14 dni" },
+  { icon: Users, label: "Społeczność premium", emoji: "👥", price: "49–199 zł / mies.", example: "„Discord + Q&A”", desc: "Stały dochód i lojalna społeczność wokół marki.", gradient: "from-amber-500 via-orange-500 to-yellow-500", glow: "shadow-amber-500/40", bg: "from-amber-50 to-orange-50", time: "21–45 dni" },
+  { icon: Mail, label: "Newsletter premium", emoji: "✉️", price: "29–99 zł / mies.", example: "„Premium newsletter B2B”", desc: "Niska bariera startu, świetna marża.", gradient: "from-sky-500 via-indigo-500 to-blue-500", glow: "shadow-sky-500/40", bg: "from-sky-50 to-indigo-50", time: "14–30 dni" },
+  { icon: Brain, label: "Konsultacje online", emoji: "🧠", price: "300–1500 zł / h", example: "„Audyt strategii”", desc: "Najszybszy start dla ekspertów z wiedzą.", gradient: "from-fuchsia-500 via-purple-500 to-violet-500", glow: "shadow-fuchsia-500/40", bg: "from-fuchsia-50 to-purple-50", time: "od 7 dni" },
 ];
 
 const timeline = [
@@ -115,7 +123,27 @@ export function LandingPage() {
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
     els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+
+    // ACTIVE-IN-VIEW tracker: highlight cards near viewport center
+    const cards = document.querySelectorAll<HTMLElement>(".active-card");
+    const activeObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio > 0.6) {
+            e.target.classList.add("is-active");
+          } else {
+            e.target.classList.remove("is-active");
+          }
+        });
+      },
+      { threshold: [0, 0.4, 0.6, 0.8, 1], rootMargin: "-25% 0px -25% 0px" },
+    );
+    cards.forEach((el) => activeObs.observe(el));
+
+    return () => {
+      obs.disconnect();
+      activeObs.disconnect();
+    };
   }, []);
 
   return (
@@ -362,29 +390,81 @@ export function LandingPage() {
       </section>
 
       {/* PRODUCTS */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold mb-3">
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-200/30 rounded-full blur-3xl -translate-y-1/2" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-pink-200/30 rounded-full blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="reveal text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 border border-violet-200 text-violet-700 text-xs font-bold mb-4">
               <Sparkles className="w-3.5 h-3.5" /> 8 RODZAJÓW PRODUKTÓW
             </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Co stworzysz w 90 dni?</h2>
-            <p className="mt-3 text-slate-600">Wybierz format, który najlepiej pasuje do Twojej wiedzy.</p>
+            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
+              Co stworzysz w{" "}
+              <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">90 dni?</span>
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              Wybierz format dopasowany do Twojej wiedzy — pokażemy Ci realne ceny, przykłady i czas potrzebny na wdrożenie.
+            </p>
           </div>
 
-          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {products.map((p) => (
-              <div key={p.label} className="group relative rounded-3xl bg-white border border-slate-200 p-6 hover:border-violet-300 hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all cursor-pointer">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.color} grid place-items-center mb-4 shadow-lg group-hover:scale-110 transition`}>
-                  <p.icon className="w-7 h-7 text-white" />
+              <div
+                key={p.label}
+                className={`active-card group relative rounded-[28px] bg-gradient-to-br ${p.bg} border border-white p-6 overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-2 shadow-md hover:shadow-2xl ${p.glow}`}
+              >
+                {/* animated gradient border */}
+                <div className={`absolute inset-0 rounded-[28px] bg-gradient-to-br ${p.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                {/* shimmer */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                  <div className="absolute -inset-x-full top-0 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12 animate-shimmer" />
                 </div>
-                <div className="font-bold text-slate-900">{p.label}</div>
-                <ArrowRight className="absolute top-6 right-6 w-4 h-4 text-slate-300 group-hover:text-violet-600 group-hover:translate-x-1 transition" />
+
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="relative">
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${p.gradient} grid place-items-center shadow-xl ${p.glow} group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-500`}>
+                        <p.icon className="w-8 h-8 text-white" strokeWidth={2.2} />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md grid place-items-center text-lg group-hover:animate-float-icon">
+                        {p.emoji}
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/80 text-slate-600 backdrop-blur">
+                      {p.time}
+                    </div>
+                  </div>
+
+                  <h3 className="font-extrabold text-lg text-slate-900 mb-1">{p.label}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{p.desc}</p>
+
+                  <div className="space-y-2 pt-3 border-t border-white/80">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-medium">Cena</span>
+                      <span className={`font-bold bg-gradient-to-r ${p.gradient} bg-clip-text text-transparent`}>
+                        {p.price}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 italic">{p.example}</div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-slate-700 group-hover:translate-x-1 transition-transform">
+                    Zbuduj to <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
+
+          <div className="reveal mt-10 text-center">
+            <p className="text-sm text-slate-500">
+              💡 Nie wiesz, co wybrać? <span className="font-bold text-violet-600">AI Audyt Pomysłu</span> w aplikacji dobierze format pod Twoją wiedzę.
+            </p>
+          </div>
         </div>
       </section>
+
 
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 bg-gradient-to-b from-slate-50 to-white">
@@ -400,7 +480,7 @@ export function LandingPage() {
               { n: 2, title: "Budujesz produkt z AI i zadaniami", desc: "Codziennie nowe zadania, lekcje i generatory AI prowadzą Cię do gotowego produktu.", icon: Wand2, color: "from-blue-500 to-cyan-600", progress: 66 },
               { n: 3, title: "Sprzedajesz swój produkt", desc: "Landing page, lejek, reklamy, automatyzacje — wszystko gotowe do startu.", icon: Rocket, color: "from-orange-500 to-pink-600", progress: 100 },
             ].map((s) => (
-              <div key={s.n} className="relative rounded-3xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
+              <div key={s.n} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} grid place-items-center shadow-lg`}>
                     <s.icon className="w-7 h-7 text-white" />
@@ -472,7 +552,7 @@ export function LandingPage() {
 
           <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {aiTools.map((t, i) => (
-              <div key={t.label} className="group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
+              <div key={t.label} className="active-card group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 to-pink-500/0 group-hover:from-violet-500/10 group-hover:to-pink-500/10 transition" />
                 <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center mb-4 shadow-lg shadow-violet-500/50">
@@ -487,6 +567,171 @@ export function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* MENTOR + REWARDS */}
+      <section className="py-24 bg-gradient-to-b from-white via-violet-50/40 to-white relative overflow-hidden">
+        <div className="absolute top-20 right-10 w-72 h-72 bg-amber-200/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-72 h-72 bg-violet-200/40 rounded-full blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="reveal text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 text-orange-700 text-xs font-bold mb-4">
+              <HeartHandshake className="w-3.5 h-3.5" /> NIE JESTEŚ SAM
+            </div>
+            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
+              Mentor sprawdza Twoje zadania.<br className="hidden md:block" />{" "}
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                Ty zgarniasz nagrody.
+              </span>
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              To nie kolejny kurs, który kupujesz i odkładasz. Każde zadanie jest sprawdzane, a Twój postęp nagradzany realnymi korzyściami.
+            </p>
+          </div>
+
+          {/* TWO COLUMNS: Mentor + Rewards */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-12">
+            {/* MENTOR CARD */}
+            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white p-8 md:p-10 overflow-hidden shadow-2xl">
+              <div className="absolute -top-20 -right-20 w-72 h-72 bg-violet-500/30 rounded-full blur-3xl group-hover:bg-violet-500/50 transition" />
+              <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl" />
+
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shadow-xl shadow-violet-500/50">
+                    <MessageSquare className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-violet-300 uppercase tracking-wider">Feedback od mentora</div>
+                    <div className="font-extrabold text-xl">Twoje zadanie nigdy nie utknie</div>
+                  </div>
+                </div>
+
+                <p className="text-slate-300 mb-6">
+                  Wysyłasz zadanie z aplikacji jednym kliknięciem. Mentor analizuje je, daje konkretne wskazówki i pokazuje, co poprawić — zanim ruszysz dalej.
+                </p>
+
+                <ul className="space-y-3">
+                  {[
+                    { icon: Eye, t: "Ekspert ocenia Twoją ofertę, landing page i komunikację" },
+                    { icon: Target, t: "Dostajesz konkretne poprawki — nie ogólniki" },
+                    { icon: Zap, t: "Działasz pewniej, bo wiesz, że idziesz w dobrą stronę" },
+                    { icon: TrendingUp, t: "Szybciej dochodzisz do pierwszej sprzedaży" },
+                  ].map((b) => (
+                    <li key={b.t} className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-white/10 grid place-items-center flex-shrink-0">
+                        <b.icon className="w-4 h-4 text-violet-300" />
+                      </div>
+                      <span className="text-sm text-slate-200 mt-1">{b.t}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* mini chat mockup */}
+                <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4 backdrop-blur">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-white font-bold text-sm flex-shrink-0">M</div>
+                    <div className="text-sm">
+                      <div className="font-bold text-white">Mentor • teraz</div>
+                      <div className="text-slate-300 mt-1">„Twoja oferta brzmi mocno, ale dodaj 1 konkretną liczbę w nagłówku — to potroi konwersję. ✨"</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* REWARDS CARD */}
+            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-100 p-8 md:p-10 overflow-hidden shadow-xl">
+              <div className="absolute -top-10 -right-10 w-60 h-60 bg-amber-300/30 rounded-full blur-3xl group-hover:bg-amber-400/40 transition" />
+
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center shadow-xl shadow-orange-500/40 group-hover:rotate-6 transition">
+                    <Gift className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-orange-700 uppercase tracking-wider">System nagród</div>
+                    <div className="font-extrabold text-xl text-slate-900">Każdy ukończony krok się opłaca</div>
+                  </div>
+                </div>
+
+                <p className="text-slate-700 mb-6">
+                  Po zakończeniu lekcji i checklisty odblokowujesz realne nagrody — kredyty AI, szablony, sesje 1:1 i bonusy w aplikacji.
+                </p>
+
+                <div className="space-y-2.5">
+                  {[
+                    { icon: Coins, t: "+50 kredytów AI", sub: "po każdej ukończonej lekcji" },
+                    { icon: Award, t: "Odznaka XP + poziom", sub: "widoczna w profilu i społeczności" },
+                    { icon: FileText, t: "Szablon premium", sub: "landing / oferta / mail" },
+                    { icon: Users, t: "Sesja Q&A z ekspertem", sub: "po ukończeniu modułu" },
+                    { icon: Trophy, t: "Bonus 1:1 z mentorem", sub: "za ukończenie ścieżki 90 dni" },
+                  ].map((r) => (
+                    <div key={r.t} className="flex items-center gap-3 rounded-xl bg-white/80 backdrop-blur p-3 border border-white shadow-sm hover:shadow-md hover:scale-[1.02] transition cursor-default">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 grid place-items-center flex-shrink-0">
+                        <r.icon className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm text-slate-900">{r.t}</div>
+                        <div className="text-xs text-slate-500">{r.sub}</div>
+                      </div>
+                      <BadgeCheck className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CHECKLIST AFTER COURSE */}
+          <div className="reveal relative rounded-[32px] bg-white border border-slate-200 p-8 md:p-10 shadow-xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/50 rounded-full blur-3xl" />
+
+            <div className="relative grid md:grid-cols-[1fr_1.2fr] gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">
+                  <ClipboardCheck className="w-3.5 h-3.5" /> CHECKLISTA PO KURSIE
+                </div>
+                <h3 className="font-extrabold text-2xl md:text-3xl tracking-tight">
+                  Co masz po przerobieniu kursu?
+                </h3>
+                <p className="mt-3 text-slate-600">
+                  Nie tylko wiedzę. Wychodzisz z konkretnymi rezultatami, które działają na Ciebie 24/7.
+                </p>
+                <Link
+                  to="/auth"
+                  className="mt-6 inline-flex items-center gap-2 px-5 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] transition"
+                >
+                  Chcę takie efekty <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              <ul className="space-y-3">
+                {[
+                  "Gotowy produkt cyfrowy (ebook / kurs / AI / mentoring)",
+                  "Oferta sprzedażowa napisana z AI",
+                  "Działająca strona / landing page",
+                  "Lejek mailowy + sekwencja sprzedażowa",
+                  "Kreacje reklamowe na Meta / Google",
+                  "Plan skalowania na kolejne 90 dni",
+                  "Społeczność i feedback od mentora",
+                ].map((t, i) => (
+                  <li
+                    key={t}
+                    className="flex items-start gap-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 p-3 hover:shadow-md hover:-translate-y-0.5 transition"
+                    style={{ transitionDelay: `${i * 30}ms` }}
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 grid place-items-center flex-shrink-0 shadow-md shadow-emerald-500/30">
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm font-medium text-slate-800 mt-0.5">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -620,7 +865,7 @@ export function LandingPage() {
           </div>
           <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={t.name} className="rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
+              <div key={t.name} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${["from-violet-400 to-pink-400", "from-blue-400 to-cyan-400", "from-orange-400 to-amber-400"][i]} grid place-items-center text-white font-bold text-lg`}>
                     {t.name[0]}
@@ -721,8 +966,23 @@ export function LandingPage() {
         .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .47s; }
         .reveal-stagger.in-view > *:nth-child(8) { transition-delay: .54s; }
 
+        /* Active-in-view card highlight */
+        .active-card { transition: transform .55s cubic-bezier(.2,.7,.2,1), box-shadow .55s ease, background-color .55s ease, border-color .55s ease, filter .55s ease; }
+        .active-card.is-active { transform: translateY(-6px) scale(1.015); box-shadow: 0 30px 60px -20px rgba(108, 77, 255, 0.35), 0 12px 24px -8px rgba(236, 72, 153, 0.18); filter: saturate(1.05); }
+        .active-card.is-active::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, #6C4DFF, #EC4899, #FF6B35); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: .9; animation: card-glow 2.4s ease-in-out infinite; }
+        @keyframes card-glow { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+
+        /* Shimmer sweep on hover */
+        @keyframes shimmer { 0% { transform: translateX(-100%) skewX(12deg); } 100% { transform: translateX(200%) skewX(12deg); } }
+        .animate-shimmer { animation: shimmer 1.6s ease-in-out infinite; }
+
+        /* Floating emoji bubble */
+        @keyframes float-icon { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(8deg); } }
+        .group-hover\\:animate-float-icon:hover, .group:hover .group-hover\\:animate-float-icon { animation: float-icon 1.6s ease-in-out infinite; }
+
         @media (prefers-reduced-motion: reduce) {
-          .reveal, .reveal-stagger > *, .animate-bounce-slow { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+          .reveal, .reveal-stagger > *, .animate-bounce-slow, .active-card, .animate-shimmer { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+          .active-card.is-active::after { display: none; }
         }
       `}</style>
     </div>
@@ -735,7 +995,7 @@ function PricingCard({
   name: string; price: string; period: string; desc: string; features: string[]; cta: string; highlight?: boolean; badge?: string;
 }) {
   return (
-    <div className={`relative rounded-3xl p-7 flex flex-col ${
+    <div className={`active-card relative rounded-3xl p-7 flex flex-col ${
       highlight
         ? "bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white border-2 border-violet-400/50 shadow-2xl shadow-violet-500/30 lg:scale-105 lg:-my-2"
         : "bg-white border border-slate-200 shadow-sm"
