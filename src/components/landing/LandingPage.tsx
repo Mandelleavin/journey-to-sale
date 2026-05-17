@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import {
   Sparkles,
   Rocket,
@@ -67,7 +68,56 @@ const testimonials = [
   { name: "Julia W.", role: "Kurs online", xp: 3540, progress: 64, quote: "AI generatory to dla mnie game changer. Oszczędzam 10h tygodniowo." },
 ];
 
+function useInView<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
+      { threshold, rootMargin: "0px 0px -60px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+}
+
+function AnimatedBar({ value, className = "" }: { value: number; className?: string }) {
+  const { ref, inView } = useInView<HTMLDivElement>(0.4);
+  return (
+    <div
+      ref={ref}
+      className={`h-full rounded-full transition-[width] duration-[1400ms] ease-out ${className}`}
+      style={{ width: inView ? `${value}%` : "0%" }}
+    />
+  );
+}
+
 export function LandingPage() {
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in-view");
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       {/* NAV */}
@@ -196,7 +246,7 @@ export function LandingPage() {
                   <div className="text-xs font-bold text-slate-600">7.7%</div>
                 </div>
                 <div className="h-3 rounded-full bg-white/70 overflow-hidden">
-                  <div className="h-full w-[8%] bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] rounded-full" />
+                  <AnimatedBar value={8} className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899]" />
                 </div>
                 <div className="mt-3 text-sm font-bold text-slate-800">🎯 Zaprojektuj swoją ofertę premium</div>
               </div>
@@ -274,7 +324,7 @@ export function LandingPage() {
       {/* TRANSFORMATION */}
       <section className="py-20 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Od chaosu do <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">działającego biznesu</span></h2>
             <p className="mt-3 text-slate-600">Zobacz, co się zmienia, gdy masz jasny system.</p>
           </div>
@@ -314,7 +364,7 @@ export function LandingPage() {
       {/* PRODUCTS */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold mb-3">
               <Sparkles className="w-3.5 h-3.5" /> 8 RODZAJÓW PRODUKTÓW
             </div>
@@ -322,7 +372,7 @@ export function LandingPage() {
             <p className="mt-3 text-slate-600">Wybierz format, który najlepiej pasuje do Twojej wiedzy.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((p) => (
               <div key={p.label} className="group relative rounded-3xl bg-white border border-slate-200 p-6 hover:border-violet-300 hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all cursor-pointer">
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.color} grid place-items-center mb-4 shadow-lg group-hover:scale-110 transition`}>
@@ -339,12 +389,12 @@ export function LandingPage() {
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Jak to działa</h2>
             <p className="mt-3 text-slate-600">3 kroki od pomysłu do sprzedaży.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 relative">
+          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6 relative">
             {[
               { n: 1, title: "Wybierasz pomysł", desc: "AI pomaga zwalidować i dopracować Twój koncept produktu cyfrowego.", icon: Sparkles, color: "from-violet-500 to-purple-600", progress: 33 },
               { n: 2, title: "Budujesz produkt z AI i zadaniami", desc: "Codziennie nowe zadania, lekcje i generatory AI prowadzą Cię do gotowego produktu.", icon: Wand2, color: "from-blue-500 to-cyan-600", progress: 66 },
@@ -360,7 +410,7 @@ export function LandingPage() {
                 <h3 className="font-extrabold text-xl mb-2">{s.title}</h3>
                 <p className="text-sm text-slate-600 mb-4">{s.desc}</p>
                 <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className={`h-full bg-gradient-to-r ${s.color}`} style={{ width: `${s.progress}%` }} />
+                  <AnimatedBar value={s.progress} className={`bg-gradient-to-r ${s.color}`} />
                 </div>
               </div>
             ))}
@@ -371,7 +421,7 @@ export function LandingPage() {
       {/* TIMELINE / ROADMAP */}
       <section id="path" className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 text-violet-700 text-xs font-bold mb-3">
               <Trophy className="w-3.5 h-3.5" /> ŚCIEŻKA 90 DNI
             </div>
@@ -381,7 +431,7 @@ export function LandingPage() {
 
           <div className="relative">
             <div className="hidden md:block absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-emerald-300 via-violet-300 to-slate-200 rounded-full" />
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+            <div className="reveal reveal-stagger grid grid-cols-2 md:grid-cols-7 gap-4">
               {timeline.map((t) => {
                 const isDone = t.status === "done";
                 const isActive = t.status === "active";
@@ -412,7 +462,7 @@ export function LandingPage() {
       <section id="ai" className="py-20 bg-slate-950 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(108,77,255,0.3),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.25),transparent_50%)]" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-bold mb-3">
               <Bot className="w-3.5 h-3.5" /> PREMIUM AI
             </div>
@@ -420,7 +470,7 @@ export function LandingPage() {
             <p className="mt-3 text-slate-400">6 generatorów, które robią pracę za Ciebie.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {aiTools.map((t, i) => (
               <div key={t.label} className="group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 to-pink-500/0 group-hover:from-violet-500/10 group-hover:to-pink-500/10 transition" />
@@ -444,12 +494,12 @@ export function LandingPage() {
       {/* PRICING */}
       <section id="pricing" className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Wybierz swój plan</h2>
             <p className="mt-3 text-slate-600">Zacznij dziś. Anuluj kiedy chcesz.</p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 items-stretch">
+          <div className="reveal reveal-stagger grid lg:grid-cols-3 gap-6 items-stretch">
             {/* START */}
             <PricingCard
               name="START"
@@ -537,10 +587,10 @@ export function LandingPage() {
       {/* FOR WHOM */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Dla kogo to jest?</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 gap-4">
             {[
               "chcą dodatkowego dochodu online",
               "chcą zarabiać na wiedzy",
@@ -565,10 +615,10 @@ export function LandingPage() {
       {/* SOCIAL PROOF */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Realne wyniki uczestników</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
               <div key={t.name} className="rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
                 <div className="flex items-center gap-3 mb-4">
@@ -593,7 +643,7 @@ export function LandingPage() {
                     <span className="font-bold text-violet-600">{t.progress}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-violet-500 to-pink-500" style={{ width: `${t.progress}%` }} />
+                    <AnimatedBar value={t.progress} className="bg-gradient-to-r from-violet-500 to-pink-500" />
                   </div>
                 </div>
               </div>
@@ -652,6 +702,28 @@ export function LandingPage() {
       <style>{`
         @keyframes bounce-slow { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
         .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+        .reveal.in-view { opacity: 1; transform: none; }
+        .reveal-delay-1 { transition-delay: .08s; }
+        .reveal-delay-2 { transition-delay: .16s; }
+        .reveal-delay-3 { transition-delay: .24s; }
+        .reveal-delay-4 { transition-delay: .32s; }
+        .reveal-delay-5 { transition-delay: .40s; }
+        .reveal-stagger > * { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+        .reveal-stagger.in-view > * { opacity: 1; transform: none; }
+        .reveal-stagger.in-view > *:nth-child(1) { transition-delay: .05s; }
+        .reveal-stagger.in-view > *:nth-child(2) { transition-delay: .12s; }
+        .reveal-stagger.in-view > *:nth-child(3) { transition-delay: .19s; }
+        .reveal-stagger.in-view > *:nth-child(4) { transition-delay: .26s; }
+        .reveal-stagger.in-view > *:nth-child(5) { transition-delay: .33s; }
+        .reveal-stagger.in-view > *:nth-child(6) { transition-delay: .40s; }
+        .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .47s; }
+        .reveal-stagger.in-view > *:nth-child(8) { transition-delay: .54s; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .reveal, .reveal-stagger > *, .animate-bounce-slow { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+        }
       `}</style>
     </div>
   );
