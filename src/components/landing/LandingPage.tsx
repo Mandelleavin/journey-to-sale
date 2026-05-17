@@ -410,7 +410,7 @@ export function LandingPage() {
                 <h3 className="font-extrabold text-xl mb-2">{s.title}</h3>
                 <p className="text-sm text-slate-600 mb-4">{s.desc}</p>
                 <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className={`h-full bg-gradient-to-r ${s.color}`} style={{ width: `${s.progress}%` }} />
+                  <AnimatedBar value={s.progress} className={`bg-gradient-to-r ${s.color}`} />
                 </div>
               </div>
             ))}
