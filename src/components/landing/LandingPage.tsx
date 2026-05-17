@@ -966,8 +966,23 @@ export function LandingPage() {
         .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .47s; }
         .reveal-stagger.in-view > *:nth-child(8) { transition-delay: .54s; }
 
+        /* Active-in-view card highlight */
+        .active-card { transition: transform .55s cubic-bezier(.2,.7,.2,1), box-shadow .55s ease, background-color .55s ease, border-color .55s ease, filter .55s ease; }
+        .active-card.is-active { transform: translateY(-6px) scale(1.015); box-shadow: 0 30px 60px -20px rgba(108, 77, 255, 0.35), 0 12px 24px -8px rgba(236, 72, 153, 0.18); filter: saturate(1.05); }
+        .active-card.is-active::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, #6C4DFF, #EC4899, #FF6B35); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: .9; animation: card-glow 2.4s ease-in-out infinite; }
+        @keyframes card-glow { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+
+        /* Shimmer sweep on hover */
+        @keyframes shimmer { 0% { transform: translateX(-100%) skewX(12deg); } 100% { transform: translateX(200%) skewX(12deg); } }
+        .animate-shimmer { animation: shimmer 1.6s ease-in-out infinite; }
+
+        /* Floating emoji bubble */
+        @keyframes float-icon { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(8deg); } }
+        .group-hover\\:animate-float-icon:hover, .group:hover .group-hover\\:animate-float-icon { animation: float-icon 1.6s ease-in-out infinite; }
+
         @media (prefers-reduced-motion: reduce) {
-          .reveal, .reveal-stagger > *, .animate-bounce-slow { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+          .reveal, .reveal-stagger > *, .animate-bounce-slow, .active-card, .animate-shimmer { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+          .active-card.is-active::after { display: none; }
         }
       `}</style>
     </div>
