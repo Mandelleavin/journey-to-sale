@@ -480,7 +480,7 @@ export function LandingPage() {
               { n: 2, title: "Budujesz produkt z AI i zadaniami", desc: "Codziennie nowe zadania, lekcje i generatory AI prowadzą Cię do gotowego produktu.", icon: Wand2, color: "from-blue-500 to-cyan-600", progress: 66 },
               { n: 3, title: "Sprzedajesz swój produkt", desc: "Landing page, lejek, reklamy, automatyzacje — wszystko gotowe do startu.", icon: Rocket, color: "from-orange-500 to-pink-600", progress: 100 },
             ].map((s) => (
-              <div key={s.n} className="relative rounded-3xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
+              <div key={s.n} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} grid place-items-center shadow-lg`}>
                     <s.icon className="w-7 h-7 text-white" />
@@ -552,7 +552,7 @@ export function LandingPage() {
 
           <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {aiTools.map((t, i) => (
-              <div key={t.label} className="group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
+              <div key={t.label} className="active-card group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 to-pink-500/0 group-hover:from-violet-500/10 group-hover:to-pink-500/10 transition" />
                 <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center mb-4 shadow-lg shadow-violet-500/50">
@@ -865,7 +865,7 @@ export function LandingPage() {
           </div>
           <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={t.name} className="rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
+              <div key={t.name} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${["from-violet-400 to-pink-400", "from-blue-400 to-cyan-400", "from-orange-400 to-amber-400"][i]} grid place-items-center text-white font-bold text-lg`}>
                     {t.name[0]}
