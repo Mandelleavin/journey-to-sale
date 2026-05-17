@@ -995,7 +995,7 @@ function PricingCard({
   name: string; price: string; period: string; desc: string; features: string[]; cta: string; highlight?: boolean; badge?: string;
 }) {
   return (
-    <div className={`relative rounded-3xl p-7 flex flex-col ${
+    <div className={`active-card relative rounded-3xl p-7 flex flex-col ${
       highlight
         ? "bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white border-2 border-violet-400/50 shadow-2xl shadow-violet-500/30 lg:scale-105 lg:-my-2"
         : "bg-white border border-slate-200 shadow-sm"
