@@ -643,7 +643,7 @@ export function LandingPage() {
                     <span className="font-bold text-violet-600">{t.progress}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-violet-500 to-pink-500" style={{ width: `${t.progress}%` }} />
+                    <AnimatedBar value={t.progress} className="bg-gradient-to-r from-violet-500 to-pink-500" />
                   </div>
                 </div>
               </div>
