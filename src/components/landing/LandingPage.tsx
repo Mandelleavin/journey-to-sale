@@ -246,7 +246,7 @@ export function LandingPage() {
                   <div className="text-xs font-bold text-slate-600">7.7%</div>
                 </div>
                 <div className="h-3 rounded-full bg-white/70 overflow-hidden">
-                  <div className="h-full w-[8%] bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] rounded-full" />
+                  <AnimatedBar value={8} className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899]" />
                 </div>
                 <div className="mt-3 text-sm font-bold text-slate-800">🎯 Zaprojektuj swoją ofertę premium</div>
               </div>
