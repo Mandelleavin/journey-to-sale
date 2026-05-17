@@ -68,7 +68,56 @@ const testimonials = [
   { name: "Julia W.", role: "Kurs online", xp: 3540, progress: 64, quote: "AI generatory to dla mnie game changer. Oszczędzam 10h tygodniowo." },
 ];
 
+function useInView<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
+      { threshold, rootMargin: "0px 0px -60px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+}
+
+function AnimatedBar({ value, className = "" }: { value: number; className?: string }) {
+  const { ref, inView } = useInView<HTMLDivElement>(0.4);
+  return (
+    <div
+      ref={ref}
+      className={`h-full rounded-full transition-[width] duration-[1400ms] ease-out ${className}`}
+      style={{ width: inView ? `${value}%` : "0%" }}
+    />
+  );
+}
+
 export function LandingPage() {
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in-view");
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       {/* NAV */}
