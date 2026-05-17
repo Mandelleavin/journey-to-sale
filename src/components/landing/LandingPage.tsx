@@ -551,6 +551,171 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* MENTOR + REWARDS */}
+      <section className="py-24 bg-gradient-to-b from-white via-violet-50/40 to-white relative overflow-hidden">
+        <div className="absolute top-20 right-10 w-72 h-72 bg-amber-200/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-72 h-72 bg-violet-200/40 rounded-full blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="reveal text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 text-orange-700 text-xs font-bold mb-4">
+              <HeartHandshake className="w-3.5 h-3.5" /> NIE JESTEŚ SAM
+            </div>
+            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
+              Mentor sprawdza Twoje zadania.<br className="hidden md:block" />{" "}
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                Ty zgarniasz nagrody.
+              </span>
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              To nie kolejny kurs, który kupujesz i odkładasz. Każde zadanie jest sprawdzane, a Twój postęp nagradzany realnymi korzyściami.
+            </p>
+          </div>
+
+          {/* TWO COLUMNS: Mentor + Rewards */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-12">
+            {/* MENTOR CARD */}
+            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white p-8 md:p-10 overflow-hidden shadow-2xl">
+              <div className="absolute -top-20 -right-20 w-72 h-72 bg-violet-500/30 rounded-full blur-3xl group-hover:bg-violet-500/50 transition" />
+              <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl" />
+
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shadow-xl shadow-violet-500/50">
+                    <MessageSquare className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-violet-300 uppercase tracking-wider">Feedback od mentora</div>
+                    <div className="font-extrabold text-xl">Twoje zadanie nigdy nie utknie</div>
+                  </div>
+                </div>
+
+                <p className="text-slate-300 mb-6">
+                  Wysyłasz zadanie z aplikacji jednym kliknięciem. Mentor analizuje je, daje konkretne wskazówki i pokazuje, co poprawić — zanim ruszysz dalej.
+                </p>
+
+                <ul className="space-y-3">
+                  {[
+                    { icon: Eye, t: "Ekspert ocenia Twoją ofertę, landing page i komunikację" },
+                    { icon: Target, t: "Dostajesz konkretne poprawki — nie ogólniki" },
+                    { icon: Zap, t: "Działasz pewniej, bo wiesz, że idziesz w dobrą stronę" },
+                    { icon: TrendingUp, t: "Szybciej dochodzisz do pierwszej sprzedaży" },
+                  ].map((b) => (
+                    <li key={b.t} className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-white/10 grid place-items-center flex-shrink-0">
+                        <b.icon className="w-4 h-4 text-violet-300" />
+                      </div>
+                      <span className="text-sm text-slate-200 mt-1">{b.t}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* mini chat mockup */}
+                <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4 backdrop-blur">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-white font-bold text-sm flex-shrink-0">M</div>
+                    <div className="text-sm">
+                      <div className="font-bold text-white">Mentor • teraz</div>
+                      <div className="text-slate-300 mt-1">„Twoja oferta brzmi mocno, ale dodaj 1 konkretną liczbę w nagłówku — to potroi konwersję. ✨"</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* REWARDS CARD */}
+            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-100 p-8 md:p-10 overflow-hidden shadow-xl">
+              <div className="absolute -top-10 -right-10 w-60 h-60 bg-amber-300/30 rounded-full blur-3xl group-hover:bg-amber-400/40 transition" />
+
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center shadow-xl shadow-orange-500/40 group-hover:rotate-6 transition">
+                    <Gift className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-orange-700 uppercase tracking-wider">System nagród</div>
+                    <div className="font-extrabold text-xl text-slate-900">Każdy ukończony krok się opłaca</div>
+                  </div>
+                </div>
+
+                <p className="text-slate-700 mb-6">
+                  Po zakończeniu lekcji i checklisty odblokowujesz realne nagrody — kredyty AI, szablony, sesje 1:1 i bonusy w aplikacji.
+                </p>
+
+                <div className="space-y-2.5">
+                  {[
+                    { icon: Coins, t: "+50 kredytów AI", sub: "po każdej ukończonej lekcji" },
+                    { icon: Award, t: "Odznaka XP + poziom", sub: "widoczna w profilu i społeczności" },
+                    { icon: FileText, t: "Szablon premium", sub: "landing / oferta / mail" },
+                    { icon: Users, t: "Sesja Q&A z ekspertem", sub: "po ukończeniu modułu" },
+                    { icon: Trophy, t: "Bonus 1:1 z mentorem", sub: "za ukończenie ścieżki 90 dni" },
+                  ].map((r) => (
+                    <div key={r.t} className="flex items-center gap-3 rounded-xl bg-white/80 backdrop-blur p-3 border border-white shadow-sm hover:shadow-md hover:scale-[1.02] transition cursor-default">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 grid place-items-center flex-shrink-0">
+                        <r.icon className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm text-slate-900">{r.t}</div>
+                        <div className="text-xs text-slate-500">{r.sub}</div>
+                      </div>
+                      <BadgeCheck className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CHECKLIST AFTER COURSE */}
+          <div className="reveal relative rounded-[32px] bg-white border border-slate-200 p-8 md:p-10 shadow-xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/50 rounded-full blur-3xl" />
+
+            <div className="relative grid md:grid-cols-[1fr_1.2fr] gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">
+                  <ClipboardCheck className="w-3.5 h-3.5" /> CHECKLISTA PO KURSIE
+                </div>
+                <h3 className="font-extrabold text-2xl md:text-3xl tracking-tight">
+                  Co masz po przerobieniu kursu?
+                </h3>
+                <p className="mt-3 text-slate-600">
+                  Nie tylko wiedzę. Wychodzisz z konkretnymi rezultatami, które działają na Ciebie 24/7.
+                </p>
+                <Link
+                  to="/auth"
+                  className="mt-6 inline-flex items-center gap-2 px-5 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] transition"
+                >
+                  Chcę takie efekty <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              <ul className="space-y-3">
+                {[
+                  "Gotowy produkt cyfrowy (ebook / kurs / AI / mentoring)",
+                  "Oferta sprzedażowa napisana z AI",
+                  "Działająca strona / landing page",
+                  "Lejek mailowy + sekwencja sprzedażowa",
+                  "Kreacje reklamowe na Meta / Google",
+                  "Plan skalowania na kolejne 90 dni",
+                  "Społeczność i feedback od mentora",
+                ].map((t, i) => (
+                  <li
+                    key={t}
+                    className="flex items-start gap-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 p-3 hover:shadow-md hover:-translate-y-0.5 transition"
+                    style={{ transitionDelay: `${i * 30}ms` }}
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 grid place-items-center flex-shrink-0 shadow-md shadow-emerald-500/30">
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm font-medium text-slate-800 mt-0.5">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PRICING */}
       <section id="pricing" className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
