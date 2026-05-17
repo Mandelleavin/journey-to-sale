@@ -702,6 +702,28 @@ export function LandingPage() {
       <style>{`
         @keyframes bounce-slow { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
         .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+        .reveal.in-view { opacity: 1; transform: none; }
+        .reveal-delay-1 { transition-delay: .08s; }
+        .reveal-delay-2 { transition-delay: .16s; }
+        .reveal-delay-3 { transition-delay: .24s; }
+        .reveal-delay-4 { transition-delay: .32s; }
+        .reveal-delay-5 { transition-delay: .40s; }
+        .reveal-stagger > * { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+        .reveal-stagger.in-view > * { opacity: 1; transform: none; }
+        .reveal-stagger.in-view > *:nth-child(1) { transition-delay: .05s; }
+        .reveal-stagger.in-view > *:nth-child(2) { transition-delay: .12s; }
+        .reveal-stagger.in-view > *:nth-child(3) { transition-delay: .19s; }
+        .reveal-stagger.in-view > *:nth-child(4) { transition-delay: .26s; }
+        .reveal-stagger.in-view > *:nth-child(5) { transition-delay: .33s; }
+        .reveal-stagger.in-view > *:nth-child(6) { transition-delay: .40s; }
+        .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .47s; }
+        .reveal-stagger.in-view > *:nth-child(8) { transition-delay: .54s; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .reveal, .reveal-stagger > *, .animate-bounce-slow { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+        }
       `}</style>
     </div>
   );
