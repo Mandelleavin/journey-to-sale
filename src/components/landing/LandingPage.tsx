@@ -41,14 +41,14 @@ import {
 } from "lucide-react";
 
 const products = [
-  { icon: BookOpen, label: "Ebook", color: "from-violet-500 to-purple-500" },
-  { icon: GraduationCap, label: "Kurs online", color: "from-blue-500 to-cyan-500" },
-  { icon: Bot, label: "Produkt AI", color: "from-emerald-500 to-teal-500" },
-  { icon: Smartphone, label: "Aplikacja", color: "from-orange-500 to-pink-500" },
-  { icon: MessageCircle, label: "Mentoring", color: "from-rose-500 to-red-500" },
-  { icon: Users, label: "Społeczność premium", color: "from-amber-500 to-orange-500" },
-  { icon: Mail, label: "Newsletter premium", color: "from-sky-500 to-indigo-500" },
-  { icon: Brain, label: "Konsultacje online", color: "from-fuchsia-500 to-purple-500" },
+  { icon: BookOpen, label: "Ebook", emoji: "📘", price: "47–197 zł", example: "„Mini-przewodnik 30 stron”", desc: "Najszybsza droga do pierwszej sprzedaży online.", gradient: "from-violet-500 via-purple-500 to-fuchsia-500", glow: "shadow-violet-500/40", bg: "from-violet-50 to-fuchsia-50", time: "14–30 dni" },
+  { icon: GraduationCap, label: "Kurs online", emoji: "🎓", price: "297–1997 zł", example: "„Kurs wideo 5 modułów”", desc: "Skalowalny produkt premium z wysoką marżą.", gradient: "from-blue-500 via-cyan-500 to-sky-500", glow: "shadow-blue-500/40", bg: "from-blue-50 to-cyan-50", time: "45–90 dni" },
+  { icon: Bot, label: "Produkt AI", emoji: "🤖", price: "97–497 zł / mies.", example: "„Generator postów AI”", desc: "Subskrypcja, która zarabia 24/7 w tle.", gradient: "from-emerald-500 via-teal-500 to-green-500", glow: "shadow-emerald-500/40", bg: "from-emerald-50 to-teal-50", time: "30–60 dni" },
+  { icon: Smartphone, label: "Aplikacja / SaaS", emoji: "📱", price: "49–299 zł / mies.", example: "„Mini-aplikacja w no-code”", desc: "Powtarzalny przychód i wysoka wycena biznesu.", gradient: "from-orange-500 via-pink-500 to-rose-500", glow: "shadow-orange-500/40", bg: "from-orange-50 to-pink-50", time: "60–90 dni" },
+  { icon: MessageCircle, label: "Mentoring 1:1", emoji: "💬", price: "500–3000 zł / sesja", example: "„Pakiet 4 spotkań”", desc: "Najwyższe stawki bez budowania produktu.", gradient: "from-rose-500 via-red-500 to-orange-500", glow: "shadow-rose-500/40", bg: "from-rose-50 to-red-50", time: "od 14 dni" },
+  { icon: Users, label: "Społeczność premium", emoji: "👥", price: "49–199 zł / mies.", example: "„Discord + Q&A”", desc: "Stały dochód i lojalna społeczność wokół marki.", gradient: "from-amber-500 via-orange-500 to-yellow-500", glow: "shadow-amber-500/40", bg: "from-amber-50 to-orange-50", time: "21–45 dni" },
+  { icon: Mail, label: "Newsletter premium", emoji: "✉️", price: "29–99 zł / mies.", example: "„Premium newsletter B2B”", desc: "Niska bariera startu, świetna marża.", gradient: "from-sky-500 via-indigo-500 to-blue-500", glow: "shadow-sky-500/40", bg: "from-sky-50 to-indigo-50", time: "14–30 dni" },
+  { icon: Brain, label: "Konsultacje online", emoji: "🧠", price: "300–1500 zł / h", example: "„Audyt strategii”", desc: "Najszybszy start dla ekspertów z wiedzą.", gradient: "from-fuchsia-500 via-purple-500 to-violet-500", glow: "shadow-fuchsia-500/40", bg: "from-fuchsia-50 to-purple-50", time: "od 7 dni" },
 ];
 
 const timeline = [
