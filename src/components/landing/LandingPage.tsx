@@ -30,6 +30,14 @@ import {
   CheckCircle2,
   Lock,
   CircleDot,
+  Award,
+  Gift,
+  ClipboardCheck,
+  BadgeCheck,
+  MessageSquare,
+  Eye,
+  HeartHandshake,
+  Coins,
 } from "lucide-react";
 
 const products = [
