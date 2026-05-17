@@ -370,29 +370,81 @@ export function LandingPage() {
       </section>
 
       {/* PRODUCTS */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold mb-3">
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-200/30 rounded-full blur-3xl -translate-y-1/2" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-pink-200/30 rounded-full blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="reveal text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 border border-violet-200 text-violet-700 text-xs font-bold mb-4">
               <Sparkles className="w-3.5 h-3.5" /> 8 RODZAJÓW PRODUKTÓW
             </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Co stworzysz w 90 dni?</h2>
-            <p className="mt-3 text-slate-600">Wybierz format, który najlepiej pasuje do Twojej wiedzy.</p>
+            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
+              Co stworzysz w{" "}
+              <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">90 dni?</span>
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              Wybierz format dopasowany do Twojej wiedzy — pokażemy Ci realne ceny, przykłady i czas potrzebny na wdrożenie.
+            </p>
           </div>
 
-          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {products.map((p) => (
-              <div key={p.label} className="group relative rounded-3xl bg-white border border-slate-200 p-6 hover:border-violet-300 hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all cursor-pointer">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.color} grid place-items-center mb-4 shadow-lg group-hover:scale-110 transition`}>
-                  <p.icon className="w-7 h-7 text-white" />
+              <div
+                key={p.label}
+                className={`active-card group relative rounded-[28px] bg-gradient-to-br ${p.bg} border border-white p-6 overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-2 shadow-md hover:shadow-2xl ${p.glow}`}
+              >
+                {/* animated gradient border */}
+                <div className={`absolute inset-0 rounded-[28px] bg-gradient-to-br ${p.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                {/* shimmer */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                  <div className="absolute -inset-x-full top-0 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12 animate-shimmer" />
                 </div>
-                <div className="font-bold text-slate-900">{p.label}</div>
-                <ArrowRight className="absolute top-6 right-6 w-4 h-4 text-slate-300 group-hover:text-violet-600 group-hover:translate-x-1 transition" />
+
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="relative">
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${p.gradient} grid place-items-center shadow-xl ${p.glow} group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-500`}>
+                        <p.icon className="w-8 h-8 text-white" strokeWidth={2.2} />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md grid place-items-center text-lg group-hover:animate-float-icon">
+                        {p.emoji}
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/80 text-slate-600 backdrop-blur">
+                      {p.time}
+                    </div>
+                  </div>
+
+                  <h3 className="font-extrabold text-lg text-slate-900 mb-1">{p.label}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{p.desc}</p>
+
+                  <div className="space-y-2 pt-3 border-t border-white/80">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-medium">Cena</span>
+                      <span className={`font-bold bg-gradient-to-r ${p.gradient} bg-clip-text text-transparent`}>
+                        {p.price}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 italic">{p.example}</div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-slate-700 group-hover:translate-x-1 transition-transform">
+                    Zbuduj to <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
+
+          <div className="reveal mt-10 text-center">
+            <p className="text-sm text-slate-500">
+              💡 Nie wiesz, co wybrać? <span className="font-bold text-violet-600">AI Audyt Pomysłu</span> w aplikacji dobierze format pod Twoją wiedzę.
+            </p>
+          </div>
         </div>
       </section>
+
 
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 bg-gradient-to-b from-slate-50 to-white">
