@@ -324,7 +324,7 @@ export function LandingPage() {
       {/* TRANSFORMATION */}
       <section className="py-20 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Od chaosu do <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">działającego biznesu</span></h2>
             <p className="mt-3 text-slate-600">Zobacz, co się zmienia, gdy masz jasny system.</p>
           </div>
@@ -364,7 +364,7 @@ export function LandingPage() {
       {/* PRODUCTS */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-bold mb-3">
               <Sparkles className="w-3.5 h-3.5" /> 8 RODZAJÓW PRODUKTÓW
             </div>
@@ -372,7 +372,7 @@ export function LandingPage() {
             <p className="mt-3 text-slate-600">Wybierz format, który najlepiej pasuje do Twojej wiedzy.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((p) => (
               <div key={p.label} className="group relative rounded-3xl bg-white border border-slate-200 p-6 hover:border-violet-300 hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all cursor-pointer">
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.color} grid place-items-center mb-4 shadow-lg group-hover:scale-110 transition`}>
@@ -389,12 +389,12 @@ export function LandingPage() {
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Jak to działa</h2>
             <p className="mt-3 text-slate-600">3 kroki od pomysłu do sprzedaży.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 relative">
+          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6 relative">
             {[
               { n: 1, title: "Wybierasz pomysł", desc: "AI pomaga zwalidować i dopracować Twój koncept produktu cyfrowego.", icon: Sparkles, color: "from-violet-500 to-purple-600", progress: 33 },
               { n: 2, title: "Budujesz produkt z AI i zadaniami", desc: "Codziennie nowe zadania, lekcje i generatory AI prowadzą Cię do gotowego produktu.", icon: Wand2, color: "from-blue-500 to-cyan-600", progress: 66 },
@@ -421,7 +421,7 @@ export function LandingPage() {
       {/* TIMELINE / ROADMAP */}
       <section id="path" className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 text-violet-700 text-xs font-bold mb-3">
               <Trophy className="w-3.5 h-3.5" /> ŚCIEŻKA 90 DNI
             </div>
@@ -431,7 +431,7 @@ export function LandingPage() {
 
           <div className="relative">
             <div className="hidden md:block absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-emerald-300 via-violet-300 to-slate-200 rounded-full" />
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+            <div className="reveal reveal-stagger grid grid-cols-2 md:grid-cols-7 gap-4">
               {timeline.map((t) => {
                 const isDone = t.status === "done";
                 const isActive = t.status === "active";
@@ -462,7 +462,7 @@ export function LandingPage() {
       <section id="ai" className="py-20 bg-slate-950 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(108,77,255,0.3),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.25),transparent_50%)]" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-bold mb-3">
               <Bot className="w-3.5 h-3.5" /> PREMIUM AI
             </div>
@@ -470,7 +470,7 @@ export function LandingPage() {
             <p className="mt-3 text-slate-400">6 generatorów, które robią pracę za Ciebie.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {aiTools.map((t, i) => (
               <div key={t.label} className="group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 to-pink-500/0 group-hover:from-violet-500/10 group-hover:to-pink-500/10 transition" />
@@ -494,12 +494,12 @@ export function LandingPage() {
       {/* PRICING */}
       <section id="pricing" className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <div className="reveal text-center mb-14">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Wybierz swój plan</h2>
             <p className="mt-3 text-slate-600">Zacznij dziś. Anuluj kiedy chcesz.</p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 items-stretch">
+          <div className="reveal reveal-stagger grid lg:grid-cols-3 gap-6 items-stretch">
             {/* START */}
             <PricingCard
               name="START"
@@ -587,10 +587,10 @@ export function LandingPage() {
       {/* FOR WHOM */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Dla kogo to jest?</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="reveal reveal-stagger grid sm:grid-cols-2 gap-4">
             {[
               "chcą dodatkowego dochodu online",
               "chcą zarabiać na wiedzy",
@@ -615,10 +615,10 @@ export function LandingPage() {
       {/* SOCIAL PROOF */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <div className="reveal text-center mb-12">
             <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Realne wyniki uczestników</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
               <div key={t.name} className="rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
                 <div className="flex items-center gap-3 mb-4">
