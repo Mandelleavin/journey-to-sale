@@ -900,6 +900,9 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* LEAD MAGNET */}
+      <LeadMagnetSection />
+
       {/* FINAL CTA */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C4DFF] via-[#8B5CF6] to-[#EC4899]" />
