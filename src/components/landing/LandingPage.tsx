@@ -995,6 +995,168 @@ export function LandingPage() {
   );
 }
 
+function LeadMagnetSection() {
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const perks = [
+    { icon: BookOpen, title: "Mini-kurs „Fundamenty Biznesu Cyfrowego”", desc: "5 lekcji wideo + ćwiczenia (wartość 197 zł)" },
+    { icon: FileText, title: "PDF: Plan działania na 14 dni", desc: "Konkretne zadania na każdy dzień startu" },
+    { icon: Wand2, title: "Szablon oferty + landingu", desc: "Gotowy do skopiowania i wypełnienia" },
+    { icon: Mail, title: "Codzienne maile mentora", desc: "14 dni inspiracji i konkretnych wskazówek" },
+    { icon: Gift, title: "Bonus: 50 pomysłów na produkt", desc: "Lista nisz, które realnie sprzedają w 2026" },
+  ];
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes("@")) return toast.error("Podaj poprawny email");
+    setLoading(true);
+    const { error } = await supabase.from("leads").insert({
+      email: email.trim().toLowerCase(),
+      first_name: firstName.trim() || null,
+      source: "landing",
+      magnet: "fundamenty-14dni",
+    });
+    setLoading(false);
+    if (error && !error.message.includes("duplicate")) {
+      toast.error("Nie udało się zapisać. Spróbuj ponownie.");
+      return;
+    }
+    setDone(true);
+    toast.success("🎉 Zapisano! Sprawdź skrzynkę za chwilę.");
+  };
+
+  return (
+    <section className="py-20 md:py-28 px-4 md:px-6 bg-gradient-to-b from-white via-violet-50/40 to-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Lewa: co dostaniesz */}
+          <div className="reveal">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 text-xs font-bold text-amber-700 mb-4">
+              <Gift className="w-3.5 h-3.5" /> 100% za darmo • bez karty
+            </div>
+            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight leading-tight text-slate-900">
+              Odbierz <span className="bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">darmowy starter</span> i zacznij w 14 dni
+            </h2>
+            <p className="mt-4 text-slate-600 text-lg">
+              Pobierz <b>Mini-kurs „Fundamenty Biznesu Cyfrowego”</b> + <b>PDF Plan na 14 dni</b>. Sprawdź, czy ta droga jest dla Ciebie — zanim zapłacisz złotówkę.
+            </p>
+
+            <ul className="mt-6 space-y-3">
+              {perks.map((p, i) => (
+                <li key={i} className="flex gap-3 items-start group">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shrink-0 shadow-lg shadow-violet-500/30 group-hover:scale-105 transition">
+                    <p.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900">{p.title}</div>
+                    <div className="text-sm text-slate-600">{p.desc}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 flex items-center gap-4 text-xs text-slate-500">
+              <div className="flex -space-x-2">
+                {["bg-violet-400", "bg-pink-400", "bg-amber-400", "bg-emerald-400"].map((c, i) => (
+                  <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c}`} />
+                ))}
+              </div>
+              <div>Dołączyło już <b className="text-slate-900">2 847</b> osób w ostatnim miesiącu</div>
+            </div>
+          </div>
+
+          {/* Prawa: formularz */}
+          <div className="reveal">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-br from-violet-500 via-pink-500 to-orange-500 rounded-3xl blur-2xl opacity-30" />
+              <div className="relative bg-white rounded-3xl border border-slate-200 shadow-2xl shadow-violet-500/10 p-6 md:p-8">
+                {!done ? (
+                  <>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shadow-lg shadow-violet-500/40">
+                        <Download className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-violet-600 uppercase tracking-wide">Darmowy starter</div>
+                        <div className="font-extrabold text-lg text-slate-900">Wyślij mi materiały</div>
+                      </div>
+                    </div>
+
+                    <form onSubmit={submit} className="space-y-3">
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Twoje imię (opcjonalnie)"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-200 outline-none transition"
+                      />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="twoj@email.pl"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-200 outline-none transition"
+                      />
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-14 rounded-xl bg-gradient-to-r from-violet-600 via-pink-500 to-orange-500 text-white font-extrabold shadow-xl shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.99] transition flex items-center justify-center gap-2 disabled:opacity-70"
+                      >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                        {loading ? "Wysyłam…" : "Pobierz darmowy starter"}
+                      </button>
+                      <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+                        Zapisując się, zgadzasz się na otrzymywanie maili od nas. Możesz wypisać się w każdej chwili.
+                      </p>
+                    </form>
+
+                    <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <div className="font-extrabold text-violet-600">5</div>
+                        <div className="text-[10px] text-slate-500 uppercase font-bold">lekcji</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-pink-600">14</div>
+                        <div className="text-[10px] text-slate-500 uppercase font-bold">dni planu</div>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-orange-600">PDF</div>
+                        <div className="text-[10px] text-slate-500 uppercase font-bold">do druku</div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center shadow-xl shadow-emerald-500/40 mb-5">
+                      <CheckCircle2 className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="font-extrabold text-2xl text-slate-900">Gotowe! 🎉</h3>
+                    <p className="mt-2 text-slate-600">
+                      Sprawdź skrzynkę <b>{email}</b> — pierwsza lekcja i PDF czekają na Ciebie.
+                    </p>
+                    <Link
+                      to="/auth"
+                      className="mt-6 inline-flex items-center gap-2 px-6 h-12 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition"
+                    >
+                      Stwórz konto i zacznij od razu <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
 function PricingCard({
   name, price, period, desc, features, cta, highlight, badge,
 }: {
