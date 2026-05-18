@@ -578,6 +578,36 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          magnet: string | null
+          marketing_consent: boolean
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          magnet?: string | null
+          marketing_consent?: boolean
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          magnet?: string | null
+          marketing_consent?: boolean
+          source?: string | null
+        }
+        Relationships: []
+      }
       learning_path_steps: {
         Row: {
           course_id: string | null
