@@ -143,9 +143,30 @@ export function LandingPage() {
     );
     cards.forEach((el) => activeObs.observe(el));
 
+    // CLS measurement — logs cumulative layout shift to the console
+    let clsValue = 0;
+    let clsObserver: PerformanceObserver | null = null;
+    try {
+      clsObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          // @ts-expect-error layout-shift fields are not in lib.dom
+          if (!entry.hadRecentInput) {
+            // @ts-expect-error layout-shift value
+            clsValue += entry.value;
+            // eslint-disable-next-line no-console
+            console.log("[CLS]", clsValue.toFixed(4));
+          }
+        }
+      });
+      clsObserver.observe({ type: "layout-shift", buffered: true });
+    } catch {
+      // Browser doesn't support layout-shift — skip silently
+    }
+
     return () => {
       obs.disconnect();
       activeObs.disconnect();
+      clsObserver?.disconnect();
     };
   }, []);
 
@@ -176,7 +197,7 @@ export function LandingPage() {
       </header>
 
       {/* HERO */}
-      <section className="relative pt-12 md:pt-20 pb-24 overflow-hidden">
+      <section className="relative pt-12 md:pt-20 pb-24 overflow-hidden min-h-[640px] md:min-h-[760px] lg:min-h-[820px]">
         {/* bg blobs */}
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-violet-300/30 rounded-full blur-3xl" />
         <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-orange-200/40 rounded-full blur-3xl" />
@@ -188,7 +209,7 @@ export function LandingPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-pink-100 border border-orange-200 text-orange-700 text-xs font-bold">
               <Flame className="w-3.5 h-3.5" /> SYSTEM 90 DNI + AI
             </div>
-            <h1 className="mt-5 font-extrabold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.05]">
+            <h1 className="mt-5 font-extrabold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.05] min-h-[8.4rem] sm:min-h-[10rem] lg:min-h-[12.6rem]">
               Stwórz i Sprzedaj Swój{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-[#6C4DFF] via-[#8B5CF6] to-[#EC4899] bg-clip-text text-transparent">
@@ -251,7 +272,7 @@ export function LandingPage() {
           </div>
 
           {/* RIGHT — Dashboard mockup */}
-          <div className="relative">
+          <div className="relative min-h-[560px] lg:min-h-[640px]">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-400/30 to-pink-400/30 blur-3xl rounded-[3rem]" />
             <div className="relative rounded-[2rem] bg-white border border-slate-200 shadow-2xl shadow-violet-500/20 p-5 backdrop-blur-xl">
               {/* top bar */}
