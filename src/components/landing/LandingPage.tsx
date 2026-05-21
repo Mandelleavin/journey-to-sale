@@ -272,7 +272,7 @@ export function LandingPage() {
           </div>
 
           {/* RIGHT — Dashboard mockup */}
-          <div className="relative">
+          <div className="relative min-h-[560px] lg:min-h-[640px]">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-400/30 to-pink-400/30 blur-3xl rounded-[3rem]" />
             <div className="relative rounded-[2rem] bg-white border border-slate-200 shadow-2xl shadow-violet-500/20 p-5 backdrop-blur-xl">
               {/* top bar */}
