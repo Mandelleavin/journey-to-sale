@@ -143,9 +143,30 @@ export function LandingPage() {
     );
     cards.forEach((el) => activeObs.observe(el));
 
+    // CLS measurement — logs cumulative layout shift to the console
+    let clsValue = 0;
+    let clsObserver: PerformanceObserver | null = null;
+    try {
+      clsObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          // @ts-expect-error layout-shift fields are not in lib.dom
+          if (!entry.hadRecentInput) {
+            // @ts-expect-error layout-shift value
+            clsValue += entry.value;
+            // eslint-disable-next-line no-console
+            console.log("[CLS]", clsValue.toFixed(4));
+          }
+        }
+      });
+      clsObserver.observe({ type: "layout-shift", buffered: true });
+    } catch {
+      // Browser doesn't support layout-shift — skip silently
+    }
+
     return () => {
       obs.disconnect();
       activeObs.disconnect();
+      clsObserver?.disconnect();
     };
   }, []);
 
