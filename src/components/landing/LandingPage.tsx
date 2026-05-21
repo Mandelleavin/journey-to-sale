@@ -209,7 +209,7 @@ export function LandingPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-pink-100 border border-orange-200 text-orange-700 text-xs font-bold">
               <Flame className="w-3.5 h-3.5" /> SYSTEM 90 DNI + AI
             </div>
-            <h1 className="mt-5 font-extrabold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.05]">
+            <h1 className="mt-5 font-extrabold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.05] min-h-[8.4rem] sm:min-h-[10rem] lg:min-h-[12.6rem]">
               Stwórz i Sprzedaj Swój{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-[#6C4DFF] via-[#8B5CF6] to-[#EC4899] bg-clip-text text-transparent">
