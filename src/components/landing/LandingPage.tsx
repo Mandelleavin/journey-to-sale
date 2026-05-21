@@ -197,7 +197,7 @@ export function LandingPage() {
       </header>
 
       {/* HERO */}
-      <section className="relative pt-12 md:pt-20 pb-24 overflow-hidden">
+      <section className="relative pt-12 md:pt-20 pb-24 overflow-hidden min-h-[640px] md:min-h-[760px] lg:min-h-[820px]">
         {/* bg blobs */}
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-violet-300/30 rounded-full blur-3xl" />
         <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-orange-200/40 rounded-full blur-3xl" />
