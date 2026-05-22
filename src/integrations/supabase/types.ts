@@ -1793,37 +1793,176 @@ export type Database = {
           },
         ]
       }
-      user_products: {
+      user_product_materials: {
         Row: {
           created_at: string
+          external_link: string | null
+          file_url: string | null
+          id: string
+          kind: string
+          position: number
+          product_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_link?: string | null
+          file_url?: string | null
+          id?: string
+          kind?: string
+          position?: number
+          product_id: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          external_link?: string | null
+          file_url?: string | null
+          id?: string
+          kind?: string
+          position?: number
+          product_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_product_materials_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "user_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_product_packages: {
+        Row: {
+          created_at: string
+          currency: string
           description: string | null
           id: string
-          link: string | null
+          is_featured: boolean
+          items: Json
           name: string
-          price_pln: number | null
-          status: Database["public"]["Enums"]["product_status"]
+          position: number
+          price: number | null
+          product_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
-          link?: string | null
-          name: string
-          price_pln?: number | null
-          status?: Database["public"]["Enums"]["product_status"]
+          is_featured?: boolean
+          items?: Json
+          name?: string
+          position?: number
+          price?: number | null
+          product_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
-          link?: string | null
+          is_featured?: boolean
+          items?: Json
           name?: string
-          price_pln?: number | null
-          status?: Database["public"]["Enums"]["product_status"]
+          position?: number
+          price?: number | null
+          product_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_product_packages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "user_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_products: {
+        Row: {
+          agenda: Json
+          benefits: Json
+          bonuses: Json
+          cover_url: string | null
+          created_at: string
+          cta_label: string | null
+          faq: Json
+          id: string
+          position: number
+          price_draft: number | null
+          problem: string | null
+          product_type: Database["public"]["Enums"]["user_product_type"] | null
+          promise: string | null
+          publish_checklist: Json
+          result: string | null
+          sales_headline: string | null
+          sales_subtitle: string | null
+          status: Database["public"]["Enums"]["user_product_status"]
+          subtitle: string | null
+          target_audience: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agenda?: Json
+          benefits?: Json
+          bonuses?: Json
+          cover_url?: string | null
+          created_at?: string
+          cta_label?: string | null
+          faq?: Json
+          id?: string
+          position?: number
+          price_draft?: number | null
+          problem?: string | null
+          product_type?: Database["public"]["Enums"]["user_product_type"] | null
+          promise?: string | null
+          publish_checklist?: Json
+          result?: string | null
+          sales_headline?: string | null
+          sales_subtitle?: string | null
+          status?: Database["public"]["Enums"]["user_product_status"]
+          subtitle?: string | null
+          target_audience?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agenda?: Json
+          benefits?: Json
+          bonuses?: Json
+          cover_url?: string | null
+          created_at?: string
+          cta_label?: string | null
+          faq?: Json
+          id?: string
+          position?: number
+          price_draft?: number | null
+          problem?: string | null
+          product_type?: Database["public"]["Enums"]["user_product_type"] | null
+          promise?: string | null
+          publish_checklist?: Json
+          result?: string | null
+          sales_headline?: string | null
+          sales_subtitle?: string | null
+          status?: Database["public"]["Enums"]["user_product_status"]
+          subtitle?: string | null
+          target_audience?: string | null
+          title?: string
           updated_at?: string
           user_id?: string
         }
@@ -2163,6 +2302,15 @@ export type Database = {
         | "past_due"
         | "trialing"
       user_lead_temp: "cold" | "warm" | "hot"
+      user_product_status: "idea" | "building" | "ready" | "published"
+      user_product_type:
+        | "ebook"
+        | "kurs"
+        | "warsztat"
+        | "aplikacja"
+        | "konsultacje"
+        | "abonament"
+        | "inne"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2356,6 +2504,16 @@ export const Constants = {
         "trialing",
       ],
       user_lead_temp: ["cold", "warm", "hot"],
+      user_product_status: ["idea", "building", "ready", "published"],
+      user_product_type: [
+        "ebook",
+        "kurs",
+        "warsztat",
+        "aplikacja",
+        "konsultacje",
+        "abonament",
+        "inne",
+      ],
     },
   },
 } as const
