@@ -1,75 +1,92 @@
-## Zakres zmian
+# Mój Produkt — nowy kreator (MVP)
 
-### 1. Usunięcie zakładek
-- Usunąć **Wyzwania** (`/challenges`) i **Statystyki** (`/stats`) oraz **Problemy** (`/problems`) z Sidebar/MobileBottomNav/MobileTopNav
-- Usunąć pliki tras: `src/routes/challenges.tsx`, `src/routes/stats.tsx`, `src/routes/problems.tsx`
-- Usunąć linki/odniesienia z dashboardu
+Cel: zakładka `/products` przestaje być przeglądarką 7 modułów kursu, a staje się **centrum dowodzenia produktem użytkownika** — z poczuciem „buduję coś, co mogę sprzedać".
 
-### 2. Zakładka "Mój produkt" → kreator produktu (7 modułów)
-Nowa struktura w `/products`:
-- **Sidebar/lista 7 modułów** (Fundament Produktu, Oferta, Budowa, Landing, Pozyskiwanie, Reklamy, Skalowanie)
-- Każdy moduł zawiera 4 sekcje: **Lekcje**, **Zadania**, **Checklisty**, **Zeszyt ćwiczeń**
-- Dane modułów wstępnie hardcoded zgodnie z zamysłem użytkownika (lista lekcji/zadań/checklist/ćwiczeń)
-- Postęp użytkownika trzymany w nowej tabeli `product_builder_progress` (item_key + status: todo/done, optional notes/answer)
-- Pasek postępu per moduł + globalny
-- Możliwość zaznaczania checklist i zadań jako wykonane, zapis notatek do zeszytu ćwiczeń
+## Decyzje (z odpowiedzi)
 
-### 3. Społeczność (`/community`) – redesign
-- Top header: **Online teraz: N+34** (N = użytkownicy z aktywnością w ostatnich 5 min, +34 sztuczny boost)
-- Kategorie: **Ogólne, Landing Page, Reklama, OTO, Skalowanie** (zamiast obecnych)
-- **Moderacja**: posty w nowej kategorii `question` wymagają zatwierdzenia admina przed publikacją (kolumna `is_approved`)
-- **Przykładowe wątki seed** bez daty (flag `is_example` – ukrywa datę w UI)
-- Piękniejszy UI: gradientowe karty kategorii, awatary, liczniki, ikonki, kolorowe badge
+- **Limity produktów wg planu**: Start = 1, Pro = 2, VIP = 3.
+- **Bez AI w MVP** — Produkt Score liczony deterministycznie z wypełnionych pól. Generatory AI dorobimy w kolejnym kroku.
+- **Stare moduły** (`PRODUCT_MODULES`, postęp 7 modułów) **przenosimy do `/courses`** — w `/products` ich już nie ma.
 
-### 4. Nagrody
-- W tabeli `rewards` zostawić tylko: **Szablon Landing Page (5000 XP)** i **Pakiet promptów AI do sprzedaży (3000 XP)**
-- Po odebraniu user dostaje plik/treść do pobrania (przechowywane w `rewards.payload_url` i `rewards.payload_content`)
-- W `/admin` dodać tab **Nagrody** – CRUD: tytuł, koszt XP, opis, URL pliku/treść, aktywne tak/nie
+## Widok docelowy (w kolejności na ekranie)
 
-### 5. Doradca – popup w prawym dolnym
-- `AdvisorButton.tsx` już ma popup – rozbudować:
-  - wybór osoby (Marcin/Kasia) z radio
-  - textarea wiadomości + wysyłka do nowej tabeli `advisor_messages` (user_id, advisor, message, created_at)
-  - toast po wysłaniu
-  - **„Przyspiesz wdrożenie"** kieruje do nowej trasy `/accelerate` zamiast `/package`
-- Usunąć/uprościć stronę `/advisor` (przekierować do home) – cała funkcja w popupie
+1. **Wybór produktu / "Twoje produkty"** — chipy z produktami + przycisk „Dodaj produkt" (zablokowany po przekroczeniu limitu planu, z podpowiedzią upgrade).
+2. **Górna karta produktu** — okładka, nazwa, podtytuł, obietnica, typ, status, pasek postępu, Produkt Score (np. 42/100), CTA „Kontynuuj budowę".
+3. **Twój następny krok** — 1 główne zadanie + max 3 mniejsze (dynamicznie z brakujących pól).
+4. **Produkt Score** — co jest gotowe / co poprawić, CTA „Popraw wynik".
+5. **5 etapów budowy** (taby/akordeon):
+   - Etap 1 Fundament — nazwa, dla kogo, problem, obietnica, efekt, typ, cena robocza
+   - Etap 2 Oferta — nagłówek, podtytuł, korzyści[], agenda[], moduły[], bonusy[], FAQ[], CTA
+   - Etap 3 Cena i Pakiety — tabela 1–3 pakietów (Basic/Pro/VIP) z podglądem pricing table
+   - Etap 4 Materiały — biblioteka plików (cover, PDF, workbook, prezentacje, linki)
+   - Etap 5 Publikacja — checklista gotowości + komunikat „gotowe w X%"
+6. **Eksporty** — PDF oferty / tabela cen / plan sprzedaży (placeholder przyciski, działanie w kolejnej iteracji).
 
-### 6. Nowa strona `/accelerate`
-- Boxy z ofertami przyspieszonego wdrożenia: **Strona WWW**, **Landing Page**, **Reklamy Meta**, **Lejek sprzedażowy**, **Automatyzacje**, **Sklep online**
-- Każdy box: ikona, tytuł, opis, cena od, CTA "Zamów konsultację" (otwiera doradcę)
+## Produkt Score (deterministyczny, 0–100)
 
-## Sekcja techniczna
+Punkty za wypełnienie pól (przykładowy podział):
 
-**Migracje DB:**
-```sql
--- product_builder_progress
-create table product_builder_progress (
-  id uuid pk, user_id uuid, module_key text, item_type text, item_key text,
-  status text default 'todo', notes text, updated_at timestamptz
-);
--- RLS: user owns
+- Fundament (35 pkt): nazwa 5, dla kogo 5, problem 5, obietnica 10, efekt 5, typ 3, cena 2
+- Oferta (25 pkt): nagłówek 5, korzyści ≥3 → 5, agenda ≥3 → 5, bonusy ≥1 → 3, FAQ ≥3 → 5, CTA 2
+- Pakiety (15 pkt): ≥1 pakiet 5, ≥2 pakiety 5, oznaczony „polecany" 5
+- Materiały (15 pkt): cover 5, ≥3 pliki 10
+- Publikacja (10 pkt): checklista — po 1 pkt za pozycję (max 10)
 
--- community_posts: dodać is_approved bool default true, is_example bool default false; zmiana check kategorii
--- advisor_messages
-create table advisor_messages (
-  id uuid pk, user_id uuid, advisor text, message text, created_at timestamptz
-);
--- rewards: dodać payload_url text, payload_content text; wyczyścić tabelę i wstawić 2 nagrody
-```
+„Twój następny krok" = pierwsza luka punktowa w kolejności etapów.
 
-**Pliki nowe/edytowane:**
-- `src/routes/products.tsx` – pełny redesign
-- `src/lib/product-builder-data.ts` – dane modułów
-- `src/routes/community.tsx` – redesign + online counter + moderacja
-- `src/routes/rewards.tsx` – uproszczenie + payload download
-- `src/routes/admin.tsx` – tab "Nagrody"
-- `src/components/dashboard/AdvisorButton.tsx` – formularz wysyłki
-- `src/routes/accelerate.tsx` – nowa
-- `src/components/dashboard/Sidebar.tsx`, `MobileBottomNav.tsx`, `MobileTopNav.tsx` – usunięcie linków
-- usunięte: `challenges.tsx`, `stats.tsx`, `problems.tsx`, `advisor.tsx`
+## Struktura techniczna
 
-**Online users:** zapytanie `count(distinct user_id) from notifications where created_at > now() - interval '5 min'` (lub osobna tabela presence – prościej: użyć ostatnich aktywności z `user_xp_log`/`profiles.last_seen`). Dodam kolumnę `profiles.last_seen` aktualizowaną w `PageShell` przy ładowaniu.
+### Tabele (nowa migracja)
 
-## Zakres NIE objęty
-- Treść lekcji video w product builderze (placeholder)
-- Realny system czatu live z doradcą (tylko wysyłka wiadomości do bazy + powiadomienie admina)
+**`user_products`** — jeden wiersz = jeden produkt użytkownika.
+- domain fields: `title`, `subtitle`, `promise`, `target_audience`, `problem`, `result`, `product_type` (enum: ebook/kurs/warsztat/aplikacja/konsultacje/abonament), `status` (enum: idea/building/ready/published), `cover_url`, `price_draft` (numeric), `sales_headline`, `sales_subtitle`, `benefits` (jsonb[]), `agenda` (jsonb[]), `bonuses` (jsonb[]), `faq` (jsonb[]), `cta_label`, `publish_checklist` (jsonb — mapa klucz→bool), `position` (int do sortowania)
+- RLS: właściciel CRUD, admin wszystko.
+
+**`user_product_packages`** — pakiety cenowe (1:N do produktu).
+- `name`, `price`, `currency`, `description`, `items` (jsonb[]), `is_featured`, `position`.
+
+**`user_product_materials`** — biblioteka materiałów (1:N).
+- `kind` (cover/pdf/workbook/presentation/link/bonus/graphic/sales), `title`, `file_url`, `external_link`, `position`.
+
+**Storage bucket** `product-assets` (private) — okładki + pliki. RLS: użytkownik czyta/pisze w `{user_id}/...`.
+
+**Limit produktów wg planu** — w `createServerFn` `createProduct`: liczymy istniejące i porównujemy z `plan_limit(plan)` (start=1, pro=2, vip=3). Nadwyżka → błąd „Upgrade planu".
+
+### Kod (frontend)
+
+- `src/routes/products.tsx` — przepisany od zera (usuwamy widok 7 modułów).
+- Komponenty w `src/components/products/`:
+  - `ProductSelector.tsx` (chipy + Dodaj)
+  - `ProductHeroCard.tsx` (cover upload, nagłówki, score, CTA)
+  - `NextStepCard.tsx`
+  - `ProductScoreCard.tsx` (lista gotowe/do poprawy)
+  - `stages/StageFundament.tsx`, `StageOffer.tsx`, `StagePricing.tsx`, `StageMaterials.tsx`, `StagePublish.tsx`
+  - `PricingTablePreview.tsx`
+- `src/lib/product-score.ts` — funkcja `computeProductScore(product, packages, materials) => { score, breakdown, nextStep }`.
+- `src/lib/products.functions.ts` — `createServerFn` na CRUD produktu/pakietów/materiałów + check limitu planu.
+
+### Przeniesienie modułów kursu
+
+- Stary `PRODUCT_MODULES` + zapisy w `product_builder_progress` zostają nietknięte w bazie.
+- Widok 7 modułów z `/products` przenosimy do nowej zakładki na stronie kursu (np. sekcja w `/courses` lub osobny route — do potwierdzenia w implementacji). W tym planie: nowy komponent `CourseBuilderModules` używany w `/courses` (lokalizacja do ustalenia przy realizacji).
+- Sidebar/nav: pozycja „Mój produkt" zostaje, link prowadzi do nowego widoku.
+
+## Styl
+
+- Zachowujemy obecne tokeny (fioletowo-niebieski gradient, `bg-gradient-violet`, `shadow-soft`, miękkie zaokrąglenia).
+- Mobile: stack — selector → karta produktu → next step → etapy (akordeon zwinięte) → eksporty.
+
+## Zakres MVP (czego NIE robimy teraz)
+
+- AI asystent / generatory (button placeholders gotowe pod podpięcie później).
+- Eksport PDF / plan sprzedaży 7 dni — buttony jako „Wkrótce".
+- Historia wersji produktu, duplikowanie — odkładamy.
+- Migracja danych ze starego `product_builder_progress` do nowego produktu — nie robimy (to były checkboxy lekcji, nie pola produktu).
+
+## Kolejność wdrożenia
+
+1. Migracja DB (tabele + storage + RLS).
+2. `products.functions.ts` + `product-score.ts`.
+3. Komponenty i nowy `routes/products.tsx`.
+4. Przeniesienie widoku modułów kursu do `/courses`.
+5. QA na 1287px i mobile.
