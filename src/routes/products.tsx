@@ -444,7 +444,7 @@ function HeroCard({
               <Input
                 value={product.subtitle ?? ""}
                 onChange={(e) => onUpdate({ subtitle: e.target.value })}
-                placeholder="Podtytuł produktu (np. „Praktyczny kurs dla początkujących")"
+                placeholder={'Podtytuł produktu (np. „Praktyczny kurs dla początkujących")'}
                 className="text-sm text-muted-foreground border-0 px-0 focus-visible:ring-0 h-auto py-0"
               />
             </div>
@@ -458,7 +458,7 @@ function HeroCard({
             <Textarea
               value={product.promise ?? ""}
               onChange={(e) => onUpdate({ promise: e.target.value })}
-              placeholder="Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")"
+              placeholder={'Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")'}
               className="mt-1 min-h-[60px]"
             />
           </div>
