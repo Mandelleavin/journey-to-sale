@@ -36,6 +36,7 @@ import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
+import { Route as AdminUserProductsRouteImport } from './routes/admin.user-products'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
@@ -179,6 +180,11 @@ const CheckoutCancelledRoute = CheckoutCancelledRouteImport.update({
   path: '/checkout/cancelled',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUserProductsRoute = AdminUserProductsRouteImport.update({
+  id: '/user-products',
+  path: '/user-products',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCoursesRoute = AdminCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
+  '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/admin/ai-generators'
     | '/admin/courses'
+    | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
     | '/courses/$courseId'
@@ -657,6 +669,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutCancelledRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/user-products': {
+      id: '/admin/user-products'
+      path: '/user-products'
+      fullPath: '/admin/user-products'
+      preLoaderRoute: typeof AdminUserProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/courses': {
       id: '/admin/courses'
       path: '/courses'
@@ -724,12 +743,14 @@ const AdminCoursesRouteWithChildren = AdminCoursesRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminAiGeneratorsRoute: typeof AdminAiGeneratorsRoute
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
+  AdminUserProductsRoute: typeof AdminUserProductsRoute
   AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAiGeneratorsRoute: AdminAiGeneratorsRoute,
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
+  AdminUserProductsRoute: AdminUserProductsRoute,
   AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,
 }
 
