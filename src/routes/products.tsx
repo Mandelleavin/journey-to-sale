@@ -43,6 +43,9 @@ import {
 } from "@/lib/product-score";
 
 export const Route = createFileRoute("/products")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    userId: typeof s.userId === "string" ? s.userId : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Mój Produkt — kreator oferty sprzedażowej" },
