@@ -243,6 +243,27 @@ function ProductsPage() {
 
   return (
     <PageShell title="Mój Produkt" subtitle="Centrum dowodzenia Twoim produktem">
+      {/* ADMIN PREVIEW BANNER */}
+      {adminMode && (
+        <div className="rounded-2xl border-2 border-orange/40 bg-orange-soft p-4 flex items-center gap-3 animate-fade-in">
+          <div className="w-10 h-10 rounded-xl bg-orange grid place-items-center text-white shrink-0">
+            <Lightbulb className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs uppercase font-bold text-orange">Podgląd jako administrator</div>
+            <div className="font-display font-bold truncate">
+              {viewedProfile?.full_name || viewedProfile?.email || "Użytkownik"}
+              {viewedProfile?.email && viewedProfile?.full_name && (
+                <span className="text-muted-foreground font-normal text-sm"> · {viewedProfile.email}</span>
+              )}
+            </div>
+          </div>
+          <Link to="/admin" className="text-sm font-semibold text-orange hover:underline shrink-0">
+            ← Wróć
+          </Link>
+        </div>
+      )}
+
       {/* PRODUCT SELECTOR */}
       <div className="flex items-center gap-2 flex-wrap">
         {products.map((p) => (
@@ -259,24 +280,26 @@ function ProductsPage() {
             {p.title || "Bez nazwy"}
           </button>
         ))}
-        <button
-          onClick={createProduct}
-          disabled={products.length >= limit}
-          className={cn(
-            "px-3 py-1.5 rounded-full text-sm font-semibold border-2 border-dashed transition-all",
-            products.length >= limit
-              ? "border-muted text-muted-foreground cursor-not-allowed"
-              : "border-violet/40 text-violet hover:bg-violet-soft",
-          )}
-          title={
-            products.length >= limit
-              ? `Twój plan ${plan.toUpperCase()} pozwala na ${limit} produkt(y)`
-              : "Dodaj produkt"
-          }
-        >
-          {products.length >= limit ? <Lock className="w-3.5 h-3.5 inline mr-1" /> : <Plus className="w-3.5 h-3.5 inline mr-1" />}
-          {products.length}/{limit}
-        </button>
+        {!adminMode && (
+          <button
+            onClick={createProduct}
+            disabled={products.length >= limit}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-sm font-semibold border-2 border-dashed transition-all",
+              products.length >= limit
+                ? "border-muted text-muted-foreground cursor-not-allowed"
+                : "border-violet/40 text-violet hover:bg-violet-soft",
+            )}
+            title={
+              products.length >= limit
+                ? `Twój plan ${plan.toUpperCase()} pozwala na ${limit} produkt(y)`
+                : "Dodaj produkt"
+            }
+          >
+            {products.length >= limit ? <Lock className="w-3.5 h-3.5 inline mr-1" /> : <Plus className="w-3.5 h-3.5 inline mr-1" />}
+            {products.length}/{limit}
+          </button>
+        )}
       </div>
 
       {active && score && (
@@ -294,70 +317,53 @@ function ProductsPage() {
             onJump={(s) => setOpenStage(s)}
           />
 
-          <ScoreCard breakdown={score.breakdown} score={score.score} onJump={setOpenStage} />
+          {/* JOURNEY — 5 wielkich boxów ze strzałkami */}
+          <ProductJourney
+            breakdown={score.breakdown}
+            openStage={openStage}
+            onSelect={setOpenStage}
+          />
 
-          {/* STAGES */}
-          <div className="space-y-3">
-            <StageWrapper
-              num={1}
-              title="Fundament Produktu"
-              emoji="🧱"
-              open={openStage === 1}
-              onToggle={() => setOpenStage(openStage === 1 ? 0 : 1)}
-            >
-              <StageFundament product={active} onUpdate={updateActive} />
-            </StageWrapper>
-
-            <StageWrapper
-              num={2}
-              title="Oferta Sprzedażowa"
-              emoji="💎"
-              open={openStage === 2}
-              onToggle={() => setOpenStage(openStage === 2 ? 0 : 2)}
-            >
-              <StageOffer product={active} onUpdate={updateActive} />
-            </StageWrapper>
-
-            <StageWrapper
-              num={3}
-              title="Cena i Pakiety"
-              emoji="💰"
-              open={openStage === 3}
-              onToggle={() => setOpenStage(openStage === 3 ? 0 : 3)}
-            >
-              <StagePricing
-                productId={active.id}
-                userId={user!.id}
-                packages={packages}
-                setPackages={setPackages}
-              />
-            </StageWrapper>
-
-            <StageWrapper
-              num={4}
-              title="Materiały Produktu"
-              emoji="📚"
-              open={openStage === 4}
-              onToggle={() => setOpenStage(openStage === 4 ? 0 : 4)}
-            >
-              <StageMaterials
-                productId={active.id}
-                userId={user!.id}
-                materials={materials}
-                setMaterials={setMaterials}
-              />
-            </StageWrapper>
-
-            <StageWrapper
-              num={5}
-              title="Publikacja i Sprzedaż"
-              emoji="🚀"
-              open={openStage === 5}
-              onToggle={() => setOpenStage(openStage === 5 ? 0 : 5)}
-            >
-              <StagePublish product={active} score={score.score} onUpdate={updateActive} />
-            </StageWrapper>
+          {/* AKTYWNY EDYTOR ETAPU */}
+          <div key={openStage} className="animate-fade-in">
+            {openStage === 1 && (
+              <StageEditor num={1} title="Fundament Produktu" emoji="🧱" subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz.">
+                <StageFundament product={active} onUpdate={updateActive} />
+              </StageEditor>
+            )}
+            {openStage === 2 && (
+              <StageEditor num={2} title="Oferta Sprzedażowa" emoji="💎" subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ.">
+                <StageOffer product={active} onUpdate={updateActive} />
+              </StageEditor>
+            )}
+            {openStage === 3 && (
+              <StageEditor num={3} title="Cena i Pakiety" emoji="💰" subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany.">
+                <StagePricing
+                  productId={active.id}
+                  userId={active.user_id ?? user!.id}
+                  packages={packages}
+                  setPackages={setPackages}
+                />
+              </StageEditor>
+            )}
+            {openStage === 4 && (
+              <StageEditor num={4} title="Materiały Produktu" emoji="📚" subtitle="Wgraj okładkę, PDF-y, workbooki i linki.">
+                <StageMaterials
+                  productId={active.id}
+                  userId={active.user_id ?? user!.id}
+                  materials={materials}
+                  setMaterials={setMaterials}
+                />
+              </StageEditor>
+            )}
+            {openStage === 5 && (
+              <StageEditor num={5} title="Publikacja i Sprzedaż" emoji="🚀" subtitle="Checklista gotowości przed startem sprzedaży.">
+                <StagePublish product={active} score={score.score} onUpdate={updateActive} />
+              </StageEditor>
+            )}
           </div>
+
+          <ScoreCard breakdown={score.breakdown} score={score.score} onJump={setOpenStage} />
 
           {/* EXPORTS (placeholder) */}
           <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
@@ -381,6 +387,7 @@ function ProductsPage() {
           </div>
         </>
       )}
+
 
       <CourseModulesLink />
     </PageShell>
