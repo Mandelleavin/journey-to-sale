@@ -340,7 +340,7 @@ function ProductsPage() {
               <StageEditor num={3} title="Cena i Pakiety" emoji="💰" subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany.">
                 <StagePricing
                   productId={active.id}
-                  userId={active.user_id ?? user!.id}
+                  userId={targetUserId!}
                   packages={packages}
                   setPackages={setPackages}
                 />
@@ -350,7 +350,7 @@ function ProductsPage() {
               <StageEditor num={4} title="Materiały Produktu" emoji="📚" subtitle="Wgraj okładkę, PDF-y, workbooki i linki.">
                 <StageMaterials
                   productId={active.id}
-                  userId={active.user_id ?? user!.id}
+                  userId={targetUserId!}
                   materials={materials}
                   setMaterials={setMaterials}
                 />
