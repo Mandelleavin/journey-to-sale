@@ -659,43 +659,173 @@ function ScoreCard({
   );
 }
 
-/* ---------------- STAGE WRAPPER ---------------- */
-function StageWrapper({
+/* ---------------- PRODUCT JOURNEY (5 boxów ze strzałkami) ---------------- */
+type StageMeta = { num: number; title: string; emoji: string; from: number; to: number; gradient: string };
+const JOURNEY_STAGES: StageMeta[] = [
+  { num: 1, title: "Fundament",  emoji: "🧱", from: 0,  to: 7,  gradient: "from-violet to-blue" },
+  { num: 2, title: "Oferta",     emoji: "💎", from: 7,  to: 13, gradient: "from-blue to-cyan-500" },
+  { num: 3, title: "Pakiety",    emoji: "💰", from: 13, to: 16, gradient: "from-amber-500 to-orange" },
+  { num: 4, title: "Materiały",  emoji: "📚", from: 16, to: 18, gradient: "from-pink-500 to-violet" },
+  { num: 5, title: "Publikacja", emoji: "🚀", from: 18, to: 19, gradient: "from-green to-emerald-500" },
+];
+
+function ProductJourney({
+  breakdown,
+  openStage,
+  onSelect,
+}: {
+  breakdown: ReturnType<typeof computeProductScore>["breakdown"];
+  openStage: number;
+  onSelect: (n: number) => void;
+}) {
+  const stageStats = JOURNEY_STAGES.map((s) => {
+    const slice = breakdown.slice(s.from, s.to);
+    const max = slice.reduce((a, x) => a + x.max, 0);
+    const earned = slice.reduce((a, x) => a + x.earned, 0);
+    const pct = max === 0 ? 0 : Math.round((earned / max) * 100);
+    const done = pct === 100;
+    const started = earned > 0;
+    return { ...s, max, earned, pct, done, started };
+  });
+
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-soft">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h3 className="font-display font-extrabold text-lg sm:text-xl">Mapa budowy produktu</h3>
+          <p className="text-sm text-muted-foreground">Kliknij etap, aby otworzyć edytor poniżej.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] gap-3 md:gap-2 items-stretch">
+        {stageStats.map((s, idx) => (
+          <>
+            <button
+              key={s.num}
+              onClick={() => onSelect(s.num)}
+              className={cn(
+                "group relative text-left rounded-2xl border-2 p-4 transition-all duration-300 overflow-hidden",
+                "hover:-translate-y-1 hover:shadow-glow focus:outline-none",
+                openStage === s.num
+                  ? "border-violet bg-gradient-violet text-primary-foreground shadow-glow scale-[1.02]"
+                  : s.done
+                    ? "border-green/40 bg-green/5 hover:border-green"
+                    : s.started
+                      ? "border-violet/40 bg-violet-soft hover:border-violet"
+                      : "border-border bg-muted/30 hover:border-violet/40",
+              )}
+            >
+              {/* shimmer on active */}
+              {openStage === s.num && (
+                <div className="absolute inset-0 pointer-events-none opacity-30 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.5),transparent)] bg-[length:200%_100%] animate-[shimmer_2.5s_linear_infinite]" />
+              )}
+              <div className="relative flex items-center gap-2 mb-2">
+                <span
+                  className={cn(
+                    "w-8 h-8 rounded-xl grid place-items-center text-sm font-bold shrink-0",
+                    openStage === s.num
+                      ? "bg-white/20 text-primary-foreground"
+                      : s.done
+                        ? "bg-green text-white"
+                        : "bg-card border border-border",
+                  )}
+                >
+                  {s.done ? <Check className="w-4 h-4" /> : s.num}
+                </span>
+                <span className="text-2xl">{s.emoji}</span>
+              </div>
+              <div className={cn(
+                "relative text-[10px] uppercase tracking-wider font-bold mb-0.5",
+                openStage === s.num ? "text-primary-foreground/80" : "text-muted-foreground",
+              )}>
+                Etap {s.num}
+              </div>
+              <div className="relative font-display font-extrabold text-base mb-3">{s.title}</div>
+              <div className={cn(
+                "relative h-1.5 rounded-full overflow-hidden",
+                openStage === s.num ? "bg-white/20" : "bg-border",
+              )}>
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-700",
+                    openStage === s.num
+                      ? "bg-white"
+                      : s.done
+                        ? "bg-green"
+                        : "bg-gradient-violet",
+                  )}
+                  style={{ width: `${s.pct}%` }}
+                />
+              </div>
+              <div className={cn(
+                "relative mt-1.5 text-xs font-semibold",
+                openStage === s.num
+                  ? "text-primary-foreground/90"
+                  : s.done
+                    ? "text-green"
+                    : s.started
+                      ? "text-violet"
+                      : "text-muted-foreground",
+              )}>
+                {s.done ? "Gotowe ✓" : s.started ? `${s.pct}%` : "Do zrobienia"}
+              </div>
+            </button>
+
+            {/* ARROW between boxes (desktop horizontal, mobile vertical) */}
+            {idx < stageStats.length - 1 && (
+              <div className="flex items-center justify-center" aria-hidden>
+                <div className="hidden md:flex items-center">
+                  <ArrowRight className={cn(
+                    "w-6 h-6 transition-colors",
+                    stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
+                  )} />
+                </div>
+                <div className="md:hidden flex justify-center py-1">
+                  <ChevronDown className={cn(
+                    "w-5 h-5 transition-colors",
+                    stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
+                  )} />
+                </div>
+              </div>
+            )}
+          </>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- STAGE EDITOR (duży box dla aktywnego etapu) ---------------- */
+function StageEditor({
   num,
   title,
   emoji,
-  open,
-  onToggle,
+  subtitle,
   children,
 }: {
   num: number;
   title: string;
   emoji: string;
-  open: boolean;
-  onToggle: () => void;
+  subtitle: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden">
-      <button
-        onClick={onToggle}
-        className="w-full p-4 flex items-center gap-3 hover:bg-muted/40 transition-colors"
-      >
-        <span className="text-2xl">{emoji}</span>
-        <div className="flex-1 text-left">
-          <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
-            Etap {num}
-          </div>
-          <div className="font-display font-bold">{title}</div>
+    <div className="rounded-3xl border-2 border-violet/30 bg-card shadow-soft overflow-hidden animate-scale-in">
+      <div className="p-5 sm:p-6 bg-gradient-to-r from-violet-soft to-blue-soft border-b-2 border-violet/20 flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground text-2xl shadow-glow shrink-0">
+          {emoji}
         </div>
-        <ChevronDown
-          className={cn("w-5 h-5 text-muted-foreground transition-transform", open && "rotate-180")}
-        />
-      </button>
-      {open && <div className="p-5 border-t border-border">{children}</div>}
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase tracking-wider font-bold text-violet">Etap {num} z 5</div>
+          <h3 className="font-display font-extrabold text-xl sm:text-2xl">{title}</h3>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        </div>
+      </div>
+      <div className="p-5 sm:p-6">{children}</div>
     </div>
   );
 }
+
 
 /* ---------------- STAGE 1: FUNDAMENT ---------------- */
 function StageFundament({
