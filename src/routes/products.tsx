@@ -787,7 +787,7 @@ function ProductJourney({
                 </div>
               </div>
             )}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
