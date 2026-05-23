@@ -82,6 +82,7 @@ const STATUSES = [
 
 function ProductsPage() {
   const { user } = useAuth();
+  const { userId: searchUserId } = Route.useSearch();
   const [products, setProducts] = useState<Product[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [packages, setPackages] = useState<Pkg[]>([]);
@@ -89,31 +90,53 @@ function ProductsPage() {
   const [plan, setPlan] = useState<string>("start");
   const [loading, setLoading] = useState(true);
   const [openStage, setOpenStage] = useState<number>(1);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [viewedProfile, setViewedProfile] = useState<{ email: string | null; full_name: string | null } | null>(null);
+
+  const adminMode = Boolean(searchUserId && searchUserId !== user?.id);
+  const targetUserId = adminMode ? searchUserId! : user?.id ?? null;
 
   const active = products.find((p) => p.id === activeId) ?? null;
   const limit = PLAN_PRODUCT_LIMITS[plan] ?? 1;
 
-  const loadAll = useCallback(async () => {
+  // detect admin role
+  useEffect(() => {
     if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(Boolean(data)));
+  }, [user]);
+
+  const loadAll = useCallback(async () => {
+    if (!targetUserId) return;
     setLoading(true);
-    const [{ data: prods }, { data: sub }] = await Promise.all([
+    const [{ data: prods }, { data: sub }, { data: prof }] = await Promise.all([
       supabase
         .from("user_products")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .order("position", { ascending: true })
         .order("created_at", { ascending: true }),
-      supabase.from("user_subscriptions").select("plan").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_subscriptions").select("plan").eq("user_id", targetUserId).maybeSingle(),
+      adminMode
+        ? supabase.from("profiles").select("email, full_name").eq("id", targetUserId).maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
     setProducts((prods ?? []) as Product[]);
     setPlan((sub?.plan as string) ?? "start");
+    setViewedProfile(prof ?? null);
     if (prods && prods.length > 0 && !activeId) setActiveId(prods[0].id);
     setLoading(false);
-  }, [user, activeId]);
+  }, [targetUserId, adminMode, activeId]);
 
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
 
   // load packages + materials for active product
   useEffect(() => {
