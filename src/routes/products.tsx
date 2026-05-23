@@ -699,9 +699,8 @@ function ProductJourney({
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] gap-3 md:gap-2 items-stretch">
         {stageStats.map((s, idx) => (
-          <>
+          <Fragment key={s.num}>
             <button
-              key={s.num}
               onClick={() => onSelect(s.num)}
               className={cn(
                 "group relative text-left rounded-2xl border-2 p-4 transition-all duration-300 overflow-hidden",
