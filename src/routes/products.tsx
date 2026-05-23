@@ -793,7 +793,7 @@ function StagePricing({
 
   const update = async (id: string, patch: Partial<Pkg>) => {
     setPackages((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-    await supabase.from("user_product_packages").update(patch).eq("id", id);
+    await supabase.from("user_product_packages").update(patch as never).eq("id", id);
   };
 
   const remove = async (id: string) => {
