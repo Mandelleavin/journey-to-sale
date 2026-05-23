@@ -163,7 +163,7 @@ function ProductsPage() {
   const updateActive = async (patch: Partial<Product>) => {
     if (!active) return;
     setProducts((ps) => ps.map((p) => (p.id === active.id ? { ...p, ...patch } : p)));
-    const { error } = await supabase.from("user_products").update(patch).eq("id", active.id);
+    const { error } = await supabase.from("user_products").update(patch as never).eq("id", active.id);
     if (error) toast.error(error.message);
   };
 
