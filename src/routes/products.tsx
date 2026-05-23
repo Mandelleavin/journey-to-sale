@@ -163,7 +163,7 @@ function ProductsPage() {
   const updateActive = async (patch: Partial<Product>) => {
     if (!active) return;
     setProducts((ps) => ps.map((p) => (p.id === active.id ? { ...p, ...patch } : p)));
-    const { error } = await supabase.from("user_products").update(patch).eq("id", active.id);
+    const { error } = await supabase.from("user_products").update(patch as never).eq("id", active.id);
     if (error) toast.error(error.message);
   };
 
@@ -793,7 +793,7 @@ function StagePricing({
 
   const update = async (id: string, patch: Partial<Pkg>) => {
     setPackages((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-    await supabase.from("user_product_packages").update(patch).eq("id", id);
+    await supabase.from("user_product_packages").update(patch as never).eq("id", id);
   };
 
   const remove = async (id: string) => {
