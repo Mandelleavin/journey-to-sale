@@ -92,6 +92,7 @@ function ProductsPage() {
   const [openStage, setOpenStage] = useState<number>(1);
   const [isAdmin, setIsAdmin] = useState(false);
   const [viewedProfile, setViewedProfile] = useState<{ email: string | null; full_name: string | null } | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
 
   const adminMode = Boolean(searchUserId && searchUserId !== user?.id);
   const targetUserId = adminMode ? searchUserId! : user?.id ?? null;
