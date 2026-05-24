@@ -321,11 +321,16 @@ function ProductsPage() {
           <ProductJourney
             breakdown={score.breakdown}
             openStage={openStage}
-            onSelect={setOpenStage}
+            onSelect={(s) => {
+              setOpenStage(s);
+              requestAnimationFrame(() => {
+                editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              });
+            }}
           />
 
           {/* AKTYWNY EDYTOR ETAPU */}
-          <div key={openStage} className="animate-fade-in">
+          <div ref={editorRef} key={openStage} className="animate-fade-in scroll-mt-20">
             {openStage === 1 && (
               <StageEditor num={1} title="Fundament Produktu" emoji="🧱" subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz.">
                 <StageFundament product={active} onUpdate={updateActive} />
