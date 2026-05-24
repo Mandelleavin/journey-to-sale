@@ -42,6 +42,7 @@ import {
   type MaterialRow,
   type PackageRow,
   type ProductRow,
+  type ScoreBreakdown,
 } from "@/lib/product-score";
 
 export const Route = createFileRoute("/products")({
