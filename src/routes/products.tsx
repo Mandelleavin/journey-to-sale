@@ -962,6 +962,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ target_audience: v })}
         placeholder="Np. Początkujący twórcy kursów online"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Jaki problem rozwiązuje?"
@@ -969,6 +971,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ problem: v })}
         placeholder="Np. Nie wiedzą jak zacząć i ciągle odkładają na później"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Efekt po przejściu produktu"
@@ -976,6 +980,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ result: v })}
         placeholder="Np. Mają gotowy do sprzedaży produkt cyfrowy"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Główna obietnica (1 zdanie)"
@@ -983,6 +989,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ promise: v })}
         placeholder="Np. Zbudujesz swój produkt w 14 dni — krok po kroku"
         textarea
+        required
+        minLength={15}
       />
     </div>
   );
