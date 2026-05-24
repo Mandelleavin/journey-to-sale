@@ -1012,6 +1012,8 @@ function StageOffer({
           value={product.sales_headline}
           onChange={(v) => onUpdate({ sales_headline: v })}
           placeholder="Np. Twój pierwszy produkt cyfrowy w 14 dni"
+          required
+          minLength={10}
         />
         <Field
           label="Podtytuł sprzedażowy"
@@ -1025,6 +1027,8 @@ function StageOffer({
         value={product.cta_label}
         onChange={(v) => onUpdate({ cta_label: v })}
         placeholder="Np. Kupuję teraz"
+        required
+        minLength={3}
       />
       <ListField
         label="Lista korzyści"
