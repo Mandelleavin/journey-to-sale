@@ -335,17 +335,38 @@ function ProductsPage() {
           {/* AKTYWNY EDYTOR ETAPU */}
           <div ref={editorRef} key={openStage} className="animate-fade-in scroll-mt-20">
             {openStage === 1 && (
-              <StageEditor num={1} title="Fundament Produktu" emoji="🧱" subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz.">
+              <StageEditor
+                num={1}
+                title="Fundament Produktu"
+                emoji="🧱"
+                subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz."
+                stageBreakdown={score.breakdown.slice(0, 7)}
+                onMarkReady={async () => {
+                  if (active.status === "idea") await updateActive({ status: "building" });
+                }}
+              >
                 <StageFundament product={active} onUpdate={updateActive} />
               </StageEditor>
             )}
             {openStage === 2 && (
-              <StageEditor num={2} title="Oferta Sprzedażowa" emoji="💎" subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ.">
+              <StageEditor
+                num={2}
+                title="Oferta Sprzedażowa"
+                emoji="💎"
+                subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ."
+                stageBreakdown={score.breakdown.slice(7, 13)}
+              >
                 <StageOffer product={active} onUpdate={updateActive} />
               </StageEditor>
             )}
             {openStage === 3 && (
-              <StageEditor num={3} title="Cena i Pakiety" emoji="💰" subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany.">
+              <StageEditor
+                num={3}
+                title="Cena i Pakiety"
+                emoji="💰"
+                subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany."
+                stageBreakdown={score.breakdown.slice(13, 16)}
+              >
                 <StagePricing
                   productId={active.id}
                   userId={targetUserId!}
@@ -355,7 +376,13 @@ function ProductsPage() {
               </StageEditor>
             )}
             {openStage === 4 && (
-              <StageEditor num={4} title="Materiały Produktu" emoji="📚" subtitle="Wgraj okładkę, PDF-y, workbooki i linki.">
+              <StageEditor
+                num={4}
+                title="Materiały Produktu"
+                emoji="📚"
+                subtitle="Wgraj okładkę, PDF-y, workbooki i linki."
+                stageBreakdown={score.breakdown.slice(16, 18)}
+              >
                 <StageMaterials
                   productId={active.id}
                   userId={targetUserId!}
@@ -365,11 +392,22 @@ function ProductsPage() {
               </StageEditor>
             )}
             {openStage === 5 && (
-              <StageEditor num={5} title="Publikacja i Sprzedaż" emoji="🚀" subtitle="Checklista gotowości przed startem sprzedaży.">
+              <StageEditor
+                num={5}
+                title="Publikacja i Sprzedaż"
+                emoji="🚀"
+                subtitle="Checklista gotowości przed startem sprzedaży."
+                stageBreakdown={score.breakdown.slice(18)}
+                onMarkReady={async () => {
+                  await updateActive({ status: "ready" });
+                }}
+                readyLabel="Oznacz produkt jako gotowy do sprzedaży"
+              >
                 <StagePublish product={active} score={score.score} onUpdate={updateActive} />
               </StageEditor>
             )}
           </div>
+
 
           <ScoreCard breakdown={score.breakdown} score={score.score} onJump={setOpenStage} />
 
