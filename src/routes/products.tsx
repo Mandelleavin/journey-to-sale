@@ -28,6 +28,8 @@ import {
   FileDown,
   Lightbulb,
   ChevronDown,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -40,6 +42,7 @@ import {
   type MaterialRow,
   type PackageRow,
   type ProductRow,
+  type ScoreBreakdown,
 } from "@/lib/product-score";
 
 export const Route = createFileRoute("/products")({
@@ -333,17 +336,38 @@ function ProductsPage() {
           {/* AKTYWNY EDYTOR ETAPU */}
           <div ref={editorRef} key={openStage} className="animate-fade-in scroll-mt-20">
             {openStage === 1 && (
-              <StageEditor num={1} title="Fundament Produktu" emoji="🧱" subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz.">
+              <StageEditor
+                num={1}
+                title="Fundament Produktu"
+                emoji="🧱"
+                subtitle="Nazwa, obietnica, dla kogo i jaki rezultat dajesz."
+                stageBreakdown={score.breakdown.slice(0, 7)}
+                onMarkReady={async () => {
+                  if (active.status === "idea") await updateActive({ status: "building" });
+                }}
+              >
                 <StageFundament product={active} onUpdate={updateActive} />
               </StageEditor>
             )}
             {openStage === 2 && (
-              <StageEditor num={2} title="Oferta Sprzedażowa" emoji="💎" subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ.">
+              <StageEditor
+                num={2}
+                title="Oferta Sprzedażowa"
+                emoji="💎"
+                subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ."
+                stageBreakdown={score.breakdown.slice(7, 13)}
+              >
                 <StageOffer product={active} onUpdate={updateActive} />
               </StageEditor>
             )}
             {openStage === 3 && (
-              <StageEditor num={3} title="Cena i Pakiety" emoji="💰" subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany.">
+              <StageEditor
+                num={3}
+                title="Cena i Pakiety"
+                emoji="💰"
+                subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany."
+                stageBreakdown={score.breakdown.slice(13, 16)}
+              >
                 <StagePricing
                   productId={active.id}
                   userId={targetUserId!}
@@ -353,7 +377,13 @@ function ProductsPage() {
               </StageEditor>
             )}
             {openStage === 4 && (
-              <StageEditor num={4} title="Materiały Produktu" emoji="📚" subtitle="Wgraj okładkę, PDF-y, workbooki i linki.">
+              <StageEditor
+                num={4}
+                title="Materiały Produktu"
+                emoji="📚"
+                subtitle="Wgraj okładkę, PDF-y, workbooki i linki."
+                stageBreakdown={score.breakdown.slice(16, 18)}
+              >
                 <StageMaterials
                   productId={active.id}
                   userId={targetUserId!}
@@ -363,11 +393,22 @@ function ProductsPage() {
               </StageEditor>
             )}
             {openStage === 5 && (
-              <StageEditor num={5} title="Publikacja i Sprzedaż" emoji="🚀" subtitle="Checklista gotowości przed startem sprzedaży.">
+              <StageEditor
+                num={5}
+                title="Publikacja i Sprzedaż"
+                emoji="🚀"
+                subtitle="Checklista gotowości przed startem sprzedaży."
+                stageBreakdown={score.breakdown.slice(18)}
+                onMarkReady={async () => {
+                  await updateActive({ status: "ready" });
+                }}
+                readyLabel="Oznacz produkt jako gotowy do sprzedaży"
+              >
                 <StagePublish product={active} score={score.score} onUpdate={updateActive} />
               </StageEditor>
             )}
           </div>
+
 
           <ScoreCard breakdown={score.breakdown} score={score.score} onJump={setOpenStage} />
 
@@ -807,13 +848,39 @@ function StageEditor({
   emoji,
   subtitle,
   children,
+  stageBreakdown,
+  onMarkReady,
+  readyLabel = "Oznacz etap jako gotowy",
 }: {
   num: number;
   title: string;
   emoji: string;
   subtitle: string;
   children: React.ReactNode;
+  stageBreakdown?: ScoreBreakdown[];
+  onMarkReady?: () => Promise<void> | void;
+  readyLabel?: string;
 }) {
+  const missing = (stageBreakdown ?? []).filter((b) => !b.done);
+  const allDone = stageBreakdown ? missing.length === 0 : false;
+  const [busy, setBusy] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+
+  const handleMark = async () => {
+    if (!allDone) {
+      setShowErrors(true);
+      toast.error(`Uzupełnij ${missing.length} ${missing.length === 1 ? "pole" : "pola/pól"}, aby zamknąć ten etap.`);
+      return;
+    }
+    setBusy(true);
+    try {
+      await onMarkReady?.();
+      toast.success(`Etap ${num} oznaczony jako gotowy 🎉`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="rounded-3xl border-2 border-violet/30 bg-card shadow-soft overflow-hidden animate-scale-in">
       <div className="p-5 sm:p-6 bg-gradient-to-r from-violet-soft to-blue-soft border-b-2 border-violet/20 flex items-center gap-4">
@@ -827,6 +894,53 @@ function StageEditor({
         </div>
       </div>
       <div className="p-5 sm:p-6">{children}</div>
+
+      {stageBreakdown && stageBreakdown.length > 0 && (
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-3">
+          {showErrors && !allDone && (
+            <div className="rounded-2xl border-2 border-destructive/30 bg-destructive/5 p-4 animate-fade-in">
+              <div className="flex items-center gap-2 mb-2 text-destructive font-semibold text-sm">
+                <AlertCircle className="w-4 h-4" />
+                Brakuje {missing.length} {missing.length === 1 ? "pola" : "pól"} aby zamknąć ten etap:
+              </div>
+              <ul className="space-y-1 text-sm pl-6">
+                {missing.map((m, i) => (
+                  <li key={i} className="text-destructive list-disc">
+                    <span className="font-semibold">{m.label}</span>
+                    <span className="text-muted-foreground"> — {m.hint}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {allDone && (
+            <div className="rounded-2xl border-2 border-green/40 bg-green/5 p-4 flex items-center gap-2 text-green font-semibold text-sm">
+              <CheckCircle2 className="w-5 h-5" />
+              Wszystkie pola tego etapu są wypełnione poprawnie.
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-xs text-muted-foreground">
+              Gotowe: <span className="font-bold text-foreground">{stageBreakdown.length - missing.length}/{stageBreakdown.length}</span>
+            </div>
+            <Button
+              onClick={handleMark}
+              disabled={busy}
+              className={cn(
+                "shadow-soft",
+                allDone
+                  ? "bg-gradient-to-r from-green to-emerald-500 text-white hover:opacity-90"
+                  : "bg-muted text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {allDone ? <CheckCircle2 className="w-4 h-4 mr-1" /> : <AlertCircle className="w-4 h-4 mr-1" />}
+              {readyLabel}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -848,6 +962,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ target_audience: v })}
         placeholder="Np. Początkujący twórcy kursów online"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Jaki problem rozwiązuje?"
@@ -855,6 +971,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ problem: v })}
         placeholder="Np. Nie wiedzą jak zacząć i ciągle odkładają na później"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Efekt po przejściu produktu"
@@ -862,6 +980,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ result: v })}
         placeholder="Np. Mają gotowy do sprzedaży produkt cyfrowy"
         textarea
+        required
+        minLength={10}
       />
       <Field
         label="Główna obietnica (1 zdanie)"
@@ -869,6 +989,8 @@ function StageFundament({
         onChange={(v) => onUpdate({ promise: v })}
         placeholder="Np. Zbudujesz swój produkt w 14 dni — krok po kroku"
         textarea
+        required
+        minLength={15}
       />
     </div>
   );
@@ -890,6 +1012,8 @@ function StageOffer({
           value={product.sales_headline}
           onChange={(v) => onUpdate({ sales_headline: v })}
           placeholder="Np. Twój pierwszy produkt cyfrowy w 14 dni"
+          required
+          minLength={10}
         />
         <Field
           label="Podtytuł sprzedażowy"
@@ -903,6 +1027,8 @@ function StageOffer({
         value={product.cta_label}
         onChange={(v) => onUpdate({ cta_label: v })}
         placeholder="Np. Kupuję teraz"
+        required
+        minLength={3}
       />
       <ListField
         label="Lista korzyści"
@@ -1308,28 +1434,74 @@ function Field({
   onChange,
   placeholder,
   textarea,
+  required,
+  minLength,
+  maxLength,
 }: {
   label: string;
   value?: string | null;
   onChange: (v: string) => void;
   placeholder?: string;
   textarea?: boolean;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }) {
   const [local, setLocal] = useState(value ?? "");
+  const [touched, setTouched] = useState(false);
   useEffect(() => setLocal(value ?? ""), [value]);
   const Cmp = textarea ? Textarea : Input;
+
+  const trimmed = local.trim();
+  let error: string | null = null;
+  if (touched) {
+    if (required && trimmed.length === 0) error = "To pole jest wymagane.";
+    else if (minLength && trimmed.length > 0 && trimmed.length < minLength)
+      error = `Wpisz minimum ${minLength} znaków (masz ${trimmed.length}).`;
+    else if (maxLength && trimmed.length > maxLength)
+      error = `Maksymalnie ${maxLength} znaków (masz ${trimmed.length}).`;
+  }
+
   return (
     <div>
-      <Label className="text-xs uppercase font-bold text-muted-foreground">{label}</Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs uppercase font-bold text-muted-foreground">
+          {label}
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        {minLength && (
+          <span className={cn(
+            "text-[10px] tabular-nums",
+            trimmed.length >= minLength ? "text-green" : "text-muted-foreground",
+          )}>
+            {trimmed.length}/{minLength}
+          </span>
+        )}
+      </div>
       <Cmp
         value={local}
-        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-          setLocal(e.target.value)
-        }
-        onBlur={() => local !== (value ?? "") && onChange(local)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+          setLocal(e.target.value);
+          if (!touched) setTouched(true);
+        }}
+        onBlur={() => {
+          setTouched(true);
+          if (local !== (value ?? "")) onChange(local);
+        }}
         placeholder={placeholder}
-        className={cn("mt-1", textarea && "min-h-[80px]")}
+        aria-invalid={error ? true : undefined}
+        className={cn(
+          "mt-1",
+          textarea && "min-h-[80px]",
+          error && "border-destructive focus-visible:ring-destructive",
+        )}
       />
+      {error && (
+        <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
