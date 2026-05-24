@@ -1422,28 +1422,74 @@ function Field({
   onChange,
   placeholder,
   textarea,
+  required,
+  minLength,
+  maxLength,
 }: {
   label: string;
   value?: string | null;
   onChange: (v: string) => void;
   placeholder?: string;
   textarea?: boolean;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }) {
   const [local, setLocal] = useState(value ?? "");
+  const [touched, setTouched] = useState(false);
   useEffect(() => setLocal(value ?? ""), [value]);
   const Cmp = textarea ? Textarea : Input;
+
+  const trimmed = local.trim();
+  let error: string | null = null;
+  if (touched) {
+    if (required && trimmed.length === 0) error = "To pole jest wymagane.";
+    else if (minLength && trimmed.length > 0 && trimmed.length < minLength)
+      error = `Wpisz minimum ${minLength} znaków (masz ${trimmed.length}).`;
+    else if (maxLength && trimmed.length > maxLength)
+      error = `Maksymalnie ${maxLength} znaków (masz ${trimmed.length}).`;
+  }
+
   return (
     <div>
-      <Label className="text-xs uppercase font-bold text-muted-foreground">{label}</Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs uppercase font-bold text-muted-foreground">
+          {label}
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        {minLength && (
+          <span className={cn(
+            "text-[10px] tabular-nums",
+            trimmed.length >= minLength ? "text-green" : "text-muted-foreground",
+          )}>
+            {trimmed.length}/{minLength}
+          </span>
+        )}
+      </div>
       <Cmp
         value={local}
-        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-          setLocal(e.target.value)
-        }
-        onBlur={() => local !== (value ?? "") && onChange(local)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+          setLocal(e.target.value);
+          if (!touched) setTouched(true);
+        }}
+        onBlur={() => {
+          setTouched(true);
+          if (local !== (value ?? "")) onChange(local);
+        }}
         placeholder={placeholder}
-        className={cn("mt-1", textarea && "min-h-[80px]")}
+        aria-invalid={error ? true : undefined}
+        className={cn(
+          "mt-1",
+          textarea && "min-h-[80px]",
+          error && "border-destructive focus-visible:ring-destructive",
+        )}
       />
+      {error && (
+        <p className="mt-1 text-xs text-destructive flex items-center gap-1">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
