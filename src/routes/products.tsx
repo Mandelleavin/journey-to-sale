@@ -1066,6 +1066,50 @@ function StageOffer({
 }
 
 /* ---------------- STAGE 3: PRICING ---------------- */
+type PkgPreset = {
+  key: "basic" | "pro" | "vip";
+  name: string;
+  tagline: string;
+  price: number;
+  items: string[];
+  icon: typeof Zap;
+  accent: string;
+  ring: string;
+};
+
+const PKG_PRESETS: PkgPreset[] = [
+  {
+    key: "basic",
+    name: "Basic",
+    tagline: "Wejście do tematu",
+    price: 297,
+    items: ["Dostęp do kursu", "Materiały PDF", "30 dni dostępu"],
+    icon: Zap,
+    accent: "from-blue-soft to-violet-soft text-blue",
+    ring: "ring-blue/40 border-blue/40",
+  },
+  {
+    key: "pro",
+    name: "Pro",
+    tagline: "Najczęściej wybierany",
+    price: 597,
+    items: ["Wszystko z Basic", "Sesje grupowe Q&A", "Społeczność", "Bonus: szablony"],
+    icon: Crown,
+    accent: "from-violet-soft to-orange/20 text-violet",
+    ring: "ring-violet/50 border-violet/50",
+  },
+  {
+    key: "vip",
+    name: "VIP",
+    tagline: "Maksymalna transformacja",
+    price: 1497,
+    items: ["Wszystko z Pro", "Sesja 1:1 z Tobą", "Priorytetowe wsparcie", "Dożywotni dostęp"],
+    icon: Gem,
+    accent: "from-orange/20 to-violet-soft text-orange",
+    ring: "ring-orange/40 border-orange/40",
+  },
+];
+
 function StagePricing({
   productId,
   userId,
@@ -1077,21 +1121,34 @@ function StagePricing({
   packages: Pkg[];
   setPackages: React.Dispatch<React.SetStateAction<Pkg[]>>;
 }) {
-  const add = async () => {
+  const addFromPreset = async (preset?: PkgPreset) => {
     if (packages.length >= 3) return toast.error("Max 3 pakiety");
-    const names = ["Basic", "Pro", "VIP"];
+    const fallbackNames = ["Basic", "Pro", "VIP"];
+    const payload = preset
+      ? {
+          product_id: productId,
+          user_id: userId,
+          name: preset.name,
+          price: preset.price,
+          description: preset.tagline,
+          items: preset.items,
+          position: packages.length,
+          is_featured: preset.key === "pro" && !packages.some((p) => p.is_featured),
+        }
+      : {
+          product_id: productId,
+          user_id: userId,
+          name: fallbackNames[packages.length] ?? "Pakiet",
+          position: packages.length,
+        };
     const { data, error } = await supabase
       .from("user_product_packages")
-      .insert({
-        product_id: productId,
-        user_id: userId,
-        name: names[packages.length] ?? "Pakiet",
-        position: packages.length,
-      })
+      .insert(payload)
       .select()
       .single();
     if (error) return toast.error(error.message);
     setPackages((p) => [...p, data as Pkg]);
+    toast.success(preset ? `Pakiet ${preset.name} dodany ✨` : "Pakiet dodany");
   };
 
   const update = async (id: string, patch: Partial<Pkg>) => {
@@ -1099,86 +1156,268 @@ function StagePricing({
     await supabase.from("user_product_packages").update(patch as never).eq("id", id);
   };
 
+  const toggleFeatured = async (id: string, next: boolean) => {
+    // Tylko jeden polecany na raz — najpierw wyzeruj resztę
+    if (next) {
+      setPackages((p) => p.map((x) => ({ ...x, is_featured: x.id === id })));
+      await Promise.all(
+        packages
+          .filter((p) => p.id !== id && p.is_featured)
+          .map((p) =>
+            supabase.from("user_product_packages").update({ is_featured: false } as never).eq("id", p.id),
+          ),
+      );
+      await supabase.from("user_product_packages").update({ is_featured: true } as never).eq("id", id);
+    } else {
+      update(id, { is_featured: false });
+    }
+  };
+
   const remove = async (id: string) => {
     setPackages((p) => p.filter((x) => x.id !== id));
     await supabase.from("user_product_packages").delete().eq("id", id);
   };
 
+  const count = packages.length;
+  const progressPct = Math.min(100, (count / 3) * 100);
+  const usedPresetNames = new Set(packages.map((p) => (p.name ?? "").toLowerCase()));
+
   return (
-    <div className="space-y-4">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {packages.map((pkg) => (
-          <div
-            key={pkg.id}
-            className={cn(
-              "rounded-2xl border p-4 space-y-3 transition-all",
-              pkg.is_featured
-                ? "border-violet bg-gradient-to-br from-violet-soft to-blue-soft ring-2 ring-violet/40"
-                : "border-border bg-card",
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <Input
-                value={pkg.name ?? ""}
-                onChange={(e) => update(pkg.id, { name: e.target.value })}
-                placeholder="Nazwa"
-                className="font-bold border-0 px-0 focus-visible:ring-0 h-auto"
-              />
-              <button
-                onClick={() => update(pkg.id, { is_featured: !pkg.is_featured })}
-                title="Oznacz polecany"
+    <div className="space-y-6">
+      {/* PROGRESS HEADER */}
+      <div className="rounded-3xl bg-gradient-to-r from-violet-soft via-blue-soft to-violet-soft p-5 border border-violet/20 shadow-soft">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+                Pakiety
+              </div>
+              <div className="font-display font-extrabold text-lg">
+                {count} z 3 gotowych
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
                 className={cn(
-                  "p-1 rounded transition-colors",
-                  pkg.is_featured ? "text-orange" : "text-muted-foreground hover:text-orange",
+                  "w-8 h-8 rounded-full grid place-items-center font-bold text-xs transition-all duration-500",
+                  i < count
+                    ? "bg-gradient-violet text-primary-foreground shadow-glow scale-110"
+                    : "bg-background border-2 border-dashed border-violet/30 text-muted-foreground",
                 )}
               >
-                <Star className={cn("w-4 h-4", pkg.is_featured && "fill-orange")} />
-              </button>
-            </div>
-            <div className="flex items-center gap-1">
-              <Input
-                type="number"
-                value={pkg.price ?? ""}
-                onChange={(e) =>
-                  update(pkg.id, { price: e.target.value ? Number(e.target.value) : null })
-                }
-                placeholder="497"
-                className="font-display font-extrabold text-2xl"
-              />
-              <span className="text-muted-foreground font-semibold">PLN</span>
-            </div>
-            <Textarea
-              value={pkg.description ?? ""}
-              onChange={(e) => update(pkg.id, { description: e.target.value })}
-              placeholder="Krótki opis"
-              className="text-sm min-h-[50px]"
-            />
-            <PkgItems
-              items={(pkg.items as string[] | undefined) ?? []}
-              onChange={(items) => update(pkg.id, { items })}
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => remove(pkg.id)}
-              className="text-destructive hover:text-destructive w-full"
-            >
-              <Trash2 className="w-3.5 h-3.5 mr-1" /> Usuń pakiet
-            </Button>
+                {i < count ? <Check className="w-4 h-4 animate-scale-in" /> : i + 1}
+              </div>
+            ))}
           </div>
-        ))}
-        {packages.length < 3 && (
-          <button
-            onClick={add}
-            className="rounded-2xl border-2 border-dashed border-violet/40 p-4 min-h-[200px] grid place-items-center text-violet hover:bg-violet-soft transition-colors"
+        </div>
+        <div className="h-2.5 rounded-full bg-background/60 overflow-hidden">
+          <div
+            className="h-full bg-gradient-violet transition-all duration-700 ease-out relative overflow-hidden"
+            style={{ width: `${progressPct}%` }}
           >
-            <div className="text-center">
-              <Plus className="w-6 h-6 mx-auto mb-1" />
-              <span className="font-semibold text-sm">Dodaj pakiet</span>
-            </div>
-          </button>
-        )}
+            <div className="absolute inset-0 animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          </div>
+        </div>
       </div>
+
+      {/* PRESET PICKER — gdy brak pakietów lub zostało miejsce */}
+      {count < 3 && (
+        <div className="space-y-3 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 text-orange" />
+            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+              {count === 0 ? "Wybierz szablon, by zacząć szybko" : "Dodaj kolejny pakiet"}
+            </span>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {PKG_PRESETS.map((preset) => {
+              const used = usedPresetNames.has(preset.name.toLowerCase());
+              const Icon = preset.icon;
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  disabled={used}
+                  onClick={() => addFromPreset(preset)}
+                  className={cn(
+                    "group relative text-left rounded-2xl border-2 p-4 transition-all duration-300",
+                    "hover:scale-[1.02] hover:shadow-glow hover:-translate-y-0.5",
+                    "active:scale-[0.98]",
+                    used
+                      ? "opacity-50 cursor-not-allowed border-border bg-muted/30"
+                      : cn("bg-gradient-to-br cursor-pointer", preset.accent, preset.ring),
+                  )}
+                >
+                  {preset.key === "pro" && !used && (
+                    <div className="absolute -top-2 -right-2 bg-orange text-primary-foreground text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-soft uppercase tracking-wider animate-pulse">
+                      Polecany
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-xl bg-background/80 grid place-items-center shadow-soft group-hover:rotate-6 transition-transform">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-display font-extrabold text-base">{preset.name}</div>
+                      <div className="text-[11px] text-muted-foreground font-medium">
+                        {preset.tagline}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="font-display font-extrabold text-2xl mb-2">
+                    {preset.price} <span className="text-xs text-muted-foreground font-semibold">PLN</span>
+                  </div>
+                  <ul className="space-y-1">
+                    {preset.items.slice(0, 3).map((it, i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-xs">
+                        <Check className="w-3 h-3 mt-0.5 text-green shrink-0" />
+                        <span className="text-muted-foreground">{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {used ? (
+                    <div className="mt-3 text-[11px] font-bold text-muted-foreground flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Dodany
+                    </div>
+                  ) : (
+                    <div className="mt-3 text-xs font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Dodaj <ArrowRight className="w-3 h-3" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => addFromPreset()}
+            className="w-full rounded-2xl border-2 border-dashed border-violet/30 p-3 text-sm font-semibold text-violet hover:bg-violet-soft transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> lub zacznij od pustego pakietu
+          </button>
+        </div>
+      )}
+
+      {/* AKTYWNE PAKIETY — duże karty */}
+      {count > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-green" />
+            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+              Twoje pakiety
+            </span>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {packages.map((pkg, idx) => (
+              <PkgCard
+                key={pkg.id}
+                pkg={pkg}
+                index={idx}
+                onUpdate={(patch) => update(pkg.id, patch)}
+                onToggleFeatured={(next) => toggleFeatured(pkg.id, next)}
+                onRemove={() => remove(pkg.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PkgCard({
+  pkg,
+  index,
+  onUpdate,
+  onToggleFeatured,
+  onRemove,
+}: {
+  pkg: Pkg;
+  index: number;
+  onUpdate: (patch: Partial<Pkg>) => void;
+  onToggleFeatured: (next: boolean) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div
+      style={{ animationDelay: `${index * 60}ms` }}
+      className={cn(
+        "relative rounded-3xl border-2 p-5 space-y-3 transition-all duration-300 animate-scale-in",
+        pkg.is_featured
+          ? "border-violet bg-gradient-to-br from-violet-soft via-background to-blue-soft ring-2 ring-violet/40 shadow-glow"
+          : "border-border bg-card hover:border-violet/30",
+      )}
+    >
+      {pkg.is_featured && (
+        <div className="absolute -top-3 left-4 bg-gradient-violet text-primary-foreground text-[10px] font-extrabold px-3 py-1 rounded-full shadow-glow uppercase tracking-wider flex items-center gap-1">
+          <Crown className="w-3 h-3" /> Polecany
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-2">
+        <Input
+          value={pkg.name ?? ""}
+          onChange={(e) => onUpdate({ name: e.target.value })}
+          placeholder="Nazwa pakietu"
+          className="font-display font-extrabold text-lg border-0 px-0 focus-visible:ring-0 h-auto bg-transparent"
+        />
+        <button
+          type="button"
+          onClick={() => onToggleFeatured(!pkg.is_featured)}
+          title={pkg.is_featured ? "Usuń wyróżnienie" : "Oznacz jako polecany"}
+          className={cn(
+            "shrink-0 w-9 h-9 rounded-xl grid place-items-center transition-all duration-300",
+            pkg.is_featured
+              ? "bg-gradient-violet text-primary-foreground shadow-glow scale-110"
+              : "bg-muted text-muted-foreground hover:text-orange hover:bg-orange/10",
+          )}
+        >
+          <Star className={cn("w-4 h-4 transition-transform", pkg.is_featured && "fill-current animate-pulse")} />
+        </button>
+      </div>
+
+      <div className="rounded-2xl bg-background/60 border border-border p-3">
+        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+          Cena
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <Input
+            type="number"
+            value={pkg.price ?? ""}
+            onChange={(e) =>
+              onUpdate({ price: e.target.value ? Number(e.target.value) : null })
+            }
+            placeholder="497"
+            className="font-display font-extrabold text-3xl border-0 px-0 focus-visible:ring-0 h-auto bg-transparent"
+          />
+          <span className="text-muted-foreground font-bold text-sm">PLN</span>
+        </div>
+      </div>
+
+      <Textarea
+        value={pkg.description ?? ""}
+        onChange={(e) => onUpdate({ description: e.target.value })}
+        placeholder="Co dostaje klient w skrócie..."
+        className="text-sm min-h-[60px] resize-none"
+      />
+
+      <PkgItems
+        items={(pkg.items as string[] | undefined) ?? []}
+        onChange={(items) => onUpdate({ items })}
+      />
+
+      <button
+        type="button"
+        onClick={onRemove}
+        className="w-full text-xs font-semibold text-muted-foreground hover:text-destructive transition-colors flex items-center justify-center gap-1 py-1.5 rounded-lg hover:bg-destructive/5"
+      >
+        <Trash2 className="w-3 h-3" /> Usuń pakiet
+      </button>
     </div>
   );
 }
@@ -1191,35 +1430,65 @@ function PkgItems({
   onChange: (items: string[]) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const add = () => {
+    const v = draft.trim();
+    if (!v) return;
+    onChange([...items, v]);
+    setDraft("");
+    inputRef.current?.focus();
+  };
+
   return (
-    <div className="space-y-1.5">
-      <ul className="space-y-1">
+    <div className="space-y-2">
+      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+        Co zawiera ({items.length})
+      </div>
+      <ul className="space-y-1.5">
         {items.map((it, i) => (
-          <li key={i} className="flex items-start gap-1.5 text-sm">
-            <Check className="w-3.5 h-3.5 mt-0.5 text-green shrink-0" />
-            <span className="flex-1">{it}</span>
+          <li
+            key={i}
+            className="group flex items-start gap-2 text-sm rounded-lg px-2 py-1.5 bg-green/5 border border-green/20 animate-scale-in"
+          >
+            <div className="w-5 h-5 rounded-full bg-green grid place-items-center shrink-0 mt-0.5 shadow-soft">
+              <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+            </div>
+            <span className="flex-1 leading-snug">{it}</span>
             <button
+              type="button"
               onClick={() => onChange(items.filter((_, idx) => idx !== i))}
-              className="text-muted-foreground hover:text-destructive"
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity shrink-0"
+              aria-label="Usuń"
             >
-              ×
+              <X className="w-3.5 h-3.5" />
             </button>
           </li>
         ))}
       </ul>
-      <div className="flex gap-1">
+      <div className="flex gap-1.5">
         <Input
+          ref={inputRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && draft.trim()) {
-              onChange([...items, draft.trim()]);
-              setDraft("");
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
             }
           }}
-          placeholder="Co zawiera pakiet..."
-          className="text-xs h-8"
+          placeholder="Dodaj funkcję pakietu..."
+          className="text-sm h-9"
         />
+        <Button
+          type="button"
+          size="sm"
+          onClick={add}
+          disabled={!draft.trim()}
+          className="h-9 px-3 bg-gradient-violet text-primary-foreground shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
