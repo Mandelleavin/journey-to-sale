@@ -318,7 +318,12 @@ function ProductsPage() {
           <NextStepCard
             nextHint={score.nextStep.hint}
             stage={score.nextStep.stage}
-            onJump={(s) => setOpenStage(s)}
+            onJump={(s) => {
+              setOpenStage(s);
+              requestAnimationFrame(() => {
+                editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              });
+            }}
           />
 
           {/* JOURNEY — 5 wielkich boxów ze strzałkami */}
