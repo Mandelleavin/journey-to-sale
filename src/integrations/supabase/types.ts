@@ -416,6 +416,7 @@ export type Database = {
           is_free: boolean
           is_published: boolean
           position: number
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
           required_xp: number
           slug: string | null
           title: string
@@ -429,6 +430,9 @@ export type Database = {
           is_free?: boolean
           is_published?: boolean
           position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           required_xp?: number
           slug?: string | null
           title: string
@@ -442,6 +446,9 @@ export type Database = {
           is_free?: boolean
           is_published?: boolean
           position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           required_xp?: number
           slug?: string | null
           title?: string
@@ -539,6 +546,39 @@ export type Database = {
           updated_at?: string
           winner_id?: string | null
           xp_stake?: number
+        }
+        Relationships: []
+      }
+      email_sequences_queue: {
+        Row: {
+          created_at: string
+          id: string
+          meta: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1045,6 +1085,7 @@ export type Database = {
           id: string
           is_published: boolean
           position: number
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
           requires_previous_module: boolean
           title: string
           unlock_after_hours: number
@@ -1057,6 +1098,9 @@ export type Database = {
           id?: string
           is_published?: boolean
           position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           requires_previous_module?: boolean
           title: string
           unlock_after_hours?: number
@@ -1069,6 +1113,9 @@ export type Database = {
           id?: string
           is_published?: boolean
           position?: number
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           requires_previous_module?: boolean
           title?: string
           unlock_after_hours?: number
@@ -1114,6 +1161,39 @@ export type Database = {
           title?: string
           type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      plan_features: {
+        Row: {
+          created_at: string
+          feature_key: string
+          id: string
+          is_enabled: boolean
+          label: string | null
+          limit_value: number
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          id?: string
+          is_enabled?: boolean
+          label?: string | null
+          limit_value?: number
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          id?: string
+          is_enabled?: boolean
+          label?: string | null
+          limit_value?: number
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1703,6 +1783,42 @@ export type Database = {
           },
         ]
       }
+      user_engagement: {
+        Row: {
+          breakdown: Json
+          created_at: string
+          hot_notified_at: string | null
+          label: Database["public"]["Enums"]["user_lead_temp"]
+          on_fire_notified_at: string | null
+          recalc_at: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          breakdown?: Json
+          created_at?: string
+          hot_notified_at?: string | null
+          label?: Database["public"]["Enums"]["user_lead_temp"]
+          on_fire_notified_at?: string | null
+          recalc_at?: string
+          score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          breakdown?: Json
+          created_at?: string
+          hot_notified_at?: string | null
+          label?: Database["public"]["Enums"]["user_lead_temp"]
+          on_fire_notified_at?: string | null
+          recalc_at?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_learning_path_steps: {
         Row: {
           completed_at: string
@@ -2234,6 +2350,7 @@ export type Database = {
         Args: { _plan: Database["public"]["Enums"]["subscription_plan"] }
         Returns: number
       }
+      recalc_engagement: { Args: { _user_id: string }; Returns: undefined }
       redeem_credit_code: {
         Args: { _code: string; _user_id: string }
         Returns: Json
@@ -2301,7 +2418,7 @@ export type Database = {
         | "cancelled"
         | "past_due"
         | "trialing"
-      user_lead_temp: "cold" | "warm" | "hot"
+      user_lead_temp: "cold" | "warm" | "hot" | "on_fire"
       user_product_status: "idea" | "building" | "ready" | "published"
       user_product_type:
         | "ebook"
@@ -2503,7 +2620,7 @@ export const Constants = {
         "past_due",
         "trialing",
       ],
-      user_lead_temp: ["cold", "warm", "hot"],
+      user_lead_temp: ["cold", "warm", "hot", "on_fire"],
       user_product_status: ["idea", "building", "ready", "published"],
       user_product_type: [
         "ebook",
