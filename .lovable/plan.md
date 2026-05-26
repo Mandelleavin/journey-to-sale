@@ -1,92 +1,111 @@
-# Mój Produkt — nowy kreator (MVP)
 
-Cel: zakładka `/products` przestaje być przeglądarką 7 modułów kursu, a staje się **centrum dowodzenia produktem użytkownika** — z poczuciem „buduję coś, co mogę sprzedać".
+# Engagement Score + Gating planów
 
-## Decyzje (z odpowiedzi)
+Dwa filary: (1) mierzymy „temperaturę" usera deterministycznie z aktywności w app, (2) twardo egzekwujemy limity per plan z ekranem upgrade. Wykorzystujemy istniejące tabele — nie dublujemy zdarzeń.
 
-- **Limity produktów wg planu**: Start = 1, Pro = 2, VIP = 3.
-- **Bez AI w MVP** — Produkt Score liczony deterministycznie z wypełnionych pól. Generatory AI dorobimy w kolejnym kroku.
-- **Stare moduły** (`PRODUCT_MODULES`, postęp 7 modułów) **przenosimy do `/courses`** — w `/products` ich już nie ma.
+## 1. Engagement Score (0–100)
 
-## Widok docelowy (w kolejności na ekranie)
+Liczone w widoku SQL `user_engagement_v` z danych już zbieranych. Recalc on-demand przy odczycie + cache w nowej tabeli `user_engagement` (refresh trigger przy kluczowych zdarzeniach).
 
-1. **Wybór produktu / "Twoje produkty"** — chipy z produktami + przycisk „Dodaj produkt" (zablokowany po przekroczeniu limitu planu, z podpowiedzią upgrade).
-2. **Górna karta produktu** — okładka, nazwa, podtytuł, obietnica, typ, status, pasek postępu, Produkt Score (np. 42/100), CTA „Kontynuuj budowę".
-3. **Twój następny krok** — 1 główne zadanie + max 3 mniejsze (dynamicznie z brakujących pól).
-4. **Produkt Score** — co jest gotowe / co poprawić, CTA „Popraw wynik".
-5. **5 etapów budowy** (taby/akordeon):
-   - Etap 1 Fundament — nazwa, dla kogo, problem, obietnica, efekt, typ, cena robocza
-   - Etap 2 Oferta — nagłówek, podtytuł, korzyści[], agenda[], moduły[], bonusy[], FAQ[], CTA
-   - Etap 3 Cena i Pakiety — tabela 1–3 pakietów (Basic/Pro/VIP) z podglądem pricing table
-   - Etap 4 Materiały — biblioteka plików (cover, PDF, workbook, prezentacje, linki)
-   - Etap 5 Publikacja — checklista gotowości + komunikat „gotowe w X%"
-6. **Eksporty** — PDF oferty / tabela cen / plan sprzedaży (placeholder przyciski, działanie w kolejnej iteracji).
+**Składniki (wagi):**
 
-## Produkt Score (deterministyczny, 0–100)
+| Sygnał | Źródło | Max pkt |
+|---|---|---|
+| Aktywność 7 dni (logowania) | `profiles.last_seen` + `user_xp_log` daty | 15 |
+| Streak (current_streak) | `user_streaks.current_streak` (cap 30) | 15 |
+| Postęp kursu | `user_lesson_progress` / `lessons` w aktywnym kursie | 20 |
+| Zadania mentora zatwierdzone | `mentor_assigned_tasks.status='approved'` (30 dni) | 15 |
+| Produkt Score najlepszego produktu | `product-score.ts` (skala 0–100 → 0–25) | 25 |
+| Wypełniona ankieta + readiness | `survey_responses.readiness_percent` (0–100 → 0–10) | 10 |
 
-Punkty za wypełnienie pól (przykładowy podział):
+**Etykiety:**
+- 0–24 `cold`, 25–49 `warm`, 50–74 `hot`, 75–100 `on_fire`
+- Mapowanie do istniejącego `profiles.lead_temp` (rozszerzymy enum o `on_fire`)
 
-- Fundament (35 pkt): nazwa 5, dla kogo 5, problem 5, obietnica 10, efekt 5, typ 3, cena 2
-- Oferta (25 pkt): nagłówek 5, korzyści ≥3 → 5, agenda ≥3 → 5, bonusy ≥1 → 3, FAQ ≥3 → 5, CTA 2
-- Pakiety (15 pkt): ≥1 pakiet 5, ≥2 pakiety 5, oznaczony „polecany" 5
-- Materiały (15 pkt): cover 5, ≥3 pliki 10
-- Publikacja (10 pkt): checklista — po 1 pkt za pozycję (max 10)
+## 2. Auto-akcje przy przekroczeniu progu
 
-„Twój następny krok" = pierwsza luka punktowa w kolejności etapów.
+Trigger przy update `user_engagement.score`:
+- ≥50 (hot, pierwszy raz w 14 dni): wpis do `lead_calls` + notyfikacja dla adminów (analogicznie do `on_survey_hot_lead`)
+- ≥75 (on_fire): dodatkowo wpis do nowej tabeli `email_sequences_queue` (status=pending, template=`upgrade_hot`) — wysyłka maila przez TanStack serverFn cron, używa już skonfigurowanej infrastruktury maili
+- Update `profiles.lead_temp` automatycznie
 
-## Struktura techniczna
+Banner upsell w aplikacji (frontend, czyta `user_engagement.label`) — pojawia się na dashboardzie tylko dla `hot`/`on_fire` z planem `start`.
 
-### Tabele (nowa migracja)
+## 3. Twarde limity per plan (blok + upgrade screen)
 
-**`user_products`** — jeden wiersz = jeden produkt użytkownika.
-- domain fields: `title`, `subtitle`, `promise`, `target_audience`, `problem`, `result`, `product_type` (enum: ebook/kurs/warsztat/aplikacja/konsultacje/abonament), `status` (enum: idea/building/ready/published), `cover_url`, `price_draft` (numeric), `sales_headline`, `sales_subtitle`, `benefits` (jsonb[]), `agenda` (jsonb[]), `bonuses` (jsonb[]), `faq` (jsonb[]), `cta_label`, `publish_checklist` (jsonb — mapa klucz→bool), `position` (int do sortowania)
-- RLS: właściciel CRUD, admin wszystko.
+Nowa tabela `plan_features` (admin może edytować) zamiast hardcode:
 
-**`user_product_packages`** — pakiety cenowe (1:N do produktu).
-- `name`, `price`, `currency`, `description`, `items` (jsonb[]), `is_featured`, `position`.
+```text
+plan_features
+  plan: subscription_plan
+  feature_key: text  // products_count, courses_access, generators_access, coach_messages_day, community_vip
+  limit_value: int   // -1 = unlimited
+  is_enabled: bool
+```
 
-**`user_product_materials`** — biblioteka materiałów (1:N).
-- `kind` (cover/pdf/workbook/presentation/link/bonus/graphic/sales), `title`, `file_url`, `external_link`, `position`.
+**Domyślne wartości:**
 
-**Storage bucket** `product-assets` (private) — okładki + pliki. RLS: użytkownik czyta/pisze w `{user_id}/...`.
+| Feature | Start | Pro | VIP |
+|---|---|---|---|
+| products_count | 1 | 2 | 3 |
+| ai_credits_monthly | 80 | 250 | 700 |
+| courses_access | basic | all | all + 1:1 |
+| generators_required_plan | start | pro | vip (via `ai_generators.required_plan`) |
+| coach_messages_day | 5 | 30 | unlimited |
+| community_vip | false | false | true |
+| exports_pdf | false | true | true |
+| modules_advanced | false | true | true |
 
-**Limit produktów wg planu** — w `createServerFn` `createProduct`: liczymy istniejące i porównujemy z `plan_limit(plan)` (start=1, pro=2, vip=3). Nadwyżka → błąd „Upgrade planu".
+**Egzekwowanie (twardy blok):**
+- SerwerFn `requirePlanFeature(feature_key, required_value)` — middleware używane w każdym chronionym serverFn (np. `createProduct`, `generateAI`, `sendCoachMessage`). Rzuca `PlanLimitError` z `{ feature, current_plan, required_plan }`.
+- Frontend: hook `usePlanFeature(key)` → zwraca `{ allowed, limit, used, requiredPlan }`. Wrapper `<PlanGate feature="...">` renderuje dziecko lub ekran upgrade (CTA do `/pricing`).
+- Existing courses/lessons: dodajemy `required_plan` do `courses` i `modules` (nullable, default null=wszyscy), `lessons.tsx` sprawdza przez serverFn.
 
-### Kod (frontend)
+## 4. Panel admina
 
-- `src/routes/products.tsx` — przepisany od zera (usuwamy widok 7 modułów).
-- Komponenty w `src/components/products/`:
-  - `ProductSelector.tsx` (chipy + Dodaj)
-  - `ProductHeroCard.tsx` (cover upload, nagłówki, score, CTA)
-  - `NextStepCard.tsx`
-  - `ProductScoreCard.tsx` (lista gotowe/do poprawy)
-  - `stages/StageFundament.tsx`, `StageOffer.tsx`, `StagePricing.tsx`, `StageMaterials.tsx`, `StagePublish.tsx`
-  - `PricingTablePreview.tsx`
-- `src/lib/product-score.ts` — funkcja `computeProductScore(product, packages, materials) => { score, breakdown, nextStep }`.
-- `src/lib/products.functions.ts` — `createServerFn` na CRUD produktu/pakietów/materiałów + check limitu planu.
+Nowa zakładka `/admin/engagement`:
+- Lista userów sortowana po score (z filtrem `lead_temp`, plan, dni od ostatniego logowania)
+- Każdy wiersz: avatar, name, plan, score + breakdown (mini progress bary składowych), CTA „Zaplanuj call", „Wyślij ofertę"
+- Edytor `plan_features` (tabela z inline-edit limitami)
 
-### Przeniesienie modułów kursu
+## 5. Pliki
 
-- Stary `PRODUCT_MODULES` + zapisy w `product_builder_progress` zostają nietknięte w bazie.
-- Widok 7 modułów z `/products` przenosimy do nowej zakładki na stronie kursu (np. sekcja w `/courses` lub osobny route — do potwierdzenia w implementacji). W tym planie: nowy komponent `CourseBuilderModules` używany w `/courses` (lokalizacja do ustalenia przy realizacji).
-- Sidebar/nav: pozycja „Mój produkt" zostaje, link prowadzi do nowego widoku.
+**Migracja:**
+- `user_engagement` (user_id PK, score, label, breakdown jsonb, recalc_at)
+- `plan_features` (+ seed defaults)
+- `email_sequences_queue` (user_id, template, status, scheduled_for, sent_at)
+- Enum `user_lead_temp` += `'on_fire'`
+- `courses.required_plan`, `modules.required_plan` (subscription_plan nullable)
+- View `user_engagement_v` + funkcja `recalc_engagement(_user_id)`
+- Triggery na `user_xp_log`, `mentor_assigned_tasks`, `user_products` → `recalc_engagement`
+- Trigger na `user_engagement` UPDATE → wstawienie do `lead_calls` / `email_sequences_queue`
 
-## Styl
+**Backend (TanStack serverFn):**
+- `src/lib/engagement.functions.ts` — `getMyEngagement`, `getAdminEngagementList`, `recalcEngagement`
+- `src/lib/plan-gating.ts` + `src/lib/plan-gating.functions.ts` — `requirePlanFeature` middleware, `getPlanFeatures` (cached)
+- `src/lib/email-queue.functions.ts` — `processEmailQueue` (cron)
 
-- Zachowujemy obecne tokeny (fioletowo-niebieski gradient, `bg-gradient-violet`, `shadow-soft`, miękkie zaokrąglenia).
-- Mobile: stack — selector → karta produktu → next step → etapy (akordeon zwinięte) → eksporty.
+**Frontend:**
+- `src/hooks/useEngagement.ts`
+- `src/hooks/usePlanFeature.ts`
+- `src/components/PlanGate.tsx` + `src/components/UpgradeScreen.tsx` (ładny full-screen blok z porównaniem planów i CTA)
+- `src/components/dashboard/EngagementWidget.tsx` (dla usera — pokazuje temperaturę i co podbije score)
+- `src/components/dashboard/UpsellBanner.tsx` (auto-show dla hot leadów na planie start)
+- `src/routes/admin.engagement.tsx`
+- Owinięcie w `PlanGate`: `routes/generator.$slug.tsx`, `routes/coach.tsx`, `routes/community.tsx` (sekcja VIP), `routes/lessons.$lessonId.tsx`
 
-## Zakres MVP (czego NIE robimy teraz)
+## 6. Kolejność wdrożenia
 
-- AI asystent / generatory (button placeholders gotowe pod podpięcie później).
-- Eksport PDF / plan sprzedaży 7 dni — buttony jako „Wkrótce".
-- Historia wersji produktu, duplikowanie — odkładamy.
-- Migracja danych ze starego `product_builder_progress` do nowego produktu — nie robimy (to były checkboxy lekcji, nie pola produktu).
+1. Migracja DB (tabele, enum, view, funkcja recalc, triggery, seed plan_features)
+2. `plan-gating.ts` + `usePlanFeature` + `PlanGate` + `UpgradeScreen` — fundamenty
+3. Owinięcie istniejących routów (generator, coach, lessons, community) w gating
+4. `engagement.functions.ts` + widok admina
+5. `EngagementWidget` + `UpsellBanner` na dashboardzie
+6. Email queue + cron (lekki — odpalimy gdy podłączysz wysyłkę maili)
 
-## Kolejność wdrożenia
+## Notatki techniczne
 
-1. Migracja DB (tabele + storage + RLS).
-2. `products.functions.ts` + `product-score.ts`.
-3. Komponenty i nowy `routes/products.tsx`.
-4. Przeniesienie widoku modułów kursu do `/courses`.
-5. QA na 1287px i mobile.
+- Wszystkie nowe tabele z RLS: user czyta swoje, admin wszystko, service_role pełen dostęp
+- `recalc_engagement` jako SECURITY DEFINER, wywoływana z triggerów po `user_xp_log INSERT`, `mentor_assigned_tasks UPDATE`, `user_products UPDATE` — dzięki temu score zawsze świeży bez cron
+- `PlanGate` na froncie to UX, prawdziwa blokada w serverFn (security)
+- Email queue początkowo bez wysyłki — same wpisy + powiadomienie admina. Pełna wysyłka po podpięciu skrzynki (osobny krok, znana infra Lovable)
