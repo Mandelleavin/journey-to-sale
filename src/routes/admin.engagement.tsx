@@ -34,13 +34,13 @@ function AdminEngagementPage() {
   if (loading) return null;
   if (!isAdmin) {
     return (
-      <PageShell>
+      <PageShell title="Engagement">
         <div className="p-8 text-center text-muted-foreground">Brak dostępu</div>
       </PageShell>
     );
   }
   return (
-    <PageShell>
+    <PageShell title="Engagement i limity planów" subtitle="Temperatura użytkowników + konfiguracja planów">
       <div className="space-y-8 p-4 md:p-6">
         <header>
           <h1 className="text-3xl font-bold flex items-center gap-3">
