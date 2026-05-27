@@ -411,8 +411,10 @@ function CourseDetailPage() {
           </div>
         )}
 
-        <div className="mt-6 space-y-6">
-          {modules.map((m, mIdx) => {
+        {(() => {
+          const modulesEl = (
+            <div className="mt-6 space-y-6">
+              {modules.map((m, mIdx) => {
             const lInMod = lessons.filter((l) => l.module_id === m.id);
             const unlockAt = moduleUnlockedAt(m);
             const timeOk = unlockAt <= new Date();
