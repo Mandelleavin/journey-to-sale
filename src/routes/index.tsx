@@ -268,9 +268,10 @@ function Index() {
           />
           <MentorTasksSection />
           <div className="grid lg:grid-cols-2 gap-5">
+            <EngagementWidget />
             <CreditsWidget />
-            <AccelerateWidget />
           </div>
+          <AccelerateWidget />
           <CoursesSection courses={enrichedCourses} fullName={fullName} />
           <TasksAndAchievements />
         </main>
