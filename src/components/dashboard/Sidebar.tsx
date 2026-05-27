@@ -13,6 +13,7 @@ import {
   Bot,
   Shield,
   BookOpen,
+  Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -32,6 +33,7 @@ const items = [
 
 const adminItems = [
   { icon: Shield, label: "Panel admina", to: "/admin" as const },
+  { icon: Flame, label: "Engagement & Hot leady", to: "/admin/engagement" as const },
   { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" as const },
   { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" as const },
 ];

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
 import { AccelerateWidget } from "@/components/dashboard/AccelerateWidget";
+import { EngagementWidget } from "@/components/dashboard/EngagementWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
@@ -267,9 +268,10 @@ function Index() {
           />
           <MentorTasksSection />
           <div className="grid lg:grid-cols-2 gap-5">
+            <EngagementWidget />
             <CreditsWidget />
-            <AccelerateWidget />
           </div>
+          <AccelerateWidget />
           <CoursesSection courses={enrichedCourses} fullName={fullName} />
           <TasksAndAchievements />
         </main>
