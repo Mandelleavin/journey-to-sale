@@ -92,7 +92,7 @@ function CoursesPage() {
                     </Link>
                   ) : (
                     <PlanGate
-                      feature="courses_premium"
+                      feature="courses_all"
                       fallback={
                         <Link
                           to="/pricing"

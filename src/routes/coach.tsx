@@ -60,8 +60,8 @@ function CoachPage() {
       title="AI Coach"
       subtitle="Spersonalizowane wskazówki na bazie Twojego profilu i postępów"
     >
-      <PlanLimitBanner feature="coach_ai" used={userMsgCount} />
-      <PlanGate feature="coach_ai" compact>
+      <PlanLimitBanner feature="coach_messages_day" used={userMsgCount} />
+      <PlanGate feature="coach_messages_day" compact>
         <div className="rounded-3xl border border-border bg-card shadow-soft flex flex-col h-[600px]">
           <div className="flex items-center gap-2 p-4 border-b border-border">
             <div className="w-10 h-10 rounded-xl bg-gradient-violet grid place-items-center">

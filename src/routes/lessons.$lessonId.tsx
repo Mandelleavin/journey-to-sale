@@ -613,7 +613,7 @@ function LessonPage() {
         </div>
       </div>
     );
-    return courseIsFree ? content : <PlanGate feature="courses_premium" compact>{content}</PlanGate>;
+    return courseIsFree ? content : <PlanGate feature="courses_all" compact>{content}</PlanGate>;
   })()}
 
   <SubmitTaskDialog

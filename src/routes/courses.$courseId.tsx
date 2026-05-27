@@ -490,7 +490,7 @@ function CourseDetailPage() {
           )}
         </div>
       );
-      return course.is_free ? modulesEl : <PlanGate feature="courses_premium" compact>{modulesEl}</PlanGate>;
+      return course.is_free ? modulesEl : <PlanGate feature="courses_all" compact>{modulesEl}</PlanGate>;
     })()}
 
         {rewards.length > 0 && (
