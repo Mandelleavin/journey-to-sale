@@ -612,8 +612,11 @@ function LessonPage() {
           </div>
         </div>
       </div>
+    );
+    return courseIsFree ? content : <PlanGate feature="courses_premium" compact>{content}</PlanGate>;
+  })()}
 
-      <SubmitTaskDialog
+  <SubmitTaskDialog
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
         open={!!submitTask}
