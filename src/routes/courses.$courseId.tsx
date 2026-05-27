@@ -489,6 +489,9 @@ function CourseDetailPage() {
             <div className="text-sm text-muted-foreground p-4">Brak lekcji w tym kursie.</div>
           )}
         </div>
+      );
+      return course.is_free ? modulesEl : <PlanGate feature="courses_premium" compact>{modulesEl}</PlanGate>;
+    })()}
 
         {rewards.length > 0 && (
           <section className="mt-10">
