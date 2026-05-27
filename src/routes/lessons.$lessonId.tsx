@@ -73,6 +73,7 @@ function LessonPage() {
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
   const [fanfare, setFanfare] = useState(false);
+  const [courseIsFree, setCourseIsFree] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
