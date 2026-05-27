@@ -1,11 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { PlanGate } from "@/components/PlanGate";
 import { Lock, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/courses/")({
   head: () => ({
