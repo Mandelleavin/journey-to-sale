@@ -114,12 +114,19 @@ function LessonPage() {
       ]);
     if (l) {
       const row = l as Record<string, unknown>;
-      setLesson({
+      const lessonData = {
         ...(row as unknown as Lesson),
         content_blocks: Array.isArray(row.content_blocks)
           ? (row.content_blocks as ContentBlock[])
           : [],
-      });
+      };
+      setLesson(lessonData);
+      const { data: courseRow } = await supabase
+        .from("courses")
+        .select("is_free")
+        .eq("id", lessonData.course_id)
+        .maybeSingle();
+      setCourseIsFree(courseRow?.is_free ?? false);
     }
     setTasks((t ?? []) as Task[]);
     setSubmissions((s ?? []) as Sub[]);
