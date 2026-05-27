@@ -1,11 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { PlanGate } from "@/components/PlanGate";
 import { Lock, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/courses/")({
   head: () => ({
@@ -22,27 +20,6 @@ export const Route = createFileRoute("/courses/")({
 
 function CoursesPage() {
   const data = useDashboardData();
-  const { user } = useAuth();
-  const [hasSub, setHasSub] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const { data: subs } = await supabase
-        .from("subscriptions")
-        .select("status, current_period_end")
-        .eq("user_id", user.id);
-      const active = (subs ?? []).some(
-        (s) =>
-          (["active", "trialing"].includes(s.status) &&
-            (!s.current_period_end || new Date(s.current_period_end) > new Date())) ||
-          (s.status === "canceled" &&
-            s.current_period_end &&
-            new Date(s.current_period_end) > new Date()),
-      );
-      setHasSub(active);
-    })();
-  }, [user]);
 
   return (
     <PageShell
@@ -60,8 +37,7 @@ function CoursesPage() {
               ? Math.round((watched / lessonsForCourse.length) * 100)
               : 0;
             const xpOk = data.totalXp >= c.required_xp;
-            const subOk = c.is_free || hasSub === true;
-            const unlocked = xpOk && subOk;
+            const unlocked = xpOk;
             const done = progress === 100 && lessonsForCourse.length > 0;
 
             return (
@@ -106,20 +82,35 @@ function CoursesPage() {
                 </div>
                 <div className="text-xs font-bold">{progress}%</div>
                 {unlocked ? (
-                  <Link
-                    to="/courses/$courseId"
-                    params={{ courseId: c.id }}
-                    className="mt-auto inline-flex items-center justify-center rounded-xl bg-gradient-violet text-primary-foreground text-sm font-bold py-2.5 shadow-glow"
-                  >
-                    {done ? "Powtórz kurs" : progress > 0 ? "Kontynuuj" : "Rozpocznij"}
-                  </Link>
-                ) : !subOk ? (
-                  <Link
-                    to="/pricing"
-                    className="mt-auto inline-flex items-center justify-center rounded-xl bg-muted text-foreground text-sm font-bold py-2.5"
-                  >
-                    Wymaga abonamentu
-                  </Link>
+                  c.is_free ? (
+                    <Link
+                      to="/courses/$courseId"
+                      params={{ courseId: c.id }}
+                      className="mt-auto inline-flex items-center justify-center rounded-xl bg-gradient-violet text-primary-foreground text-sm font-bold py-2.5 shadow-glow"
+                    >
+                      {done ? "Powtórz kurs" : progress > 0 ? "Kontynuuj" : "Rozpocznij"}
+                    </Link>
+                  ) : (
+                    <PlanGate
+                      feature="courses_all"
+                      fallback={
+                        <Link
+                          to="/pricing"
+                          className="mt-auto inline-flex items-center justify-center rounded-xl bg-muted text-foreground text-sm font-bold py-2.5"
+                        >
+                          Wymaga abonamentu
+                        </Link>
+                      }
+                    >
+                      <Link
+                        to="/courses/$courseId"
+                        params={{ courseId: c.id }}
+                        className="mt-auto inline-flex items-center justify-center rounded-xl bg-gradient-violet text-primary-foreground text-sm font-bold py-2.5 shadow-glow"
+                      >
+                        {done ? "Powtórz kurs" : progress > 0 ? "Kontynuuj" : "Rozpocznij"}
+                      </Link>
+                    </PlanGate>
+                  )
                 ) : (
                   <button
                     disabled

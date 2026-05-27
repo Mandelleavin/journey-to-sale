@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { PlanGate } from "@/components/PlanGate";
 import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -410,8 +411,10 @@ function CourseDetailPage() {
           </div>
         )}
 
-        <div className="mt-6 space-y-6">
-          {modules.map((m, mIdx) => {
+        {(() => {
+          const modulesEl = (
+            <div className="mt-6 space-y-6">
+              {modules.map((m, mIdx) => {
             const lInMod = lessons.filter((l) => l.module_id === m.id);
             const unlockAt = moduleUnlockedAt(m);
             const timeOk = unlockAt <= new Date();
@@ -486,6 +489,9 @@ function CourseDetailPage() {
             <div className="text-sm text-muted-foreground p-4">Brak lekcji w tym kursie.</div>
           )}
         </div>
+      );
+      return course.is_free ? modulesEl : <PlanGate feature="courses_all" compact>{modulesEl}</PlanGate>;
+    })()}
 
         {rewards.length > 0 && (
           <section className="mt-10">

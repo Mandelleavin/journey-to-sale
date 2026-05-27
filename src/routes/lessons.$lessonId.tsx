@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { PlanGate } from "@/components/PlanGate";
 import {
   ArrowLeft,
   ArrowRight,
@@ -72,6 +73,7 @@ function LessonPage() {
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
   const [fanfare, setFanfare] = useState(false);
+  const [courseIsFree, setCourseIsFree] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -112,12 +114,19 @@ function LessonPage() {
       ]);
     if (l) {
       const row = l as Record<string, unknown>;
-      setLesson({
+      const lessonData = {
         ...(row as unknown as Lesson),
         content_blocks: Array.isArray(row.content_blocks)
           ? (row.content_blocks as ContentBlock[])
           : [],
-      });
+      };
+      setLesson(lessonData);
+      const { data: courseRow } = await supabase
+        .from("courses")
+        .select("is_free")
+        .eq("id", lessonData.course_id)
+        .maybeSingle();
+      setCourseIsFree(courseRow?.is_free ?? false);
     }
     setTasks((t ?? []) as Task[]);
     setSubmissions((s ?? []) as Sub[]);
@@ -269,8 +278,10 @@ function LessonPage() {
           </div>
         </div>
       )}
-      <div className="mx-auto max-w-3xl p-4 md:p-6">
-        <Link
+      {(() => {
+        const content = (
+          <div className="mx-auto max-w-3xl p-4 md:p-6">
+            <Link
           to="/courses/$courseId"
           params={{ courseId: lesson.course_id }}
           className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
@@ -601,8 +612,11 @@ function LessonPage() {
           </div>
         </div>
       </div>
+    );
+    return courseIsFree ? content : <PlanGate feature="courses_all" compact>{content}</PlanGate>;
+  })()}
 
-      <SubmitTaskDialog
+  <SubmitTaskDialog
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
         open={!!submitTask}
