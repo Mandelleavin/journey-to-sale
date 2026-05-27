@@ -278,8 +278,10 @@ function LessonPage() {
           </div>
         </div>
       )}
-      <div className="mx-auto max-w-3xl p-4 md:p-6">
-        <Link
+      {(() => {
+        const content = (
+          <div className="mx-auto max-w-3xl p-4 md:p-6">
+            <Link
           to="/courses/$courseId"
           params={{ courseId: lesson.course_id }}
           className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
