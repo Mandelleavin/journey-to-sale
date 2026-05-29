@@ -1,7 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PageShell } from "@/components/dashboard/PageShell";
-import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,18 +50,10 @@ const MODELS = [
 ];
 
 function AdminAIGenerators() {
-  const navigate = useNavigate();
-  const { user, isAdmin, loading } = useAuth();
   const [items, setItems] = useState<Generator[]>([]);
   const [creditValue, setCreditValue] = useState(0.5);
   const [marginMult, setMarginMult] = useState(7);
   const [editing, setEditing] = useState<Generator | null>(null);
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) navigate({ to: "/auth" });
-    else if (!isAdmin) navigate({ to: "/" });
-  }, [user, isAdmin, loading, navigate]);
 
   const refresh = async () => {
     const [{ data: gens }, { data: settings }] = await Promise.all([
@@ -78,10 +68,8 @@ function AdminAIGenerators() {
   };
 
   useEffect(() => {
-    if (isAdmin) refresh();
-  }, [isAdmin]);
-
-  if (loading || !isAdmin) return null;
+    refresh();
+  }, []);
 
   const minCredits = (apiCostPln: number) =>
     Math.max(1, Math.ceil((apiCostPln * marginMult) / Math.max(0.01, creditValue)));
@@ -138,10 +126,7 @@ function AdminAIGenerators() {
   };
 
   return (
-    <PageShell
-      title="Generatory AI — administracja"
-      subtitle="Zarządzaj promptami, modelami i kosztem kredytów"
-    >
+    <div className="space-y-6">
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <div className="font-display font-bold text-lg mb-3">Ekonomia kredytów</div>
         <div className="grid md:grid-cols-3 gap-3">
@@ -398,6 +383,6 @@ function AdminAIGenerators() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PageShell>
+    </div>
   );
 }

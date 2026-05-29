@@ -1,7 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +14,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  ArrowLeft,
   Plus,
   Pencil,
   Trash2,
@@ -56,8 +54,6 @@ type Module = {
 };
 
 function AdminCoursesPage() {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [modules, setModules] = useState<Record<string, Module[]>>({});
   const [lessonCounts, setLessonCounts] = useState<Record<string, number>>({});
@@ -68,12 +64,6 @@ function AdminCoursesPage() {
     module: Partial<Module>;
   } | null>(null);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) navigate({ to: "/auth" });
-    else if (!isAdmin) navigate({ to: "/" });
-  }, [user, isAdmin, loading, navigate]);
 
   const load = async () => {
     setLoadingData(true);
@@ -98,8 +88,8 @@ function AdminCoursesPage() {
   };
 
   useEffect(() => {
-    if (isAdmin) load();
-  }, [isAdmin]);
+    load();
+  }, []);
 
   const saveCourse = async () => {
     if (!editingCourse) return;
@@ -193,30 +183,15 @@ function AdminCoursesPage() {
     load();
   };
 
-  if (loading || !isAdmin) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
-        Ładowanie...
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-app">
-      <div className="mx-auto max-w-[1200px] p-4 md:p-6">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div>
-            <Link
-              to="/admin"
-              className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-            >
-              <ArrowLeft className="w-3 h-3" /> Powrót do panelu
-            </Link>
-            <h1 className="font-display text-3xl font-extrabold mt-1 flex items-center gap-2">
-              <GraduationCap className="w-7 h-7 text-violet" /> Zarządzanie kursami
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Twórz kursy, moduły i lekcje. Wszystko bez programisty.
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold mt-1 flex items-center gap-2">
+            <GraduationCap className="w-7 h-7 text-violet" /> Zarządzanie kursami
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Twórz kursy, moduły i lekcje. Wszystko bez programisty.
             </p>
           </div>
           <Button
@@ -422,7 +397,6 @@ function AdminCoursesPage() {
             })}
           </div>
         )}
-      </div>
 
       {/* DIALOG: COURSE */}
       <Dialog open={!!editingCourse} onOpenChange={(v) => !v && setEditingCourse(null)}>

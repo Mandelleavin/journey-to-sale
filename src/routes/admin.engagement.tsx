@@ -1,8 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { PageShell } from "@/components/dashboard/PageShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ import { getPlanFeatures, type PlanFeatureRow } from "@/lib/plan-gating.function
 import { updatePlanFeature } from "@/lib/engagement.functions";
 import { Flame, RefreshCw, Phone, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/admin/engagement")({
   component: AdminEngagementPage,
@@ -30,31 +28,20 @@ const LABEL_COLOR: Record<string, string> = {
 };
 
 function AdminEngagementPage() {
-  const { isAdmin, loading } = useAuth();
-  if (loading) return null;
-  if (!isAdmin) {
-    return (
-      <PageShell title="Engagement">
-        <div className="p-8 text-center text-muted-foreground">Brak dostępu</div>
-      </PageShell>
-    );
-  }
   return (
-    <PageShell title="Engagement i limity planów" subtitle="Temperatura użytkowników + konfiguracja planów">
-      <div className="space-y-8 p-4 md:p-6">
-        <header>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Flame className="w-8 h-8 text-orange" />
-            Engagement i limity planów
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Lista użytkowników wg zaangażowania oraz konfiguracja limitów planów.
-          </p>
-        </header>
-        <EngagementList />
-        <PlanFeaturesEditor />
-      </div>
-    </PageShell>
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Flame className="w-8 h-8 text-orange" />
+          Engagement i limity planów
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Lista użytkowników wg zaangażowania oraz konfiguracja limitów planów.
+        </p>
+      </header>
+      <EngagementList />
+      <PlanFeaturesEditor />
+    </div>
   );
 }
 

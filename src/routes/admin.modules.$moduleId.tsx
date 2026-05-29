@@ -1,7 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,8 +75,6 @@ type Attachment = {
 
 function AdminModuleLessonsPage() {
   const { moduleId } = Route.useParams();
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const [moduleInfo, setModuleInfo] = useState<{
     id: string;
     title: string;
@@ -98,12 +95,6 @@ function AdminModuleLessonsPage() {
     tpl: Partial<MentorTemplate>;
   } | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) navigate({ to: "/auth" });
-    else if (!isAdmin) navigate({ to: "/" });
-  }, [user, isAdmin, loading, navigate]);
 
   const load = async () => {
     const { data: mod } = await supabase
@@ -174,10 +165,9 @@ function AdminModuleLessonsPage() {
       setMentorByLesson({});
     }
   };
-
   useEffect(() => {
-    if (isAdmin) load(); /* eslint-disable-next-line */
-  }, [isAdmin, moduleId]);
+    load();
+  }, [moduleId]);
 
   const saveLesson = async () => {
     if (!editing || !moduleInfo) return;
@@ -315,9 +305,9 @@ function AdminModuleLessonsPage() {
     load();
   };
 
-  if (loading || !isAdmin || !moduleInfo) {
+  if (!moduleInfo) {
     return (
-      <div className="grid min-h-screen place-items-center bg-app text-muted-foreground">
+      <div className="grid min-h-[200px] place-items-center text-muted-foreground">
         Ładowanie...
       </div>
     );
