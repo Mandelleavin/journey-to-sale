@@ -29,6 +29,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccelerateRouteImport } from './routes/accelerate'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
@@ -146,6 +147,11 @@ const CoursesIndexRoute = CoursesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CoursesRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const UUserIdRoute = UUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -272,7 +279,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accelerate': typeof AccelerateRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
   '/coach': typeof CoachRoute
@@ -299,6 +305,7 @@ export interface FileRoutesByTo {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -338,6 +345,7 @@ export interface FileRoutesById {
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
   '/u/$userId': typeof UUserIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -378,6 +386,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin/'
     | '/courses/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -388,7 +397,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/accelerate'
-    | '/admin'
     | '/auth'
     | '/calendar'
     | '/coach'
@@ -415,6 +423,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin'
     | '/courses'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -453,6 +462,7 @@ export interface FileRouteTypes {
     | '/lessons/$lessonId'
     | '/onboarding/result'
     | '/u/$userId'
+    | '/admin/'
     | '/courses/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -632,6 +642,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/u/$userId': {
       id: '/u/$userId'
       path: '/u/$userId'
@@ -764,6 +781,7 @@ interface AdminRouteChildren {
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminEngagementRoute: typeof AdminEngagementRoute
   AdminUserProductsRoute: typeof AdminUserProductsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
 }
 
@@ -772,6 +790,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminEngagementRoute: AdminEngagementRoute,
   AdminUserProductsRoute: AdminUserProductsRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,
 }
 

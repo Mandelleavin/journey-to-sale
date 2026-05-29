@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PageShell } from "@/components/dashboard/PageShell";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -82,7 +81,7 @@ function AdminUserProducts() {
   });
 
   return (
-    <PageShell title="Produkty użytkowników" subtitle="Podgląd produktów budowanych w aplikacji">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <input
           value={q}
@@ -90,9 +89,6 @@ function AdminUserProducts() {
           placeholder="Szukaj po tytule, email, nazwisku..."
           className="flex-1 h-10 px-4 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-violet/40"
         />
-        <Link to="/admin" className="text-sm font-semibold text-muted-foreground hover:text-foreground">
-          ← Panel admina
-        </Link>
       </div>
 
       {loading ? (
@@ -143,6 +139,6 @@ function AdminUserProducts() {
           ))}
         </div>
       )}
-    </PageShell>
+    </div>
   );
 }
