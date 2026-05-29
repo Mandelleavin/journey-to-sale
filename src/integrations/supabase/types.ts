@@ -2392,6 +2392,20 @@ export type Database = {
         }[]
       }
       get_public_user_streak: { Args: { _user_id: string }; Returns: number }
+      get_rewards_catalog: {
+        Args: never
+        Returns: {
+          course_id: string
+          created_at: string
+          description: string
+          id: string
+          is_available: boolean
+          position: number
+          title: string
+          updated_at: string
+          xp_cost: number
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
