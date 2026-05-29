@@ -21,17 +21,14 @@ function PublicProfile() {
       const [{ data: p }, { data: xp }, { data: st }] = await Promise.all([
         supabase.from("profiles").select("full_name, created_at").eq("id", userId).maybeSingle(),
         supabase.from("user_xp_log").select("amount").eq("user_id", userId),
-        supabase
-          .from("user_streaks")
-          .select("current_streak")
-          .eq("user_id", userId)
-          .maybeSingle(),
+        supabase.rpc("get_public_user_streak", { _user_id: userId }),
       ]);
       setProfile(p ? { full_name: p.full_name, created_at: p.created_at } : null);
       setTotalXp((xp ?? []).reduce((s, r) => s + r.amount, 0));
-      setStreak(st?.current_streak ?? 0);
+      setStreak(typeof st === "number" ? st : 0);
     })();
   }, [userId]);
+
 
   const level = Math.floor(totalXp / 500) + 1;
   const day = profile?.created_at

@@ -2138,6 +2138,13 @@ export type Database = {
             referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards_catalog"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -2277,7 +2284,50 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      rewards_catalog: {
+        Row: {
+          course_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_available: boolean | null
+          position: number | null
+          title: string | null
+          updated_at: string | null
+          xp_cost: number | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          position?: number | null
+          title?: string | null
+          updated_at?: string | null
+          xp_cost?: number | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          position?: number | null
+          title?: string | null
+          updated_at?: string | null
+          xp_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewards_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_credits: {
@@ -2331,6 +2381,31 @@ export type Database = {
       }
       ensure_user_credits: { Args: { _user_id: string }; Returns: undefined }
       get_available_credits: { Args: { _user_id: string }; Returns: number }
+      get_public_user_badges: {
+        Args: { _user_id: string }
+        Returns: {
+          badge_id: string
+          earned_at: string
+          icon: string
+          name: string
+          rarity: Database["public"]["Enums"]["badge_rarity"]
+        }[]
+      }
+      get_public_user_streak: { Args: { _user_id: string }; Returns: number }
+      get_rewards_catalog: {
+        Args: never
+        Returns: {
+          course_id: string
+          created_at: string
+          description: string
+          id: string
+          is_available: boolean
+          position: number
+          title: string
+          updated_at: string
+          xp_cost: number
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean

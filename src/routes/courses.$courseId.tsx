@@ -153,18 +153,41 @@ function CourseDetailPage() {
         setTasks((t ?? []) as LessonTask[]);
         setSubmissions((s ?? []) as Sub[]);
       }
-      // Nagrody przypisane do tego kursu
+      // Nagrody przypisane do tego kursu (katalog bez payloadu)
       const [{ data: rw }, { data: ur }] = await Promise.all([
-        supabase
-          .from("rewards")
-          .select("id, title, description, xp_cost, is_available, course_id, payload_url, payload_content")
-          .eq("course_id", courseId)
-          .eq("is_available", true)
-          .order("xp_cost"),
+        supabase.rpc("get_rewards_catalog"),
         supabase.from("user_rewards").select("reward_id").eq("user_id", user.id),
       ]);
-      setRewards((rw ?? []) as Reward[]);
-      setClaimedRewards(new Set((ur ?? []).map((r) => r.reward_id)));
+      const claimedIds = new Set((ur ?? []).map((r) => r.reward_id));
+      const courseCatalog = ((rw ?? []) as Array<{
+        id: string;
+        title: string;
+        description: string | null;
+        xp_cost: number;
+        is_available: boolean;
+        course_id: string | null;
+      }>).filter((r) => r.course_id === courseId);
+      // Pobierz payload tylko dla nagród już odebranych (RLS na to pozwala)
+      const claimedHere = courseCatalog.filter((r) => claimedIds.has(r.id)).map((r) => r.id);
+      const payloads = new Map<string, { payload_url: string | null; payload_content: string | null }>();
+      if (claimedHere.length) {
+        const { data: pl } = await supabase
+          .from("rewards")
+          .select("id, payload_url, payload_content")
+          .in("id", claimedHere);
+        (pl ?? []).forEach((p) =>
+          payloads.set(p.id, { payload_url: p.payload_url, payload_content: p.payload_content }),
+        );
+      }
+      setRewards(
+        courseCatalog.map((r) => ({
+          ...r,
+          payload_url: payloads.get(r.id)?.payload_url ?? null,
+          payload_content: payloads.get(r.id)?.payload_content ?? null,
+        })) as Reward[],
+      );
+      setClaimedRewards(claimedIds);
+
 
       setLoading(false);
     })();

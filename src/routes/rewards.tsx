@@ -69,7 +69,7 @@ function RewardsPage() {
     setLoading(true);
     const [{ data: r }, { data: c }, { data: cs }, { data: ls }, { data: lts }, { data: xp }] =
       await Promise.all([
-        supabase.from("rewards").select("*").eq("is_available", true).order("position"),
+        supabase.rpc("get_rewards_catalog"),
         supabase
           .from("user_rewards")
           .select("*")
@@ -83,8 +83,28 @@ function RewardsPage() {
           .select("amount, related_lesson_id, related_task_id")
           .eq("user_id", user.id),
       ]);
-    setRewards((r ?? []) as Reward[]);
-    setClaims((c ?? []) as Claim[]);
+    const catalog = (r ?? []) as Array<Omit<Reward, "payload_url" | "payload_content">>;
+    const claimsList = (c ?? []) as Claim[];
+    // Fetch payloads only for rewards the user has redeemed (RLS allows this).
+    const claimedIds = Array.from(new Set(claimsList.map((x) => x.reward_id)));
+    const payloads = new Map<string, { payload_url: string | null; payload_content: string | null }>();
+    if (claimedIds.length) {
+      const { data: pl } = await supabase
+        .from("rewards")
+        .select("id, payload_url, payload_content")
+        .in("id", claimedIds);
+      (pl ?? []).forEach((p) =>
+        payloads.set(p.id, { payload_url: p.payload_url, payload_content: p.payload_content }),
+      );
+    }
+    setRewards(
+      catalog.map((rw) => ({
+        ...rw,
+        payload_url: payloads.get(rw.id)?.payload_url ?? null,
+        payload_content: payloads.get(rw.id)?.payload_content ?? null,
+      })) as Reward[],
+    );
+    setClaims(claimsList);
     setCourses((cs ?? []) as Course[]);
     setLessons((ls ?? []) as Lesson[]);
     setLessonTasks((lts ?? []) as LessonTask[]);
@@ -93,6 +113,7 @@ function RewardsPage() {
     setTotalXp(xpData.reduce((s, r) => s + (r.amount ?? 0), 0));
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
