@@ -41,7 +41,7 @@ type MentorTask = {
 type FilterKey = "all" | "in_progress" | "assigned" | "approved";
 
 export function MentorTasksSection() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
   const [active, setActive] = useState<MentorTask | null>(null);
   const [content, setContent] = useState("");
