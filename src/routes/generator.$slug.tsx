@@ -33,6 +33,7 @@ type Generator = {
   credit_cost: number;
   supports_quality_modes: boolean;
   form_schema: FormField[];
+  required_plan: "start" | "pro" | "vip" | null;
 };
 
 const REVISIONS = [
