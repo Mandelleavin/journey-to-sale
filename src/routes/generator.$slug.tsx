@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { PlanGate } from "@/components/PlanGate";
 
 export const Route = createFileRoute("/generator/$slug")({
   component: GeneratorPage,
@@ -32,6 +33,7 @@ type Generator = {
   credit_cost: number;
   supports_quality_modes: boolean;
   form_schema: FormField[];
+  required_plan: "start" | "pro" | "vip" | null;
 };
 
 const REVISIONS = [
@@ -66,7 +68,7 @@ function GeneratorPage() {
     (async () => {
       const { data } = await supabase
         .from("ai_generators")
-        .select("id,name,slug,description,credit_cost,supports_quality_modes,form_schema")
+        .select("id,name,slug,description,credit_cost,supports_quality_modes,form_schema,required_plan")
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
@@ -172,7 +174,9 @@ function GeneratorPage() {
     );
   }
 
-  return (
+  const isAdvanced = gen.required_plan && gen.required_plan !== "start";
+
+  const content = (
     <PageShell
       title={gen.name}
       subtitle={gen.description ?? undefined}
@@ -367,4 +371,14 @@ function GeneratorPage() {
       </div>
     </PageShell>
   );
+
+  if (isAdvanced) {
+    return (
+      <PlanGate feature="generators_advanced">
+        {content}
+      </PlanGate>
+    );
+  }
+
+  return content;
 }
