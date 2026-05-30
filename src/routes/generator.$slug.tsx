@@ -371,4 +371,14 @@ function GeneratorPage() {
       </div>
     </PageShell>
   );
+
+  if (isAdvanced) {
+    return (
+      <PlanGate feature="generators_advanced">
+        {content}
+      </PlanGate>
+    );
+  }
+
+  return content;
 }
