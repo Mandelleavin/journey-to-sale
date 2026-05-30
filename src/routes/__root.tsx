@@ -105,14 +105,26 @@ import { AuthProvider } from "@/lib/auth-context";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 
 function RootComponent() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { staleTime: 60 * 1000, refetchOnWindowFocus: false },
+        },
+      }),
+  );
   return (
-    <AuthProvider>
-      <PaymentTestModeBanner />
-      <Outlet />
-      <MobileBottomNav />
-      <Toaster position="top-center" richColors closeButton />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <PaymentTestModeBanner />
+        <Outlet />
+        <MobileBottomNav />
+        <Toaster position="top-center" richColors closeButton />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
