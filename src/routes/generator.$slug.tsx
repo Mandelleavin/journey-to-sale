@@ -68,7 +68,7 @@ function GeneratorPage() {
     (async () => {
       const { data } = await supabase
         .from("ai_generators")
-        .select("id,name,slug,description,credit_cost,supports_quality_modes,form_schema")
+        .select("id,name,slug,description,credit_cost,supports_quality_modes,form_schema,required_plan")
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
