@@ -41,7 +41,7 @@ type MentorTask = {
 type FilterKey = "all" | "in_progress" | "assigned" | "approved";
 
 export function MentorTasksSection() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
   const [active, setActive] = useState<MentorTask | null>(null);
   const [content, setContent] = useState("");
@@ -304,16 +304,21 @@ export function MentorTasksSection() {
                     {t.due_date ? (() => {
                       const due = new Date(t.due_date);
                       const days = Math.ceil((due.getTime() - Date.now()) / 86400000);
-                      const overdue = days < 0;
-                      const today = days === 0;
-                      const soon = days > 0 && days <= 3;
-                      const label = overdue
-                        ? `po terminie (${Math.abs(days)} dni)`
-                        : today
-                          ? "dziś!"
-                          : days === 1
-                            ? "jutro"
-                            : `za ${days} dni`;
+                      const isApproved = t.status === "approved";
+                      // Dla zatwierdzonych zadań nie pokazujemy "po terminie" zwykłemu użytkownikowi
+                      const showOverdue = !isApproved || isAdmin;
+                      const overdue = days < 0 && showOverdue;
+                      const today = days === 0 && !isApproved;
+                      const soon = days > 0 && days <= 3 && !isApproved;
+                      const label = isApproved
+                        ? null
+                        : days < 0
+                          ? `po terminie (${Math.abs(days)} dni)`
+                          : days === 0
+                            ? "dziś!"
+                            : days === 1
+                              ? "jutro"
+                              : `za ${days} dni`;
                       return (
                         <span
                           className={cn(
@@ -329,7 +334,9 @@ export function MentorTasksSection() {
                           title={`Termin: ${due.toLocaleDateString("pl-PL")}`}
                         >
                           <Calendar className="w-3 h-3" />
-                          Termin: {due.toLocaleDateString("pl-PL")} · {label}
+                          Termin: {due.toLocaleDateString("pl-PL")}
+                          {label ? ` · ${label}` : ""}
+                          {isApproved && isAdmin && days < 0 ? ` · po terminie (${Math.abs(days)} dni)` : ""}
                         </span>
                       );
                     })() : (
