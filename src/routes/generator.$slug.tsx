@@ -174,7 +174,9 @@ function GeneratorPage() {
     );
   }
 
-  return (
+  const isAdvanced = gen.required_plan && gen.required_plan !== "start";
+
+  const content = (
     <PageShell
       title={gen.name}
       subtitle={gen.description ?? undefined}
