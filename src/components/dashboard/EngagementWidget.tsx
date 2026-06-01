@@ -61,7 +61,7 @@ export function EngagementWidget() {
 
       <div className="space-y-1.5 mb-4">
         {PARTS.map((p) => {
-          const got = q.data.breakdown[p.key] ?? 0;
+          const got = breakdown[p.key] ?? 0;
           return (
             <div key={p.key} className="flex items-center gap-2 text-xs">
               <span className="w-32 shrink-0 opacity-80">{p.label}</span>
