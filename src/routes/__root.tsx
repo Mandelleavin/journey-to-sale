@@ -105,6 +105,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -113,18 +114,26 @@ function RootComponent() {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: { staleTime: 60 * 1000, refetchOnWindowFocus: false },
+          queries: {
+            staleTime: 60 * 1000,
+            refetchOnWindowFocus: false,
+            retry: 1,
+            throwOnError: false,
+          },
+          mutations: { throwOnError: false },
         },
       }),
   );
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <PaymentTestModeBanner />
-        <Outlet />
-        <MobileBottomNav />
-        <Toaster position="top-center" richColors closeButton />
-      </AuthProvider>
-    </QueryClientProvider>
+    <GlobalErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <PaymentTestModeBanner />
+          <Outlet />
+          <MobileBottomNav />
+          <Toaster position="top-center" richColors closeButton />
+        </AuthProvider>
+      </QueryClientProvider>
+    </GlobalErrorBoundary>
   );
 }
