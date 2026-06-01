@@ -33,12 +33,13 @@ export function EngagementWidget() {
 
   if (!q.data) return null;
   const meta = LABEL_TEXT[q.data.label] ?? LABEL_TEXT.cold;
+  const breakdown: Record<string, number> = q.data.breakdown ?? {};
 
   // Find biggest gap
   const gaps = PARTS.map((p) => ({
     ...p,
-    got: q.data.breakdown[p.key] ?? 0,
-    gap: p.max - (q.data.breakdown[p.key] ?? 0),
+    got: breakdown[p.key] ?? 0,
+    gap: p.max - (breakdown[p.key] ?? 0),
   })).sort((a, b) => b.gap - a.gap);
   const nextStep = gaps[0];
 
@@ -60,7 +61,7 @@ export function EngagementWidget() {
 
       <div className="space-y-1.5 mb-4">
         {PARTS.map((p) => {
-          const got = q.data.breakdown[p.key] ?? 0;
+          const got = breakdown[p.key] ?? 0;
           return (
             <div key={p.key} className="flex items-center gap-2 text-xs">
               <span className="w-32 shrink-0 opacity-80">{p.label}</span>
