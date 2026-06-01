@@ -73,7 +73,14 @@ function EngagementList() {
   });
 
   const m = useMutation({
-    mutationFn: (targetUserId: string) => recalc({ data: { targetUserId } }),
+    mutationFn: (targetUserId: string) => {
+      const token = session?.access_token;
+      if (!token) throw new Error("Brak aktywnej sesji");
+      return recalc({
+        data: { targetUserId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
     onSuccess: () => {
       toast.success("Przeliczono score");
       qc.invalidateQueries({ queryKey: ["admin-engagement"] });
@@ -225,6 +232,9 @@ function PlanFeaturesEditor() {
           limit_value: row.limit_value,
           is_enabled: row.is_enabled,
         },
+        headers: session?.access_token
+          ? { Authorization: `Bearer ${session.access_token}` }
+          : undefined,
       }),
     onSuccess: () => {
       toast.success("Zapisano");
