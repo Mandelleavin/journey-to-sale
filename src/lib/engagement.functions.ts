@@ -20,15 +20,26 @@ export const getMyEngagement = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    // Force recompute (cheap; trigger już zwykle to robi)
-    await supabase.rpc("recalc_engagement", { _user_id: userId });
+    try {
+      await supabase.rpc("recalc_engagement", { _user_id: userId });
+    } catch (e) {
+      console.error("recalc_engagement failed", e);
+    }
 
     const { data, error } = await supabase
       .from("user_engagement")
       .select("score, label, breakdown, recalc_at")
       .eq("user_id", userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("user_engagement select failed", error);
+      return {
+        score: 0,
+        label: "cold" as const,
+        breakdown: {} as Record<string, number>,
+        recalc_at: new Date().toISOString(),
+      };
+    }
     return {
       score: data?.score ?? 0,
       label: (data?.label ?? "cold") as "cold" | "warm" | "hot" | "on_fire",
@@ -36,6 +47,7 @@ export const getMyEngagement = createServerFn({ method: "GET" })
       recalc_at: data?.recalc_at ?? new Date().toISOString(),
     };
   });
+
 
 /** Admin: lista wszystkich userów sortowana po score */
 export const getAdminEngagementList = createServerFn({ method: "POST" })
