@@ -38,7 +38,7 @@ type MentorTask = {
 
 function Index() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const data = useDashboardData();
   const [fullName, setFullName] = useState<string | undefined>();
   const [hasSurvey, setHasSurvey] = useState<boolean | null>(null);
