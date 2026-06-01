@@ -38,7 +38,7 @@ type MentorTask = {
 
 function Index() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const data = useDashboardData();
   const [fullName, setFullName] = useState<string | undefined>();
   const [hasSurvey, setHasSurvey] = useState<boolean | null>(null);
@@ -267,8 +267,8 @@ function Index() {
             }}
           />
           <MentorTasksSection />
-          <div className="grid lg:grid-cols-2 gap-5">
-            <EngagementWidget />
+          <div className={cn("grid gap-5", isAdmin ? "lg:grid-cols-2" : "lg:grid-cols-1")}>
+            {isAdmin && <EngagementWidget />}
             <CreditsWidget />
           </div>
           <AccelerateWidget />
