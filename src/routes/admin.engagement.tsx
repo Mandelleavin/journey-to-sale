@@ -13,6 +13,7 @@ import {
 } from "@/lib/engagement.functions";
 import { getPlanFeatures, type PlanFeatureRow } from "@/lib/plan-gating.functions";
 import { updatePlanFeature } from "@/lib/engagement.functions";
+import { useAuth } from "@/lib/auth-context";
 import { Flame, RefreshCw, Phone, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,6 +47,7 @@ function AdminEngagementPage() {
 }
 
 function EngagementList() {
+  const { session } = useAuth();
   const fn = useServerFn(getAdminEngagementList);
   const recalc = useServerFn(adminRecalcEngagement);
   const qc = useQueryClient();
@@ -53,12 +55,32 @@ function EngagementList() {
   const [plan, setPlan] = useState<"all" | "start" | "pro" | "vip">("all");
 
   const q = useQuery({
-    queryKey: ["admin-engagement", label, plan],
-    queryFn: () => fn({ data: { label, plan, limit: 200 } }),
+    queryKey: ["admin-engagement", label, plan, session?.user.id],
+    queryFn: async () => {
+      const token = session?.access_token;
+      if (!token) return { rows: [] as EngagementRow[] };
+      try {
+        return await fn({
+          data: { label, plan, limit: 200 },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (error) {
+        console.error("Admin engagement query failed", error);
+        return { rows: [] as EngagementRow[] };
+      }
+    },
+    enabled: !!session?.access_token,
   });
 
   const m = useMutation({
-    mutationFn: (targetUserId: string) => recalc({ data: { targetUserId } }),
+    mutationFn: (targetUserId: string) => {
+      const token = session?.access_token;
+      if (!token) throw new Error("Brak aktywnej sesji");
+      return recalc({
+        data: { targetUserId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
     onSuccess: () => {
       toast.success("Przeliczono score");
       qc.invalidateQueries({ queryKey: ["admin-engagement"] });
@@ -182,10 +204,24 @@ function EngagementList() {
 }
 
 function PlanFeaturesEditor() {
+  const { session } = useAuth();
   const fn = useServerFn(getPlanFeatures);
   const update = useServerFn(updatePlanFeature);
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["plan-features-admin"], queryFn: () => fn() });
+  const q = useQuery({
+    queryKey: ["plan-features-admin", session?.user.id],
+    queryFn: async () => {
+      const token = session?.access_token;
+      if (!token) return { plan: "start" as const, features: [] as PlanFeatureRow[] };
+      try {
+        return await fn({ headers: { Authorization: `Bearer ${token}` } });
+      } catch (error) {
+        console.error("Plan features admin query failed", error);
+        return { plan: "start" as const, features: [] as PlanFeatureRow[] };
+      }
+    },
+    enabled: !!session?.access_token,
+  });
 
   const m = useMutation({
     mutationFn: (row: PlanFeatureRow) =>
@@ -196,6 +232,9 @@ function PlanFeaturesEditor() {
           limit_value: row.limit_value,
           is_enabled: row.is_enabled,
         },
+        headers: session?.access_token
+          ? { Authorization: `Bearer ${session.access_token}` }
+          : undefined,
       }),
     onSuccess: () => {
       toast.success("Zapisano");
