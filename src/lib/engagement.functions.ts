@@ -64,55 +64,69 @@ export const getAdminEngagementList = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: isAdmin } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
+    try {
+      const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+        _user_id: userId,
+        _role: "admin",
+      });
+      if (roleError || !isAdmin) {
+        if (roleError) console.error("getAdminEngagementList role check failed", roleError);
+        return { rows: [] as EngagementRow[] };
+      }
 
-    let q = supabase
-      .from("user_engagement")
-      .select("user_id, score, label, breakdown, recalc_at")
-      .order("score", { ascending: false })
-      .limit(data.limit);
-    if (data.label !== "all") q = q.eq("label", data.label);
+      let q = supabase
+        .from("user_engagement")
+        .select("user_id, score, label, breakdown, recalc_at")
+        .order("score", { ascending: false })
+        .limit(data.limit);
+      if (data.label !== "all") q = q.eq("label", data.label);
 
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+      const { data: rows, error } = await q;
+      if (error) {
+        console.error("getAdminEngagementList engagement query failed", error);
+        return { rows: [] as EngagementRow[] };
+      }
 
-    const ids = (rows ?? []).map((r) => r.user_id);
-    if (ids.length === 0) return { rows: [] as EngagementRow[] };
+      const ids = (rows ?? []).map((r) => r.user_id);
+      if (ids.length === 0) return { rows: [] as EngagementRow[] };
 
-    const [profilesRes, subsRes] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, last_seen").in("id", ids),
-      supabase.from("user_subscriptions").select("user_id, plan").in("user_id", ids),
-    ]);
+      const [profilesRes, subsRes] = await Promise.all([
+        supabase.from("profiles").select("id, full_name, email, last_seen").in("id", ids),
+        supabase.from("user_subscriptions").select("user_id, plan").in("user_id", ids),
+      ]);
 
-    const profileById = new Map((profilesRes.data ?? []).map((p) => [p.id, p]));
-    const planById = new Map((subsRes.data ?? []).map((s) => [s.user_id, s.plan]));
+      if (profilesRes.error) console.error("getAdminEngagementList profiles query failed", profilesRes.error);
+      if (subsRes.error) console.error("getAdminEngagementList subscriptions query failed", subsRes.error);
 
-    const enriched: EngagementRow[] = (rows ?? [])
-      .map((r) => {
-        const p = profileById.get(r.user_id);
-        const plan = (planById.get(r.user_id) ?? "start") as
-          | "start"
-          | "pro"
-          | "vip";
-        return {
-          user_id: r.user_id,
-          full_name: p?.full_name ?? null,
-          email: p?.email ?? "",
-          plan,
-          score: r.score,
-          label: r.label as "cold" | "warm" | "hot" | "on_fire",
-          breakdown: (r.breakdown ?? {}) as Record<string, number>,
-          last_seen: p?.last_seen ?? null,
-          recalc_at: r.recalc_at,
-        };
-      })
-      .filter((r) => data.plan === "all" || r.plan === data.plan);
+      const profileById = new Map((profilesRes.data ?? []).map((p) => [p.id, p]));
+      const planById = new Map((subsRes.data ?? []).map((s) => [s.user_id, s.plan]));
 
-    return { rows: enriched };
+      const enriched: EngagementRow[] = (rows ?? [])
+        .map((r) => {
+          const p = profileById.get(r.user_id);
+          const plan = (planById.get(r.user_id) ?? "start") as
+            | "start"
+            | "pro"
+            | "vip";
+          return {
+            user_id: r.user_id,
+            full_name: p?.full_name ?? null,
+            email: p?.email ?? "",
+            plan,
+            score: r.score ?? 0,
+            label: (r.label ?? "cold") as "cold" | "warm" | "hot" | "on_fire",
+            breakdown: (r.breakdown ?? {}) as Record<string, number>,
+            last_seen: p?.last_seen ?? null,
+            recalc_at: r.recalc_at ?? new Date().toISOString(),
+          };
+        })
+        .filter((r) => data.plan === "all" || r.plan === data.plan);
+
+      return { rows: enriched };
+    } catch (err) {
+      console.error("getAdminEngagementList unexpected error", err);
+      return { rows: [] as EngagementRow[] };
+    }
   });
 
 /** Admin: recalc dla wskazanego usera (przycisk „Przelicz") */
