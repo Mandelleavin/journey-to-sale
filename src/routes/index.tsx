@@ -267,8 +267,8 @@ function Index() {
             }}
           />
           <MentorTasksSection />
-          <div className="grid lg:grid-cols-2 gap-5">
-            <EngagementWidget />
+          <div className={cn("grid gap-5", isAdmin ? "lg:grid-cols-2" : "lg:grid-cols-1")}>
+            {isAdmin && <EngagementWidget />}
             <CreditsWidget />
           </div>
           <AccelerateWidget />
