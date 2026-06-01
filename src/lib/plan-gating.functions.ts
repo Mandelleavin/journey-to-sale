@@ -14,22 +14,30 @@ export const getPlanFeatures = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    const [featuresRes, subRes] = await Promise.all([
-      supabase
-        .from("plan_features")
-        .select("plan,feature_key,limit_value,is_enabled,label"),
-      supabase
-        .from("user_subscriptions")
-        .select("plan,status")
-        .eq("user_id", userId)
-        .maybeSingle(),
-    ]);
+    try {
+      const [featuresRes, subRes] = await Promise.all([
+        supabase
+          .from("plan_features")
+          .select("plan,feature_key,limit_value,is_enabled,label"),
+        supabase
+          .from("user_subscriptions")
+          .select("plan,status")
+          .eq("user_id", userId)
+          .maybeSingle(),
+      ]);
 
-    if (featuresRes.error) throw new Error(featuresRes.error.message);
+      if (featuresRes.error) {
+        console.error("getPlanFeatures features error:", featuresRes.error);
+        return { plan: "start" as const, features: [] as PlanFeatureRow[] };
+      }
 
-    const plan = (subRes.data?.plan ?? "start") as "start" | "pro" | "vip";
-    return {
-      plan,
-      features: (featuresRes.data ?? []) as PlanFeatureRow[],
-    };
+      const plan = (subRes.data?.plan ?? "start") as "start" | "pro" | "vip";
+      return {
+        plan,
+        features: (featuresRes.data ?? []) as PlanFeatureRow[],
+      };
+    } catch (err) {
+      console.error("getPlanFeatures unexpected error:", err);
+      return { plan: "start" as const, features: [] as PlanFeatureRow[] };
+    }
   });
