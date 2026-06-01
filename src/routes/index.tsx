@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { CreditsWidget } from "@/components/dashboard/CreditsWidget";
 import { AccelerateWidget } from "@/components/dashboard/AccelerateWidget";
-import { EngagementWidget } from "@/components/dashboard/EngagementWidget";
 import { AdvisorButton } from "@/components/dashboard/AdvisorButton";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
@@ -38,7 +37,7 @@ type MentorTask = {
 
 function Index() {
   const navigate = useNavigate();
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const data = useDashboardData();
   const [fullName, setFullName] = useState<string | undefined>();
   const [hasSurvey, setHasSurvey] = useState<boolean | null>(null);
@@ -267,8 +266,7 @@ function Index() {
             }}
           />
           <MentorTasksSection />
-          <div className={cn("grid gap-5", isAdmin ? "lg:grid-cols-2" : "lg:grid-cols-1")}>
-            {isAdmin && <EngagementWidget />}
+          <div className="grid gap-5 lg:grid-cols-1">
             <CreditsWidget />
           </div>
           <AccelerateWidget />
