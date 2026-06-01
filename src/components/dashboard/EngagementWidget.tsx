@@ -31,15 +31,19 @@ export function EngagementWidget() {
     staleTime: 60 * 1000,
   });
 
-  if (!q.data) return null;
-  const meta = LABEL_TEXT[q.data.label] ?? LABEL_TEXT.cold;
+  if (q.isLoading || !q.data) return null;
+  if (q.error) return null;
+
+  const score = typeof q.data.score === "number" && !Number.isNaN(q.data.score) ? q.data.score : 0;
+  const label = q.data.label || "cold";
+  const meta = LABEL_TEXT[label] ?? LABEL_TEXT.cold;
   const breakdown: Record<string, number> = q.data.breakdown ?? {};
 
   // Find biggest gap
   const gaps = PARTS.map((p) => ({
     ...p,
-    got: breakdown[p.key] ?? 0,
-    gap: p.max - (breakdown[p.key] ?? 0),
+    got: typeof breakdown[p.key] === "number" ? breakdown[p.key] : 0,
+    gap: p.max - (typeof breakdown[p.key] === "number" ? breakdown[p.key] : 0),
   })).sort((a, b) => b.gap - a.gap);
   const nextStep = gaps[0];
 
@@ -51,7 +55,7 @@ export function EngagementWidget() {
             <Flame className="w-3 h-3" /> Twój score zaangażowania
           </div>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-4xl font-black">{q.data.score}</span>
+            <span className="text-4xl font-black">{score}</span>
             <span className="opacity-70">/ 100</span>
             <span className="ml-2 text-2xl">{meta.emoji}</span>
           </div>
@@ -61,7 +65,7 @@ export function EngagementWidget() {
 
       <div className="space-y-1.5 mb-4">
         {PARTS.map((p) => {
-          const got = breakdown[p.key] ?? 0;
+          const got = typeof breakdown[p.key] === "number" ? breakdown[p.key] : 0;
           return (
             <div key={p.key} className="flex items-center gap-2 text-xs">
               <span className="w-32 shrink-0 opacity-80">{p.label}</span>
@@ -88,7 +92,7 @@ export function EngagementWidget() {
         </div>
       )}
 
-      {q.data.score >= 50 && (
+      {score >= 50 && (
         <Link
           to="/pricing"
           className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition"
