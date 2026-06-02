@@ -66,6 +66,9 @@ function EngagementList() {
         });
       } catch (error) {
         console.error("Admin engagement query failed", error);
+        toast.error("Nie udało się pobrać listy zaangażowania", {
+          description: "Spróbuj odświeżyć stronę za chwilę.",
+        });
         return { rows: [] as EngagementRow[] };
       }
     },
