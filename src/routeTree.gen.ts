@@ -38,6 +38,7 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
 import { Route as AdminUserProductsRouteImport } from './routes/admin.user-products'
+import { Route as AdminEventLogsRouteImport } from './routes/admin.event-logs'
 import { Route as AdminEngagementRouteImport } from './routes/admin.engagement'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
@@ -192,6 +193,11 @@ const AdminUserProductsRoute = AdminUserProductsRouteImport.update({
   path: '/user-products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEventLogsRoute = AdminEventLogsRouteImport.update({
+  id: '/event-logs',
+  path: '/event-logs',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminEngagementRoute = AdminEngagementRouteImport.update({
   id: '/engagement',
   path: '/engagement',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
+  '/admin/event-logs': typeof AdminEventLogsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -297,6 +304,7 @@ export interface FileRoutesByTo {
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
+  '/admin/event-logs': typeof AdminEventLogsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -337,6 +345,7 @@ export interface FileRoutesById {
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
+  '/admin/event-logs': typeof AdminEventLogsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/admin/ai-generators'
     | '/admin/courses'
     | '/admin/engagement'
+    | '/admin/event-logs'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -415,6 +425,7 @@ export interface FileRouteTypes {
     | '/admin/ai-generators'
     | '/admin/courses'
     | '/admin/engagement'
+    | '/admin/event-logs'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -454,6 +465,7 @@ export interface FileRouteTypes {
     | '/admin/ai-generators'
     | '/admin/courses'
     | '/admin/engagement'
+    | '/admin/event-logs'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -705,6 +717,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUserProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/event-logs': {
+      id: '/admin/event-logs'
+      path: '/event-logs'
+      fullPath: '/admin/event-logs'
+      preLoaderRoute: typeof AdminEventLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/engagement': {
       id: '/admin/engagement'
       path: '/engagement'
@@ -780,6 +799,7 @@ interface AdminRouteChildren {
   AdminAiGeneratorsRoute: typeof AdminAiGeneratorsRoute
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminEngagementRoute: typeof AdminEngagementRoute
+  AdminEventLogsRoute: typeof AdminEventLogsRoute
   AdminUserProductsRoute: typeof AdminUserProductsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
@@ -789,6 +809,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAiGeneratorsRoute: AdminAiGeneratorsRoute,
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminEngagementRoute: AdminEngagementRoute,
+  AdminEventLogsRoute: AdminEventLogsRoute,
   AdminUserProductsRoute: AdminUserProductsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,

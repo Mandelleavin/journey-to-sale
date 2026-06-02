@@ -1382,6 +1382,39 @@ export type Database = {
           },
         ]
       }
+      server_error_logs: {
+        Row: {
+          created_at: string
+          function_name: string | null
+          id: string
+          message: string
+          request_id: string | null
+          status: number | null
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          function_name?: string | null
+          id?: string
+          message: string
+          request_id?: string | null
+          status?: number | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          function_name?: string | null
+          id?: string
+          message?: string
+          request_id?: string | null
+          status?: number | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       service_requests: {
         Row: {
           admin_notes: string | null
