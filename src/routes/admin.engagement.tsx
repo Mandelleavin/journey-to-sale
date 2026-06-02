@@ -66,6 +66,9 @@ function EngagementList() {
         });
       } catch (error) {
         console.error("Admin engagement query failed", error);
+        toast.error("Nie udało się pobrać listy zaangażowania", {
+          description: "Spróbuj odświeżyć stronę za chwilę.",
+        });
         return { rows: [] as EngagementRow[] };
       }
     },
@@ -84,6 +87,12 @@ function EngagementList() {
     onSuccess: () => {
       toast.success("Przeliczono score");
       qc.invalidateQueries({ queryKey: ["admin-engagement"] });
+    },
+    onError: (error) => {
+      console.error("Recalc failed", error);
+      toast.error("Nie udało się przeliczyć score", {
+        description: error instanceof Error ? error.message : "Spróbuj ponownie.",
+      });
     },
   });
 
@@ -217,6 +226,9 @@ function PlanFeaturesEditor() {
         return await fn({ headers: { Authorization: `Bearer ${token}` } });
       } catch (error) {
         console.error("Plan features admin query failed", error);
+        toast.error("Nie udało się pobrać limitów planów", {
+          description: "Spróbuj odświeżyć stronę za chwilę.",
+        });
         return { plan: "start" as const, features: [] as PlanFeatureRow[] };
       }
     },
@@ -240,6 +252,12 @@ function PlanFeaturesEditor() {
       toast.success("Zapisano");
       qc.invalidateQueries({ queryKey: ["plan-features-admin"] });
       qc.invalidateQueries({ queryKey: ["plan-features"] });
+    },
+    onError: (error) => {
+      console.error("Plan feature update failed", error);
+      toast.error("Nie udało się zapisać zmian", {
+        description: error instanceof Error ? error.message : "Spróbuj ponownie.",
+      });
     },
   });
 
