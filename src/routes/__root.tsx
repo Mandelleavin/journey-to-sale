@@ -106,13 +106,24 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { captureServerError } from "@/lib/error-logger";
 
 function RootComponent() {
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        queryCache: new QueryCache({
+          onError: (error) => {
+            void captureServerError(error);
+          },
+        }),
+        mutationCache: new MutationCache({
+          onError: (error) => {
+            void captureServerError(error);
+          },
+        }),
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
@@ -124,6 +135,7 @@ function RootComponent() {
         },
       }),
   );
+
   return (
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>

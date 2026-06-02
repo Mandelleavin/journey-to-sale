@@ -17,6 +17,7 @@ import {
   Gift,
   Sparkles,
   Inbox,
+  AlertTriangle,
 } from "lucide-react";
 
 const adminNav = [
@@ -25,7 +26,9 @@ const adminNav = [
   { to: "/admin/courses" as const, label: "Kursy", icon: GraduationCap },
   { to: "/admin/ai-generators" as const, label: "Generatory AI", icon: Bot },
   { to: "/admin/user-products" as const, label: "Produkty użytkowników", icon: Package },
+  { to: "/admin/event-logs" as const, label: "Logi zdarzeń", icon: AlertTriangle },
 ];
+
 
 const adminTabs = [
   { to: "/admin" as const, label: "Hot leady", icon: Flame },
