@@ -88,6 +88,12 @@ function EngagementList() {
       toast.success("Przeliczono score");
       qc.invalidateQueries({ queryKey: ["admin-engagement"] });
     },
+    onError: (error) => {
+      console.error("Recalc failed", error);
+      toast.error("Nie udało się przeliczyć score", {
+        description: error instanceof Error ? error.message : "Spróbuj ponownie.",
+      });
+    },
   });
 
   return (
