@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { ToolsTeaser } from "@/components/dashboard/ToolsTeaser";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -266,6 +267,7 @@ function Index() {
             }}
           />
           <MentorTasksSection />
+          <ToolsTeaser />
           <div className="grid gap-5 lg:grid-cols-1">
             <CreditsWidget />
           </div>

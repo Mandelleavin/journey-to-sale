@@ -14,6 +14,7 @@ import {
   Shield,
   BookOpen,
   Flame,
+  Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -23,6 +24,7 @@ const items = [
   { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
   { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
   { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
+  { icon: Calculator, label: "Narzędzia", to: "/tools" as const },
   { icon: Bot, label: "Generator Produktu AI", to: "/generator" as const },
   { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
   { icon: Package, label: "Mój produkt", to: "/products" as const },
@@ -30,6 +32,7 @@ const items = [
   { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
   { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
 ];
+
 
 const adminItems = [
   { icon: Shield, label: "Panel admina", to: "/admin" as const },
