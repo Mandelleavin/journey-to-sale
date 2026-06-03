@@ -24,6 +24,7 @@ type Props = {
 
 export function TopBar({ fullName, notificationsCount = 0 }: Props) {
   const { signOut, isAdmin, user } = useAuth();
+  const { restart: restartTour } = useOnboarding();
   const name = fullName?.split(" ")[0] || "Twórco";
   const [streak, setStreak] = useState({ current: 0, multiplier: 1 });
 
