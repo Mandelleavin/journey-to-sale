@@ -181,29 +181,39 @@ export function TasksAndAchievements() {
           <h3 className="font-display font-bold text-base">Najnowsze osiągnięcia</h3>
           <Trophy className="w-4 h-4 text-orange" />
         </div>
-        <ul className="divide-y divide-border">
-          {achievements.map((a) => {
-            const Icon = a.icon;
-            return (
-              <li key={a.title} className="flex items-center gap-3 py-3">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-lg grid place-items-center shrink-0",
-                    achColor[a.color as keyof typeof achColor],
-                  )}
-                >
-                  <Icon className="w-4 h-4" strokeWidth={2.2} />
-                </div>
-                <span className="flex-1 text-sm font-medium text-foreground">{a.title}</span>
-                <span className="text-xs font-bold text-violet flex items-center gap-1">
-                  <Zap className="w-3 h-3 fill-violet" />
-                  {a.xp}
-                </span>
-                <span className="text-[11px] text-muted-foreground w-20 text-right">{a.time}</span>
-              </li>
-            );
-          })}
-        </ul>
+        {loadingAch ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">Ładowanie…</div>
+        ) : achievements.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Brak osiągnięć — zacznij od pierwszej misji, żeby zdobyć XP.
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {achievements.map((a) => {
+              const Icon = a.icon;
+              return (
+                <li key={a.id} className="flex items-center gap-3 py-3">
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-lg grid place-items-center shrink-0",
+                      achColor[a.color],
+                    )}
+                  >
+                    <Icon className="w-4 h-4" strokeWidth={2.2} />
+                  </div>
+                  <span className="flex-1 text-sm font-medium text-foreground truncate">{a.title}</span>
+                  <span className="text-xs font-bold text-violet flex items-center gap-1">
+                    <Zap className="w-3 h-3 fill-violet" />
+                    +{a.xp} XP
+                  </span>
+                  <span className="text-[11px] text-muted-foreground w-20 text-right">
+                    {relativeTime(a.createdAt)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
