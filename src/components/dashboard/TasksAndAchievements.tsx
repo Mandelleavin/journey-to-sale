@@ -95,25 +95,50 @@ export function TasksAndAchievements() {
   
   const { user } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
+  const [achievements, setAchievements] = useState<AchievementRow[]>([]);
+  const [loadingAch, setLoadingAch] = useState(true);
   const [loading, setLoading] = useState(true);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("mentor_assigned_tasks")
-      .select("id, title, xp_reward, due_date, status")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(5);
-    setTasks((data ?? []) as MentorTask[]);
+    setLoadingAch(true);
+    const [tasksRes, xpRes] = await Promise.all([
+      supabase
+        .from("mentor_assigned_tasks")
+        .select("id, title, xp_reward, due_date, status")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("user_xp_log")
+        .select("id, amount, reason, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+    setTasks((tasksRes.data ?? []) as MentorTask[]);
+    const rows = (xpRes.data ?? []).map((x) => {
+      const meta = mapXpReason(x.reason);
+      return {
+        id: x.id,
+        title: meta.title,
+        icon: meta.icon,
+        color: meta.color,
+        xp: x.amount,
+        createdAt: x.created_at,
+      } satisfies AchievementRow;
+    });
+    setAchievements(rows);
     setLoading(false);
+    setLoadingAch(false);
   };
 
   useEffect(() => {
     load();
   }, [user]);
+
 
   const toggleStatus = async (t: MentorTask) => {
     const meta = STATUS_META[t.status];
