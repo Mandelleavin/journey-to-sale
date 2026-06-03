@@ -34,10 +34,12 @@ export function Sidebar() {
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = isItemActive(item, pathname);
+          const tourId = tourIdForNav(item.to);
           return (
             <Link
               key={item.label}
               to={item.to}
+              data-tour={tourId}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 active
