@@ -1,14 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, GraduationCap, ListChecks, Bot, User } from "lucide-react";
+import { Home, Map, GraduationCap, Wrench, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 
 const items = [
   { icon: Home, label: "Start", to: "/" as const, exact: true },
-  { icon: GraduationCap, label: "Kurs", to: "/courses" as const },
-  { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
-  { icon: Bot, label: "Generator AI", to: "/generator" as const },
-  { icon: User, label: "Konto", to: "/profile" as const },
+  { icon: Map, label: "Plan", to: "/path" as const, prefixes: ["/tasks", "/calendar"] },
+  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
+  { icon: Wrench, label: "Narzędzia", to: "/tools" as const, prefixes: ["/generator"] },
+  { icon: User, label: "Konto", to: "/profile" as const, prefixes: ["/credits", "/rewards", "/package"] },
 ];
 
 export function MobileBottomNav() {
@@ -26,7 +26,11 @@ export function MobileBottomNav() {
             const Icon = it.icon;
             const active = it.exact
               ? pathname === it.to
-              : pathname === it.to || pathname.startsWith(it.to + "/");
+              : pathname === it.to ||
+                pathname.startsWith(it.to + "/") ||
+                (it.prefixes ?? []).some(
+                  (p) => pathname === p || pathname.startsWith(p + "/"),
+                );
             return (
               <li key={it.to}>
                 <Link
