@@ -29,6 +29,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#6366f1" },
       { title: "90 Dni do Pierwszej Sprzedaży Online — Twój system misji" },
       {
         name: "description",
@@ -66,6 +67,7 @@ export const Route = createRootRoute({
       },
     ],
     links: [
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
       { rel: "icon", type: "image/png", sizes: "48x48", href: "/favicon-48x48.png" },

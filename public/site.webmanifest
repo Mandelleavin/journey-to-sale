@@ -1,0 +1,28 @@
+{
+  "name": "90 Dni — Pierwsza Sprzedaż Online",
+  "short_name": "90 Dni",
+  "description": "Krok po kroku doprowadzimy Cię do pierwszej sprzedaży online. Misje, XP, mentor i ścieżka 90 dni.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity", "business"],
+  "lang": "pl",
+  "dir": "ltr"
+}
