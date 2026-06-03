@@ -44,24 +44,15 @@ const STATUS_META: Record<
   needs_revision: { label: "Do poprawy", tone: "bg-orange-soft text-orange", userToggleable: true },
 };
 
-const achievements = [
-  { icon: PlayCircle, title: "Obejrzałeś lekcję", xp: "+30 XP", time: "2h temu", color: "violet" },
-  {
-    icon: FileCheck,
-    title: "Przesłałeś zadanie",
-    xp: "+100 XP",
-    time: "1 dzień temu",
-    color: "blue",
-  },
-  {
-    icon: Award,
-    title: "Zatwierdzono Twoje zadanie",
-    xp: "+150 XP",
-    time: "2 dni temu",
-    color: "green",
-  },
-  { icon: Trophy, title: "Ukończyłeś kurs", xp: "+200 XP", time: "3 dni temu", color: "orange" },
-];
+type AchievementColor = "violet" | "blue" | "green" | "orange";
+type AchievementRow = {
+  id: string;
+  title: string;
+  xp: number;
+  createdAt: string;
+  icon: typeof PlayCircle;
+  color: AchievementColor;
+};
 
 const achColor = {
   violet: "bg-violet-soft text-violet",
@@ -70,29 +61,84 @@ const achColor = {
   orange: "bg-orange-soft text-orange",
 } as const;
 
+function mapXpReason(reason: string): { title: string; icon: typeof PlayCircle; color: AchievementColor } {
+  const r = reason.toLowerCase();
+  if (r.startsWith("tool:")) {
+    const slug = reason.split(":")[1] ?? "narzędzie";
+    return { title: `Użyłeś narzędzia: ${slug}`, icon: Zap, color: "violet" };
+  }
+  if (r.includes("zatwierdz")) return { title: "Zatwierdzono Twoje zadanie", icon: Award, color: "green" };
+  if (r.includes("lekcj")) return { title: "Ukończyłeś lekcję", icon: PlayCircle, color: "violet" };
+  if (r.includes("zadan") || r.includes("task")) return { title: "Przesłałeś zadanie", icon: FileCheck, color: "blue" };
+  if (r.includes("kurs") || r.includes("course")) return { title: "Ukończyłeś kurs", icon: Trophy, color: "orange" };
+  if (r.includes("badge") || r.includes("odznak")) return { title: "Zdobyłeś odznakę", icon: Award, color: "orange" };
+  if (r.includes("misj")) return { title: "Wykonałeś misję", icon: Trophy, color: "orange" };
+  if (r.includes("streak") || r.includes("seri")) return { title: "Utrzymujesz serię dni", icon: Zap, color: "orange" };
+  return { title: reason, icon: Award, color: "blue" };
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "przed chwilą";
+  if (m < 60) return `${m} min temu`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h temu`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d} ${d === 1 ? "dzień" : "dni"} temu`;
+  const w = Math.floor(d / 7);
+  if (w < 5) return `${w} tyg. temu`;
+  return new Date(iso).toLocaleDateString("pl-PL");
+}
+
 export function TasksAndAchievements() {
   
   const { user } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
+  const [achievements, setAchievements] = useState<AchievementRow[]>([]);
+  const [loadingAch, setLoadingAch] = useState(true);
   const [loading, setLoading] = useState(true);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("mentor_assigned_tasks")
-      .select("id, title, xp_reward, due_date, status")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(5);
-    setTasks((data ?? []) as MentorTask[]);
+    setLoadingAch(true);
+    const [tasksRes, xpRes] = await Promise.all([
+      supabase
+        .from("mentor_assigned_tasks")
+        .select("id, title, xp_reward, due_date, status")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("user_xp_log")
+        .select("id, amount, reason, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+    setTasks((tasksRes.data ?? []) as MentorTask[]);
+    const rows = (xpRes.data ?? []).map((x) => {
+      const meta = mapXpReason(x.reason);
+      return {
+        id: x.id,
+        title: meta.title,
+        icon: meta.icon,
+        color: meta.color,
+        xp: x.amount,
+        createdAt: x.created_at,
+      } satisfies AchievementRow;
+    });
+    setAchievements(rows);
     setLoading(false);
+    setLoadingAch(false);
   };
 
   useEffect(() => {
     load();
   }, [user]);
+
 
   const toggleStatus = async (t: MentorTask) => {
     const meta = STATUS_META[t.status];
@@ -135,29 +181,39 @@ export function TasksAndAchievements() {
           <h3 className="font-display font-bold text-base">Najnowsze osiągnięcia</h3>
           <Trophy className="w-4 h-4 text-orange" />
         </div>
-        <ul className="divide-y divide-border">
-          {achievements.map((a) => {
-            const Icon = a.icon;
-            return (
-              <li key={a.title} className="flex items-center gap-3 py-3">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-lg grid place-items-center shrink-0",
-                    achColor[a.color as keyof typeof achColor],
-                  )}
-                >
-                  <Icon className="w-4 h-4" strokeWidth={2.2} />
-                </div>
-                <span className="flex-1 text-sm font-medium text-foreground">{a.title}</span>
-                <span className="text-xs font-bold text-violet flex items-center gap-1">
-                  <Zap className="w-3 h-3 fill-violet" />
-                  {a.xp}
-                </span>
-                <span className="text-[11px] text-muted-foreground w-20 text-right">{a.time}</span>
-              </li>
-            );
-          })}
-        </ul>
+        {loadingAch ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">Ładowanie…</div>
+        ) : achievements.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Brak osiągnięć — zacznij od pierwszej misji, żeby zdobyć XP.
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {achievements.map((a) => {
+              const Icon = a.icon;
+              return (
+                <li key={a.id} className="flex items-center gap-3 py-3">
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-lg grid place-items-center shrink-0",
+                      achColor[a.color],
+                    )}
+                  >
+                    <Icon className="w-4 h-4" strokeWidth={2.2} />
+                  </div>
+                  <span className="flex-1 text-sm font-medium text-foreground truncate">{a.title}</span>
+                  <span className="text-xs font-bold text-violet flex items-center gap-1">
+                    <Zap className="w-3 h-3 fill-violet" />
+                    +{a.xp} XP
+                  </span>
+                  <span className="text-[11px] text-muted-foreground w-20 text-right">
+                    {relativeTime(a.createdAt)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
