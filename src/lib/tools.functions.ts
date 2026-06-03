@@ -11,11 +11,15 @@ export type ToolSlug = (typeof TOOL_SLUGS)[number];
 
 const SlugSchema = z.enum(TOOL_SLUGS);
 
+// Plain JSON-serializable shape (loose to keep server-fn serializer happy)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type JsonObj = Record<string, any>;
+
 export type ToolResult = {
   id: string;
-  tool_slug: ToolSlug;
-  inputs: Record<string, unknown>;
-  outputs: Record<string, unknown>;
+  tool_slug: string;
+  inputs: JsonObj;
+  outputs: JsonObj;
   created_at: string;
 };
 
@@ -26,8 +30,10 @@ export const saveToolResult = createServerFn({ method: "POST" })
     z
       .object({
         tool_slug: SlugSchema,
-        inputs: z.record(z.string(), z.unknown()).default({}),
-        outputs: z.record(z.string(), z.unknown()).default({}),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        inputs: z.any().default({}) as z.ZodType<JsonObj>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        outputs: z.any().default({}) as z.ZodType<JsonObj>,
       })
       .parse(input),
   )
@@ -45,12 +51,11 @@ export const saveToolResult = createServerFn({ method: "POST" })
       .select("id, tool_slug, inputs, outputs, created_at")
       .single();
 
-    if (error) {
+    if (error || !row) {
       console.error("saveToolResult insert failed", error);
-      return { ok: false as const, xpAwarded: 0, result: null };
+      return { ok: false, xpAwarded: 0, result: null as ToolResult | null };
     }
 
-    // XP raz dziennie per narzędzie
     let xpAwarded = 0;
     const today = new Date().toISOString().slice(0, 10);
     const reason = `tool:${data.tool_slug}:${today}`;
@@ -68,14 +73,23 @@ export const saveToolResult = createServerFn({ method: "POST" })
       if (!xpErr) xpAwarded = 10;
     }
 
-    // Aktualizuj streak
     try {
       await supabase.rpc("update_streak", { _user_id: userId });
     } catch (e) {
       console.error("update_streak failed", e);
     }
 
-    return { ok: true as const, xpAwarded, result: row as ToolResult };
+    return {
+      ok: true,
+      xpAwarded,
+      result: {
+        id: row.id,
+        tool_slug: row.tool_slug,
+        inputs: (row.inputs ?? {}) as JsonObj,
+        outputs: (row.outputs ?? {}) as JsonObj,
+        created_at: row.created_at,
+      } as ToolResult | null,
+    };
   });
 
 /** Historia wyników danego narzędzia. */
@@ -102,7 +116,14 @@ export const getToolHistory = createServerFn({ method: "POST" })
       console.error("getToolHistory failed", error);
       return { rows: [] as ToolResult[] };
     }
-    return { rows: (rows ?? []) as ToolResult[] };
+    const mapped: ToolResult[] = (rows ?? []).map((r) => ({
+      id: r.id,
+      tool_slug: r.tool_slug,
+      inputs: (r.inputs ?? {}) as JsonObj,
+      outputs: (r.outputs ?? {}) as JsonObj,
+      created_at: r.created_at,
+    }));
+    return { rows: mapped };
   });
 
 /** Podsumowanie ile narzędzi user użył (do challenge / teaser). */
