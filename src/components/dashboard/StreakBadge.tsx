@@ -6,7 +6,7 @@ export function StreakBadge({ current, multiplier }: { current: number; multipli
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 cursor-help">
+          <div data-tour="streak-badge" className="flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 cursor-help">
             <div className="w-9 h-9 rounded-xl bg-gradient-orange grid place-items-center">
               <Flame className="w-4 h-4 text-white fill-white/30" strokeWidth={2.2} />
             </div>
