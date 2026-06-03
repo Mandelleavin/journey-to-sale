@@ -56,9 +56,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled) return;
-        setCompletedAt(
-          (data?.onboarding_completed_at as string | null | undefined) ?? null,
-        );
+        const row = data as { onboarding_completed_at?: string | null } | null;
+        setCompletedAt(row?.onboarding_completed_at ?? null);
       });
     return () => {
       cancelled = true;
