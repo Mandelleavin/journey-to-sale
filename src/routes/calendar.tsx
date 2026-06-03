@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { SectionTabs, planTabs } from "@/components/dashboard/SectionTabs";
 import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -64,6 +65,7 @@ function CalendarPage() {
 
   return (
     <PageShell title="Kalendarz" subtitle="Wszystkie deadline'y w jednym miejscu">
+      <SectionTabs tabs={planTabs} />
       <div className="grid lg:grid-cols-2 gap-5">
         <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
           <Calendar
