@@ -119,18 +119,23 @@ export function TasksAndAchievements() {
         .limit(5),
     ]);
     setTasks((tasksRes.data ?? []) as MentorTask[]);
-    const rows = (xpRes.data ?? []).map((x) => {
-      const meta = mapXpReason(x.reason);
-      return {
-        id: x.id,
-        title: meta.title,
-        icon: meta.icon,
-        color: meta.color,
-        xp: x.amount,
-        createdAt: x.created_at,
-      } satisfies AchievementRow;
-    });
-    setAchievements(rows);
+    const rows = (xpRes.data ?? [])
+      .map((x) => {
+        const meta = mapXpReason(x.reason);
+        return {
+          id: x.id,
+          title: meta.title,
+          icon: meta.icon,
+          color: meta.color,
+          xp: x.amount,
+          createdAt: x.created_at,
+        } satisfies AchievementRow;
+      })
+      // Deduplikacja po tytule — zachowujemy najnowsze wystąpienie
+      .reduce<AchievementRow[]>((acc, curr) => {
+        if (!acc.some((a) => a.title === curr.title)) acc.push(curr);
+        return acc;
+      }, []);
     setLoading(false);
     setLoadingAch(false);
   };
