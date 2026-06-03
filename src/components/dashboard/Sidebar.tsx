@@ -4,6 +4,23 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
 
+function tourIdForNav(to: string): string | undefined {
+  switch (to) {
+    case "/":
+      return "nav-dashboard";
+    case "/path":
+      return "nav-plan";
+    case "/courses":
+      return "nav-courses";
+    case "/tools":
+      return "nav-tools";
+    case "/community":
+      return "nav-community";
+    default:
+      return undefined;
+  }
+}
+
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { isAdmin } = useAuth();
@@ -34,10 +51,12 @@ export function Sidebar() {
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = isItemActive(item, pathname);
+          const tourId = tourIdForNav(item.to);
           return (
             <Link
               key={item.label}
               to={item.to}
+              data-tour={tourId}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 active

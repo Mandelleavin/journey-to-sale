@@ -116,6 +116,7 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { QueryClient, QueryCache, MutationCache, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { captureServerError } from "@/lib/error-logger";
@@ -150,10 +151,12 @@ function RootComponent() {
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <PaymentTestModeBanner />
-          <Outlet />
-          <MobileBottomNav />
-          <Toaster position="top-center" richColors closeButton />
+          <OnboardingProvider>
+            <PaymentTestModeBanner />
+            <Outlet />
+            <MobileBottomNav />
+            <Toaster position="top-center" richColors closeButton />
+          </OnboardingProvider>
         </AuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>
