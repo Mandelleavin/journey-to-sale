@@ -1298,6 +1298,8 @@ export type Database = {
           id: string
           last_seen: string | null
           lead_temp: Database["public"]["Enums"]["user_lead_temp"] | null
+          onboarding_completed_at: string | null
+          onboarding_skipped: boolean
           phone: string | null
           social_link: string | null
           updated_at: string
@@ -1312,6 +1314,8 @@ export type Database = {
           id: string
           last_seen?: string | null
           lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped?: boolean
           phone?: string | null
           social_link?: string | null
           updated_at?: string
@@ -1326,6 +1330,8 @@ export type Database = {
           id?: string
           last_seen?: string | null
           lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped?: boolean
           phone?: string | null
           social_link?: string | null
           updated_at?: string

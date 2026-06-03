@@ -1,58 +1,80 @@
-# Uproszczenie nawigacji aplikacji
+# Interaktywny tour po aplikacji dla nowych użytkowników
 
-## Diagnoza
+Cel: pierwsze zalogowanie pokazuje przewodnik po UI z dymkami (spotlight + tooltip) wskazującymi kluczowe elementy aplikacji i tłumaczącymi korzyści. Stan ukończenia zapisany w bazie (cross-device).
 
-Obecnie sidebar (`src/components/dashboard/Sidebar.tsx`) ma **11 pozycji** + 4 admin, a `MobileTopNav` duplikuje tę samą listę w sheecie. To dużo szumu — kilka pozycji to powiązane ze sobą funkcje (Ścieżka/Zadania/Kalendarz; Narzędzia/Generator AI) i kilka „kont/billing" (Pakiet, Nagrody), które nie należą do głównego flow pracy.
+## Co zbuduję
 
-## Cel
+### 1. Persystencja w bazie
+- Migracja: kolumna `profiles.onboarding_completed_at timestamptz` (nullable) + `onboarding_skipped boolean default false`.
+- Server fn `markOnboardingDone({ skipped })` — ustawia kolumny dla `auth.uid()`.
+- Server fn `getOnboardingStatus()` — zwraca `{ completed: boolean }` dla zalogowanego usera.
 
-- 11 → **6 głównych pozycji** w sidebarze
-- Rozliczenia/konto przenieść do menu użytkownika w `TopBar`
-- Jedna spójna lista źródłowa używana przez desktop + mobile
+### 2. Komponenty tour
+- `src/components/onboarding/OnboardingTour.tsx` — silnik tura:
+  - Spotlight (przyciemnione tło + wycięcie wokół targetu z `getBoundingClientRect`).
+  - Tooltip pozycjonowany względem targetu (auto top/bottom/left/right z fallbackiem na środek ekranu, jeśli element nie istnieje — np. inny viewport).
+  - Animacje: framer-motion (`AnimatePresence`, fade + scale na tooltipie, smooth na spotlight box).
+  - Kontrolki: `Wstecz`, `Dalej`, `Pomiń`, kropki progresu, `Zakończ` na ostatnim kroku.
+  - Klawiatura: `→` dalej, `←` wstecz, `Esc` pomiń.
+  - Lock scroll + scroll-into-view dla targetu.
+- `src/components/onboarding/OnboardingProvider.tsx` — opakowuje aplikację, czyta status, decyduje czy uruchomić.
+- `src/hooks/useOnboarding.ts` — `start()`, `restart()`, stan kroku.
 
-## Nowy układ sidebar (desktop + mobile sheet)
+### 3. Kroki tura (responsive: desktop wskazuje sidebar, mobile wskazuje bottom nav)
+Każdy krok = `{ id, target: selector, title, body, icon, placement }`. Kolejność:
 
+1. **Powitanie** — modal centralny, bez targetu. "Cześć! Pokażę Ci aplikację w 60 s."
+2. **Dashboard** — `[data-tour="nav-dashboard"]`. Centrum dowodzenia: postęp, streak, XP, najnowsze osiągnięcia.
+3. **Plan** — `[data-tour="nav-plan"]`. Ścieżka, zadania od mentora, kalendarz — wszystko w jednym.
+4. **Kursy** — `[data-tour="nav-courses"]`. Lekcje wideo z XP za ukończenie + zadania domowe.
+5. **Narzędzia AI** — `[data-tour="nav-tools"]`. Generator produktu i pomocnicy AI (koszt: kredyty).
+6. **Kredyty AI** — `[data-tour="credits-badge"]` w TopBar. Pula odnawiana co miesiąc wg planu + bonusy.
+7. **Społeczność** — `[data-tour="nav-community"]`. Posty, komentarze, wyzwania, pojedynki.
+8. **Pasek postępu / Streak** — `[data-tour="streak-widget"]` na dashboardzie. Codzienna aktywność = mnożnik XP.
+9. **Menu konta** — `[data-tour="account-menu"]`. Pakiet, nagrody, profil.
+10. **Finał** — modal centralny: "Gotowe! Tour możesz wznowić w Konto → Pokaż tour." CTA: `Zaczynamy`.
+
+### 4. Atrybuty `data-tour`
+Dodam `data-tour="..."` w istniejących komponentach (bez zmian wyglądu):
+- `Sidebar.tsx` — przy każdym mainItem (`nav-dashboard`, `nav-plan`, `nav-courses`, `nav-tools`, `nav-community`).
+- `MobileBottomNav.tsx` — odpowiedniki na mobile.
+- `TopBar.tsx` — `credits-badge`, `account-menu`.
+- `dashboard/StreakWidget` (lub odpowiednik) — `streak-widget`.
+
+### 5. Wyzwalacz
+- `OnboardingProvider` w `__root.tsx` (lub `_authenticated/route.tsx`): po zalogowaniu pobiera `getOnboardingStatus`; jeśli `completed === false` i user jest na trasie wewnątrz aplikacji → uruchamia tour po 500 ms (czas na render layoutu).
+- Ponowne uruchomienie: pozycja "Pokaż wprowadzenie" w dropdownie konta (TopBar).
+
+### 6. Edge cases
+- Jeśli target selector nie istnieje (mobile ↔ desktop różnice) → tooltip pokazuje się jako modal centralny z tym samym tekstem; spotlight pominięty.
+- Tour pauzowany podczas nawigacji między routami; resume po mount.
+- `prefers-reduced-motion` → wyłącza spring/scale, zostaje fade.
+
+## Szczegóły techniczne
+
+```text
+src/
+  components/onboarding/
+    OnboardingTour.tsx       # silnik + UI
+    OnboardingProvider.tsx   # context + auto-start
+    steps.ts                 # tablica kroków
+  hooks/
+    useOnboarding.ts
+  lib/
+    onboarding.functions.ts  # getOnboardingStatus, markOnboardingDone
 ```
-Dashboard           /          (Start)
-Plan                /path      (Ścieżka + Zadania + Kalendarz w tabach)
-Kursy               /courses
-Narzędzia AI        /tools     (Narzędzia + Generator jako taby/sekcje)
-Mój produkt         /products
-Społeczność         /community
+
+Migracja SQL:
+```sql
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS onboarding_completed_at timestamptz,
+  ADD COLUMN IF NOT EXISTS onboarding_skipped boolean NOT NULL DEFAULT false;
 ```
+(GRANTy na `profiles` już istnieją — bez zmian.)
 
-Pozycje przeniesione do menu profilu (`TopBar` → dropdown po kliknięciu w awatar):
-- Mój pakiet (`/package`)
-- Nagrody (`/rewards`)
-- Kredyty AI (`/credits`) — i tak już jest jako osobny chip w topbarze
-- Wyloguj (już jest)
+Server fn używają `requireSupabaseAuth`; respektują RLS na `profiles`.
 
-Admin pozostaje jako osobna sekcja w sidebarze, widoczna tylko dla adminów (bez zmian merytorycznych).
-
-## Mobile bottom nav (5 zakładek)
-
-```
-Start   Plan   Kursy   Narzędzia   Konto
-```
-
-(„Konto" otwiera sheet z profilem + przeniesionymi pozycjami.)
-
-## Zmiany w plikach
-
-1. **`src/lib/nav-items.ts`** (nowy) — jedno wspólne źródło: `mainItems`, `accountItems`, `adminItems`. Eliminuje duplikację między `Sidebar.tsx`, `MobileTopNav.tsx`, `MobileBottomNav.tsx`.
-2. **`src/components/dashboard/Sidebar.tsx`** — używa `mainItems` (6 poz.), bez „Ścieżka/Zadania/Kalendarz/Generator AI/Nagrody/Pakiet" jako osobnych linków.
-3. **`src/components/dashboard/MobileTopNav.tsx`** — sheet wczytuje `mainItems` + sekcja „Konto" z `accountItems`.
-4. **`src/components/dashboard/MobileBottomNav.tsx`** — 5 zakładek wg listy wyżej; „Konto" otwiera ten sam sheet co menu profilu.
-5. **`src/components/dashboard/TopBar.tsx`** — dodać dropdown na awatarze z `accountItems` + Wyloguj. (Wykorzystuje istniejący `DropdownMenu` z shadcn.)
-6. **`src/routes/path.tsx`** — dodać taby „Ścieżka / Zadania / Kalendarz" (proste linki/`Tabs` shadcn nad istniejącą zawartością). Routy `/tasks` i `/calendar` zostają jako same strony — taby tylko podświetlają aktywny.
-7. **`src/routes/tools.tsx`** — dodać tab „Generator AI" → przekierowuje do `/generator`. (Trasy zostają, zmienia się tylko sposób dotarcia z nawigacji.)
-
-## Czego nie zmieniam
-
-- Trasy/URL-e nie znikają — wszystkie stare linki nadal działają (np. /rewards, /package, /tasks, /calendar, /generator).
-- Logika biznesowa, dane, RLS — bez zmian.
-- Stylistyka (gradient violet, rounded-3xl, design tokens) — zachowana.
-
-## Pytanie do potwierdzenia
-
-Czy ten zestaw 6 głównych pozycji + przeniesienie Pakiet/Nagrody do menu konta pasuje? Jeśli wolisz inny podział (np. „Nagrody" zostaje w sidebarze bo jest motywujące), powiedz — łatwo przesunę.
+## Czego nie ruszam
+- Logika biznesowa, kredyty, XP, kursy — bez zmian.
+- Wygląd istniejących komponentów — dodaję tylko atrybuty `data-tour`.
+- Nawigacja — bez zmian struktury.
