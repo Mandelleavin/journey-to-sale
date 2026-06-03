@@ -29,6 +29,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#6366f1" },
       { title: "90 Dni do Pierwszej Sprzedaży Online — Twój system misji" },
       {
         name: "description",
