@@ -83,11 +83,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       setOpen(false);
       if (!user) return;
       const now = new Date().toISOString();
-      const patch: Record<string, unknown> = completed
+      const patch = completed
         ? { onboarding_completed_at: now, onboarding_skipped: false }
         : { onboarding_completed_at: now, onboarding_skipped: true };
       setCompletedAt(now);
-      await supabase.from("profiles").update(patch).eq("id", user.id);
+      // Cast: generated types may lag behind the new columns until regen.
+      await supabase
+        .from("profiles")
+        .update(patch as never)
+        .eq("id", user.id);
     },
     [user],
   );
