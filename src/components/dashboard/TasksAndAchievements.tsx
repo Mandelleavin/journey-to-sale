@@ -116,7 +116,7 @@ export function TasksAndAchievements() {
         .select("id, amount, reason, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(5),
+        .limit(50),
     ]);
     setTasks((tasksRes.data ?? []) as MentorTask[]);
     const rows = (xpRes.data ?? [])
@@ -135,7 +135,8 @@ export function TasksAndAchievements() {
       .reduce<AchievementRow[]>((acc, curr) => {
         if (!acc.some((a) => a.title === curr.title)) acc.push(curr);
         return acc;
-      }, []);
+      }, [])
+      .slice(0, 5);
     setLoading(false);
     setLoadingAch(false);
   };
