@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, Sparkles as SparklesIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { SketchUnderline } from "./Sketch";
 import { useAuth } from "@/lib/auth-context";
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { accountItems } from "@/lib/nav-items";
+import { useOnboarding } from "@/components/onboarding/OnboardingProvider";
 
 type Props = {
   fullName?: string;
