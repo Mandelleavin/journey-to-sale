@@ -389,12 +389,7 @@ function Nav() {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-display font-extrabold">
-          <span className="grid place-items-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
-            <Flame className="w-4 h-4" />
-          </span>
-          <span>90 Dni</span>
-        </Link>
+        <Logo size="sm" />
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <a href="#produkty" className="hover:text-foreground">Produkty</a>
           <a href="#jak" className="hover:text-foreground">Jak działa</a>
@@ -952,12 +947,7 @@ function Footer() {
     <footer className="border-t border-border bg-card/40">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-6 text-sm">
         <div>
-          <div className="flex items-center gap-2 font-display font-extrabold">
-            <span className="grid place-items-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
-              <Flame className="w-4 h-4" />
-            </span>
-            90 Dni
-          </div>
+          <Logo size="sm" asLink={false} />
           <p className="mt-3 text-muted-foreground">
             Twój pierwszy biznes online — z AI, planem i mentorem.
           </p>
