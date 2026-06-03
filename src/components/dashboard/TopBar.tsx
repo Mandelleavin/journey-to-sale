@@ -6,6 +6,15 @@ import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
 import { StreakBadge } from "./StreakBadge";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { accountItems } from "@/lib/nav-items";
 
 type Props = {
   fullName?: string;
@@ -64,23 +73,38 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
 
         <NotificationsBell initialCount={notificationsCount} />
 
-        <button
-          onClick={() => signOut()}
-          title="Wyloguj"
-          className="w-12 h-12 rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors"
-        >
-          <LogOut className="w-5 h-5 text-foreground" strokeWidth={2.2} />
-        </button>
-
-        <Link
-          to="/profile"
-          title="Twój profil"
-          className="hidden sm:block w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
-        >
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
-            {initials}
-          </div>
-        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              title="Twoje konto"
+              className="hidden sm:block w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
+            >
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
+                {initials}
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>{fullName || "Twoje konto"}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {accountItems.map((it) => {
+              const Icon = it.icon;
+              return (
+                <DropdownMenuItem key={it.to} asChild>
+                  <Link to={it.to} className="flex items-center gap-2 cursor-pointer">
+                    <Icon className="w-4 h-4" />
+                    <span>{it.label}</span>
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
+              <LogOut className="w-4 h-4 mr-2" />
+              Wyloguj
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
