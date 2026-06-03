@@ -13,7 +13,7 @@ export const Route = createFileRoute("/tools")({
     ],
   }),
   component: () => (
-    <PageShell>
+    <PageShell title="Narzędzia" subtitle="Kalkulatory, które codziennie pomagają Ci sprawdzać liczby biznesu.">
       <Outlet />
     </PageShell>
   ),

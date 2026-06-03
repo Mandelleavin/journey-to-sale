@@ -1,9 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import type { ReactElement } from "react";
 import { RevenuePotentialCalc } from "@/components/tools/RevenuePotentialCalc";
 import { ProductPriceCalc } from "@/components/tools/ProductPriceCalc";
 import { AdsBreakevenCalc } from "@/components/tools/AdsBreakevenCalc";
 
-const REGISTRY: Record<string, () => JSX.Element> = {
+const REGISTRY: Record<string, () => ReactElement> = {
   "revenue-potential": RevenuePotentialCalc,
   "product-price": ProductPriceCalc,
   "ads-breakeven": AdsBreakevenCalc,
