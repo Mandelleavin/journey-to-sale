@@ -4,6 +4,23 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
 
+function tourIdForNav(to: string): string | undefined {
+  switch (to) {
+    case "/":
+      return "nav-dashboard";
+    case "/path":
+      return "nav-plan";
+    case "/courses":
+      return "nav-courses";
+    case "/tools":
+      return "nav-tools";
+    case "/community":
+      return "nav-community";
+    default:
+      return undefined;
+  }
+}
+
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { isAdmin } = useAuth();
