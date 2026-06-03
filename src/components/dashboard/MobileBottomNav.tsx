@@ -22,14 +22,15 @@ import {
 } from "@/lib/nav-items";
 
 const primary = [
-  { icon: Home, label: "Start", to: "/" as const, exact: true },
+  { icon: Home, label: "Start", to: "/" as const, exact: true, tour: "nav-dashboard" },
   {
     icon: Map,
     label: "Plan",
     to: "/path" as const,
     prefixes: ["/tasks", "/calendar"],
+    tour: "nav-plan",
   },
-  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
+  { icon: GraduationCap, label: "Kursy", to: "/courses" as const, tour: "nav-courses" },
 ];
 
 const primaryPaths = new Set<string>([
