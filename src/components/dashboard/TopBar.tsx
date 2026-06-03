@@ -79,6 +79,7 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               title="Twoje konto"
+              data-tour="account-menu"
               className="hidden sm:block w-12 h-12 rounded-full bg-gradient-violet p-[2px] hover:opacity-90 transition-opacity"
             >
               <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center font-display font-bold text-violet text-sm">
@@ -101,6 +102,10 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
               );
             })}
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => restartTour()} className="cursor-pointer">
+              <SparklesIcon className="w-4 h-4 mr-2" />
+              Pokaż wprowadzenie
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
               <LogOut className="w-4 h-4 mr-2" />
               Wyloguj
