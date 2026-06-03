@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -28,9 +29,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccelerateRouteImport } from './routes/accelerate'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToolsIndexRouteImport } from './routes/tools.index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
+import { Route as ToolsSlugRouteImport } from './routes/tools.$slug'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
@@ -48,6 +51,11 @@ import { Route as ApiPublicCronStreakWarningRouteImport } from './routes/api/pub
 import { Route as ApiPublicCronDailyChallengesRouteImport } from './routes/api/public/cron/daily-challenges'
 import { Route as AdminCoursesCourseIdLessonsRouteImport } from './routes/admin.courses.$courseId.lessons'
 
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -143,6 +151,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsIndexRoute = ToolsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ToolsRoute,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -157,6 +170,11 @@ const UUserIdRoute = UUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsSlugRoute = ToolsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ToolsRoute,
 } as any)
 const OnboardingResultRoute = OnboardingResultRouteImport.update({
   id: '/result',
@@ -263,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
@@ -274,9 +293,11 @@ export interface FileRoutesByFullPath {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/tools/': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -312,9 +333,11 @@ export interface FileRoutesByTo {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/tools': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -342,6 +365,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
@@ -353,9 +377,11 @@ export interface FileRoutesById {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/tools/': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
   '/api/public/cron/daily-challenges': typeof ApiPublicCronDailyChallengesRoute
@@ -384,6 +410,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/rewards'
     | '/tasks'
+    | '/tools'
     | '/admin/ai-generators'
     | '/admin/courses'
     | '/admin/engagement'
@@ -395,9 +422,11 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/tools/$slug'
     | '/u/$userId'
     | '/admin/'
     | '/courses/'
+    | '/tools/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -433,9 +462,11 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/tools/$slug'
     | '/u/$userId'
     | '/admin'
     | '/courses'
+    | '/tools'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -462,6 +493,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/rewards'
     | '/tasks'
+    | '/tools'
     | '/admin/ai-generators'
     | '/admin/courses'
     | '/admin/engagement'
@@ -473,9 +505,11 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/tools/$slug'
     | '/u/$userId'
     | '/admin/'
     | '/courses/'
+    | '/tools/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
     | '/api/public/cron/daily-challenges'
@@ -503,6 +537,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
   TasksRoute: typeof TasksRoute
+  ToolsRoute: typeof ToolsRouteWithChildren
   CheckoutCancelledRoute: typeof CheckoutCancelledRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
@@ -514,6 +549,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks': {
       id: '/tasks'
       path: '/tasks'
@@ -647,6 +689,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/': {
+      id: '/tools/'
+      path: '/'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof ToolsIndexRouteImport
+      parentRoute: typeof ToolsRoute
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -667,6 +716,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/u/$userId'
       preLoaderRoute: typeof UUserIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tools/$slug': {
+      id: '/tools/$slug'
+      path: '/$slug'
+      fullPath: '/tools/$slug'
+      preLoaderRoute: typeof ToolsSlugRouteImport
+      parentRoute: typeof ToolsRoute
     }
     '/onboarding/result': {
       id: '/onboarding/result'
@@ -854,6 +910,18 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
   OnboardingRouteChildren,
 )
 
+interface ToolsRouteChildren {
+  ToolsSlugRoute: typeof ToolsSlugRoute
+  ToolsIndexRoute: typeof ToolsIndexRoute
+}
+
+const ToolsRouteChildren: ToolsRouteChildren = {
+  ToolsSlugRoute: ToolsSlugRoute,
+  ToolsIndexRoute: ToolsIndexRoute,
+}
+
+const ToolsRouteWithChildren = ToolsRoute._addFileChildren(ToolsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccelerateRoute: AccelerateRoute,
@@ -874,6 +942,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
   TasksRoute: TasksRoute,
+  ToolsRoute: ToolsRouteWithChildren,
   CheckoutCancelledRoute: CheckoutCancelledRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
@@ -885,13 +954,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

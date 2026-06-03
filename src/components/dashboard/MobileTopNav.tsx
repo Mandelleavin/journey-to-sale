@@ -16,6 +16,7 @@ import {
   CreditCard,
   Shield,
   BookOpen,
+  Calculator,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCredits } from "@/hooks/useCredits";
@@ -27,6 +28,7 @@ const items = [
   { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
   { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
   { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
+  { icon: Calculator, label: "Narzędzia", to: "/tools" as const },
   { icon: Bot, label: "Generator AI", to: "/generator" as const },
   { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
   { icon: Package, label: "Mój produkt", to: "/products" as const },

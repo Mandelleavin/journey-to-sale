@@ -1,111 +1,123 @@
 
-# Engagement Score + Gating planów
+# Wciągnij użytkowników w aplikację — kalkulatory + mikro-wyzwania
 
-Dwa filary: (1) mierzymy „temperaturę" usera deterministycznie z aktywności w app, (2) twardo egzekwujemy limity per plan z ekranem upgrade. Wykorzystujemy istniejące tabele — nie dublujemy zdarzeń.
+Celem jest zbudowanie powodów, dla których użytkownik **wraca codziennie** do aplikacji „90 Dni", nawet jeśli nie ma akurat lekcji do zrobienia. Łączymy dwa mechanizmy: **kalkulatory biznesowe** (instant gratification + osobiste dane) oraz **darmowe mini-wyzwania 7-dniowe** (streaks + XP + nagroda).
 
-## 1. Engagement Score (0–100)
+## Pomysły — kalkulatory (Hub `/tools`)
 
-Liczone w widoku SQL `user_engagement_v` z danych już zbieranych. Recalc on-demand przy odczycie + cache w nowej tabeli `user_engagement` (refresh trigger przy kluczowych zdarzeniach).
+Każdy kalkulator zapisuje wynik do bazy, pokazuje historię i porównanie z poprzednim tygodniem („Twój potencjał wzrósł o 23%").
 
-**Składniki (wagi):**
+1. **Kalkulator potencjału przychodu** — wpisz cenę produktu, konwersję, ruch → ile zarobisz / miesiąc, rok.
+2. **Kalkulator ceny produktu (value-based)** — odpowiedz na 5 pytań (problem, czas oszczędzony, alternatywy) → rekomendowana cena widełki.
+3. **Kalkulator break-even reklam (ROAS)** — koszt CPC, konwersja LP, marża → ile musisz wydać, żeby zarobić.
+4. **Kalkulator celu 10k zł / mies.** — przy Twojej cenie ile sprzedaży/dzień + ile leadów/dzień potrzebujesz.
+5. **Kalkulator wartości godziny** — przychód miesięczny / godziny pracy → motywuje do automatyzacji.
+6. **Kalkulator lejka sprzedaży** — wejścia → leady → klienci, pokazuje wąskie gardło.
+7. **Kalkulator launch revenue** — wielkość listy mailingowej × open rate × CR × cena.
+8. **Symulator skalowania 90 dni** — interaktywny wykres przychodu na podstawie obecnych parametrów.
 
-| Sygnał | Źródło | Max pkt |
-|---|---|---|
-| Aktywność 7 dni (logowania) | `profiles.last_seen` + `user_xp_log` daty | 15 |
-| Streak (current_streak) | `user_streaks.current_streak` (cap 30) | 15 |
-| Postęp kursu | `user_lesson_progress` / `lessons` w aktywnym kursie | 20 |
-| Zadania mentora zatwierdzone | `mentor_assigned_tasks.status='approved'` (30 dni) | 15 |
-| Produkt Score najlepszego produktu | `product-score.ts` (skala 0–100 → 0–25) | 25 |
-| Wypełniona ankieta + readiness | `survey_responses.readiness_percent` (0–100 → 0–10) | 10 |
+Wszystkie kalkulatory dostępne **publicznie** (na landingu jako lead magnet — wynik wymaga emaila), a w aplikacji **bez bramki + z zapisem do historii i progresją** (XP za każde użycie raz dziennie).
 
-**Etykiety:**
-- 0–24 `cold`, 25–49 `warm`, 50–74 `hot`, 75–100 `on_fire`
-- Mapowanie do istniejącego `profiles.lead_temp` (rozszerzymy enum o `on_fire`)
+## Pomysły — wyzwania / streaks
 
-## 2. Auto-akcje przy przekroczeniu progu
+1. **Daily Streak** — wejście do appki = +5 XP. Po 7 dniach z rzędu badge „Tydzień ognia" + bonus 100 XP. Widoczny licznik 🔥 w TopBar.
+2. **Wyzwanie 7 dni „Pierwsza sprzedaż"** — codziennie 1 mini-zadanie (15 min), na końcu gotowa oferta i landing.
+3. **Wyzwanie 7 dni „Liczby twojego biznesu"** — każdy dzień jeden kalkulator, na końcu pełny model finansowy.
+4. **Tygodniowy challenge społecznościowy** — wszyscy realizują to samo zadanie, leaderboard, top 10 dostaje kredyty AI.
+5. **Daily Win** — wieczorem prompt „co dziś zrobiłeś dla biznesu?", odpowiedź → +20 XP, wpis do dziennika postępu.
 
-Trigger przy update `user_engagement.score`:
-- ≥50 (hot, pierwszy raz w 14 dni): wpis do `lead_calls` + notyfikacja dla adminów (analogicznie do `on_survey_hot_lead`)
-- ≥75 (on_fire): dodatkowo wpis do nowej tabeli `email_sequences_queue` (status=pending, template=`upgrade_hot`) — wysyłka maila przez TanStack serverFn cron, używa już skonfigurowanej infrastruktury maili
-- Update `profiles.lead_temp` automatycznie
+## Co wdrażam w tym kroku (Faza 1)
 
-Banner upsell w aplikacji (frontend, czyta `user_engagement.label`) — pojawia się na dashboardzie tylko dla `hot`/`on_fire` z planem `start`.
+Skupiamy się na rzeczy, która najszybciej zbuduje nawyk:
 
-## 3. Twarde limity per plan (blok + upgrade screen)
+### A. Hub `/tools` z 3 kalkulatorami (start)
+- `/tools` — lista kafelków z kalkulatorami + ostatnie wyniki użytkownika.
+- `/tools/revenue-potential` — kalkulator potencjału przychodu.
+- `/tools/product-price` — kalkulator ceny produktu.
+- `/tools/ads-breakeven` — break-even reklam.
 
-Nowa tabela `plan_features` (admin może edytować) zamiast hardcode:
+Każdy kalkulator: formularz po lewej, wynik po prawej z dużymi liczbami, mini-wykres (recharts), CTA „Zapisz wynik" → +10 XP raz dziennie, „Porównaj z poprzednim tygodniem".
 
-```text
-plan_features
-  plan: subscription_plan
-  feature_key: text  // products_count, courses_access, generators_access, coach_messages_day, community_vip
-  limit_value: int   // -1 = unlimited
-  is_enabled: bool
+### B. Daily Streak
+- Licznik 🔥 w `TopBar` (np. „7 dni z rzędu").
+- Wpadka do `MissionCard` na dashboardzie: „Wejdź jutro, żeby utrzymać streak!".
+- Bonus +100 XP i badge co 7 dni (wykorzystuje istniejącą tabelę `badges`).
+
+### C. Wyzwanie 7 dni „Liczby twojego biznesu"
+- Sekcja na dashboardzie (pod `ProgressPath`) z 7 dniami, każdy = jeden kalkulator do wypełnienia.
+- Po ukończeniu wszystkich 7 → 500 XP + odblokowanie ebooka „Twój model finansowy" (jako reward).
+- Wyzwanie używa istniejących tabel `challenges` + nowej tabeli `user_challenge_progress`.
+
+### D. Nawigacja
+- Dodanie linku **„Narzędzia"** (ikona Calculator) w `Sidebar` i `MobileTopNav`.
+- Małe karty kalkulatorów (top 3) na dashboardzie pod sekcją „Plan na dziś" — żeby user wpadł na nie naturalnie.
+
+## Szczegóły techniczne
+
+### Baza danych (migracja)
+```sql
+-- Wyniki kalkulatorów (historia per user, per narzędzie)
+create table public.tool_results (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  tool_slug text not null,          -- 'revenue-potential' itd.
+  inputs jsonb not null default '{}',
+  outputs jsonb not null default '{}',
+  created_at timestamptz not null default now()
+);
+create index on public.tool_results (user_id, tool_slug, created_at desc);
+
+-- Streaks
+create table public.user_streaks (
+  user_id uuid primary key,
+  current_streak int not null default 0,
+  longest_streak int not null default 0,
+  last_visit_date date not null default current_date,
+  updated_at timestamptz not null default now()
+);
+
+-- Progres w wyzwaniach (uzupełnia istniejącą tabelę challenges)
+create table public.user_challenge_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  challenge_id uuid not null,
+  step_index int not null,           -- 0..6
+  payload jsonb not null default '{}',
+  completed_at timestamptz not null default now(),
+  unique (user_id, challenge_id, step_index)
+);
 ```
+GRANTy dla `authenticated` + `service_role`, RLS „own only" + admin all (zgodnie z wzorcem w projekcie).
 
-**Domyślne wartości:**
+### Server functions (`src/lib/tools.functions.ts`, `src/lib/streaks.functions.ts`)
+- `saveToolResult({ tool_slug, inputs, outputs })` — zapis + XP (+10 raz/dzień/narzędzie via `xp_log`).
+- `getToolHistory({ tool_slug, limit })` — ostatnie wyniki użytkownika.
+- `touchStreak()` — wywoływane raz po zalogowaniu, aktualizuje `user_streaks`, przyznaje XP/badge za 7-dniówkę.
+- `getStreak()` — current/longest do TopBar.
+- `completeChallengeStep({ challenge_id, step_index, payload })` — zapis kroku, przyznanie XP + reward po 7/7.
 
-| Feature | Start | Pro | VIP |
-|---|---|---|---|
-| products_count | 1 | 2 | 3 |
-| ai_credits_monthly | 80 | 250 | 700 |
-| courses_access | basic | all | all + 1:1 |
-| generators_required_plan | start | pro | vip (via `ai_generators.required_plan`) |
-| coach_messages_day | 5 | 30 | unlimited |
-| community_vip | false | false | true |
-| exports_pdf | false | true | true |
-| modules_advanced | false | true | true |
+### Komponenty
+- `src/components/tools/CalculatorShell.tsx` — wspólny layout (form/result/history).
+- `src/components/tools/RevenuePotentialCalc.tsx`, `ProductPriceCalc.tsx`, `AdsBreakevenCalc.tsx`.
+- `src/components/dashboard/StreakBadge.tsx` — pasek z 🔥 w TopBar.
+- `src/components/dashboard/ChallengeWeekCard.tsx` — sekcja wyzwania 7 dni na dashboardzie.
+- `src/components/dashboard/ToolsTeaser.tsx` — 3 kafelki na dashboard.
 
-**Egzekwowanie (twardy blok):**
-- SerwerFn `requirePlanFeature(feature_key, required_value)` — middleware używane w każdym chronionym serverFn (np. `createProduct`, `generateAI`, `sendCoachMessage`). Rzuca `PlanLimitError` z `{ feature, current_plan, required_plan }`.
-- Frontend: hook `usePlanFeature(key)` → zwraca `{ allowed, limit, used, requiredPlan }`. Wrapper `<PlanGate feature="...">` renderuje dziecko lub ekran upgrade (CTA do `/pricing`).
-- Existing courses/lessons: dodajemy `required_plan` do `courses` i `modules` (nullable, default null=wszyscy), `lessons.tsx` sprawdza przez serverFn.
+### Routing
+- `src/routes/tools.tsx` (layout z `<Outlet />`)
+- `src/routes/tools.index.tsx` (hub)
+- `src/routes/tools.$slug.tsx` (renderuje kalkulator po slug)
 
-## 4. Panel admina
+### Integracja w istniejących plikach
+- `src/components/dashboard/Sidebar.tsx` — dodać link „Narzędzia".
+- `src/components/dashboard/MobileTopNav.tsx` — to samo.
+- `src/components/dashboard/TopBar.tsx` — wstawić `<StreakBadge />`.
+- `src/routes/index.tsx` — wywołać `touchStreak()` po zalogowaniu + dodać `<ChallengeWeekCard />` i `<ToolsTeaser />`.
 
-Nowa zakładka `/admin/engagement`:
-- Lista userów sortowana po score (z filtrem `lead_temp`, plan, dni od ostatniego logowania)
-- Każdy wiersz: avatar, name, plan, score + breakdown (mini progress bary składowych), CTA „Zaplanuj call", „Wyślij ofertę"
-- Edytor `plan_features` (tabela z inline-edit limitami)
+## Co świadomie pomijam w tej fazie
+- Symulator skalowania 90 dni, kalkulator lejka, launch revenue, wartość godziny → Faza 2 (te same komponenty, kolejne slugi).
+- Wyzwania społecznościowe + leaderboard → Faza 3 (wymaga osobnej rundy decyzji o publicznych profilach).
+- Publiczne kalkulatory na landingu jako lead magnet → osobny krok po zwalidowaniu w aplikacji.
 
-## 5. Pliki
-
-**Migracja:**
-- `user_engagement` (user_id PK, score, label, breakdown jsonb, recalc_at)
-- `plan_features` (+ seed defaults)
-- `email_sequences_queue` (user_id, template, status, scheduled_for, sent_at)
-- Enum `user_lead_temp` += `'on_fire'`
-- `courses.required_plan`, `modules.required_plan` (subscription_plan nullable)
-- View `user_engagement_v` + funkcja `recalc_engagement(_user_id)`
-- Triggery na `user_xp_log`, `mentor_assigned_tasks`, `user_products` → `recalc_engagement`
-- Trigger na `user_engagement` UPDATE → wstawienie do `lead_calls` / `email_sequences_queue`
-
-**Backend (TanStack serverFn):**
-- `src/lib/engagement.functions.ts` — `getMyEngagement`, `getAdminEngagementList`, `recalcEngagement`
-- `src/lib/plan-gating.ts` + `src/lib/plan-gating.functions.ts` — `requirePlanFeature` middleware, `getPlanFeatures` (cached)
-- `src/lib/email-queue.functions.ts` — `processEmailQueue` (cron)
-
-**Frontend:**
-- `src/hooks/useEngagement.ts`
-- `src/hooks/usePlanFeature.ts`
-- `src/components/PlanGate.tsx` + `src/components/UpgradeScreen.tsx` (ładny full-screen blok z porównaniem planów i CTA)
-- `src/components/dashboard/EngagementWidget.tsx` (dla usera — pokazuje temperaturę i co podbije score)
-- `src/components/dashboard/UpsellBanner.tsx` (auto-show dla hot leadów na planie start)
-- `src/routes/admin.engagement.tsx`
-- Owinięcie w `PlanGate`: `routes/generator.$slug.tsx`, `routes/coach.tsx`, `routes/community.tsx` (sekcja VIP), `routes/lessons.$lessonId.tsx`
-
-## 6. Kolejność wdrożenia
-
-1. Migracja DB (tabele, enum, view, funkcja recalc, triggery, seed plan_features)
-2. `plan-gating.ts` + `usePlanFeature` + `PlanGate` + `UpgradeScreen` — fundamenty
-3. Owinięcie istniejących routów (generator, coach, lessons, community) w gating
-4. `engagement.functions.ts` + widok admina
-5. `EngagementWidget` + `UpsellBanner` na dashboardzie
-6. Email queue + cron (lekki — odpalimy gdy podłączysz wysyłkę maili)
-
-## Notatki techniczne
-
-- Wszystkie nowe tabele z RLS: user czyta swoje, admin wszystko, service_role pełen dostęp
-- `recalc_engagement` jako SECURITY DEFINER, wywoływana z triggerów po `user_xp_log INSERT`, `mentor_assigned_tasks UPDATE`, `user_products UPDATE` — dzięki temu score zawsze świeży bez cron
-- `PlanGate` na froncie to UX, prawdziwa blokada w serverFn (security)
-- Email queue początkowo bez wysyłki — same wpisy + powiadomienie admina. Pełna wysyłka po podpięciu skrzynki (osobny krok, znana infra Lovable)
+## Sukces (jak zmierzymy)
+- Po wdrożeniu sprawdzimy w `/admin/engagement`: wzrost DAU, średni streak, % userów którzy użyli ≥1 kalkulatora w tygodniu.

@@ -1678,6 +1678,33 @@ export type Database = {
           },
         ]
       }
+      tool_results: {
+        Row: {
+          created_at: string
+          id: string
+          inputs: Json
+          outputs: Json
+          tool_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          outputs?: Json
+          tool_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          outputs?: Json
+          tool_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_ai_credits: {
         Row: {
           bonus_credits: number
