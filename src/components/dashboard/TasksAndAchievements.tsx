@@ -44,24 +44,15 @@ const STATUS_META: Record<
   needs_revision: { label: "Do poprawy", tone: "bg-orange-soft text-orange", userToggleable: true },
 };
 
-const achievements = [
-  { icon: PlayCircle, title: "Obejrzałeś lekcję", xp: "+30 XP", time: "2h temu", color: "violet" },
-  {
-    icon: FileCheck,
-    title: "Przesłałeś zadanie",
-    xp: "+100 XP",
-    time: "1 dzień temu",
-    color: "blue",
-  },
-  {
-    icon: Award,
-    title: "Zatwierdzono Twoje zadanie",
-    xp: "+150 XP",
-    time: "2 dni temu",
-    color: "green",
-  },
-  { icon: Trophy, title: "Ukończyłeś kurs", xp: "+200 XP", time: "3 dni temu", color: "orange" },
-];
+type AchievementColor = "violet" | "blue" | "green" | "orange";
+type AchievementRow = {
+  id: string;
+  title: string;
+  xp: number;
+  createdAt: string;
+  icon: typeof PlayCircle;
+  color: AchievementColor;
+};
 
 const achColor = {
   violet: "bg-violet-soft text-violet",
@@ -69,6 +60,36 @@ const achColor = {
   green: "bg-green-soft text-green",
   orange: "bg-orange-soft text-orange",
 } as const;
+
+function mapXpReason(reason: string): { title: string; icon: typeof PlayCircle; color: AchievementColor } {
+  const r = reason.toLowerCase();
+  if (r.startsWith("tool:")) {
+    const slug = reason.split(":")[1] ?? "narzędzie";
+    return { title: `Użyłeś narzędzia: ${slug}`, icon: Zap, color: "violet" };
+  }
+  if (r.includes("zatwierdz")) return { title: "Zatwierdzono Twoje zadanie", icon: Award, color: "green" };
+  if (r.includes("lekcj")) return { title: "Ukończyłeś lekcję", icon: PlayCircle, color: "violet" };
+  if (r.includes("zadan") || r.includes("task")) return { title: "Przesłałeś zadanie", icon: FileCheck, color: "blue" };
+  if (r.includes("kurs") || r.includes("course")) return { title: "Ukończyłeś kurs", icon: Trophy, color: "orange" };
+  if (r.includes("badge") || r.includes("odznak")) return { title: "Zdobyłeś odznakę", icon: Award, color: "orange" };
+  if (r.includes("misj")) return { title: "Wykonałeś misję", icon: Trophy, color: "orange" };
+  if (r.includes("streak") || r.includes("seri")) return { title: "Utrzymujesz serię dni", icon: Zap, color: "orange" };
+  return { title: reason, icon: Award, color: "blue" };
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "przed chwilą";
+  if (m < 60) return `${m} min temu`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h temu`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d} ${d === 1 ? "dzień" : "dni"} temu`;
+  const w = Math.floor(d / 7);
+  if (w < 5) return `${w} tyg. temu`;
+  return new Date(iso).toLocaleDateString("pl-PL");
+}
 
 export function TasksAndAchievements() {
   
