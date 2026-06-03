@@ -185,6 +185,7 @@ export function MobileBottomNav() {
               <li key={it.to}>
                 <Link
                   to={it.to}
+                  data-tour={it.tour}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-bold transition-colors",
                     active
