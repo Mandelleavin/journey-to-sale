@@ -34,7 +34,7 @@ export const tourSteps: TourStep[] = [
     icon: Rocket,
     title: "Witaj w 90 Dni do Pierwszej Sprzedaży!",
     body:
-      "Pokażę Ci aplikację w 60 sekund — kluczowe sekcje, system XP i to, jak najszybciej zarobić pierwsze pieniądze online. Klikaj „Dalej”.",
+      "W 60 sekund poznasz narzędzia, które pomogą Ci zamienić pomysł w realny dochód. Klikaj „Dalej” i ruszamy!",
   },
   {
     id: "dashboard",
@@ -42,7 +42,7 @@ export const tourSteps: TourStep[] = [
     icon: LayoutDashboard,
     title: "Dashboard — Twoje centrum dowodzenia",
     body:
-      "Tu zobaczysz dzisiejszą misję, postęp ścieżki, najnowsze osiągnięcia, streak i XP. Zacznij każdy dzień od tego widoku.",
+      "Od tego miejsca zacznij każdy dzień. Misja, postęp, streak i XP w jednym ujęciu — widzisz dokładnie, co Cię zbliża do celu.",
   },
   {
     id: "plan",
@@ -50,7 +50,7 @@ export const tourSteps: TourStep[] = [
     icon: Map,
     title: "Plan działania",
     body:
-      "Ścieżka 90 dni, zadania od mentora i kalendarz — wszystko w jednym miejscu. To Twój roadmap do pierwszej sprzedaży.",
+      "90-dniowa ścieżka + zadania od mentora + kalendarz. Nie musisz kombinować — wiesz, co robić każdego dnia.",
   },
   {
     id: "courses",
@@ -58,7 +58,7 @@ export const tourSteps: TourStep[] = [
     icon: GraduationCap,
     title: "Kursy wideo",
     body:
-      "Lekcje krok po kroku. Za obejrzenie dostajesz XP, za zadania domowe sprawdzone przez mentora — jeszcze więcej XP i odznaki.",
+      "Oglądasz → zdobywasz XP. Wykonujesz zadania domowe → dostajesz odznaki i rozwijasz realny produkt. Bez teorii — same konkrety.",
   },
   {
     id: "tools",
@@ -66,7 +66,7 @@ export const tourSteps: TourStep[] = [
     icon: Wrench,
     title: "Narzędzia AI",
     body:
-      "Generator produktu, opisów ofertowych i pomocnicy AI. Każde użycie kosztuje kredyty — ale przyspiesza pracę o godziny.",
+      "Generator produktu, ofert i reklam w kilka chwil. To, co normalnie zajmuje godziny, teraz gotowe w minuty.",
   },
   {
     id: "credits",
@@ -74,7 +74,7 @@ export const tourSteps: TourStep[] = [
     icon: Sparkles,
     title: "Twoje kredyty AI",
     body:
-      "Pula odnawiana co miesiąc zgodnie z planem (Start / Pro / VIP). Bonusy z kodów i zakupy dochodzą dodatkowo.",
+      "Co miesiąc otrzymujesz świeżą pulę kredytów do AI. Im wyższy plan, tym więcej automatyzacji — bez dodatkowych kosztów.",
     placement: "bottom",
   },
   {
@@ -83,7 +83,7 @@ export const tourSteps: TourStep[] = [
     icon: Users,
     title: "Społeczność",
     body:
-      "Posty, komentarze, wyzwania i pojedynki XP z innymi twórcami. Aktywność tu też daje XP i odznaki.",
+      "Wyzwania, pojedynki XP i wsparcie innych twórców. Działasz sam, ale nigdy nie jesteś sam.",
   },
   {
     id: "streak",
@@ -91,7 +91,7 @@ export const tourSteps: TourStep[] = [
     icon: Flame,
     title: "Streak — codzienna aktywność",
     body:
-      "Loguj się i działaj codziennie. 7 dni = ×1.5 mnożnik XP, 30 dni = ×2. Streak resetuje się po przerwie — nie odpuszczaj!",
+      "7 dni aktywności = ×1.5 XP. 30 dni = ×2.0 XP. Konsekwencja nagradza się szybciej — nie przerywaj łańcucha!",
     placement: "bottom",
   },
   {
@@ -100,7 +100,7 @@ export const tourSteps: TourStep[] = [
     icon: UserIcon,
     title: "Twoje konto",
     body:
-      "Profil, pakiet, nagrody za XP i kredyty AI. Stąd też możesz w każdej chwili ponownie odpalić to wprowadzenie.",
+      "Profil, nagrody, kredyty i pakiet — wszystko pod kontrolą. W każdej chwili możesz też wrócić do tego wprowadzenia.",
     placement: "bottom",
   },
   {
@@ -109,6 +109,6 @@ export const tourSteps: TourStep[] = [
     icon: PartyPopper,
     title: "Gotowe — czas działać!",
     body:
-      "Masz wszystko, czego potrzebujesz. Zaczynamy od pierwszej misji na dashboardzie. Powodzenia 🚀",
+      "Masz wszystko, by ruszyć. Twoja pierwsza misja czeka na dashboardzie. Do dzieła!",
   },
 ];
