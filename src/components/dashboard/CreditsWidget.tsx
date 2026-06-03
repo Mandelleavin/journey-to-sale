@@ -19,7 +19,7 @@ export function CreditsWidget() {
   const lowOrEmpty = pct >= 80;
 
   return (
-    <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-5 shadow-soft">
+    <div data-tour="credits-badge" className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-5 shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
