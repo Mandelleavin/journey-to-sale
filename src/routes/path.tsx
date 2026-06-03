@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { SectionTabs, planTabs } from "@/components/dashboard/SectionTabs";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
@@ -128,6 +129,7 @@ function PathPage() {
       title="Moja ścieżka"
       subtitle={`Dzień ${currentDay} z 90 — Twoja podróż do pierwszej sprzedaży online`}
     >
+      <SectionTabs tabs={planTabs} />
       <StatCards
         level={data.level}
         totalXp={data.totalXp}

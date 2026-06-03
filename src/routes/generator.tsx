@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { SectionTabs, toolsTabs } from "@/components/dashboard/SectionTabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useCredits } from "@/hooks/useCredits";
@@ -76,6 +77,7 @@ function GeneratorListPage() {
       title="Generator Produktu AI"
       subtitle="Konkretne narzędzia do stworzenia pomysłu, oferty, landing page, maili i reklam"
     >
+      <SectionTabs tabs={toolsTabs} />
       <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-5 shadow-soft flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">

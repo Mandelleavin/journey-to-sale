@@ -1,35 +1,58 @@
+# Uproszczenie nawigacji aplikacji
 
-# Plan: Profesjonalne logo „90 Dni"
+## Diagnoza
 
-## Koncept
+Obecnie sidebar (`src/components/dashboard/Sidebar.tsx`) ma **11 pozycji** + 4 admin, a `MobileTopNav` duplikuje tę samą listę w sheecie. To dużo szumu — kilka pozycji to powiązane ze sobą funkcje (Ścieżka/Zadania/Kalendarz; Narzędzia/Generator AI) i kilka „kont/billing" (Pakiet, Nagrody), które nie należą do głównego flow pracy.
 
-**Abstrakcyjna ikona + wordmark.** Ikona symbolizuje ścieżkę 90 dni — spirala / okrągły progress mark, który stopniowo się domyka (90% wypełnienia okręgu), z wewnętrznym akcentem (gwiazdka/iskra/„9"). Styl: premium, agency-grade, geometrycznie precyzyjny, jeden gradient violet→blue spójny z aplikacją.
+## Cel
 
-Lockup: ikona (kwadrat) + wordmark „90 Dni" po prawej, w `font-display` (Plus Jakarta Sans, extrabold). Wariant pionowy nie potrzebny — używamy tylko poziomego.
+- 11 → **6 głównych pozycji** w sidebarze
+- Rozliczenia/konto przenieść do menu użytkownika w `TopBar`
+- Jedna spójna lista źródłowa używana przez desktop + mobile
 
-## Wykonanie
+## Nowy układ sidebar (desktop + mobile sheet)
 
-1. **Wygenerować ikonę** jako PNG z przezroczystym tłem (`src/assets/logo-mark.png`) — abstrakcyjny symbol ścieżki 90 dni, gradient violet (`oklch(0.62 0.22 290)`) → blue (`oklch(0.62 0.18 245)`), na białym tle podczas generacji, potem przezroczyste.
-   - Prompt skupiony na: minimalist abstract circular path mark, 90% arc completion, geometric precision, premium tech brand, gradient violet to blue, no text, vector-like clean edges.
-   - Quality: `premium` (logo wymaga czystych linii i czytelności w małym rozmiarze).
+```
+Dashboard           /          (Start)
+Plan                /path      (Ścieżka + Zadania + Kalendarz w tabach)
+Kursy               /courses
+Narzędzia AI        /tools     (Narzędzia + Generator jako taby/sekcje)
+Mój produkt         /products
+Społeczność         /community
+```
 
-2. **Utworzyć komponent `Logo.tsx`** w `src/components/landing/Logo.tsx`:
-   - Props: `size` ("sm" | "md" | "lg"), `withWordmark` (default true).
-   - Renderuje `<img>` z `logo-mark.png` + tekst „90 Dni" w `font-display font-extrabold`.
-   - Używa istniejących tokenów (`text-foreground`, brak hardkodowanych kolorów).
+Pozycje przeniesione do menu profilu (`TopBar` → dropdown po kliknięciu w awatar):
+- Mój pakiet (`/package`)
+- Nagrody (`/rewards`)
+- Kredyty AI (`/credits`) — i tak już jest jako osobny chip w topbarze
+- Wyloguj (już jest)
 
-3. **Podmienić w nawigacji landing page** (`src/components/landing/LandingPage.tsx`):
-   - W komponencie `Nav()` (linie ~310-335): zastąpić obecny blok `<span><Flame /></span> 90 Dni` komponentem `<Logo />`.
-   - W komponencie `Footer()` (linie ~720+): tak samo.
+Admin pozostaje jako osobna sekcja w sidebarze, widoczna tylko dla adminów (bez zmian merytorycznych).
 
-## Pliki
+## Mobile bottom nav (5 zakładek)
 
-- nowy: `src/assets/logo-mark.png` (generowany)
-- nowy: `src/components/landing/Logo.tsx`
-- edycja: `src/components/landing/LandingPage.tsx` (Nav + Footer)
+```
+Start   Plan   Kursy   Narzędzia   Konto
+```
 
-## Poza zakresem
+(„Konto" otwiera sheet z profilem + przeniesionymi pozycjami.)
 
-- Favicon, OG image, warianty kolorystyczne (dark/light), ciemny wariant ikony — user wybrał tylko „nawigacja landing page".
-- Nie ruszam dashboardu zalogowanego użytkownika ani Sidebar.
-- Nie zmieniam routingu ani backendu.
+## Zmiany w plikach
+
+1. **`src/lib/nav-items.ts`** (nowy) — jedno wspólne źródło: `mainItems`, `accountItems`, `adminItems`. Eliminuje duplikację między `Sidebar.tsx`, `MobileTopNav.tsx`, `MobileBottomNav.tsx`.
+2. **`src/components/dashboard/Sidebar.tsx`** — używa `mainItems` (6 poz.), bez „Ścieżka/Zadania/Kalendarz/Generator AI/Nagrody/Pakiet" jako osobnych linków.
+3. **`src/components/dashboard/MobileTopNav.tsx`** — sheet wczytuje `mainItems` + sekcja „Konto" z `accountItems`.
+4. **`src/components/dashboard/MobileBottomNav.tsx`** — 5 zakładek wg listy wyżej; „Konto" otwiera ten sam sheet co menu profilu.
+5. **`src/components/dashboard/TopBar.tsx`** — dodać dropdown na awatarze z `accountItems` + Wyloguj. (Wykorzystuje istniejący `DropdownMenu` z shadcn.)
+6. **`src/routes/path.tsx`** — dodać taby „Ścieżka / Zadania / Kalendarz" (proste linki/`Tabs` shadcn nad istniejącą zawartością). Routy `/tasks` i `/calendar` zostają jako same strony — taby tylko podświetlają aktywny.
+7. **`src/routes/tools.tsx`** — dodać tab „Generator AI" → przekierowuje do `/generator`. (Trasy zostają, zmienia się tylko sposób dotarcia z nawigacji.)
+
+## Czego nie zmieniam
+
+- Trasy/URL-e nie znikają — wszystkie stare linki nadal działają (np. /rewards, /package, /tasks, /calendar, /generator).
+- Logika biznesowa, dane, RLS — bez zmian.
+- Stylistyka (gradient violet, rounded-3xl, design tokens) — zachowana.
+
+## Pytanie do potwierdzenia
+
+Czy ten zestaw 6 głównych pozycji + przeniesienie Pakiet/Nagrody do menu konta pasuje? Jeśli wolisz inny podział (np. „Nagrody" zostaje w sidebarze bo jest motywujące), powiedz — łatwo przesunę.

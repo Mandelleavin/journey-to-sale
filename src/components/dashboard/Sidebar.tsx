@@ -1,45 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  Route as RouteIcon,
-  GraduationCap,
-  ListChecks,
-  Package,
-  Trophy,
-  Users,
-  CreditCard,
-  Sparkles,
-  CalendarDays,
-  Bot,
-  Shield,
-  BookOpen,
-  Flame,
-  Calculator,
-} from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
-
-const items = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
-  { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
-  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
-  { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
-  { icon: Calculator, label: "Narzędzia", to: "/tools" as const },
-  { icon: Bot, label: "Generator Produktu AI", to: "/generator" as const },
-  { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
-  { icon: Package, label: "Mój produkt", to: "/products" as const },
-  { icon: Users, label: "Społeczność", to: "/community" as const },
-  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
-  { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
-];
-
-
-const adminItems = [
-  { icon: Shield, label: "Panel admina", to: "/admin" as const },
-  { icon: Flame, label: "Engagement & Hot leady", to: "/admin/engagement" as const },
-  { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" as const },
-  { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" as const },
-];
+import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -68,19 +31,16 @@ export function Sidebar() {
       </Link>
 
       <nav className="flex flex-col gap-1 mt-5 flex-1">
-        {items.map((item) => {
+        {mainItems.map((item) => {
           const Icon = item.icon;
-          const isActive =
-            item.to === "/"
-              ? pathname === "/"
-              : pathname === item.to || pathname.startsWith(item.to + "/");
+          const active = isItemActive(item, pathname);
           return (
             <Link
               key={item.label}
               to={item.to}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                isActive
+                active
                   ? "bg-gradient-violet text-primary-foreground shadow-glow"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
@@ -98,17 +58,14 @@ export function Sidebar() {
             </div>
             {adminItems.map((item) => {
               const Icon = item.icon;
-              const isActive =
-                item.to === "/admin"
-                  ? pathname === "/admin"
-                  : pathname === item.to || pathname.startsWith(item.to + "/");
+              const active = isItemActive(item, pathname);
               return (
                 <Link
                   key={item.label}
                   to={item.to}
                   className={cn(
                     "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                    isActive
+                    active
                       ? "bg-gradient-violet text-primary-foreground shadow-glow"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}

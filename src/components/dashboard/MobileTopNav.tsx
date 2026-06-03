@@ -1,53 +1,37 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Menu,
-  Sparkles,
-  Plus,
-  Home,
-  LayoutDashboard,
-  Route as RouteIcon,
-  GraduationCap,
-  ListChecks,
-  Trophy,
-  Bot,
-  CalendarDays,
-  Package,
-  Users,
-  CreditCard,
-  Shield,
-  BookOpen,
-  Calculator,
-} from "lucide-react";
+import { Menu, Sparkles, Plus, Home } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCredits } from "@/hooks/useCredits";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
-
-const items = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
-  { icon: RouteIcon, label: "Moja ścieżka", to: "/path" as const },
-  { icon: GraduationCap, label: "Kursy", to: "/courses" as const },
-  { icon: ListChecks, label: "Zadania", to: "/tasks" as const },
-  { icon: Calculator, label: "Narzędzia", to: "/tools" as const },
-  { icon: Bot, label: "Generator AI", to: "/generator" as const },
-  { icon: CalendarDays, label: "Kalendarz", to: "/calendar" as const },
-  { icon: Package, label: "Mój produkt", to: "/products" as const },
-  { icon: Users, label: "Społeczność", to: "/community" as const },
-  { icon: Trophy, label: "Nagrody", to: "/rewards" as const },
-  { icon: CreditCard, label: "Mój pakiet", to: "/package" as const },
-];
-
-const adminItems = [
-  { icon: Shield, label: "Panel admina", to: "/admin" as const },
-  { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" as const },
-  { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" as const },
-];
+import { mainItems, accountItems, adminItems, isItemActive } from "@/lib/nav-items";
 
 export function MobileTopNav() {
   const { credits, loading } = useCredits();
   const { isAdmin } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const available = credits?.available ?? 0;
+
+  const renderGroup = (items: typeof mainItems) =>
+    items.map((it) => {
+      const Icon = it.icon;
+      const active = isItemActive(it, pathname);
+      return (
+        <Link
+          key={it.label}
+          to={it.to}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+            active
+              ? "bg-gradient-violet text-primary-foreground shadow-glow"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+          )}
+        >
+          <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+          <span>{it.label}</span>
+        </Link>
+      );
+    });
 
   return (
     <div className="lg:hidden flex items-center gap-2 mb-3">
@@ -73,52 +57,17 @@ export function MobileTopNav() {
             </div>
           </Link>
           <nav className="flex flex-col gap-1 mt-4">
-            {items.map((it) => {
-              const Icon = it.icon;
-              const active =
-                it.to === "/"
-                  ? pathname === "/"
-                  : pathname === it.to || pathname.startsWith(it.to + "/");
-              return (
-                <Link
-                  key={it.label}
-                  to={it.to}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                    active
-                      ? "bg-gradient-violet text-primary-foreground shadow-glow"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  )}
-                >
-                  <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
-                  <span>{it.label}</span>
-                </Link>
-              );
-            })}
+            {renderGroup(mainItems)}
+            <div className="mt-3 mb-1 px-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+              Konto
+            </div>
+            {renderGroup(accountItems)}
             {isAdmin && (
               <>
                 <div className="mt-3 mb-1 px-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
                   Administracja
                 </div>
-                {adminItems.map((it) => {
-                  const Icon = it.icon;
-                  const active = pathname === it.to || pathname.startsWith(it.to + "/");
-                  return (
-                    <Link
-                      key={it.label}
-                      to={it.to}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                        active
-                          ? "bg-gradient-violet text-primary-foreground shadow-glow"
-                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
-                      <span>{it.label}</span>
-                    </Link>
-                  );
-                })}
+                {renderGroup(adminItems)}
               </>
             )}
           </nav>

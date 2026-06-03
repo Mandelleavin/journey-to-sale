@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { SectionTabs, planTabs } from "@/components/dashboard/SectionTabs";
 import { MentorTasksSection } from "@/components/dashboard/MentorTasksSection";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -42,6 +43,7 @@ function TasksPage() {
 
   return (
     <PageShell title="Zadania" subtitle="Wykonuj zadania, zdobywaj XP i odblokowuj kolejne lekcje.">
+      <SectionTabs tabs={planTabs} />
       <MentorTasksSection />
 
       <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">

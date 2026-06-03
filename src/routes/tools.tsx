@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { SectionTabs, toolsTabs } from "@/components/dashboard/SectionTabs";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -13,7 +14,8 @@ export const Route = createFileRoute("/tools")({
     ],
   }),
   component: () => (
-    <PageShell title="Narzędzia" subtitle="Kalkulatory, które codziennie pomagają Ci sprawdzać liczby biznesu.">
+    <PageShell title="Narzędzia AI" subtitle="Kalkulatory i generator — wszystko, co pomaga Ci podejmować decyzje biznesowe.">
+      <SectionTabs tabs={toolsTabs} />
       <Outlet />
     </PageShell>
   ),
