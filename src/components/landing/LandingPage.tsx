@@ -1,1228 +1,1008 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Download, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import {
-  Sparkles,
-  Rocket,
-  Check,
-  X,
-  ArrowRight,
-  Play,
-  BookOpen,
-  GraduationCap,
-  Bot,
-  Smartphone,
-  MessageCircle,
-  Users,
-  Mail,
-  Brain,
-  Trophy,
-  Zap,
-  Shield,
-  Star,
-  Flame,
-  Target,
-  TrendingUp,
-  Wand2,
-  FileText,
-  Layout,
-  Megaphone,
-  Filter,
-  CheckCircle2,
-  Lock,
-  CircleDot,
-  Award,
-  Gift,
-  ClipboardCheck,
-  BadgeCheck,
-  MessageSquare,
-  Eye,
-  HeartHandshake,
-  Coins,
+  Sparkles, Rocket, Check, X, ArrowRight, BookOpen, GraduationCap, Bot, Smartphone,
+  MessageCircle, Users, Mail, Brain, Trophy, Zap, Shield, Star, Target, TrendingUp,
+  Wand2, FileText, Layout, Megaphone, Filter, CircleDot, Award, ChevronDown, PlayCircle,
+  Clock, Flame, Coins, BadgeCheck,
 } from "lucide-react";
 
-const products = [
-  { icon: BookOpen, label: "Ebook", emoji: "📘", price: "47–197 zł", example: "„Mini-przewodnik 30 stron”", desc: "Najszybsza droga do pierwszej sprzedaży online.", gradient: "from-violet-500 via-purple-500 to-fuchsia-500", glow: "shadow-violet-500/40", bg: "from-violet-50 to-fuchsia-50", time: "14–30 dni" },
-  { icon: GraduationCap, label: "Kurs online", emoji: "🎓", price: "297–1997 zł", example: "„Kurs wideo 5 modułów”", desc: "Skalowalny produkt premium z wysoką marżą.", gradient: "from-blue-500 via-cyan-500 to-sky-500", glow: "shadow-blue-500/40", bg: "from-blue-50 to-cyan-50", time: "45–90 dni" },
-  { icon: Bot, label: "Produkt AI", emoji: "🤖", price: "97–497 zł / mies.", example: "„Generator postów AI”", desc: "Subskrypcja, która zarabia 24/7 w tle.", gradient: "from-emerald-500 via-teal-500 to-green-500", glow: "shadow-emerald-500/40", bg: "from-emerald-50 to-teal-50", time: "30–60 dni" },
-  { icon: Smartphone, label: "Aplikacja / SaaS", emoji: "📱", price: "49–299 zł / mies.", example: "„Mini-aplikacja w no-code”", desc: "Powtarzalny przychód i wysoka wycena biznesu.", gradient: "from-orange-500 via-pink-500 to-rose-500", glow: "shadow-orange-500/40", bg: "from-orange-50 to-pink-50", time: "60–90 dni" },
-  { icon: MessageCircle, label: "Mentoring 1:1", emoji: "💬", price: "500–3000 zł / sesja", example: "„Pakiet 4 spotkań”", desc: "Najwyższe stawki bez budowania produktu.", gradient: "from-rose-500 via-red-500 to-orange-500", glow: "shadow-rose-500/40", bg: "from-rose-50 to-red-50", time: "od 14 dni" },
-  { icon: Users, label: "Społeczność premium", emoji: "👥", price: "49–199 zł / mies.", example: "„Discord + Q&A”", desc: "Stały dochód i lojalna społeczność wokół marki.", gradient: "from-amber-500 via-orange-500 to-yellow-500", glow: "shadow-amber-500/40", bg: "from-amber-50 to-orange-50", time: "21–45 dni" },
-  { icon: Mail, label: "Newsletter premium", emoji: "✉️", price: "29–99 zł / mies.", example: "„Premium newsletter B2B”", desc: "Niska bariera startu, świetna marża.", gradient: "from-sky-500 via-indigo-500 to-blue-500", glow: "shadow-sky-500/40", bg: "from-sky-50 to-indigo-50", time: "14–30 dni" },
-  { icon: Brain, label: "Konsultacje online", emoji: "🧠", price: "300–1500 zł / h", example: "„Audyt strategii”", desc: "Najszybszy start dla ekspertów z wiedzą.", gradient: "from-fuchsia-500 via-purple-500 to-violet-500", glow: "shadow-fuchsia-500/40", bg: "from-fuchsia-50 to-purple-50", time: "od 7 dni" },
-];
+/* =========================================================================
+   PRIMITIVES (lightweight MagicUI-style effects, no external deps)
+   ========================================================================= */
 
-const timeline = [
-  { day: 1, title: "Pomysł", xp: 50, icon: Sparkles, status: "done" },
-  { day: 7, title: "Oferta", xp: 120, icon: Target, status: "done" },
-  { day: 14, title: "Landing Page", xp: 200, icon: Layout, status: "active" },
-  { day: 30, title: "Pierwsza sprzedaż", xp: 400, icon: TrendingUp, status: "locked" },
-  { day: 45, title: "Reklamy", xp: 600, icon: Megaphone, status: "locked" },
-  { day: 60, title: "Automatyzacja", xp: 800, icon: Zap, status: "locked" },
-  { day: 90, title: "Skalowanie", xp: 1500, icon: Trophy, status: "locked" },
-];
-
-const aiTools = [
-  { icon: Wand2, label: "Generator Produktu AI", desc: "Stwórz koncept produktu w 2 min" },
-  { icon: FileText, label: "Generator Oferty", desc: "Gotowa oferta sprzedażowa" },
-  { icon: Layout, label: "Generator Landing Page", desc: "Strona, która konwertuje" },
-  { icon: Mail, label: "Generator Maili", desc: "Sekwencja sprzedażowa" },
-  { icon: Megaphone, label: "Generator Reklam", desc: "Kreacje na Meta i Google" },
-  { icon: Filter, label: "Generator Lejka", desc: "Cały proces sprzedaży" },
-];
-
-const testimonials = [
-  { name: "Anna K.", role: "Twórczyni ebooka", xp: 4820, progress: 78, quote: "W końcu stworzyłam swój pierwszy ebook. System prowadził mnie krok po kroku." },
-  { name: "Marek P.", role: "Mentor online", xp: 6210, progress: 92, quote: "Po 30 dniach miałem pierwszych płacących klientów. Nie wierzyłem, że to możliwe." },
-  { name: "Julia W.", role: "Kurs online", xp: 3540, progress: 64, quote: "AI generatory to dla mnie game changer. Oszczędzam 10h tygodniowo." },
-];
-
-function useInView<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T | null>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setInView(true);
-          obs.disconnect();
-        }
-      },
-      { threshold, rootMargin: "0px 0px -60px 0px" },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, inView };
+function AuroraText({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span
+      className={`relative inline-block bg-clip-text text-transparent ${className}`}
+      style={{
+        backgroundImage:
+          "linear-gradient(110deg, oklch(0.62 0.22 290), oklch(0.7 0.2 200), oklch(0.72 0.2 330), oklch(0.62 0.22 290))",
+        backgroundSize: "300% 100%",
+        animation: "aurora 8s ease-in-out infinite",
+      }}
+    >
+      {children}
+    </span>
+  );
 }
 
-function AnimatedBar({ value, className = "" }: { value: number; className?: string }) {
-  const { ref, inView } = useInView<HTMLDivElement>(0.4);
+function BorderBeam({ className = "" }: { className?: string }) {
   return (
-    <div
-      ref={ref}
-      className={`h-full rounded-full transition-[width] duration-[1400ms] ease-out ${className}`}
-      style={{ width: inView ? `${value}%` : "0%" }}
+    <span
+      aria-hidden
+      className={`pointer-events-none absolute inset-0 rounded-[inherit] ${className}`}
+      style={{
+        padding: 1,
+        background:
+          "conic-gradient(from var(--beam-a, 0deg), transparent 0 70%, oklch(0.7 0.22 290) 80%, oklch(0.72 0.2 200) 90%, transparent 100%)",
+        WebkitMask:
+          "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+        WebkitMaskComposite: "xor",
+        maskComposite: "exclude",
+        animation: "beam 4s linear infinite",
+      }}
     />
   );
 }
 
-export function LandingPage() {
-  useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("in-view");
-            obs.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
-    );
-    els.forEach((el) => obs.observe(el));
-
-    // ACTIVE-IN-VIEW tracker: highlight cards near viewport center
-    const cards = document.querySelectorAll<HTMLElement>(".active-card");
-    const activeObs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting && e.intersectionRatio > 0.6) {
-            e.target.classList.add("is-active");
-          } else {
-            e.target.classList.remove("is-active");
-          }
-        });
-      },
-      { threshold: [0, 0.4, 0.6, 0.8, 1], rootMargin: "-25% 0px -25% 0px" },
-    );
-    cards.forEach((el) => activeObs.observe(el));
-
-    // CLS measurement — logs cumulative layout shift to the console
-    let clsValue = 0;
-    let clsObserver: PerformanceObserver | null = null;
-    try {
-      clsObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          // @ts-expect-error layout-shift fields are not in lib.dom
-          if (!entry.hadRecentInput) {
-            // @ts-expect-error layout-shift value
-            clsValue += entry.value;
-            // eslint-disable-next-line no-console
-            console.log("[CLS]", clsValue.toFixed(4));
-          }
-        }
-      });
-      clsObserver.observe({ type: "layout-shift", buffered: true });
-    } catch {
-      // Browser doesn't support layout-shift — skip silently
-    }
-
-    return () => {
-      obs.disconnect();
-      activeObs.disconnect();
-      clsObserver?.disconnect();
-    };
-  }, []);
-
+function Particles({ count = 28 }: { count?: number }) {
+  const reduce = useReducedMotion();
+  const items = useMemo(
+    () =>
+      Array.from({ length: count }).map((_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        s: 2 + Math.random() * 4,
+        d: 6 + Math.random() * 10,
+        delay: Math.random() * 6,
+        hue: Math.random() > 0.5 ? 290 : 220,
+      })),
+    [count],
+  );
+  if (reduce) return null;
   return (
-    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
-      {/* NAV */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#6C4DFF] to-[#9b6dff] grid place-items-center shadow-lg shadow-violet-500/30">
-              <Rocket className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-extrabold tracking-tight">90 Dni Produkt</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
-            <a href="#how" className="hover:text-slate-900">Jak to działa</a>
-            <a href="#path" className="hover:text-slate-900">Ścieżka 90 dni</a>
-            <a href="#ai" className="hover:text-slate-900">AI</a>
-            <a href="#pricing" className="hover:text-slate-900">Cennik</a>
-          </nav>
-          <Link
-            to="/auth"
-            className="hidden md:inline-flex items-center gap-2 px-4 h-10 rounded-xl bg-gradient-to-r from-[#6C4DFF] to-[#8B5CF6] text-white text-sm font-bold shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] transition"
-          >
-            Zaloguj się <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </header>
-
-      {/* HERO */}
-      <section className="relative pt-12 md:pt-20 pb-24 overflow-hidden min-h-[640px] md:min-h-[760px] lg:min-h-[820px]">
-        {/* bg blobs */}
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-violet-300/30 rounded-full blur-3xl" />
-        <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-orange-200/40 rounded-full blur-3xl" />
-        <div className="absolute top-96 left-1/2 w-[400px] h-[400px] bg-blue-200/30 rounded-full blur-3xl" />
-
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
-          {/* LEFT */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-pink-100 border border-orange-200 text-orange-700 text-xs font-bold">
-              <Flame className="w-3.5 h-3.5" /> SYSTEM 90 DNI + AI
-            </div>
-            <h1 className="mt-5 font-extrabold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.05] min-h-[8.4rem] sm:min-h-[10rem] lg:min-h-[12.6rem]">
-              Stwórz i Sprzedaj Swój{" "}
-              <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-[#6C4DFF] via-[#8B5CF6] to-[#EC4899] bg-clip-text text-transparent">
-                  Produkt Cyfrowy
-                </span>
-                <svg viewBox="0 0 300 12" className="absolute -bottom-2 left-0 w-full h-3 text-[#6C4DFF]" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                  <path d="M3 8 Q 80 2 160 6 T 297 5" />
-                </svg>
-              </span>{" "}
-              w 90 Dni
-            </h1>
-            <p className="mt-6 text-lg text-slate-600 max-w-xl">
-              Zamień swoją wiedzę, pasję lub pomysł w produkt online, który możesz zacząć realnie sprzedawać.
-            </p>
-
-            <ul className="mt-7 space-y-3">
-              {[
-                "Plan działania dzień po dniu",
-                "AI pomaga tworzyć ofertę, landing page i treści",
-                "Zadania, feedback i wdrożenie krok po kroku",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 grid place-items-center flex-shrink-0">
-                    <Check className="w-4 h-4" strokeWidth={3} />
-                  </span>
-                  <span className="text-slate-700 font-medium">{t}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/auth"
-                className="group inline-flex items-center justify-center gap-2 px-6 h-14 rounded-2xl bg-gradient-to-r from-[#FF6B35] via-[#FF4E8E] to-[#6C4DFF] text-white font-bold shadow-xl shadow-violet-500/40 hover:shadow-violet-500/60 hover:scale-[1.02] transition relative overflow-hidden"
-              >
-                <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition" />
-                <Flame className="w-5 h-5" />
-                Rozpocznij budowę swojego produktu
-              </Link>
-              <a
-                href="#how"
-                className="inline-flex items-center justify-center gap-2 px-6 h-14 rounded-2xl border-2 border-slate-200 bg-white hover:border-violet-300 font-bold text-slate-700 transition"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                Zobacz jak działa aplikacja
-              </a>
-            </div>
-
-            <div className="mt-8 flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {["from-violet-400 to-pink-400", "from-orange-400 to-red-400", "from-blue-400 to-cyan-400", "from-emerald-400 to-teal-400"].map((g, i) => (
-                  <div key={i} className={`w-9 h-9 rounded-full bg-gradient-to-br ${g} border-2 border-white`} />
-                ))}
-              </div>
-              <div className="text-sm">
-                <div className="font-bold text-slate-900">367+ osób</div>
-                <div className="text-slate-500">buduje już swoje produkty online</div>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT — Dashboard mockup */}
-          <div className="relative min-h-[560px] lg:min-h-[640px]">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-400/30 to-pink-400/30 blur-3xl rounded-[3rem]" />
-            <div className="relative rounded-[2rem] bg-white border border-slate-200 shadow-2xl shadow-violet-500/20 p-5 backdrop-blur-xl">
-              {/* top bar */}
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6C4DFF] to-[#9b6dff] grid place-items-center">
-                    <Rocket className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500">Witaj ponownie</div>
-                    <div className="text-sm font-bold">Twoja misja</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
-                  <Flame className="w-3 h-3" /> 7 dni
-                </div>
-              </div>
-
-              {/* progress */}
-              <div className="rounded-2xl bg-gradient-to-br from-violet-50 to-pink-50 p-4 mb-4 border border-violet-100">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs font-bold text-violet-700">DZIEŃ 7 Z 90</div>
-                  <div className="text-xs font-bold text-slate-600">7.7%</div>
-                </div>
-                <div className="h-3 rounded-full bg-white/70 overflow-hidden">
-                  <AnimatedBar value={8} className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899]" />
-                </div>
-                <div className="mt-3 text-sm font-bold text-slate-800">🎯 Zaprojektuj swoją ofertę premium</div>
-              </div>
-
-              {/* stat row */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 p-3 border border-emerald-100">
-                  <div className="text-[10px] font-bold text-emerald-700">XP</div>
-                  <div className="text-lg font-extrabold text-emerald-900">1 240</div>
-                </div>
-                <div className="rounded-xl bg-gradient-to-br from-blue-50 to-sky-50 p-3 border border-blue-100">
-                  <div className="text-[10px] font-bold text-blue-700">POZIOM</div>
-                  <div className="text-lg font-extrabold text-blue-900">5</div>
-                </div>
-                <div className="rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 p-3 border border-orange-100">
-                  <div className="text-[10px] font-bold text-orange-700">AI</div>
-                  <div className="text-lg font-extrabold text-orange-900">180</div>
-                </div>
-              </div>
-
-              {/* checklist */}
-              <div className="rounded-2xl border border-slate-200 p-3 space-y-2 mb-4">
-                {[
-                  { t: "Wypełnij ankietę startową", done: true },
-                  { t: "Zdefiniuj awatara klienta", done: true },
-                  { t: "Stwórz ofertę z AI", done: false },
-                  { t: "Opublikuj landing page", done: false, locked: true },
-                ].map((i) => (
-                  <div key={i.t} className="flex items-center gap-2 text-sm">
-                    {i.locked ? (
-                      <Lock className="w-4 h-4 text-slate-400" />
-                    ) : i.done ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    ) : (
-                      <CircleDot className="w-4 h-4 text-violet-500" />
-                    )}
-                    <span className={i.done ? "line-through text-slate-400" : i.locked ? "text-slate-400" : "text-slate-700 font-medium"}>{i.t}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* mini analytics */}
-              <div className="rounded-2xl bg-slate-900 text-white p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-bold text-slate-400">POSTĘP TYGODNIA</div>
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="flex items-end gap-1.5 h-16">
-                  {[30, 50, 40, 70, 60, 85, 95].map((h, i) => (
-                    <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-[#6C4DFF] to-[#EC4899]" style={{ height: `${h}%` }} />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* floating cards */}
-            <div className="hidden md:flex absolute -left-6 top-24 rounded-2xl bg-white shadow-xl border border-slate-200 p-3 items-center gap-2 animate-bounce-slow">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 grid place-items-center"><Trophy className="w-5 h-5 text-emerald-600" /></div>
-              <div>
-                <div className="text-[10px] font-bold text-slate-500">NOWE</div>
-                <div className="text-xs font-bold">+250 XP zdobyte!</div>
-              </div>
-            </div>
-            <div className="hidden md:flex absolute -right-4 bottom-20 rounded-2xl bg-white shadow-xl border border-slate-200 p-3 items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-violet-100 grid place-items-center"><Bot className="w-5 h-5 text-violet-600" /></div>
-              <div>
-                <div className="text-[10px] font-bold text-slate-500">AI</div>
-                <div className="text-xs font-bold">Oferta gotowa ✨</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TRANSFORMATION */}
-      <section className="py-20 bg-gradient-to-b from-white to-slate-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Od chaosu do <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">działającego biznesu</span></h2>
-            <p className="mt-3 text-slate-600">Zobacz, co się zmienia, gdy masz jasny system.</p>
-          </div>
-
-          <div className="grid md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
-            <div className="rounded-3xl bg-white border-2 border-red-100 p-6 shadow-sm">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold mb-4">PRZED</div>
-              <ul className="space-y-3">
-                {["chaos", "brak planu", "brak produktu", "brak klientów", "„nie wiem od czego zacząć”"].map((t) => (
-                  <li key={t} className="flex items-center gap-3 text-slate-600">
-                    <X className="w-5 h-5 text-red-400 flex-shrink-0" /> {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="grid place-items-center py-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#6C4DFF] to-[#EC4899] grid place-items-center shadow-2xl shadow-violet-500/40 rotate-90 md:rotate-0">
-                <ArrowRight className="w-10 h-10 text-white" />
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 p-6 shadow-lg shadow-emerald-500/10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold mb-4">PO</div>
-              <ul className="space-y-3">
-                {["gotowy produkt cyfrowy", "landing page", "pierwsi klienci", "oferta premium", "system sprzedaży"].map((t) => (
-                  <li key={t} className="flex items-center gap-3 text-slate-800 font-medium">
-                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" strokeWidth={3} /> {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PRODUCTS */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-200/30 rounded-full blur-3xl -translate-y-1/2" />
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-pink-200/30 rounded-full blur-3xl" />
-
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 border border-violet-200 text-violet-700 text-xs font-bold mb-4">
-              <Sparkles className="w-3.5 h-3.5" /> 8 RODZAJÓW PRODUKTÓW
-            </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
-              Co stworzysz w{" "}
-              <span className="bg-gradient-to-r from-[#6C4DFF] to-[#EC4899] bg-clip-text text-transparent">90 dni?</span>
-            </h2>
-            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-              Wybierz format dopasowany do Twojej wiedzy — pokażemy Ci realne ceny, przykłady i czas potrzebny na wdrożenie.
-            </p>
-          </div>
-
-          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {products.map((p) => (
-              <div
-                key={p.label}
-                className={`active-card group relative rounded-[28px] bg-gradient-to-br ${p.bg} border border-white p-6 overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-2 shadow-md hover:shadow-2xl ${p.glow}`}
-              >
-                {/* animated gradient border */}
-                <div className={`absolute inset-0 rounded-[28px] bg-gradient-to-br ${p.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-                {/* shimmer */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                  <div className="absolute -inset-x-full top-0 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12 animate-shimmer" />
-                </div>
-
-                <div className="relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="relative">
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${p.gradient} grid place-items-center shadow-xl ${p.glow} group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-500`}>
-                        <p.icon className="w-8 h-8 text-white" strokeWidth={2.2} />
-                      </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md grid place-items-center text-lg group-hover:animate-float-icon">
-                        {p.emoji}
-                      </div>
-                    </div>
-                    <div className="text-[10px] font-bold px-2 py-1 rounded-full bg-white/80 text-slate-600 backdrop-blur">
-                      {p.time}
-                    </div>
-                  </div>
-
-                  <h3 className="font-extrabold text-lg text-slate-900 mb-1">{p.label}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{p.desc}</p>
-
-                  <div className="space-y-2 pt-3 border-t border-white/80">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 font-medium">Cena</span>
-                      <span className={`font-bold bg-gradient-to-r ${p.gradient} bg-clip-text text-transparent`}>
-                        {p.price}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 italic">{p.example}</div>
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-slate-700 group-hover:translate-x-1 transition-transform">
-                    Zbuduj to <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="reveal mt-10 text-center">
-            <p className="text-sm text-slate-500">
-              💡 Nie wiesz, co wybrać? <span className="font-bold text-violet-600">AI Audyt Pomysłu</span> w aplikacji dobierze format pod Twoją wiedzę.
-            </p>
-          </div>
-        </div>
-      </section>
-
-
-      {/* HOW IT WORKS */}
-      <section id="how" className="py-20 bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-14">
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Jak to działa</h2>
-            <p className="mt-3 text-slate-600">3 kroki od pomysłu do sprzedaży.</p>
-          </div>
-
-          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6 relative">
-            {[
-              { n: 1, title: "Wybierasz pomysł", desc: "AI pomaga zwalidować i dopracować Twój koncept produktu cyfrowego.", icon: Sparkles, color: "from-violet-500 to-purple-600", progress: 33 },
-              { n: 2, title: "Budujesz produkt z AI i zadaniami", desc: "Codziennie nowe zadania, lekcje i generatory AI prowadzą Cię do gotowego produktu.", icon: Wand2, color: "from-blue-500 to-cyan-600", progress: 66 },
-              { n: 3, title: "Sprzedajesz swój produkt", desc: "Landing page, lejek, reklamy, automatyzacje — wszystko gotowe do startu.", icon: Rocket, color: "from-orange-500 to-pink-600", progress: 100 },
-            ].map((s) => (
-              <div key={s.n} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} grid place-items-center shadow-lg`}>
-                    <s.icon className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="text-4xl font-extrabold text-slate-100">0{s.n}</div>
-                </div>
-                <h3 className="font-extrabold text-xl mb-2">{s.title}</h3>
-                <p className="text-sm text-slate-600 mb-4">{s.desc}</p>
-                <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <AnimatedBar value={s.progress} className={`bg-gradient-to-r ${s.color}`} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TIMELINE / ROADMAP */}
-      <section id="path" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-100 to-pink-100 text-violet-700 text-xs font-bold mb-3">
-              <Trophy className="w-3.5 h-3.5" /> ŚCIEŻKA 90 DNI
-            </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Twoja droga krok po kroku</h2>
-            <p className="mt-3 text-slate-600">Każdy etap odblokowuje nowe XP, narzędzia i poziomy.</p>
-          </div>
-
-          <div className="relative">
-            <div className="hidden md:block absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-emerald-300 via-violet-300 to-slate-200 rounded-full" />
-            <div className="reveal reveal-stagger grid grid-cols-2 md:grid-cols-7 gap-4">
-              {timeline.map((t) => {
-                const isDone = t.status === "done";
-                const isActive = t.status === "active";
-                return (
-                  <div key={t.day} className="relative flex flex-col items-center text-center">
-                    <div className={`relative w-20 h-20 rounded-full grid place-items-center mb-3 border-4 ${
-                      isDone ? "bg-gradient-to-br from-emerald-400 to-teal-500 border-emerald-200 shadow-lg shadow-emerald-500/30" :
-                      isActive ? "bg-gradient-to-br from-violet-500 to-pink-500 border-violet-200 shadow-xl shadow-violet-500/40 scale-110" :
-                      "bg-white border-slate-200"
-                    }`}>
-                      {isDone ? <CheckCircle2 className="w-9 h-9 text-white" /> :
-                       isActive ? <t.icon className="w-9 h-9 text-white" /> :
-                       <Lock className="w-7 h-7 text-slate-300" />}
-                      {isActive && <span className="absolute inset-0 rounded-full border-4 border-violet-400 animate-ping opacity-40" />}
-                    </div>
-                    <div className="text-xs font-bold text-slate-400">DZIEŃ {t.day}</div>
-                    <div className={`font-bold text-sm mt-1 ${isActive ? "text-violet-700" : isDone ? "text-emerald-700" : "text-slate-500"}`}>{t.title}</div>
-                    <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">+{t.xp} XP</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI TOOLS */}
-      <section id="ai" className="py-20 bg-slate-950 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(108,77,255,0.3),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.25),transparent_50%)]" />
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-bold mb-3">
-              <Bot className="w-3.5 h-3.5" /> PREMIUM AI
-            </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Twój sztab AI w aplikacji</h2>
-            <p className="mt-3 text-slate-400">6 generatorów, które robią pracę za Ciebie.</p>
-          </div>
-
-          <div className="reveal reveal-stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {aiTools.map((t, i) => (
-              <div key={t.label} className="active-card group relative rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur hover:border-violet-400/50 hover:bg-white/10 transition">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 to-pink-500/0 group-hover:from-violet-500/10 group-hover:to-pink-500/10 transition" />
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center mb-4 shadow-lg shadow-violet-500/50">
-                    <t.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="font-bold text-lg">{t.label}</div>
-                  <p className="text-sm text-slate-400 mt-1">{t.desc}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="text-xs text-violet-300 font-bold">{(i + 1) * 20} kredytów</div>
-                    {i > 3 && <Lock className="w-4 h-4 text-slate-500" />}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* MENTOR + REWARDS */}
-      <section className="py-24 bg-gradient-to-b from-white via-violet-50/40 to-white relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-amber-200/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-72 h-72 bg-violet-200/40 rounded-full blur-3xl" />
-
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 text-orange-700 text-xs font-bold mb-4">
-              <HeartHandshake className="w-3.5 h-3.5" /> NIE JESTEŚ SAM
-            </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">
-              Mentor sprawdza Twoje zadania.<br className="hidden md:block" />{" "}
-              <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                Ty zgarniasz nagrody.
-              </span>
-            </h2>
-            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-              To nie kolejny kurs, który kupujesz i odkładasz. Każde zadanie jest sprawdzane, a Twój postęp nagradzany realnymi korzyściami.
-            </p>
-          </div>
-
-          {/* TWO COLUMNS: Mentor + Rewards */}
-          <div className="grid lg:grid-cols-2 gap-6 mb-12">
-            {/* MENTOR CARD */}
-            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white p-8 md:p-10 overflow-hidden shadow-2xl">
-              <div className="absolute -top-20 -right-20 w-72 h-72 bg-violet-500/30 rounded-full blur-3xl group-hover:bg-violet-500/50 transition" />
-              <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl" />
-
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shadow-xl shadow-violet-500/50">
-                    <MessageSquare className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-violet-300 uppercase tracking-wider">Feedback od mentora</div>
-                    <div className="font-extrabold text-xl">Twoje zadanie nigdy nie utknie</div>
-                  </div>
-                </div>
-
-                <p className="text-slate-300 mb-6">
-                  Wysyłasz zadanie z aplikacji jednym kliknięciem. Mentor analizuje je, daje konkretne wskazówki i pokazuje, co poprawić — zanim ruszysz dalej.
-                </p>
-
-                <ul className="space-y-3">
-                  {[
-                    { icon: Eye, t: "Ekspert ocenia Twoją ofertę, landing page i komunikację" },
-                    { icon: Target, t: "Dostajesz konkretne poprawki — nie ogólniki" },
-                    { icon: Zap, t: "Działasz pewniej, bo wiesz, że idziesz w dobrą stronę" },
-                    { icon: TrendingUp, t: "Szybciej dochodzisz do pierwszej sprzedaży" },
-                  ].map((b) => (
-                    <li key={b.t} className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-white/10 grid place-items-center flex-shrink-0">
-                        <b.icon className="w-4 h-4 text-violet-300" />
-                      </div>
-                      <span className="text-sm text-slate-200 mt-1">{b.t}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* mini chat mockup */}
-                <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4 backdrop-blur">
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-white font-bold text-sm flex-shrink-0">M</div>
-                    <div className="text-sm">
-                      <div className="font-bold text-white">Mentor • teraz</div>
-                      <div className="text-slate-300 mt-1">„Twoja oferta brzmi mocno, ale dodaj 1 konkretną liczbę w nagłówku — to potroi konwersję. ✨"</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* REWARDS CARD */}
-            <div className="active-card group relative rounded-[32px] bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-100 p-8 md:p-10 overflow-hidden shadow-xl">
-              <div className="absolute -top-10 -right-10 w-60 h-60 bg-amber-300/30 rounded-full blur-3xl group-hover:bg-amber-400/40 transition" />
-
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center shadow-xl shadow-orange-500/40 group-hover:rotate-6 transition">
-                    <Gift className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-orange-700 uppercase tracking-wider">System nagród</div>
-                    <div className="font-extrabold text-xl text-slate-900">Każdy ukończony krok się opłaca</div>
-                  </div>
-                </div>
-
-                <p className="text-slate-700 mb-6">
-                  Po zakończeniu lekcji i checklisty odblokowujesz realne nagrody — kredyty AI, szablony, sesje 1:1 i bonusy w aplikacji.
-                </p>
-
-                <div className="space-y-2.5">
-                  {[
-                    { icon: Coins, t: "+50 kredytów AI", sub: "po każdej ukończonej lekcji" },
-                    { icon: Award, t: "Odznaka XP + poziom", sub: "widoczna w profilu i społeczności" },
-                    { icon: FileText, t: "Szablon premium", sub: "landing / oferta / mail" },
-                    { icon: Users, t: "Sesja Q&A z ekspertem", sub: "po ukończeniu modułu" },
-                    { icon: Trophy, t: "Bonus 1:1 z mentorem", sub: "za ukończenie ścieżki 90 dni" },
-                  ].map((r) => (
-                    <div key={r.t} className="flex items-center gap-3 rounded-xl bg-white/80 backdrop-blur p-3 border border-white shadow-sm hover:shadow-md hover:scale-[1.02] transition cursor-default">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 grid place-items-center flex-shrink-0">
-                        <r.icon className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-sm text-slate-900">{r.t}</div>
-                        <div className="text-xs text-slate-500">{r.sub}</div>
-                      </div>
-                      <BadgeCheck className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CHECKLIST AFTER COURSE */}
-          <div className="reveal relative rounded-[32px] bg-white border border-slate-200 p-8 md:p-10 shadow-xl overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/50 rounded-full blur-3xl" />
-
-            <div className="relative grid md:grid-cols-[1fr_1.2fr] gap-8 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">
-                  <ClipboardCheck className="w-3.5 h-3.5" /> CHECKLISTA PO KURSIE
-                </div>
-                <h3 className="font-extrabold text-2xl md:text-3xl tracking-tight">
-                  Co masz po przerobieniu kursu?
-                </h3>
-                <p className="mt-3 text-slate-600">
-                  Nie tylko wiedzę. Wychodzisz z konkretnymi rezultatami, które działają na Ciebie 24/7.
-                </p>
-                <Link
-                  to="/auth"
-                  className="mt-6 inline-flex items-center gap-2 px-5 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] transition"
-                >
-                  Chcę takie efekty <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <ul className="space-y-3">
-                {[
-                  "Gotowy produkt cyfrowy (ebook / kurs / AI / mentoring)",
-                  "Oferta sprzedażowa napisana z AI",
-                  "Działająca strona / landing page",
-                  "Lejek mailowy + sekwencja sprzedażowa",
-                  "Kreacje reklamowe na Meta / Google",
-                  "Plan skalowania na kolejne 90 dni",
-                  "Społeczność i feedback od mentora",
-                ].map((t, i) => (
-                  <li
-                    key={t}
-                    className="flex items-start gap-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 p-3 hover:shadow-md hover:-translate-y-0.5 transition"
-                    style={{ transitionDelay: `${i * 30}ms` }}
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 grid place-items-center flex-shrink-0 shadow-md shadow-emerald-500/30">
-                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                    </div>
-                    <span className="text-sm font-medium text-slate-800 mt-0.5">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PRICING */}
-      <section id="pricing" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-14">
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Wybierz swój plan</h2>
-            <p className="mt-3 text-slate-600">Zacznij dziś. Anuluj kiedy chcesz.</p>
-          </div>
-
-          <div className="reveal reveal-stagger grid lg:grid-cols-3 gap-6 items-stretch">
-            {/* START */}
-            <PricingCard
-              name="START"
-              price="297 zł"
-              period="/ mies."
-              desc="Dla osób, które chcą samodzielnie przejść przez proces budowy pierwszego produktu online."
-              features={[
-                "Dostęp do aplikacji",
-                "Plan 90 dni",
-                "Lekcje krok po kroku",
-                "Zadania po każdej lekcji",
-                "Podstawowy Generator Produktu AI",
-                "80 kredytów AI miesięcznie",
-              ]}
-              cta="Rozpocznij START"
-            />
-            {/* PRO */}
-            <PricingCard
-              name="PRO"
-              price="497 zł"
-              period="/ mies."
-              desc="Dla osób, które chcą wdrożyć ofertę, stronę i pierwszy lejek sprzedażowy."
-              features={[
-                "Wszystko ze START",
-                "Pełny Generator Produktu AI",
-                "250 kredytów AI miesięcznie",
-                "Generator ofert i landing page",
-                "Generator maili i reklam",
-                "Szablony landing page",
-                "2 sprawdzenia zadań miesięcznie",
-                "Audyt pomysłu",
-                "Grupowe Q&A",
-                "10% rabatu na wdrożenia",
-              ]}
-              cta="🔥 Wybieram PRO"
-              highlight
-              badge="🔥 NAJPOPULARNIEJSZY"
-            />
-            {/* VIP */}
-            <PricingCard
-              name="VIP"
-              price="997 zł"
-              period="/ mies."
-              desc="Dla osób, które chcą więcej wsparcia i szybszego wdrożenia."
-              features={[
-                "Wszystko z PRO",
-                "400 kredytów AI",
-                "6 sprawdzeń zadań",
-                "2 grupowe Q&A",
-                "Konsultacja 1:1",
-                "Audyt strony",
-                "Priorytetowe wsparcie",
-                "20% rabatu na wdrożenia",
-              ]}
-              cta="Dołącz do VIP"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* GUARANTEE */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="relative rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white p-10 md:p-14 overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-80 h-80 bg-violet-500/30 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl" />
-            <div className="relative grid md:grid-cols-[auto_1fr] gap-8 items-center">
-              <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center shadow-2xl shadow-orange-500/40 mx-auto md:mx-0">
-                <Shield className="w-14 h-14 text-white" strokeWidth={2.5} />
-              </div>
-              <div className="text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
-                  GWARANCJA WDROŻENIA
-                </div>
-                <h2 className="font-extrabold text-2xl md:text-4xl tracking-tight">90 dni działania albo pomagamy Ci osobiście</h2>
-                <p className="mt-4 text-slate-300">
-                  Jeżeli w ciągu 90 dni nie sprzedasz swojego produktu, nasz zespół przeanalizuje Twój projekt i przeprowadzi kompleksową diagnozę produktu cyfrowego.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOR WHOM */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Dla kogo to jest?</h2>
-          </div>
-          <div className="reveal reveal-stagger grid sm:grid-cols-2 gap-4">
-            {[
-              "chcą dodatkowego dochodu online",
-              "chcą zarabiać na wiedzy",
-              "mają pomysł na ebook lub kurs",
-              "chcą budować markę online",
-              "chcą zdobyć klientów",
-              "pracują na etacie",
-              "chcą uporządkowanego planu",
-              "chcą zacząć, ale nie wiedzą jak",
-            ].map((t) => (
-              <div key={t} className="flex items-center gap-3 rounded-2xl bg-white border border-slate-200 p-4 hover:border-emerald-300 transition">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 grid place-items-center flex-shrink-0">
-                  <Check className="w-5 h-5 text-emerald-600" strokeWidth={3} />
-                </div>
-                <span className="font-medium text-slate-700">Dla osób, które {t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SOCIAL PROOF */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="reveal text-center mb-12">
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight">Realne wyniki uczestników</h2>
-          </div>
-          <div className="reveal reveal-stagger grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <div key={t.name} className="active-card relative rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${["from-violet-400 to-pink-400", "from-blue-400 to-cyan-400", "from-orange-400 to-amber-400"][i]} grid place-items-center text-white font-bold text-lg`}>
-                    {t.name[0]}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-500">{t.role}</div>
-                  </div>
-                  <div className="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700 inline-flex items-center gap-1">
-                    <Trophy className="w-3 h-3" /> {t.xp}
-                  </div>
-                </div>
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
-                </div>
-                <p className="text-slate-700">„{t.quote}"</p>
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-500 font-medium">Postęp ścieżki</span>
-                    <span className="font-bold text-violet-600">{t.progress}%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <AnimatedBar value={t.progress} className="bg-gradient-to-r from-violet-500 to-pink-500" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* LEAD MAGNET */}
-      <LeadMagnetSection />
-
-      {/* FINAL CTA */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#6C4DFF] via-[#8B5CF6] to-[#EC4899]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.2),transparent_50%)]" />
-        <div className="relative max-w-4xl mx-auto px-4 md:px-6 text-center text-white">
-          <Sparkles className="w-10 h-10 mx-auto mb-5 opacity-80" />
-          <h2 className="font-extrabold text-3xl md:text-6xl tracking-tight leading-tight">
-            Twój produkt cyfrowy<br />nie stworzy się sam.
-          </h2>
-          <p className="mt-5 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
-            Masz wiedzę. My dajemy Ci system działania krok po kroku.
-          </p>
-          <Link
-            to="/auth"
-            className="mt-10 inline-flex items-center justify-center gap-2 px-8 h-16 rounded-2xl bg-white text-slate-900 font-extrabold text-lg shadow-2xl hover:scale-[1.03] transition"
-          >
-            <Flame className="w-5 h-5 text-orange-500" />
-            Rozpocznij budowę swojego produktu
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-          <div className="mt-6 text-sm text-white/70">Bez ryzyka • Anuluj kiedy chcesz • Gwarancja 90 dni</div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-10 border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6C4DFF] to-[#9b6dff] grid place-items-center">
-              <Rocket className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-sm">90 Dni Produkt © {new Date().getFullYear()}</span>
-          </div>
-          <div className="text-xs text-slate-500">Stworzone, by pomagać Ci sprzedawać Twoją wiedzę.</div>
-        </div>
-      </footer>
-
-      {/* STICKY MOBILE CTA */}
-      <div className="md:hidden fixed bottom-4 inset-x-4 z-50">
-        <Link
-          to="/auth"
-          className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-gradient-to-r from-[#FF6B35] via-[#FF4E8E] to-[#6C4DFF] text-white font-bold shadow-2xl shadow-violet-500/50"
-        >
-          <Flame className="w-5 h-5" /> Rozpocznij teraz
-        </Link>
-      </div>
-
-      <style>{`
-        @keyframes bounce-slow { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
-        .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
-
-        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
-        .reveal.in-view { opacity: 1; transform: none; }
-        .reveal-delay-1 { transition-delay: .08s; }
-        .reveal-delay-2 { transition-delay: .16s; }
-        .reveal-delay-3 { transition-delay: .24s; }
-        .reveal-delay-4 { transition-delay: .32s; }
-        .reveal-delay-5 { transition-delay: .40s; }
-        .reveal-stagger > * { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
-        .reveal-stagger.in-view > * { opacity: 1; transform: none; }
-        .reveal-stagger.in-view > *:nth-child(1) { transition-delay: .05s; }
-        .reveal-stagger.in-view > *:nth-child(2) { transition-delay: .12s; }
-        .reveal-stagger.in-view > *:nth-child(3) { transition-delay: .19s; }
-        .reveal-stagger.in-view > *:nth-child(4) { transition-delay: .26s; }
-        .reveal-stagger.in-view > *:nth-child(5) { transition-delay: .33s; }
-        .reveal-stagger.in-view > *:nth-child(6) { transition-delay: .40s; }
-        .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .47s; }
-        .reveal-stagger.in-view > *:nth-child(8) { transition-delay: .54s; }
-
-        /* Active-in-view card highlight */
-        .active-card { transition: transform .55s cubic-bezier(.2,.7,.2,1), box-shadow .55s ease, background-color .55s ease, border-color .55s ease, filter .55s ease; }
-        .active-card.is-active { transform: translateY(-6px) scale(1.015); box-shadow: 0 30px 60px -20px rgba(108, 77, 255, 0.35), 0 12px 24px -8px rgba(236, 72, 153, 0.18); filter: saturate(1.05); }
-        .active-card.is-active::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, #6C4DFF, #EC4899, #FF6B35); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: .9; animation: card-glow 2.4s ease-in-out infinite; }
-        @keyframes card-glow { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
-
-        /* Shimmer sweep on hover */
-        @keyframes shimmer { 0% { transform: translateX(-100%) skewX(12deg); } 100% { transform: translateX(200%) skewX(12deg); } }
-        .animate-shimmer { animation: shimmer 1.6s ease-in-out infinite; }
-
-        /* Floating emoji bubble */
-        @keyframes float-icon { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(8deg); } }
-        .group-hover\\:animate-float-icon:hover, .group:hover .group-hover\\:animate-float-icon { animation: float-icon 1.6s ease-in-out infinite; }
-
-        @media (prefers-reduced-motion: reduce) {
-          .reveal, .reveal-stagger > *, .animate-bounce-slow, .active-card, .animate-shimmer { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
-          .active-card.is-active::after { display: none; }
-        }
-      `}</style>
+    <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+      {items.map((p) => (
+        <motion.span
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.s,
+            height: p.s,
+            background: `oklch(0.72 0.2 ${p.hue} / 0.6)`,
+            filter: "blur(0.5px)",
+          }}
+          animate={{ y: [0, -30, 0], opacity: [0.2, 0.9, 0.2] }}
+          transition={{ duration: p.d, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
     </div>
   );
 }
 
-function LeadMagnetSection() {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+function Meteors({ count = 14 }: { count?: number }) {
+  const reduce = useReducedMotion();
+  const items = useMemo(
+    () =>
+      Array.from({ length: count }).map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 6,
+        duration: 3 + Math.random() * 4,
+      })),
+    [count],
+  );
+  if (reduce) return null;
+  return (
+    <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+      {items.map((m) => (
+        <motion.span
+          key={m.id}
+          className="absolute h-px w-24"
+          style={{
+            left: `${m.left}%`,
+            top: "-10%",
+            background: "linear-gradient(90deg, transparent, oklch(0.85 0.15 290), transparent)",
+            transform: "rotate(215deg)",
+          }}
+          animate={{ x: [0, -400], y: [0, 600], opacity: [0, 1, 0] }}
+          transition={{ duration: m.duration, delay: m.delay, repeat: Infinity, ease: "easeIn" }}
+        />
+      ))}
+    </div>
+  );
+}
 
-  const perks = [
-    { icon: BookOpen, title: "Mini-kurs „Fundamenty Biznesu Cyfrowego”", desc: "5 lekcji wideo + ćwiczenia (wartość 197 zł)" },
-    { icon: FileText, title: "PDF: Plan działania na 14 dni", desc: "Konkretne zadania na każdy dzień startu" },
-    { icon: Wand2, title: "Szablon oferty + landingu", desc: "Gotowy do skopiowania i wypełnienia" },
-    { icon: Mail, title: "Codzienne maile mentora", desc: "14 dni inspiracji i konkretnych wskazówek" },
-    { icon: Gift, title: "Bonus: 50 pomysłów na produkt", desc: "Lista nisz, które realnie sprzedają w 2026" },
-  ];
+function GridPattern({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      className={`absolute inset-0 h-full w-full ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        </pattern>
+        <radialGradient id="fade" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="black" stopOpacity="1" />
+          <stop offset="100%" stopColor="black" stopOpacity="0" />
+        </radialGradient>
+        <mask id="m">
+          <rect width="100%" height="100%" fill="url(#fade)" />
+        </mask>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" mask="url(#m)" />
+    </svg>
+  );
+}
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.includes("@")) return toast.error("Podaj poprawny email");
-    setLoading(true);
-    const { error } = await supabase.from("leads").insert({
-      email: email.trim().toLowerCase(),
-      first_name: firstName.trim() || null,
-      source: "landing",
-      magnet: "fundamenty-14dni",
-    });
-    setLoading(false);
-    if (error && !error.message.includes("duplicate")) {
-      toast.error("Nie udało się zapisać. Spróbuj ponownie.");
-      return;
-    }
-    setDone(true);
-    toast.success("🎉 Zapisano! Sprawdź skrzynkę za chwilę.");
-  };
+function CountUp({ to, duration = 1.8 }: { to: number; duration?: number }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      const start = performance.now();
+      const tick = (t: number) => {
+        const p = Math.min(1, (t - start) / (duration * 1000));
+        setN(Math.floor(to * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      obs.disconnect();
+    }, { threshold: 0.4 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [to, duration]);
+  return <span ref={ref}>{n.toLocaleString("pl-PL")}</span>;
+}
+
+function WordRotate({ words, interval = 2200 }: { words: string[]; interval?: number }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % words.length), interval);
+    return () => clearInterval(t);
+  }, [words.length, interval]);
+  return (
+    <span className="relative inline-grid align-baseline">
+      <AnimatePresence mode="popLayout">
+        <motion.span
+          key={words[i]}
+          initial={{ y: 14, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -14, opacity: 0 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          className="col-start-1 row-start-1 text-violet font-extrabold"
+        >
+          {words[i]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  y = 24,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* =========================================================================
+   DATA
+   ========================================================================= */
+
+const products = [
+  { icon: BookOpen, label: "Ebook", price: "47–197 zł", desc: "Najszybsza droga do pierwszej sprzedaży.", time: "14–30 dni", span: "lg:col-span-2" },
+  { icon: GraduationCap, label: "Kurs online", price: "297–1997 zł", desc: "Skalowalny produkt premium.", time: "45–90 dni" },
+  { icon: Bot, label: "Produkt AI", price: "97–497 zł / mies.", desc: "Subskrypcja zarabiająca 24/7.", time: "30–60 dni" },
+  { icon: Smartphone, label: "Aplikacja / SaaS", price: "49–299 zł / mies.", desc: "Powtarzalny przychód.", time: "60–90 dni", span: "lg:col-span-2" },
+  { icon: MessageCircle, label: "Mentoring 1:1", price: "500–3000 zł", desc: "Najwyższe stawki bez produktu.", time: "od 14 dni" },
+  { icon: Users, label: "Społeczność premium", price: "49–199 zł / mies.", desc: "Stały dochód i lojalna baza.", time: "21–45 dni" },
+  { icon: Mail, label: "Newsletter premium", price: "29–99 zł / mies.", desc: "Niska bariera, świetna marża.", time: "14–30 dni" },
+  { icon: Brain, label: "Konsultacje online", price: "300–1500 zł / h", desc: "Najszybszy start dla ekspertów.", time: "od 7 dni" },
+];
+
+const timeline = [
+  { day: 1, title: "Pomysł", icon: Sparkles },
+  { day: 7, title: "Oferta", icon: Target },
+  { day: 14, title: "Landing", icon: Layout },
+  { day: 30, title: "1. sprzedaż", icon: TrendingUp },
+  { day: 45, title: "Reklamy", icon: Megaphone },
+  { day: 60, title: "Automatyzacja", icon: Zap },
+  { day: 90, title: "Skalowanie", icon: Trophy },
+];
+
+const aiTools = [
+  { icon: Wand2, label: "Generator Produktu", desc: "Koncept w 2 min", save: "~8h/tydz" },
+  { icon: FileText, label: "Generator Oferty", desc: "Gotowa oferta sprzedażowa", save: "~5h/tydz" },
+  { icon: Layout, label: "Generator Landing", desc: "Strona, która konwertuje", save: "~10h/tydz" },
+  { icon: Mail, label: "Generator Maili", desc: "Sekwencja sprzedażowa", save: "~6h/tydz" },
+  { icon: Megaphone, label: "Generator Reklam", desc: "Kreacje Meta i Google", save: "~4h/tydz" },
+  { icon: Filter, label: "Generator Lejka", desc: "Cały proces sprzedaży", save: "~12h/tydz" },
+];
+
+const steps = [
+  { n: 1, title: "Pomysł", desc: "Z AI wybierasz produkt, który możesz sprzedać w 30 dni.", icon: Sparkles },
+  { n: 2, title: "Produkt", desc: "Codzienny plan i generatory budują ofertę, landing i maile.", icon: Rocket },
+  { n: 3, title: "Sprzedaż", desc: "Uruchamiasz reklamy, mentor pomaga skalować do stabilnych wyników.", icon: TrendingUp },
+];
+
+const compare = {
+  solo: [
+    "Tygodnie szukania pomysłu w YouTube",
+    "Brak planu — odkładasz start o miesiące",
+    "Sam piszesz oferty, maile, reklamy",
+    "Nikt nie sprawdzi czy idziesz dobrą drogą",
+    "Motywacja spada po 2 tygodniach",
+  ],
+  with: [
+    "Pomysł dopasowany do Ciebie w 10 minut z AI",
+    "Codzienne mikrozadania — 30 min dziennie",
+    "6 generatorów AI robi 70% pracy za Ciebie",
+    "Mentor + społeczność trzymają Cię na kursie",
+    "Gamifikacja, XP i streak — wracasz codziennie",
+  ],
+};
+
+const testimonials = [
+  { name: "Anna K.", role: "Ebook „Mindful Mama”", xp: 4820, quote: "W końcu stworzyłam swój pierwszy ebook. System prowadził mnie krok po kroku." },
+  { name: "Marek P.", role: "Mentoring online", xp: 6210, quote: "Po 30 dniach miałem pierwszych płacących klientów. Nie wierzyłem, że to możliwe." },
+  { name: "Julia W.", role: "Kurs „Canva dla firm”", xp: 3540, quote: "Generatory AI to game changer. Oszczędzam 10h tygodniowo." },
+  { name: "Tomek S.", role: "SaaS dla fryzjerów", xp: 7120, quote: "Mentor wyciągnął mnie z impasu w tydzień. Dziś 38 płacących użytkowników." },
+  { name: "Kasia R.", role: "Newsletter premium", xp: 2980, quote: "Po 6 tygodniach 240 płatnych subskrybentów. Magia codziennych zadań." },
+];
+
+const pricing = [
+  {
+    name: "Start", price: "0 zł", per: "/ na zawsze", cta: "Zacznij za darmo",
+    features: ["Dostęp do ścieżki 90 dni (pierwsze 14 dni)", "1 generator AI / dzień", "Społeczność na Discordzie", "Codzienne zadania i XP"],
+    highlight: false,
+  },
+  {
+    name: "Pro", price: "79 zł", per: "/ miesiąc", cta: "Wybierz Pro",
+    features: ["Pełna ścieżka 90 dni", "Wszystkie generatory AI bez limitów", "Biblioteka kursów wideo", "Mentor zbiorowy (live Q&A 2x/mies.)", "Rewards i odznaki"],
+    highlight: true, badge: "Najczęstszy wybór",
+  },
+  {
+    name: "VIP", price: "299 zł", per: "/ miesiąc", cta: "Aplikuj na VIP",
+    features: ["Wszystko z Pro", "Mentor 1:1 — 2 sesje / mies.", "Priorytetowe review zadań w 24h", "Dostęp do zamkniętej grupy VIP", "Gwarancja 1. sprzedaży w 60 dni*"],
+    highlight: false,
+  },
+];
+
+const faqs = [
+  { q: "Czy potrzebuję wcześniejszego doświadczenia?", a: "Nie. Ścieżka prowadzi Cię od pomysłu do pierwszej sprzedaży — niezależnie od poziomu. Każde zadanie ma instrukcję i przykład." },
+  { q: "Ile czasu dziennie muszę poświęcić?", a: "Średnio 30–45 minut. Codzienne mikrozadania można zrobić rano z kawą lub wieczorem zamiast scrollowania." },
+  { q: "Co jeśli nie mam pomysłu na produkt?", a: "Pierwsze 3 dni to praca z generatorem pomysłów AI, który dopiera produkt do Twoich umiejętności i czasu." },
+  { q: "Czy mogę zrezygnować w każdej chwili?", a: "Tak. Anulujesz jednym kliknięciem w panelu. Bez pytań, bez ukrytych kosztów." },
+  { q: "Czy działa też dla osób z pracą na etacie?", a: "Tak — plan jest celowo zaprojektowany pod 30 min dziennie, w sam raz po pracy." },
+];
+
+/* =========================================================================
+   COMPONENT
+   ========================================================================= */
+
+export function LandingPage() {
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 600], [0, -80]);
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.6]);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowStickyCta(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.title = "90 Dni — Twój pierwszy biznes online z AI, planem i mentorem";
+    const ensure = (sel: string, attr: string, val: string) => {
+      let el = document.head.querySelector<HTMLMetaElement>(sel);
+      if (!el) {
+        el = document.createElement("meta");
+        const [k, v] = attr.split("=");
+        el.setAttribute(k, v.replace(/"/g, ""));
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", val);
+    };
+    ensure(
+      'meta[name="description"]',
+      'name="description"',
+      "90 Dni: codzienny plan, 6 generatorów AI i mentor. Zbuduj swój pierwszy biznes online w 90 dni — bez kodu, bez teorii.",
+    );
+  }, []);
 
   return (
-    <section className="py-20 md:py-28 px-4 md:px-6 bg-gradient-to-b from-white via-violet-50/40 to-white">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Lewa: co dostaniesz */}
-          <div className="reveal">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 text-xs font-bold text-amber-700 mb-4">
-              <Gift className="w-3.5 h-3.5" /> 100% za darmo • bez karty
-            </div>
-            <h2 className="font-extrabold text-3xl md:text-5xl tracking-tight leading-tight text-slate-900">
-              Odbierz <span className="bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">darmowy starter</span> i zacznij w 14 dni
-            </h2>
-            <p className="mt-4 text-slate-600 text-lg">
-              Pobierz <b>Mini-kurs „Fundamenty Biznesu Cyfrowego”</b> + <b>PDF Plan na 14 dni</b>. Sprawdź, czy ta droga jest dla Ciebie — zanim zapłacisz złotówkę.
-            </p>
+    <div className="min-h-screen bg-background text-foreground">
+      <style>{`
+        @keyframes aurora { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes beam { to { --beam-a: 360deg; } }
+        @property --beam-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+      `}</style>
 
-            <ul className="mt-6 space-y-3">
-              {perks.map((p, i) => (
-                <li key={i} className="flex gap-3 items-start group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shrink-0 shadow-lg shadow-violet-500/30 group-hover:scale-105 transition">
-                    <p.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-900">{p.title}</div>
-                    <div className="text-sm text-slate-600">{p.desc}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+      <Nav />
+      <Hero heroY={heroY} heroOpacity={heroOpacity} />
+      <TrustBar />
+      <ProductsBento />
+      <HowItWorks />
+      <Timeline />
+      <AiToolsGrid />
+      <Comparison />
+      <TestimonialsMarquee />
+      <Pricing />
+      <Faq />
+      <FinalCta />
+      <Footer />
 
-            <div className="mt-6 flex items-center gap-4 text-xs text-slate-500">
-              <div className="flex -space-x-2">
-                {["bg-violet-400", "bg-pink-400", "bg-amber-400", "bg-emerald-400"].map((c, i) => (
-                  <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c}`} />
-                ))}
-              </div>
-              <div>Dołączyło już <b className="text-slate-900">2 847</b> osób w ostatnim miesiącu</div>
-            </div>
+      <AnimatePresence>
+        {showStickyCta && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            className="fixed bottom-3 left-3 right-3 z-50 md:hidden"
+          >
+            <Link
+              to="/auth"
+              className="relative flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-5 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)]"
+            >
+              <Rocket className="w-4 h-4" /> Zacznij za darmo
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ============================== NAV ============================== */
+function Nav() {
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border/60">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 font-display font-extrabold">
+          <span className="grid place-items-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+            <Flame className="w-4 h-4" />
+          </span>
+          <span>90 Dni</span>
+        </Link>
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+          <a href="#produkty" className="hover:text-foreground">Produkty</a>
+          <a href="#jak" className="hover:text-foreground">Jak działa</a>
+          <a href="#ai" className="hover:text-foreground">AI</a>
+          <a href="#cennik" className="hover:text-foreground">Cennik</a>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
+        </nav>
+        <div className="flex items-center gap-2">
+          <Link to="/auth" className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground">
+            Zaloguj
+          </Link>
+          <Link
+            to="/auth"
+            className="relative inline-flex items-center gap-1 rounded-xl bg-foreground text-background px-3.5 py-2 text-sm font-bold hover:opacity-90"
+          >
+            Zacznij za darmo <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ============================== HERO ============================== */
+function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
+  return (
+    <section className="relative overflow-hidden">
+      {/* Animated background */}
+      <div aria-hidden className="absolute inset-0" style={{ background: "var(--gradient-bg)" }} />
+      <div aria-hidden className="absolute inset-0 text-violet/15">
+        <GridPattern />
+      </div>
+      <Particles count={30} />
+
+      <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-20 md:pb-28">
+        <Reveal>
+          <div className="mx-auto w-fit flex items-center gap-2 rounded-full border border-border bg-card/70 backdrop-blur px-3 py-1.5 text-xs font-semibold">
+            <Sparkles className="w-3.5 h-3.5 text-violet" />
+            Nowość · Sezon 2026 · Limit 200 miejsc
           </div>
+        </Reveal>
 
-          {/* Prawa: formularz */}
-          <div className="reveal">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-br from-violet-500 via-pink-500 to-orange-500 rounded-3xl blur-2xl opacity-30" />
-              <div className="relative bg-white rounded-3xl border border-slate-200 shadow-2xl shadow-violet-500/10 p-6 md:p-8">
-                {!done ? (
-                  <>
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 grid place-items-center shadow-lg shadow-violet-500/40">
-                        <Download className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-violet-600 uppercase tracking-wide">Darmowy starter</div>
-                        <div className="font-extrabold text-lg text-slate-900">Wyślij mi materiały</div>
-                      </div>
-                    </div>
+        <Reveal delay={0.05}>
+          <h1 className="mt-6 text-center font-display font-extrabold tracking-tight text-4xl sm:text-5xl md:text-7xl leading-[1.05]">
+            Twój pierwszy biznes online
+            <br />
+            w <AuroraText>90 dni</AuroraText>
+          </h1>
+        </Reveal>
 
-                    <form onSubmit={submit} className="space-y-3">
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Twoje imię (opcjonalnie)"
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-200 outline-none transition"
-                      />
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="twoj@email.pl"
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-violet-400 focus:ring-2 focus:ring-violet-200 outline-none transition"
-                      />
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-14 rounded-xl bg-gradient-to-r from-violet-600 via-pink-500 to-orange-500 text-white font-extrabold shadow-xl shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.99] transition flex items-center justify-center gap-2 disabled:opacity-70"
-                      >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                        {loading ? "Wysyłam…" : "Pobierz darmowy starter"}
-                      </button>
-                      <p className="text-[11px] text-slate-500 text-center leading-relaxed">
-                        Zapisując się, zgadzasz się na otrzymywanie maili od nas. Możesz wypisać się w każdej chwili.
-                      </p>
-                    </form>
+        <Reveal delay={0.1}>
+          <p className="mt-5 mx-auto max-w-2xl text-center text-base sm:text-lg text-muted-foreground">
+            Codzienny plan, 6 generatorów AI i mentor. Zbuduj swój własny{" "}
+            <WordRotate words={["ebook", "kurs", "SaaS", "newsletter", "mentoring", "produkt AI"]} />{" "}
+            — bez teorii, bez kodu, z realnym wynikiem.
+          </p>
+        </Reveal>
 
-                    <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-3 gap-3 text-center">
-                      <div>
-                        <div className="font-extrabold text-violet-600">5</div>
-                        <div className="text-[10px] text-slate-500 uppercase font-bold">lekcji</div>
-                      </div>
-                      <div>
-                        <div className="font-extrabold text-pink-600">14</div>
-                        <div className="text-[10px] text-slate-500 uppercase font-bold">dni planu</div>
-                      </div>
-                      <div>
-                        <div className="font-extrabold text-orange-600">PDF</div>
-                        <div className="text-[10px] text-slate-500 uppercase font-bold">do druku</div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center shadow-xl shadow-emerald-500/40 mb-5">
-                      <CheckCircle2 className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="font-extrabold text-2xl text-slate-900">Gotowe! 🎉</h3>
-                    <p className="mt-2 text-slate-600">
-                      Sprawdź skrzynkę <b>{email}</b> — pierwsza lekcja i PDF czekają na Ciebie.
-                    </p>
-                    <Link
-                      to="/auth"
-                      className="mt-6 inline-flex items-center gap-2 px-6 h-12 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition"
-                    >
-                      Stwórz konto i zacznij od razu <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                )}
-              </div>
+        <Reveal delay={0.15}>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/auth"
+              className="relative inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-6 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:scale-[1.02] transition-transform"
+            >
+              <BorderBeam />
+              <Rocket className="w-4 h-4" /> Zacznij za darmo
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <a
+              href="#jak"
+              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-5 py-3.5 font-bold hover:border-violet/50"
+            >
+              <PlayCircle className="w-4 h-4 text-violet" /> Zobacz jak to działa
+            </a>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.2}>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 30 min dziennie</span>
+            <span className="inline-flex items-center gap-1.5"><Target className="w-3.5 h-3.5" /> 1. sprzedaż w 30–60 dni</span>
+            <span className="inline-flex items-center gap-1.5"><Bot className="w-3.5 h-3.5" /> AI robi 70% pracy</span>
+          </div>
+        </Reveal>
+
+        {/* Floating mock cards */}
+        <Reveal delay={0.3}>
+          <div className="relative mt-14 mx-auto max-w-4xl">
+            <FloatingCards />
+          </div>
+        </Reveal>
+
+        {/* Counter */}
+        <Reveal delay={0.4}>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-center">
+            <Stat n={2137} suffix="+" label="osób w drodze do 1. sprzedaży" />
+            <Stat n={6} suffix="" label="generatorów AI bez limitów" />
+            <Stat n={4.9} fixed label="średnia ocena (★ 312 opinii)" />
+            <Stat n={90} label="dni do gotowego biznesu" />
+          </div>
+        </Reveal>
+      </motion.div>
+    </section>
+  );
+}
+
+function Stat({ n, suffix = "", label, fixed }: { n: number; suffix?: string; label: string; fixed?: boolean }) {
+  return (
+    <div>
+      <div className="font-display font-extrabold text-3xl md:text-4xl">
+        {fixed ? n.toFixed(1) : <CountUp to={n} />}
+        {suffix}
+      </div>
+      <div className="text-xs text-muted-foreground mt-1 max-w-[160px]">{label}</div>
+    </div>
+  );
+}
+
+function FloatingCards() {
+  const reduce = useReducedMotion();
+  const cards = [
+    { icon: BookOpen, title: "Ebook · 30 stron", price: "97 zł", grad: "from-violet to-blue", rot: -6, top: "0%", left: "-2%" },
+    { icon: GraduationCap, title: "Kurs 5 modułów", price: "597 zł", grad: "from-blue to-violet", rot: 4, top: "10%", left: "auto", right: "-2%" },
+    { icon: Bot, title: "Generator postów AI", price: "149 zł/m", grad: "from-orange to-violet", rot: -3, top: "auto", bottom: "-6%", left: "10%" },
+  ];
+  return (
+    <div className="relative h-[280px] md:h-[340px]">
+      {/* Central mock */}
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="absolute inset-x-0 mx-auto top-2 w-[min(560px,90%)] rounded-3xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden"
+      >
+        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-muted/50">
+          <span className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-orange/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-green/70" />
+          <span className="ml-2 text-[10px] text-muted-foreground">90dni.app / dashboard</span>
+        </div>
+        <div className="p-5 grid grid-cols-3 gap-3">
+          <div className="col-span-2 rounded-2xl border border-border p-4">
+            <div className="text-xs text-muted-foreground">Dzień 14 z 90</div>
+            <div className="font-bold mt-1">Zbuduj landing page swojego produktu</div>
+            <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: "62%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.4, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-violet to-blue"
+              />
             </div>
+            <div className="mt-2 text-[11px] text-muted-foreground">+200 XP po wykonaniu</div>
+          </div>
+          <div className="rounded-2xl bg-gradient-to-br from-violet to-blue p-4 text-primary-foreground">
+            <Flame className="w-4 h-4" />
+            <div className="text-2xl font-extrabold mt-2">14</div>
+            <div className="text-[11px] opacity-90">dni streaka</div>
+          </div>
+          <div className="col-span-3 grid grid-cols-3 gap-2 text-[11px]">
+            {["Pomysł ✓", "Oferta ✓", "Landing →"].map((t, i) => (
+              <div key={t} className={`rounded-xl border p-2 ${i === 2 ? "border-violet bg-violet-soft text-violet font-bold" : "border-border text-muted-foreground"}`}>{t}</div>
+            ))}
           </div>
         </div>
+      </motion.div>
+
+      {/* Floating mini cards */}
+      {cards.map((c, i) => (
+        <motion.div
+          key={c.title}
+          initial={{ opacity: 0, y: 20, rotate: c.rot }}
+          whileInView={{ opacity: 1, y: 0, rotate: c.rot }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
+          animate={
+            reduce ? undefined : { y: [0, -8, 0] }
+          }
+          {...(!reduce && { transition: { y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" }, delay: i * 0.4 } })}
+          className="absolute hidden sm:flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 shadow-[var(--shadow-card)]"
+          style={{ top: c.top, left: c.left as string, right: (c.right as string) ?? undefined, bottom: (c.bottom as string) ?? undefined }}
+        >
+          <span className={`grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br ${c.grad} text-primary-foreground`}>
+            <c.icon className="w-4 h-4" />
+          </span>
+          <div>
+            <div className="text-xs font-bold">{c.title}</div>
+            <div className="text-[11px] text-muted-foreground">{c.price}</div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* ============================== TRUST BAR ============================== */
+function TrustBar() {
+  return (
+    <section className="border-y border-border bg-card/40">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-sm">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className="w-4 h-4 fill-orange text-orange" />
+          ))}
+          <span className="ml-2 font-bold text-foreground">4.9/5</span>
+          <span className="text-xs">· 312 opinii</span>
+        </div>
+        <span className="hidden sm:block w-px h-5 bg-border" />
+        {["Forbes", "My Company", "Business Insider", "ProductHunt", "Mam Startup"].map((l) => (
+          <span key={l} className="font-display font-bold text-sm tracking-tight opacity-70">{l}</span>
+        ))}
       </div>
     </section>
   );
 }
 
+/* ============================== PRODUCTS BENTO ============================== */
+function ProductsBento() {
+  return (
+    <Section id="produkty" eyebrow="Co możesz zbudować" title="8 produktów, które działają w 2026" subtitle="Wybierz drogę pasującą do Twojej wiedzy i czasu. AI poprowadzi resztę.">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {products.map((p, i) => (
+          <Reveal key={p.label} delay={i * 0.04}>
+            <div className={`group relative h-full rounded-3xl border border-border bg-card p-5 hover:border-violet/40 hover:shadow-[var(--shadow-card)] transition-all overflow-hidden ${p.span ?? ""}`}>
+              <div aria-hidden className="absolute -top-16 -right-16 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: "radial-gradient(circle, oklch(0.7 0.2 290 / 0.25), transparent 70%)" }} />
+              <span className="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+                <p.icon className="w-5 h-5" />
+              </span>
+              <div className="mt-4 font-display font-extrabold text-lg">{p.label}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
+              <div className="mt-4 flex items-center justify-between text-xs">
+                <span className="font-bold text-violet">{p.price}</span>
+                <span className="inline-flex items-center gap-1 text-muted-foreground"><Clock className="w-3 h-3" /> {p.time}</span>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
 
+/* ============================== HOW IT WORKS ============================== */
+function HowItWorks() {
+  return (
+    <Section id="jak" eyebrow="Jak to działa" title="Trzy kroki do gotowego biznesu" subtitle="Bez kursów w odcinkach, bez czytania 400 stron. Robisz — i widzisz wynik.">
+      <div className="grid md:grid-cols-3 gap-5 relative">
+        <div aria-hidden className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-violet/40 to-transparent" />
+        {steps.map((s, i) => (
+          <Reveal key={s.n} delay={i * 0.1}>
+            <div className="relative rounded-3xl border border-border bg-card p-6 h-full">
+              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+                <s.icon className="w-5 h-5" />
+              </span>
+              <div className="mt-4 text-xs font-bold text-muted-foreground">KROK {s.n}</div>
+              <div className="mt-1 font-display font-extrabold text-xl">{s.title}</div>
+              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
 
-function PricingCard({
-  name, price, period, desc, features, cta, highlight, badge,
+/* ============================== TIMELINE ============================== */
+function Timeline() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
+  const lineW = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <Section eyebrow="90-dniowa ścieżka" title="Każdego dnia mały krok — w 90 dni gotowy biznes" subtitle="Wiesz dokładnie co zrobić dziś, jutro i pojutrze. Zero zgadywanki.">
+      <div ref={ref} className="relative rounded-3xl border border-border bg-card p-6 md:p-10 overflow-hidden">
+        <div className="relative">
+          <div className="absolute left-0 right-0 top-7 h-1 rounded-full bg-muted" />
+          <motion.div style={{ width: lineW }} className="absolute left-0 top-7 h-1 rounded-full bg-gradient-to-r from-violet to-blue" />
+          <div className="relative grid grid-cols-7 gap-2">
+            {timeline.map((t, i) => (
+              <motion.div
+                key={t.day}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className="flex flex-col items-center text-center"
+              >
+                <span className="grid place-items-center w-14 h-14 rounded-full bg-card border-2 border-violet/40 text-violet shadow-[var(--shadow-card)]">
+                  <t.icon className="w-5 h-5" />
+                </span>
+                <div className="mt-2 text-[10px] font-bold text-muted-foreground">DZIEŃ {t.day}</div>
+                <div className="text-xs md:text-sm font-bold mt-0.5">{t.title}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== AI TOOLS ============================== */
+function AiToolsGrid() {
+  return (
+    <Section id="ai" eyebrow="Generatory AI" title="6 generatorów, które robią 70% pracy" subtitle="Wpisujesz kontekst — AI dostarcza gotowy materiał. Pełna kontrola, zero pustej kartki.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {aiTools.map((t, i) => (
+          <Reveal key={t.label} delay={i * 0.05}>
+            <div className="group relative rounded-3xl border border-border bg-card p-5 h-full hover:-translate-y-1 hover:shadow-[var(--shadow-card)] transition-all">
+              <div className="flex items-start justify-between">
+                <span className="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+                  <t.icon className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-bold uppercase rounded-full bg-green-soft text-green px-2 py-1">{t.save}</span>
+              </div>
+              <div className="mt-4 font-display font-extrabold">{t.label}</div>
+              <p className="text-sm text-muted-foreground mt-1">{t.desc}</p>
+              <div className="mt-4 h-1.5 rounded-full bg-muted overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-violet to-blue"
+                  animate={{ width: ["0%", "85%", "0%"] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+                />
+              </div>
+              <div className="mt-2 text-[11px] text-muted-foreground">Generuję...</div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== COMPARISON ============================== */
+function Comparison() {
+  return (
+    <Section eyebrow="Sam vs z 90 Dni" title="Dlaczego sam najczęściej się nie udaje" subtitle="To nie kwestia talentu. To kwestia systemu i konsekwencji.">
+      <div className="grid md:grid-cols-2 gap-5">
+        <Reveal>
+          <div className="rounded-3xl border border-destructive/30 bg-card p-6 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="grid place-items-center w-9 h-9 rounded-xl bg-destructive/10 text-destructive">
+                <X className="w-5 h-5" />
+              </span>
+              <div className="font-display font-extrabold">Sam, bez planu</div>
+            </div>
+            <ul className="space-y-3">
+              {compare.solo.map((c) => (
+                <li key={c} className="flex items-start gap-2 text-sm">
+                  <X className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="relative rounded-3xl border-2 border-violet/40 bg-gradient-to-br from-card to-violet-soft/40 p-6 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+                <Check className="w-5 h-5" />
+              </span>
+              <div className="font-display font-extrabold">Z 90 Dni</div>
+            </div>
+            <ul className="space-y-3">
+              {compare.with.map((c) => (
+                <li key={c} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-green shrink-0 mt-0.5" />
+                  <span className="text-foreground">{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== TESTIMONIALS ============================== */
+function TestimonialsMarquee() {
+  const items = [...testimonials, ...testimonials];
+  return (
+    <Section eyebrow="Społeczność" title="Ludzie, którzy już zaczęli" subtitle="Realne historie z bieżącej kohorty. Każda zaczęła się od jednego dnia 1.">
+      <div className="relative overflow-hidden mask-fade">
+        <style>{`.mask-fade { mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent); }`}</style>
+        <div className="flex gap-4 w-max" style={{ animation: "marquee 40s linear infinite" }}>
+          {items.map((t, i) => (
+            <div key={i} className="w-[320px] sm:w-[380px] shrink-0 rounded-3xl border border-border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <span className="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-violet to-blue text-primary-foreground font-bold">
+                  {t.name[0]}
+                </span>
+                <div>
+                  <div className="font-bold text-sm">{t.name}</div>
+                  <div className="text-xs text-muted-foreground">{t.role}</div>
+                </div>
+                <div className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-violet">
+                  <Coins className="w-3.5 h-3.5" /> {t.xp.toLocaleString("pl-PL")} XP
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">„{t.quote}"</p>
+              <div className="mt-3 flex items-center gap-1 text-orange">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <Star key={j} className="w-3.5 h-3.5 fill-orange" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== PRICING ============================== */
+function Pricing() {
+  return (
+    <Section id="cennik" eyebrow="Cennik" title="Wybierz tempo, jakie Ci pasuje" subtitle="Zacznij za darmo. Przejdziesz na płatny plan, gdy zobaczysz wartość.">
+      <div className="grid md:grid-cols-3 gap-5">
+        {pricing.map((p, i) => (
+          <Reveal key={p.name} delay={i * 0.08}>
+            <div
+              className={`relative rounded-3xl p-6 h-full flex flex-col ${
+                p.highlight
+                  ? "bg-gradient-to-br from-violet/10 to-blue/10 border-2 border-violet/40 shadow-[var(--shadow-glow)]"
+                  : "bg-card border border-border"
+              }`}
+            >
+              {p.highlight && <BorderBeam />}
+              {p.badge && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-violet to-blue text-primary-foreground text-[10px] font-bold uppercase px-3 py-1">
+                  {p.badge}
+                </span>
+              )}
+              <div className="font-display font-extrabold text-2xl">{p.name}</div>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="font-display font-extrabold text-4xl">{p.price}</span>
+                <span className="text-sm text-muted-foreground">{p.per}</span>
+              </div>
+              <ul className="mt-5 space-y-2.5 flex-1">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 text-green shrink-0 mt-0.5" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/auth"
+                className={`mt-6 inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold ${
+                  p.highlight
+                    ? "bg-gradient-to-r from-violet to-blue text-primary-foreground"
+                    : "bg-foreground text-background"
+                }`}
+              >
+                {p.cta} <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> 14 dni gwarancji zwrotu</span>
+        <span className="inline-flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5" /> Anuluj jednym kliknięciem</span>
+        <span className="inline-flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> Płatność szyfrowana</span>
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== FAQ ============================== */
+function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <Section id="faq" eyebrow="FAQ" title="Pytania, które padają najczęściej" subtitle="Jeśli czegoś brakuje — napisz na hello@90dni.app.">
+      <div className="max-w-3xl mx-auto space-y-3">
+        {faqs.map((f, i) => (
+          <div key={f.q} className="rounded-2xl border border-border bg-card overflow-hidden">
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              className="w-full flex items-center justify-between gap-3 p-4 text-left"
+            >
+              <span className="font-bold">{f.q}</span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${open === i ? "rotate-180" : ""}`}
+              />
+            </button>
+            <AnimatePresence initial={false}>
+              {open === i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <p className="px-4 pb-4 text-sm text-muted-foreground">{f.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ============================== FINAL CTA ============================== */
+function FinalCta() {
+  return (
+    <section className="relative overflow-hidden py-24 md:py-32">
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-violet via-blue to-violet" />
+      <Meteors count={18} />
+      <div className="relative max-w-4xl mx-auto px-4 md:px-6 text-center text-primary-foreground">
+        <Reveal>
+          <h2 className="font-display font-extrabold text-3xl md:text-5xl leading-tight">
+            Dzień 1 zaczyna się dziś.
+            <br /> Albo za 90 dni.
+          </h2>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <p className="mt-4 text-base md:text-lg opacity-90 max-w-2xl mx-auto">
+            Dołącz do 2 137 osób budujących pierwszy biznes online. Bez ryzyka — zacznij za 0 zł.
+          </p>
+        </Reveal>
+        <Reveal delay={0.2}>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/auth"
+              className="relative inline-flex items-center gap-2 rounded-2xl bg-background text-foreground px-6 py-3.5 font-bold hover:scale-[1.02] transition-transform"
+            >
+              <Rocket className="w-4 h-4" /> Zacznij za darmo
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <a
+              href="#cennik"
+              className="inline-flex items-center gap-2 rounded-2xl border border-primary-foreground/30 px-5 py-3.5 font-bold hover:bg-primary-foreground/10"
+            >
+              Zobacz cennik
+            </a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ============================== FOOTER ============================== */
+function Footer() {
+  return (
+    <footer className="border-t border-border bg-card/40">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-6 text-sm">
+        <div>
+          <div className="flex items-center gap-2 font-display font-extrabold">
+            <span className="grid place-items-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
+              <Flame className="w-4 h-4" />
+            </span>
+            90 Dni
+          </div>
+          <p className="mt-3 text-muted-foreground">
+            Twój pierwszy biznes online — z AI, planem i mentorem.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-muted-foreground">
+          <a href="#produkty" className="hover:text-foreground">Produkty</a>
+          <a href="#jak" className="hover:text-foreground">Jak działa</a>
+          <a href="#ai" className="hover:text-foreground">AI</a>
+          <a href="#cennik" className="hover:text-foreground">Cennik</a>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
+          <Link to="/auth" className="hover:text-foreground">Zaloguj</Link>
+        </div>
+        <div className="text-muted-foreground">
+          © {new Date().getFullYear()} 90 Dni. Wszystkie prawa zastrzeżone.
+          <div className="mt-2 text-xs">hello@90dni.app</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ============================== SECTION WRAPPER ============================== */
+function Section({
+  id, eyebrow, title, subtitle, children,
 }: {
-  name: string; price: string; period: string; desc: string; features: string[]; cta: string; highlight?: boolean; badge?: string;
+  id?: string; eyebrow: string; title: string; subtitle?: string; children: React.ReactNode;
 }) {
   return (
-    <div className={`active-card relative rounded-3xl p-7 flex flex-col ${
-      highlight
-        ? "bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 text-white border-2 border-violet-400/50 shadow-2xl shadow-violet-500/30 lg:scale-105 lg:-my-2"
-        : "bg-white border border-slate-200 shadow-sm"
-    }`}>
-      {highlight && (
-        <>
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/0 via-pink-500/10 to-violet-500/0 pointer-events-none" />
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-extrabold shadow-lg">
-            {badge}
+    <section id={id} className="relative py-20 md:py-28">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
+        <Reveal>
+          <div className="text-center mb-10 md:mb-14">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-soft text-violet px-3 py-1 text-xs font-bold uppercase tracking-wide">
+              <CircleDot className="w-3 h-3" /> {eyebrow}
+            </div>
+            <h2 className="mt-4 font-display font-extrabold text-3xl md:text-5xl tracking-tight">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
+            )}
           </div>
-        </>
-      )}
-      <div className="relative">
-        <div className={`text-sm font-extrabold tracking-wider ${highlight ? "text-violet-300" : "text-violet-600"}`}>{name}</div>
-        <div className="mt-3 flex items-baseline gap-1">
-          <span className="text-5xl font-extrabold">{price}</span>
-          <span className={highlight ? "text-slate-400" : "text-slate-500"}>{period}</span>
-        </div>
-        <p className={`mt-3 text-sm ${highlight ? "text-slate-300" : "text-slate-600"}`}>{desc}</p>
-        <ul className="mt-6 space-y-3 flex-1">
-          {features.map((f) => (
-            <li key={f} className="flex items-start gap-2 text-sm">
-              <Check className={`w-5 h-5 flex-shrink-0 ${highlight ? "text-emerald-400" : "text-emerald-500"}`} strokeWidth={3} />
-              <span className={highlight ? "text-slate-200" : "text-slate-700"}>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <Link
-          to="/auth"
-          className={`mt-7 inline-flex items-center justify-center gap-2 h-12 rounded-2xl font-bold transition ${
-            highlight
-              ? "bg-gradient-to-r from-orange-400 via-pink-500 to-violet-500 text-white shadow-xl shadow-pink-500/40 hover:scale-[1.02]"
-              : "bg-slate-900 text-white hover:bg-slate-800"
-          }`}
-        >
-          {cta} <ArrowRight className="w-4 h-4" />
-        </Link>
+        </Reveal>
+        {children}
       </div>
-    </div>
+    </section>
   );
 }
