@@ -14,8 +14,10 @@ import {
 
 export type TourStep = {
   id: string;
-  /** CSS selector (queried via document.querySelector). If null → centered modal. */
+  /** CSS selector for desktop (≥1024px). null → centered modal. */
   target: string | null;
+  /** Optional override selector for mobile (<1024px). Falls back to `target`. */
+  mobileTarget?: string | null;
   title: string;
   body: string;
   icon: LucideIcon;
@@ -23,10 +25,6 @@ export type TourStep = {
   placement?: "top" | "bottom" | "left" | "right" | "auto";
 };
 
-/**
- * Steps are ordered. Targets use [data-tour="..."] attributes scattered
- * across Sidebar / MobileBottomNav / TopBar / dashboard widgets.
- */
 export const tourSteps: TourStep[] = [
   {
     id: "welcome",
@@ -43,6 +41,7 @@ export const tourSteps: TourStep[] = [
     title: "Dashboard — Twoje centrum dowodzenia",
     body:
       "Od tego miejsca zacznij każdy dzień. Misja, postęp, streak i XP w jednym ujęciu — widzisz dokładnie, co Cię zbliża do celu.",
+    placement: "top",
   },
   {
     id: "plan",
@@ -51,6 +50,7 @@ export const tourSteps: TourStep[] = [
     title: "Plan działania",
     body:
       "90-dniowa ścieżka + zadania od mentora + kalendarz. Nie musisz kombinować — wiesz, co robić każdego dnia.",
+    placement: "top",
   },
   {
     id: "courses",
@@ -59,14 +59,17 @@ export const tourSteps: TourStep[] = [
     title: "Kursy wideo",
     body:
       "Oglądasz → zdobywasz XP. Wykonujesz zadania domowe → dostajesz odznaki i rozwijasz realny produkt. Bez teorii — same konkrety.",
+    placement: "top",
   },
   {
     id: "tools",
     target: '[data-tour="nav-tools"]',
+    mobileTarget: '[data-tour="mobile-menu"]',
     icon: Wrench,
     title: "Narzędzia AI",
     body:
-      "Generator produktu, ofert i reklam w kilka chwil. To, co normalnie zajmuje godziny, teraz gotowe w minuty.",
+      "Generator produktu, ofert i reklam w kilka chwil. To, co normalnie zajmuje godziny, teraz gotowe w minuty. Na telefonie znajdziesz je w menu (przycisk po prawej).",
+    placement: "top",
   },
   {
     id: "credits",
@@ -80,10 +83,12 @@ export const tourSteps: TourStep[] = [
   {
     id: "community",
     target: '[data-tour="nav-community"]',
+    mobileTarget: '[data-tour="mobile-menu"]',
     icon: Users,
     title: "Społeczność",
     body:
-      "Wyzwania, pojedynki XP i wsparcie innych twórców. Działasz sam, ale nigdy nie jesteś sam.",
+      "Wyzwania, pojedynki XP i wsparcie innych twórców. Działasz sam, ale nigdy nie jesteś sam. Na telefonie wejdź przez menu.",
+    placement: "top",
   },
   {
     id: "streak",
@@ -97,11 +102,12 @@ export const tourSteps: TourStep[] = [
   {
     id: "account",
     target: '[data-tour="account-menu"]',
+    mobileTarget: '[data-tour="mobile-menu"]',
     icon: UserIcon,
     title: "Twoje konto",
     body:
-      "Profil, nagrody, kredyty i pakiet — wszystko pod kontrolą. W każdej chwili możesz też wrócić do tego wprowadzenia.",
-    placement: "bottom",
+      "Profil, nagrody, kredyty i pakiet — wszystko pod kontrolą. Na telefonie znajdziesz to w menu. W każdej chwili możesz też wrócić do tego wprowadzenia.",
+    placement: "top",
   },
   {
     id: "finish",

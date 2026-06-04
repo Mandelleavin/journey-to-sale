@@ -103,7 +103,17 @@ function computeTooltipPosition(
 export function OnboardingTour({ open, onClose }: Props) {
   const [index, setIndex] = useState(0);
   const step = tourSteps[index];
-  const rect = useTargetRect(step?.target ?? null, open, index);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const selector =
+    (isMobile ? step?.mobileTarget ?? step?.target : step?.target) ?? null;
+  const rect = useTargetRect(selector, open, index);
 
   // reset to first step whenever opened
   useEffect(() => {
