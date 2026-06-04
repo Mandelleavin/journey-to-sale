@@ -7,15 +7,16 @@ export function StreakBadge({ current, multiplier }: { current: number; multipli
       <Tooltip>
         <TooltipTrigger asChild>
           <div data-tour="streak-badge" className="flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 cursor-help">
-            <div className="w-9 h-9 rounded-xl bg-gradient-orange grid place-items-center">
-              <Flame className="w-4 h-4 text-white fill-white/30" strokeWidth={2.2} />
+            <div className="w-9 h-9 rounded-xl bg-orange/10 grid place-items-center">
+              <Flame className="w-4 h-4 text-orange fill-orange/30" strokeWidth={2.4} />
             </div>
             <div className="leading-tight">
-              <div className="font-display font-extrabold text-sm">{current} dni</div>
-              <div className="text-[10px] text-muted-foreground font-semibold uppercase">
+              <div className="font-display font-extrabold text-base text-foreground">{current} dni</div>
+              <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
                 seria · ×{multiplier.toFixed(1)}
               </div>
             </div>
+
           </div>
         </TooltipTrigger>
         <TooltipContent>
