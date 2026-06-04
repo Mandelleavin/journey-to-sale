@@ -6,6 +6,7 @@ export const TOOL_SLUGS = [
   "revenue-potential",
   "product-price",
   "ads-breakeven",
+  "first-product",
 ] as const;
 export type ToolSlug = (typeof TOOL_SLUGS)[number];
 
