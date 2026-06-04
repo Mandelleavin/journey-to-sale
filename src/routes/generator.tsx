@@ -59,7 +59,7 @@ function GeneratorListPage() {
     if (!isGeneratorIndex) return;
     (async () => {
       const { data } = await supabase
-        .from("ai_generators")
+        .from("ai_generators_public")
         .select("id,name,slug,description,category,credit_cost,supports_quality_modes,position,required_plan")
         .eq("status", "active")
         .order("position");
