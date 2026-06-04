@@ -7,9 +7,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { useRouterState, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { claimStarterReward } from "@/lib/onboarding.functions";
 import { OnboardingTour } from "./OnboardingTour";
 
 type OnboardingContextValue = {
@@ -34,6 +37,8 @@ const SKIP_AUTO_PREFIXES = [
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const claimStarter = useServerFn(claimStarterReward);
   const [open, setOpen] = useState(false);
   const [completedAt, setCompletedAt] = useState<string | null | undefined>(
     undefined,
@@ -91,8 +96,38 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         .from("profiles")
         .update(patch as never)
         .eq("id", user.id);
+
+      if (!completed) return;
+
+      // Starter mission: grant one-time +50 XP and send the user to the
+      // very first lesson so they finish the tour with a concrete next step.
+      try {
+        const res = await claimStarter();
+        if (res?.granted && res.granted > 0) {
+          toast.success(`+${res.granted} XP — pierwsze osiągnięcie odblokowane! 🎉`, {
+            description: "Twoja pierwsza misja: obejrzyj pierwszą lekcję kursu.",
+            duration: 6000,
+          });
+        } else {
+          toast.message("Twoja pierwsza misja czeka 🚀", {
+            description: "Otwórz pierwszą lekcję kursu i zacznij dzień 1.",
+            duration: 6000,
+          });
+        }
+        if (res?.lessonId) {
+          setTimeout(() => {
+            navigate({ to: "/lessons/$lessonId", params: { lessonId: res.lessonId! } });
+          }, 800);
+        } else if (res?.courseId) {
+          setTimeout(() => {
+            navigate({ to: "/courses/$courseId", params: { courseId: res.courseId! } });
+          }, 800);
+        }
+      } catch {
+        // silent — tour already closed
+      }
     },
-    [user],
+    [user, claimStarter, navigate],
   );
 
   const start = useCallback(() => setOpen(true), []);
