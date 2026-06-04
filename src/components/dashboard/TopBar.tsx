@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { LogOut, Shield, Sparkles as SparklesIcon } from "lucide-react";
+import { LogOut, Shield, Sparkles as SparklesIcon, Zap } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { SketchUnderline } from "./Sketch";
 import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
 import { StreakBadge } from "./StreakBadge";
