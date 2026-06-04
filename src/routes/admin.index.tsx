@@ -110,52 +110,39 @@ function AdminIndexPage() {
         </div>
 
         <Tabs defaultValue="hotleads" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-11 max-w-6xl">
-            <TabsTrigger value="hotleads">
-              <Flame className="w-4 h-4 mr-1" />
-              Hot leady
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              <Users className="w-4 h-4 mr-1" />
-              Użytkownicy
-            </TabsTrigger>
-            <TabsTrigger value="mentor">
-              <Sparkles className="w-4 h-4 mr-1" />
-              Mentor
-            </TabsTrigger>
-            <TabsTrigger value="submissions">
-              <Inbox className="w-4 h-4 mr-1" />
-              Zgłoszenia
-            </TabsTrigger>
-            <TabsTrigger value="courses">
-              <GraduationCap className="w-4 h-4 mr-1" />
-              Kursy
-            </TabsTrigger>
-            <TabsTrigger value="course-tasks">
-              <ListChecks className="w-4 h-4 mr-1" />
-              Zadania
-            </TabsTrigger>
-            <TabsTrigger value="advisor">
-              <ListChecks className="w-4 h-4 mr-1" />
-              Doradca
-            </TabsTrigger>
-            <TabsTrigger value="sales">
-              <Phone className="w-4 h-4 mr-1" />
-              Sprzedaż
-            </TabsTrigger>
-            <TabsTrigger value="promo">
-              <Tag className="w-4 h-4 mr-1" />
-              Kody
-            </TabsTrigger>
-            <TabsTrigger value="paths">
-              <CalendarDays className="w-4 h-4 mr-1" />
-              Ścieżki
-            </TabsTrigger>
-            <TabsTrigger value="rewards">
-              <Gift className="w-4 h-4 mr-1" />
-              Nagrody
-            </TabsTrigger>
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 h-auto bg-transparent p-0 mb-6">
+            {[
+              { value: "hotleads", label: "Hot leady", icon: Flame, desc: "Najbliżsi zakupu", tone: "bg-orange/10 text-orange" },
+              { value: "users", label: "Użytkownicy", icon: Users, desc: "Lista i gotowość", tone: "bg-violet/10 text-violet" },
+              { value: "mentor", label: "Mentor AI", icon: Sparkles, desc: "Konfiguracja AI", tone: "bg-blue/10 text-blue" },
+              { value: "submissions", label: "Zgłoszenia", icon: Inbox, desc: "Do oceny", tone: "bg-orange/10 text-orange" },
+              { value: "courses", label: "Kursy", icon: GraduationCap, desc: "Treści i lekcje", tone: "bg-violet/10 text-violet" },
+              { value: "course-tasks", label: "Zadania", icon: ListChecks, desc: "Zadania w lekcjach", tone: "bg-green/10 text-green" },
+              { value: "advisor", label: "Doradca", icon: ListChecks, desc: "Reguły doradcy", tone: "bg-blue/10 text-blue" },
+              { value: "sales", label: "Sprzedaż", icon: Phone, desc: "Telefony i status", tone: "bg-orange/10 text-orange" },
+              { value: "promo", label: "Kody rabatowe", icon: Tag, desc: "Promocje", tone: "bg-violet/10 text-violet" },
+              { value: "paths", label: "Ścieżki", icon: CalendarDays, desc: "Plany 90 dni", tone: "bg-blue/10 text-blue" },
+              { value: "rewards", label: "Nagrody", icon: Gift, desc: "Odznaki i bonusy", tone: "bg-green/10 text-green" },
+            ].map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger
+                  key={t.value}
+                  value={t.value}
+                  className="group relative flex flex-col items-start gap-2 h-auto p-4 rounded-2xl bg-card border border-border shadow-soft hover:shadow-glow hover:-translate-y-0.5 transition-all data-[state=active]:border-violet data-[state=active]:shadow-glow data-[state=active]:bg-gradient-to-br data-[state=active]:from-violet-soft data-[state=active]:to-blue-soft"
+                >
+                  <div className={cn("w-9 h-9 rounded-xl grid place-items-center", t.tone)}>
+                    <Icon className="w-4 h-4" strokeWidth={2.2} />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-display font-bold text-sm text-foreground leading-tight">{t.label}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</div>
+                  </div>
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
+
 
           <TabsContent value="hotleads" className="mt-6">
             <HotLeadsTab />
