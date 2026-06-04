@@ -37,6 +37,8 @@ const SKIP_AUTO_PREFIXES = [
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const claimStarter = useServerFn(claimStarterReward);
   const [open, setOpen] = useState(false);
   const [completedAt, setCompletedAt] = useState<string | null | undefined>(
     undefined,
