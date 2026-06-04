@@ -84,6 +84,7 @@ export function MobileTopNav() {
 
       <Link
         to="/credits"
+        data-tour="mobile-credits-badge"
         className="flex-1 min-w-0 rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft px-3 py-2 shadow-soft flex items-center gap-2"
       >
         <div className="w-8 h-8 rounded-xl bg-gradient-violet grid place-items-center text-primary-foreground shrink-0">
