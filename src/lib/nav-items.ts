@@ -39,7 +39,11 @@ export const mainItems: NavItem[] = [
     icon: Wrench,
     label: "Narzędzia AI",
     to: "/tools",
-    matchPrefixes: ["/generator"],
+  },
+  {
+    icon: Sparkles,
+    label: "Generator Produktu AI",
+    to: "/generator",
   },
   { icon: Package, label: "Mój produkt", to: "/products" },
   { icon: Users, label: "Społeczność", to: "/community" },
