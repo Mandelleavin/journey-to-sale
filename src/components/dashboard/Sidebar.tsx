@@ -1,8 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
+import logoMark from "@/assets/logo-mark.png";
+
 
 function tourIdForNav(to: string): string | undefined {
   switch (to) {
