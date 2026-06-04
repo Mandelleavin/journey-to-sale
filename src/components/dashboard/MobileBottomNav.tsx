@@ -7,7 +7,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -79,6 +79,13 @@ function SearchableNavGroup({
 }) {
   if (items.length === 0) return null;
 
+  const tourIdForItem = (item: NavItem) => {
+    if (item.to === "/tools") return "mobile-nav-tools";
+    if (item.to === "/community") return "mobile-nav-community";
+    if (accountItems.some((accountItem) => accountItem.to === item.to)) return "mobile-account-menu";
+    return undefined;
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -102,6 +109,7 @@ function SearchableNavGroup({
           <motion.div key={it.label} variants={itemVariants} layout>
             <Link
               to={it.to}
+              data-tour={tourIdForItem(it)}
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
@@ -161,6 +169,17 @@ export function MobileBottomNav() {
     filteredSecondary.length > 0 ||
     filteredAccount.length > 0 ||
     filteredAdmin.length > 0;
+
+  useEffect(() => {
+    const handleTourMenu = (event: Event) => {
+      const shouldOpen = Boolean((event as CustomEvent<{ open?: boolean }>).detail?.open);
+      setOpen(shouldOpen);
+      if (!shouldOpen) setQuery("");
+    };
+
+    window.addEventListener("onboarding-mobile-menu", handleTourMenu);
+    return () => window.removeEventListener("onboarding-mobile-menu", handleTourMenu);
+  }, []);
 
   if (!user) return null;
 

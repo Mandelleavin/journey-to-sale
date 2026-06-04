@@ -64,7 +64,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "tools",
     target: '[data-tour="nav-tools"]',
-    mobileTarget: '[data-tour="mobile-menu"]',
+    mobileTarget: '[data-tour="mobile-nav-tools"]',
     icon: Wrench,
     title: "Narzędzia AI",
     body:
@@ -74,6 +74,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "credits",
     target: '[data-tour="credits-badge"]',
+    mobileTarget: '[data-tour="mobile-credits-badge"]',
     icon: Sparkles,
     title: "Twoje kredyty AI",
     body:
@@ -83,7 +84,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "community",
     target: '[data-tour="nav-community"]',
-    mobileTarget: '[data-tour="mobile-menu"]',
+    mobileTarget: '[data-tour="mobile-nav-community"]',
     icon: Users,
     title: "Społeczność",
     body:
@@ -102,7 +103,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "account",
     target: '[data-tour="account-menu"]',
-    mobileTarget: '[data-tour="mobile-menu"]',
+    mobileTarget: '[data-tour="mobile-account-menu"]',
     icon: UserIcon,
     title: "Twoje konto",
     body:

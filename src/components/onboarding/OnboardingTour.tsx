@@ -14,6 +14,22 @@ type Props = {
 };
 
 const PADDING = 10;
+const MOBILE_MENU_TARGETS = new Set([
+  '[data-tour="mobile-nav-tools"]',
+  '[data-tour="mobile-nav-community"]',
+  '[data-tour="mobile-account-menu"]',
+]);
+
+function isElementVisible(el: HTMLElement) {
+  const style = window.getComputedStyle(el);
+  const rect = el.getBoundingClientRect();
+  return (
+    style.display !== "none" &&
+    style.visibility !== "hidden" &&
+    rect.width > 0 &&
+    rect.height > 0
+  );
+}
 
 function useTargetRect(selector: string | null, open: boolean, step: number): Rect {
   const [rect, setRect] = useState<Rect>(null);
@@ -25,7 +41,9 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
     }
     let raf = 0;
     const measure = () => {
-      const el = document.querySelector(selector) as HTMLElement | null;
+      const el = Array.from(document.querySelectorAll(selector)).find((node) =>
+        isElementVisible(node as HTMLElement),
+      ) as HTMLElement | undefined;
       if (!el) {
         setRect(null);
         return;
@@ -114,6 +132,20 @@ export function OnboardingTour({ open, onClose }: Props) {
   const selector =
     (isMobile ? step?.mobileTarget ?? step?.target : step?.target) ?? null;
   const rect = useTargetRect(selector, open, index);
+
+  useEffect(() => {
+    if (!open || !isMobile || !selector || !MOBILE_MENU_TARGETS.has(selector)) return;
+    const targetAlreadyVisible = Array.from(document.querySelectorAll(selector)).some((node) =>
+      isElementVisible(node as HTMLElement),
+    );
+    if (targetAlreadyVisible) return;
+    window.dispatchEvent(new CustomEvent("onboarding-mobile-menu", { detail: { open: true } }));
+  }, [open, isMobile, selector, index]);
+
+  useEffect(() => {
+    if (!open || !isMobile || !selector || MOBILE_MENU_TARGETS.has(selector)) return;
+    window.dispatchEvent(new CustomEvent("onboarding-mobile-menu", { detail: { open: false } }));
+  }, [open, isMobile, selector, index]);
 
   // reset to first step whenever opened
   useEffect(() => {
