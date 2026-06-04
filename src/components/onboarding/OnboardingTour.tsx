@@ -121,10 +121,11 @@ function computeTooltipPosition(
   const spaceBottom = vh - (rect.top + rect.height);
   const spaceTop = rect.top;
 
-  let pos: "top" | "bottom" = "bottom";
-  if (placement === "top") pos = "top";
-  else if (placement === "bottom") pos = "bottom";
-  else pos = spaceBottom >= tooltipH + 24 || spaceBottom >= spaceTop ? "bottom" : "top";
+  const needed = tooltipH + 24;
+  let pos: "top" | "bottom";
+  if (placement === "top") pos = spaceTop >= needed ? "top" : "bottom";
+  else if (placement === "bottom") pos = spaceBottom >= needed ? "bottom" : "top";
+  else pos = spaceBottom >= needed || spaceBottom >= spaceTop ? "bottom" : "top";
 
   const top =
     pos === "bottom"
