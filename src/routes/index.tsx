@@ -269,7 +269,6 @@ function Index() {
             }}
           />
           <MentorTasksSection />
-          <ToolsTeaser />
           <div className="grid gap-5 lg:grid-cols-1">
             <CreditsWidget />
           </div>
