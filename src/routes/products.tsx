@@ -475,6 +475,11 @@ function HeroCard({
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiBrief, setAiBrief] = useState("");
+  const [aiStyle, setAiStyle] = useState<"modern" | "elegant" | "bold" | "minimal" | "playful">("modern");
+  const [aiBusy, setAiBusy] = useState(false);
+  const genCover = useServerFn(generateProductCover);
   const statusMeta = STATUSES.find((s) => s.v === product.status) ?? STATUSES[0];
 
   const uploadCover = async (file: File) => {
@@ -496,6 +501,29 @@ function HeroCard({
     toast.success("Okładka wgrana");
   };
 
+  const openAi = () => {
+    const seed = [product.title, product.subtitle, product.promise, product.target_audience]
+      .filter(Boolean)
+      .join(" — ");
+    setAiBrief(seed || "");
+    setAiOpen(true);
+  };
+
+  const runAi = async () => {
+    if (aiBrief.trim().length < 3) return toast.error("Opisz krótko produkt");
+    setAiBusy(true);
+    try {
+      const r = await genCover({ data: { productId: product.id, brief: aiBrief.trim(), style: aiStyle } });
+      await onUpdate({ cover_url: r.coverUrl });
+      toast.success("Okładka wygenerowana ✨");
+      setAiOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Nie udało się wygenerować");
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   return (
     <div className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden">
       <div className="grid lg:grid-cols-[260px,1fr] gap-0">
@@ -510,17 +538,27 @@ function HeroCard({
           ) : (
             <div className="text-center p-4">
               <ImagePlus className="w-10 h-10 mx-auto text-violet mb-2" />
-              <p className="text-xs text-muted-foreground">Wgraj okładkę produktu</p>
+              <p className="text-xs text-muted-foreground">Wgraj lub wygeneruj okładkę</p>
             </div>
           )}
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-black/70 text-white text-xs font-semibold hover:bg-black flex items-center gap-1.5"
-          >
-            <Upload className="w-3.5 h-3.5" />
-            {uploading ? "Wgrywam..." : product.cover_url ? "Zmień" : "Wgraj"}
-          </button>
+          <div className="absolute bottom-3 right-3 flex flex-col gap-1.5 items-end">
+            <button
+              onClick={openAi}
+              disabled={uploading || aiBusy}
+              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-violet to-fuchsia-500 text-white text-xs font-semibold hover:opacity-90 flex items-center gap-1.5 shadow-lg"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              {aiBusy ? "Generuję..." : "Wygeneruj AI"}
+            </button>
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading || aiBusy}
+              className="px-3 py-1.5 rounded-full bg-black/70 text-white text-xs font-semibold hover:bg-black flex items-center gap-1.5"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              {uploading ? "Wgrywam..." : product.cover_url ? "Zmień" : "Wgraj"}
+            </button>
+          </div>
           <input
             ref={fileRef}
             type="file"
@@ -529,6 +567,48 @@ function HeroCard({
             onChange={(e) => e.target.files?.[0] && uploadCover(e.target.files[0])}
           />
         </div>
+
+        <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>✨ Wygeneruj okładkę AI</DialogTitle>
+              <DialogDescription>
+                Opisz jaki produkt budujesz — AI stworzy ładną okładkę. Zawsze możesz ją podmienić wgrywając własną.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Co to za produkt?</Label>
+                <Textarea
+                  value={aiBrief}
+                  onChange={(e) => setAiBrief(e.target.value)}
+                  placeholder="np. Kurs online o budowaniu marki osobistej na Instagramie dla freelancerów"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Styl okładki</Label>
+                <Select value={aiStyle} onValueChange={(v) => setAiStyle(v as typeof aiStyle)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="modern">Nowoczesny / tech</SelectItem>
+                    <SelectItem value="elegant">Elegancki / premium</SelectItem>
+                    <SelectItem value="bold">Mocny / energetyczny</SelectItem>
+                    <SelectItem value="minimal">Minimalistyczny</SelectItem>
+                    <SelectItem value="playful">Przyjazny / kolorowy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setAiOpen(false)} disabled={aiBusy}>Anuluj</Button>
+              <Button onClick={runAi} disabled={aiBusy} className="bg-gradient-to-r from-violet to-fuchsia-500 text-white">
+                {aiBusy ? "Generuję..." : "Wygeneruj"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
 
         {/* INFO */}
         <div className="p-5 lg:p-6 space-y-4">
