@@ -57,7 +57,8 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
         return;
       }
       const r = el.getBoundingClientRect();
-      if (allowScroll && scrolledRef.current !== step && isOutOfViewport(r)) {
+      const needsScroll = r.top < 180 || isOutOfViewport(r);
+      if (allowScroll && scrolledRef.current !== step && needsScroll) {
         scrolledRef.current = step;
         el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         // re-measure after scroll settles
