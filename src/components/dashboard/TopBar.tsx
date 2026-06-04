@@ -48,21 +48,20 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
     .toUpperCase();
 
   return (
-    <div className="flex items-start justify-between gap-4 flex-wrap">
-      <div>
+    <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h1 className="font-display font-extrabold text-3xl md:text-4xl text-foreground tracking-tight">
-            Cześć, {name}!
+          <h1 className="font-display font-extrabold text-2xl md:text-3xl text-foreground tracking-tight">
+            Witaj, {name}!
           </h1>
-          <span className="text-3xl md:text-4xl">👋</span>
+          <span className="text-2xl md:text-3xl">👋</span>
         </div>
-        <SketchUnderline className="w-40 h-3 -mt-1 ml-1" />
-        <p className="text-sm text-muted-foreground mt-2">
-          Super, że znowu działasz nad swoim produktem!
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-md">
+          Każdy dzień przybliża Cię do pierwszej sprzedaży online.
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 flex-wrap">
         {isAdmin && (
           <Link
             to="/admin"
@@ -75,18 +74,22 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
         <Link
           to="/credits"
           title="Twoje kredyty AI"
-          className="hidden md:inline-flex items-center gap-2 rounded-full border border-border bg-gradient-to-br from-violet-soft to-blue-soft pl-1.5 pr-3 py-1 shadow-soft hover:shadow-glow transition-shadow"
+          data-tour="credits-pill"
+          className="hidden sm:flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 hover:shadow-glow transition-shadow"
         >
-          <span className="w-6 h-6 rounded-full bg-gradient-violet grid place-items-center text-primary-foreground">
-            <SparklesIcon className="w-3.5 h-3.5" />
-          </span>
-          <span className="font-display font-extrabold text-sm text-violet leading-none">
-            {credits?.available ?? 0}
-          </span>
-          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground leading-none">
-            kredytów
-          </span>
+          <div className="w-9 h-9 rounded-xl bg-gradient-violet grid place-items-center">
+            <Zap className="w-4 h-4 text-white fill-white/30" strokeWidth={2.2} />
+          </div>
+          <div className="leading-tight">
+            <div className="font-display font-extrabold text-sm text-foreground">
+              {credits?.available ?? 0} kredytów
+            </div>
+            <div className="text-[10px] text-muted-foreground font-semibold uppercase">
+              AI · doładuj
+            </div>
+          </div>
         </Link>
+
 
         <StreakBadge current={streak.current} multiplier={streak.multiplier} />
 
