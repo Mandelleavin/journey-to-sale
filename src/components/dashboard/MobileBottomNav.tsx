@@ -7,7 +7,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -169,6 +169,17 @@ export function MobileBottomNav() {
     filteredSecondary.length > 0 ||
     filteredAccount.length > 0 ||
     filteredAdmin.length > 0;
+
+  useEffect(() => {
+    const handleTourMenu = (event: Event) => {
+      const shouldOpen = Boolean((event as CustomEvent<{ open?: boolean }>).detail?.open);
+      setOpen(shouldOpen);
+      if (!shouldOpen) setQuery("");
+    };
+
+    window.addEventListener("onboarding-mobile-menu", handleTourMenu);
+    return () => window.removeEventListener("onboarding-mobile-menu", handleTourMenu);
+  }, []);
 
   if (!user) return null;
 
