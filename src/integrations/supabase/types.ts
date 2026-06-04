@@ -2350,6 +2350,52 @@ export type Database = {
       }
     }
     Views: {
+      ai_generators_public: {
+        Row: {
+          category: string | null
+          credit_cost: number | null
+          description: string | null
+          form_schema: Json | null
+          id: string | null
+          name: string | null
+          position: number | null
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
+          slug: string | null
+          status: Database["public"]["Enums"]["ai_generator_status"] | null
+          supports_quality_modes: boolean | null
+        }
+        Insert: {
+          category?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          form_schema?: Json | null
+          id?: string | null
+          name?: string | null
+          position?: number | null
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["ai_generator_status"] | null
+          supports_quality_modes?: boolean | null
+        }
+        Update: {
+          category?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          form_schema?: Json | null
+          id?: string | null
+          name?: string | null
+          position?: number | null
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["ai_generator_status"] | null
+          supports_quality_modes?: boolean | null
+        }
+        Relationships: []
+      }
       rewards_catalog: {
         Row: {
           course_id: string | null

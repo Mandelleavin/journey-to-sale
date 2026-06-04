@@ -67,7 +67,7 @@ function GeneratorPage() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from("ai_generators")
+        .from("ai_generators_public")
         .select("id,name,slug,description,credit_cost,supports_quality_modes,form_schema,required_plan")
         .eq("slug", slug)
         .eq("status", "active")
