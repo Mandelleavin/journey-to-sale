@@ -63,7 +63,7 @@ function GeneratorListPage() {
         .select("id,name,slug,description,category,credit_cost,supports_quality_modes,position,required_plan")
         .eq("status", "active")
         .order("position");
-      setGenerators(data ?? []);
+      setGenerators((data ?? []) as unknown as Generator[]);
       setLoading(false);
     })();
   }, [isGeneratorIndex]);
