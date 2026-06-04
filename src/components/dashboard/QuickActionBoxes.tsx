@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import courseImg from "@/assets/box-course.jpg";
 import generatorImg from "@/assets/box-generator.jpg";
@@ -8,30 +8,36 @@ import productImg from "@/assets/box-product.jpg";
 const boxes = [
   {
     image: courseImg,
-    eyebrow: "Krok 1 · Wiedza",
+    step: "KROK 1",
     label: "Kurs 90 dni do produktu",
     description: "Naucz się tworzyć i sprzedawać własny produkt — lekcja po lekcji.",
     to: "/courses",
     accent: "from-emerald-400/30 via-emerald-200/0 to-transparent",
-    hoverBorder: "hover:border-green/40",
+    hoverBorder: "hover:border-green/60",
+    pill: "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200",
+    featured: true,
   },
   {
     image: generatorImg,
-    eyebrow: "Krok 2 · Tworzenie",
+    step: "KROK 2",
     label: "Generator Produktu AI",
     description: "Wygeneruj pomysł, ofertę, landing page, maile i reklamy w kilka minut.",
     to: "/generator",
     accent: "from-violet-400/30 via-violet-200/0 to-transparent",
     hoverBorder: "hover:border-violet/40",
+    pill: "bg-violet-100 text-violet-700 ring-1 ring-violet-200",
+    featured: false,
   },
   {
     image: productImg,
-    eyebrow: "Krok 3 · Sprzedaż",
+    step: "KROK 3",
     label: "Mój produkt",
     description: "Zarządzaj swoim produktem, ceną i materiałami w jednym miejscu.",
     to: "/products",
     accent: "from-orange-400/30 via-orange-200/0 to-transparent",
     hoverBorder: "hover:border-orange/40",
+    pill: "bg-orange-100 text-orange-700 ring-1 ring-orange-200",
+    featured: false,
   },
 ];
 
@@ -43,10 +49,18 @@ export function QuickActionBoxes() {
           key={box.to}
           to={box.to}
           className={cn(
-            "group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-card transition-all hover:shadow-xl hover:-translate-y-1",
+            "group relative flex flex-col overflow-hidden rounded-3xl border bg-card shadow-card transition-all hover:shadow-xl hover:-translate-y-1",
             box.hoverBorder,
+            box.featured
+              ? "border-emerald-300 ring-2 ring-emerald-300/60 shadow-glow"
+              : "border-border",
           )}
         >
+          {box.featured && (
+            <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
+              <Sparkles className="h-3 w-3" /> Zacznij tutaj
+            </span>
+          )}
           <div className="relative aspect-[4/3] overflow-hidden">
             <img
               src={box.image}
@@ -63,9 +77,14 @@ export function QuickActionBoxes() {
               )}
             />
           </div>
-          <div className="flex flex-1 flex-col gap-2 p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {box.eyebrow}
+          <div className="flex flex-1 flex-col gap-2.5 p-5">
+            <span
+              className={cn(
+                "inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+                box.pill,
+              )}
+            >
+              {box.step}
             </span>
             <div className="flex items-start justify-between gap-3">
               <h4 className="font-display text-lg font-bold leading-tight">
