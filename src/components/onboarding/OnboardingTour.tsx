@@ -14,6 +14,22 @@ type Props = {
 };
 
 const PADDING = 10;
+const MOBILE_MENU_TARGETS = new Set([
+  '[data-tour="mobile-nav-tools"]',
+  '[data-tour="mobile-nav-community"]',
+  '[data-tour="mobile-account-menu"]',
+]);
+
+function isElementVisible(el: HTMLElement) {
+  const style = window.getComputedStyle(el);
+  const rect = el.getBoundingClientRect();
+  return (
+    style.display !== "none" &&
+    style.visibility !== "hidden" &&
+    rect.width > 0 &&
+    rect.height > 0
+  );
+}
 
 function useTargetRect(selector: string | null, open: boolean, step: number): Rect {
   const [rect, setRect] = useState<Rect>(null);
@@ -25,7 +41,9 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
     }
     let raf = 0;
     const measure = () => {
-      const el = document.querySelector(selector) as HTMLElement | null;
+      const el = Array.from(document.querySelectorAll(selector)).find((node) =>
+        isElementVisible(node as HTMLElement),
+      ) as HTMLElement | undefined;
       if (!el) {
         setRect(null);
         return;
