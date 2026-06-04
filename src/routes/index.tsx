@@ -269,9 +269,6 @@ function Index() {
             }}
           />
           <MentorTasksSection />
-          <div className="grid gap-5 lg:grid-cols-1">
-            <CreditsWidget />
-          </div>
           <AccelerateWidget />
           <CoursesSection courses={enrichedCourses} fullName={fullName} />
           <TasksAndAchievements />
