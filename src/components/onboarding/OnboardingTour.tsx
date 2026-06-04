@@ -133,6 +133,17 @@ export function OnboardingTour({ open, onClose }: Props) {
     (isMobile ? step?.mobileTarget ?? step?.target : step?.target) ?? null;
   const rect = useTargetRect(selector, open, index);
 
+  useEffect(() => {
+    if (!open || !isMobile || !selector || !MOBILE_MENU_TARGETS.has(selector)) return;
+    const targetAlreadyVisible = Array.from(document.querySelectorAll(selector)).some((node) =>
+      isElementVisible(node as HTMLElement),
+    );
+    if (targetAlreadyVisible) return;
+
+    const menuButton = document.querySelector('[data-tour="mobile-menu"]') as HTMLButtonElement | null;
+    menuButton?.click();
+  }, [open, isMobile, selector, index]);
+
   // reset to first step whenever opened
   useEffect(() => {
     if (open) setIndex(0);
