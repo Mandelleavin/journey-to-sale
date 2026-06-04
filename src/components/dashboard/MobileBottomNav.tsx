@@ -79,6 +79,13 @@ function SearchableNavGroup({
 }) {
   if (items.length === 0) return null;
 
+  const tourIdForItem = (item: NavItem) => {
+    if (item.to === "/tools") return "mobile-nav-tools";
+    if (item.to === "/community") return "mobile-nav-community";
+    if (accountItems.some((accountItem) => accountItem.to === item.to)) return "mobile-account-menu";
+    return undefined;
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -102,6 +109,7 @@ function SearchableNavGroup({
           <motion.div key={it.label} variants={itemVariants} layout>
             <Link
               to={it.to}
+              data-tour={tourIdForItem(it)}
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
