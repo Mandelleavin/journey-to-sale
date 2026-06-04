@@ -545,15 +545,15 @@ function HeroCard({
     <div className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden">
       <div className="grid lg:grid-cols-[260px,1fr] gap-0">
         {/* COVER */}
-        <div className="relative aspect-[4/5] lg:aspect-auto lg:min-h-[280px] bg-gradient-to-br from-violet-soft to-blue-soft grid place-items-center">
+        <div className="relative lg:aspect-auto lg:min-h-[280px] bg-muted/40 grid place-items-center p-3 lg:p-0">
           {product.cover_url ? (
             <img
               src={product.cover_url}
               alt={product.title ?? "Okładka produktu"}
-              className="w-full h-full object-cover"
+              className="max-h-[260px] lg:max-h-none lg:h-full w-auto lg:w-full lg:object-cover object-contain rounded-xl lg:rounded-none"
             />
           ) : (
-            <div className="text-center p-4">
+            <div className="text-center p-6">
               <ImagePlus className="w-10 h-10 mx-auto text-violet mb-2" />
               <p className="text-xs text-muted-foreground">Wgraj lub wygeneruj okładkę</p>
             </div>
@@ -590,21 +590,58 @@ function HeroCard({
             <DialogHeader>
               <DialogTitle>✨ Wygeneruj okładkę AI</DialogTitle>
               <DialogDescription>
-                Opisz jaki produkt budujesz — AI stworzy ładną okładkę. Zawsze możesz ją podmienić wgrywając własną.
+                AI stworzy okładkę z Twoim tytułem. Koszt: <strong>15 kredytów</strong>. Zawsze możesz ją podmienić wgrywając własną.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Co to za produkt?</Label>
+                <Label className="text-xs">Format produktu</Label>
+                <Select value={aiFormat} onValueChange={(v) => setAiFormat(v as typeof aiFormat)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ebook">📖 Ebook / PDF</SelectItem>
+                    <SelectItem value="course">🎓 Kurs online</SelectItem>
+                    <SelectItem value="workshop">🛠️ Warsztat / Webinar</SelectItem>
+                    <SelectItem value="masterclass">🎬 Masterclass</SelectItem>
+                    <SelectItem value="template">📋 Szablon / Pakiet</SelectItem>
+                    <SelectItem value="checklist">✅ Checklista / Cheatsheet</SelectItem>
+                    <SelectItem value="membership">👥 Społeczność / Membership</SelectItem>
+                    <SelectItem value="coaching">🤝 Coaching 1:1</SelectItem>
+                    <SelectItem value="other">📦 Inny</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Tytuł na okładce *</Label>
+                  <Input
+                    value={aiTitle}
+                    onChange={(e) => setAiTitle(e.target.value)}
+                    placeholder="np. Marka osobista na Instagramie"
+                    maxLength={80}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Podtytuł (opcjonalny)</Label>
+                  <Input
+                    value={aiSubtitle}
+                    onChange={(e) => setAiSubtitle(e.target.value)}
+                    placeholder="np. Praktyczny przewodnik dla freelancerów"
+                    maxLength={120}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">O czym jest produkt?</Label>
                 <Textarea
                   value={aiBrief}
                   onChange={(e) => setAiBrief(e.target.value)}
-                  placeholder="np. Kurs online o budowaniu marki osobistej na Instagramie dla freelancerów"
+                  placeholder="np. Dla freelancerów — uczy jak budować markę osobistą i zdobywać klientów z Instagrama"
                   rows={3}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Styl okładki</Label>
+                <Label className="text-xs">Styl wizualny</Label>
                 <Select value={aiStyle} onValueChange={(v) => setAiStyle(v as typeof aiStyle)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -620,7 +657,7 @@ function HeroCard({
             <DialogFooter>
               <Button variant="ghost" onClick={() => setAiOpen(false)} disabled={aiBusy}>Anuluj</Button>
               <Button onClick={runAi} disabled={aiBusy} className="bg-gradient-to-r from-violet to-fuchsia-500 text-white">
-                {aiBusy ? "Generuję..." : "Wygeneruj"}
+                {aiBusy ? "Generuję..." : "Wygeneruj (−15 kredytów)"}
               </Button>
             </DialogFooter>
           </DialogContent>
