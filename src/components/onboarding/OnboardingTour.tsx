@@ -153,6 +153,17 @@ export function OnboardingTour({ open, onClose }: Props) {
     (isMobile ? step?.mobileTarget ?? step?.target : step?.target) ?? null;
   const rect = useTargetRect(selector, open, index);
 
+  // Auto-navigate to the route the step requires (e.g. dashboard for streak/credits).
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    if (!open) return;
+    const requires = step?.requiresRoute;
+    if (!requires) return;
+    if (pathname === requires) return;
+    navigate({ to: requires as "/" });
+  }, [open, index, step?.requiresRoute, pathname, navigate]);
+
   useEffect(() => {
     if (!open || !isMobile || !selector || !MOBILE_MENU_TARGETS.has(selector)) return;
     const targetAlreadyVisible = Array.from(document.querySelectorAll(selector)).some((node) =>
