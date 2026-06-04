@@ -37,6 +37,6 @@ export const planTabs: SectionTab[] = [
 ];
 
 export const toolsTabs: SectionTab[] = [
-  { label: "Kalkulatory", to: "/tools", exact: true },
   { label: "Generator AI", to: "/generator" },
+  { label: "Kalkulatory", to: "/tools", exact: true },
 ];

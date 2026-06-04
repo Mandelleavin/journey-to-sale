@@ -36,11 +36,6 @@ export const mainItems: NavItem[] = [
   },
   { icon: GraduationCap, label: "Kursy", to: "/courses" },
   {
-    icon: Wrench,
-    label: "Narzędzia AI",
-    to: "/tools",
-  },
-  {
     icon: Sparkles,
     label: "Generator Produktu AI",
     to: "/generator",
