@@ -29,7 +29,7 @@ export function StatCards({
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Poziom */}
       <div className="relative bg-card rounded-2xl p-4 border border-border shadow-soft">
-        <div className="text-xs text-muted-foreground font-medium">Twój poziom</div>
+        <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Twój poziom</div>
         <div className="mt-3 flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-orange grid place-items-center text-white shadow-soft">
             <Crown className="w-5 h-5" strokeWidth={2.2} />
@@ -53,7 +53,7 @@ export function StatCards({
       {/* XP */}
       <div className="relative bg-card rounded-2xl p-4 border border-border shadow-soft">
         <div className="flex items-start justify-between">
-          <div className="text-xs text-muted-foreground font-medium">XP</div>
+          <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">XP</div>
           <SketchStar className="w-5 h-5" />
         </div>
         <div className="mt-2 flex items-baseline gap-1">
@@ -71,7 +71,7 @@ export function StatCards({
 
       {/* Szansa */}
       <div className="relative bg-card rounded-2xl p-4 border border-border shadow-soft overflow-hidden">
-        <div className="text-xs text-muted-foreground font-medium">Szansa na pierwszą sprzedaż</div>
+        <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Szansa na pierwszą sprzedaż</div>
         <div className="mt-2 flex items-end justify-between">
           <div>
             <div className="font-display font-extrabold text-3xl text-foreground">
@@ -95,7 +95,7 @@ export function StatCards({
 
       {/* Postęp ścieżki */}
       <div className="relative bg-card rounded-2xl p-4 border border-border shadow-soft">
-        <div className="text-xs text-muted-foreground font-medium">Twoja ścieżka 90 dni</div>
+        <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Postęp 90 dni</div>
         <div className="mt-2 flex items-center gap-3">
           <div className="relative w-14 h-14">
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
