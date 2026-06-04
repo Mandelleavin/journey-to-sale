@@ -60,21 +60,24 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
 function computeTooltipPosition(
   rect: Rect,
   placement: TourStep["placement"],
-): { top: number; left: number; transform: string; centered: boolean } {
+): { top: number; left: number; centered: boolean } {
   const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
   const vh = typeof window !== "undefined" ? window.innerHeight : 768;
+  const margin = 12;
+  const tooltipW = Math.min(360, vw - margin * 2);
+  const tooltipH = vw < 640 ? Math.min(340, vh - margin * 2) : 260;
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), Math.max(min, max));
 
   if (!rect) {
     return {
-      top: vh / 2,
-      left: vw / 2,
-      transform: "translate(-50%, -50%)",
+      top: clamp((vh - tooltipH) / 2, margin, vh - tooltipH - margin),
+      left: clamp((vw - tooltipW) / 2, margin, vw - tooltipW - margin),
       centered: true,
     };
   }
 
-  const tooltipW = Math.min(360, vw - 24);
-  const tooltipH = 240;
   const cx = rect.left + rect.width / 2;
   const spaceBottom = vh - (rect.top + rect.height);
   const spaceTop = rect.top;
@@ -85,17 +88,14 @@ function computeTooltipPosition(
   else pos = spaceBottom >= tooltipH + 24 || spaceBottom >= spaceTop ? "bottom" : "top";
 
   const top =
-    pos === "bottom" ? rect.top + rect.height + 12 : rect.top - 12;
-  let left = cx;
-  // clamp horizontally
-  const halfW = tooltipW / 2;
-  if (left - halfW < 12) left = 12 + halfW;
-  if (left + halfW > vw - 12) left = vw - 12 - halfW;
+    pos === "bottom"
+      ? rect.top + rect.height + margin
+      : rect.top - tooltipH - margin;
+  const left = cx - tooltipW / 2;
 
   return {
-    top,
-    left,
-    transform: pos === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)",
+    top: clamp(top, margin, vh - tooltipH - margin),
+    left: clamp(left, margin, vw - tooltipW - margin),
     centered: false,
   };
 }
@@ -238,8 +238,9 @@ export function OnboardingTour({ open, onClose }: Props) {
             position: "absolute",
             top: tip.top,
             left: tip.left,
-            transform: tip.transform,
             width: "min(360px, calc(100vw - 24px))",
+            maxHeight: "calc(100dvh - 24px)",
+            overflowY: "auto",
           }}
           className={cn(
             "bg-card rounded-2xl border border-border shadow-2xl p-5",
