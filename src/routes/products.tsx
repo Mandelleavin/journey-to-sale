@@ -632,89 +632,109 @@ function HeroCard({
             </Button>
           </div>
 
-          <div>
-            <Label className="text-xs uppercase font-bold text-muted-foreground">Główna obietnica</Label>
-            <Textarea
-              value={product.promise ?? ""}
-              onChange={(e) => onUpdate({ promise: e.target.value })}
-              placeholder={'Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")'}
-              className="mt-1 min-h-[60px]"
-            />
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-3">
-            <div>
-              <Label className="text-xs uppercase font-bold text-muted-foreground">Typ</Label>
-              <Select
-                value={product.product_type ?? undefined}
-                onValueChange={(v) => onUpdate({ product_type: v as ProductRow["product_type"] })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Wybierz" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRODUCT_TYPES.map((t) => (
-                    <SelectItem key={t.v} value={t.v}>
-                      {t.l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs uppercase font-bold text-muted-foreground">Status</Label>
-              <Select
-                value={product.status ?? "idea"}
-                onValueChange={(v) => onUpdate({ status: v as ProductRow["status"] })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((s) => (
-                    <SelectItem key={s.v} value={s.v}>
-                      {s.l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs uppercase font-bold text-muted-foreground">Cena robocza (PLN)</Label>
-              <Input
-                type="number"
-                value={product.price_draft ?? ""}
-                onChange={(e) =>
-                  onUpdate({ price_draft: e.target.value ? Number(e.target.value) : null })
-                }
-                placeholder="497"
-                className="mt-1"
+          <div className="space-y-4 pt-2">
+            {/* OBIETNICA */}
+            <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-2">
+              <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-violet" />
+                Główna obietnica
+              </Label>
+              <Textarea
+                value={product.promise ?? ""}
+                onChange={(e) => onUpdate({ promise: e.target.value })}
+                placeholder={'Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")'}
+                className="min-h-[72px] bg-background border-border/60 rounded-xl resize-none text-sm leading-relaxed"
               />
             </div>
+
+            {/* META: TYP / STATUS / CENA */}
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-border/60 bg-card p-3 space-y-1.5">
+                <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-1.5">
+                  <Gem className="w-3.5 h-3.5 text-violet" />
+                  Typ
+                </Label>
+                <Select
+                  value={product.product_type ?? undefined}
+                  onValueChange={(v) => onUpdate({ product_type: v as ProductRow["product_type"] })}
+                >
+                  <SelectTrigger className="h-10 rounded-xl border-border/60 bg-background">
+                    <SelectValue placeholder="Wybierz" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRODUCT_TYPES.map((t) => (
+                      <SelectItem key={t.v} value={t.v}>
+                        {t.l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-card p-3 space-y-1.5">
+                <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 text-violet" />
+                  Status
+                </Label>
+                <Select
+                  value={product.status ?? "idea"}
+                  onValueChange={(v) => onUpdate({ status: v as ProductRow["status"] })}
+                >
+                  <SelectTrigger className="h-10 rounded-xl border-border/60 bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map((s) => (
+                      <SelectItem key={s.v} value={s.v}>
+                        {s.l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-card p-3 space-y-1.5">
+                <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-violet" />
+                  Cena (PLN)
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={product.price_draft ?? ""}
+                    onChange={(e) =>
+                      onUpdate({ price_draft: e.target.value ? Number(e.target.value) : null })
+                    }
+                    placeholder="497"
+                    className="h-10 rounded-xl border-border/60 bg-background pr-10 font-semibold"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">zł</span>
+                </div>
+              </div>
+            </div>
+
+            {/* SCORE BAR */}
+            <div className="rounded-2xl border border-violet/20 bg-gradient-to-br from-violet-soft/40 to-blue-soft/30 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
+                    Gotowość sprzedażowa
+                  </span>
+                  <Badge className={cn("font-semibold text-[10px] h-5", statusMeta.color)} variant="outline">
+                    {statusMeta.l}
+                  </Badge>
+                </div>
+                <span className="font-display font-extrabold text-2xl text-violet leading-none">
+                  {score}<span className="text-muted-foreground text-sm font-bold">/100</span>
+                </span>
+              </div>
+              <div className="h-2.5 rounded-full bg-background/80 overflow-hidden shadow-inner">
+                <div
+                  className="h-full bg-gradient-violet transition-all duration-500 rounded-full"
+                  style={{ width: `${score}%` }}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* SCORE BAR */}
-          <div className="pt-2">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs uppercase font-bold text-muted-foreground">
-                Gotowość sprzedażowa
-              </span>
-              <span className="font-display font-extrabold text-lg text-violet">
-                {score}<span className="text-muted-foreground text-sm">/100</span>
-              </span>
-            </div>
-            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-gradient-violet transition-all"
-                style={{ width: `${score}%` }}
-              />
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <Badge className={cn("font-semibold", statusMeta.color)} variant="outline">
-                {statusMeta.l}
-              </Badge>
-            </div>
-          </div>
         </div>
       </div>
     </div>
