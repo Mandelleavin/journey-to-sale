@@ -1,8 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
+import logoMark from "@/assets/logo-mark.png";
+
 
 function tourIdForNav(to: string): string | undefined {
   switch (to) {
@@ -27,25 +28,29 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-card border border-border rounded-3xl p-5 shadow-soft sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
-      <Link to="/" className="flex items-center gap-3 px-2 pb-6 border-b border-border">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">
-            <span className="font-display font-extrabold text-lg leading-none">90</span>
+      <Link to="/" className="flex flex-col gap-3 pb-5 border-b border-border">
+        <img
+          src={logoMark}
+          alt="Logo"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
+        <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-2.5">
+          <div className="w-11 h-11 rounded-full bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
+            <span className="font-display font-extrabold text-base leading-none">90</span>
           </div>
-          <Sparkles
-            className="absolute -top-1 -right-1 w-3.5 h-3.5 text-orange"
-            strokeWidth={2.5}
-          />
-        </div>
-        <div className="leading-tight">
-          <div className="font-display font-extrabold text-foreground text-sm">90 DNI</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            do pierwszej
-            <br />
-            sprzedaży online
+          <div className="leading-tight">
+            <div className="font-display font-extrabold text-foreground text-sm">90 DNI</div>
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+              do pierwszej
+              <br />
+              sprzedaży online
+            </div>
           </div>
         </div>
       </Link>
+
 
       <nav className="flex flex-col gap-1 mt-5 flex-1">
         {mainItems.map((item) => {
