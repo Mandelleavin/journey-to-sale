@@ -32,8 +32,15 @@ function isElementVisible(el: HTMLElement) {
   );
 }
 
+function isOutOfViewport(r: DOMRect) {
+  const vh = window.innerHeight;
+  const vw = window.innerWidth;
+  return r.top < 60 || r.bottom > vh - 80 || r.left < 0 || r.right > vw;
+}
+
 function useTargetRect(selector: string | null, open: boolean, step: number): Rect {
   const [rect, setRect] = useState<Rect>(null);
+  const scrolledRef = useRef<number>(-1);
 
   useLayoutEffect(() => {
     if (!open || !selector) {
@@ -41,7 +48,7 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
       return;
     }
     let raf = 0;
-    const measure = () => {
+    const measure = (allowScroll: boolean) => {
       const el = Array.from(document.querySelectorAll(selector)).find((node) =>
         isElementVisible(node as HTMLElement),
       ) as HTMLElement | undefined;
@@ -49,26 +56,38 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
         setRect(null);
         return;
       }
-      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-      raf = requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect();
-        setRect({
-          top: r.top - PADDING,
-          left: r.left - PADDING,
-          width: r.width + PADDING * 2,
-          height: r.height + PADDING * 2,
-        });
+      const r = el.getBoundingClientRect();
+      if (allowScroll && scrolledRef.current !== step && isOutOfViewport(r)) {
+        scrolledRef.current = step;
+        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+        // re-measure after scroll settles
+        window.setTimeout(() => {
+          raf = requestAnimationFrame(() => {
+            const r2 = el.getBoundingClientRect();
+            setRect({
+              top: r2.top - PADDING,
+              left: r2.left - PADDING,
+              width: r2.width + PADDING * 2,
+              height: r2.height + PADDING * 2,
+            });
+          });
+        }, 350);
+        return;
+      }
+      setRect({
+        top: r.top - PADDING,
+        left: r.left - PADDING,
+        width: r.width + PADDING * 2,
+        height: r.height + PADDING * 2,
       });
     };
-    measure();
-    const onResize = () => measure();
+    measure(true);
+    const onResize = () => measure(false);
     window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
-    const interval = window.setInterval(measure, 400); // catch late mounts
+    const interval = window.setInterval(() => measure(true), 500); // catch late mounts
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
       window.clearInterval(interval);
     };
   }, [selector, open, step]);
