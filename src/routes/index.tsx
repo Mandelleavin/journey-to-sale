@@ -188,6 +188,7 @@ function Index() {
             successPct={readiness}
           />
           <ProgressPath currentDay={currentDay} />
+          <QuickActionBoxes />
 
           {/* Plan na dziś — taki sam jak w „Moja ścieżka" */}
           <section className="bg-card rounded-3xl border border-border shadow-card p-5 lg:p-6">
