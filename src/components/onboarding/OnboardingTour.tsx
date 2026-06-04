@@ -57,7 +57,8 @@ function useTargetRect(selector: string | null, open: boolean, step: number): Re
         return;
       }
       const r = el.getBoundingClientRect();
-      if (allowScroll && scrolledRef.current !== step && isOutOfViewport(r)) {
+      const needsScroll = r.top < 180 || isOutOfViewport(r);
+      if (allowScroll && scrolledRef.current !== step && needsScroll) {
         scrolledRef.current = step;
         el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         // re-measure after scroll settles
@@ -120,10 +121,11 @@ function computeTooltipPosition(
   const spaceBottom = vh - (rect.top + rect.height);
   const spaceTop = rect.top;
 
-  let pos: "top" | "bottom" = "bottom";
-  if (placement === "top") pos = "top";
-  else if (placement === "bottom") pos = "bottom";
-  else pos = spaceBottom >= tooltipH + 24 || spaceBottom >= spaceTop ? "bottom" : "top";
+  const needed = tooltipH + 24;
+  let pos: "top" | "bottom";
+  if (placement === "top") pos = spaceTop >= needed ? "top" : "bottom";
+  else if (placement === "bottom") pos = spaceBottom >= needed ? "bottom" : "top";
+  else pos = spaceBottom >= needed || spaceBottom >= spaceTop ? "bottom" : "top";
 
   const top =
     pos === "bottom"
