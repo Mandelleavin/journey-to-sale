@@ -61,11 +61,37 @@ const achColor = {
   orange: "bg-orange-soft text-orange",
 } as const;
 
+const TOOL_NAMES: Record<string, string> = {
+  "ads-breakeven": "Kalkulator progu rentowności reklam",
+  "product-price": "Kalkulator ceny produktu",
+  "revenue-potential": "Kalkulator potencjału przychodu",
+  "offer-builder": "Kreator oferty",
+  "landing-copy": "Generator landing page",
+  "email-sequence": "Generator sekwencji maili",
+  "ad-copy": "Generator reklam",
+  "idea-generator": "Generator pomysłów",
+};
+
+function friendlyToolName(slug: string): string {
+  if (TOOL_NAMES[slug]) return TOOL_NAMES[slug];
+  return slug
+    .split(/[-_]/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 function mapXpReason(reason: string): { title: string; icon: typeof PlayCircle; color: AchievementColor } {
   const r = reason.toLowerCase();
-  if (r.startsWith("tool:")) {
-    const slug = reason.split(":")[1] ?? "narzędzie";
-    return { title: `Użyłeś narzędzia: ${slug}`, icon: Zap, color: "violet" };
+  if (r === "onboarding_starter" || r.includes("onboarding")) {
+    return { title: "Ukończyłeś wprowadzenie", icon: Award, color: "violet" };
+  }
+  if (r.startsWith("tool:") || r.startsWith("tool_")) {
+    const slug = reason.split(/[:_]/).slice(1).join("-") || "narzędzie";
+    return { title: `Użyłeś narzędzia: ${friendlyToolName(slug)}`, icon: Zap, color: "violet" };
+  }
+  // Bare tool slugs (e.g. "ads-breakeven")
+  if (TOOL_NAMES[reason]) {
+    return { title: `Użyłeś narzędzia: ${TOOL_NAMES[reason]}`, icon: Zap, color: "violet" };
   }
   if (r.includes("zatwierdz")) return { title: "Zatwierdzono Twoje zadanie", icon: Award, color: "green" };
   if (r.includes("lekcj")) return { title: "Ukończyłeś lekcję", icon: PlayCircle, color: "violet" };
@@ -74,7 +100,7 @@ function mapXpReason(reason: string): { title: string; icon: typeof PlayCircle; 
   if (r.includes("badge") || r.includes("odznak")) return { title: "Zdobyłeś odznakę", icon: Award, color: "orange" };
   if (r.includes("misj")) return { title: "Wykonałeś misję", icon: Trophy, color: "orange" };
   if (r.includes("streak") || r.includes("seri")) return { title: "Utrzymujesz serię dni", icon: Zap, color: "orange" };
-  return { title: reason, icon: Award, color: "blue" };
+  return { title: friendlyToolName(reason), icon: Award, color: "blue" };
 }
 
 function relativeTime(iso: string): string {
