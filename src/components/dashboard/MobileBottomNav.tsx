@@ -213,6 +213,7 @@ export function MobileBottomNav() {
               <SheetTrigger asChild>
                 <button
                   aria-label="Otwórz menu"
+                  data-tour="mobile-menu"
                   className={cn(
                     "w-full flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-bold transition-colors",
                     menuActive
