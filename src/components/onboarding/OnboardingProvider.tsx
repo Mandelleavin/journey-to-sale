@@ -96,8 +96,38 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         .from("profiles")
         .update(patch as never)
         .eq("id", user.id);
+
+      if (!completed) return;
+
+      // Starter mission: grant one-time +50 XP and send the user to the
+      // very first lesson so they finish the tour with a concrete next step.
+      try {
+        const res = await claimStarter();
+        if (res?.granted && res.granted > 0) {
+          toast.success(`+${res.granted} XP — pierwsze osiągnięcie odblokowane! 🎉`, {
+            description: "Twoja pierwsza misja: obejrzyj pierwszą lekcję kursu.",
+            duration: 6000,
+          });
+        } else {
+          toast.message("Twoja pierwsza misja czeka 🚀", {
+            description: "Otwórz pierwszą lekcję kursu i zacznij dzień 1.",
+            duration: 6000,
+          });
+        }
+        if (res?.lessonId) {
+          setTimeout(() => {
+            navigate({ to: "/lessons/$lessonId", params: { lessonId: res.lessonId! } });
+          }, 800);
+        } else if (res?.courseId) {
+          setTimeout(() => {
+            navigate({ to: "/courses/$courseId", params: { courseId: res.courseId! } });
+          }, 800);
+        }
+      } catch {
+        // silent — tour already closed
+      }
     },
-    [user],
+    [user, claimStarter, navigate],
   );
 
   const start = useCallback(() => setOpen(true), []);
