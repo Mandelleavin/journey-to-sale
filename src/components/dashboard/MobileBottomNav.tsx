@@ -126,9 +126,10 @@ export function MobileBottomNav() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  if (!user) return null;
-
-  const secondaryItems = mainItems.filter((i) => !primaryPaths.has(i.to));
+  const secondaryItems = useMemo(
+    () => mainItems.filter((i) => !primaryPaths.has(i.to)),
+    [],
+  );
   const menuActive = !primary.some((it) =>
     it.exact
       ? pathname === it.to
@@ -139,28 +140,29 @@ export function MobileBottomNav() {
         ),
   );
 
-  const filterItems = (items: NavItem[]) =>
-    items.filter((i) =>
-      i.label.toLowerCase().includes(query.toLowerCase()),
-    );
-
+  const q = query.toLowerCase();
   const filteredSecondary = useMemo(
-    () => filterItems(secondaryItems),
-    [secondaryItems, query],
+    () => secondaryItems.filter((i) => i.label.toLowerCase().includes(q)),
+    [secondaryItems, q],
   );
   const filteredAccount = useMemo(
-    () => filterItems(accountItems),
-    [accountItems, query],
+    () => accountItems.filter((i) => i.label.toLowerCase().includes(q)),
+    [q],
   );
   const filteredAdmin = useMemo(
-    () => (isAdmin ? filterItems(adminItems) : []),
-    [isAdmin, adminItems, query],
+    () =>
+      isAdmin
+        ? adminItems.filter((i) => i.label.toLowerCase().includes(q))
+        : [],
+    [isAdmin, q],
   );
 
   const hasResults =
     filteredSecondary.length > 0 ||
     filteredAccount.length > 0 ||
     filteredAdmin.length > 0;
+
+  if (!user) return null;
 
   const handleClose = () => {
     setOpen(false);
