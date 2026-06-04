@@ -3,11 +3,13 @@ import type { ReactElement } from "react";
 import { RevenuePotentialCalc } from "@/components/tools/RevenuePotentialCalc";
 import { ProductPriceCalc } from "@/components/tools/ProductPriceCalc";
 import { AdsBreakevenCalc } from "@/components/tools/AdsBreakevenCalc";
+import { FirstProductCalc } from "@/components/tools/FirstProductCalc";
 
 const REGISTRY: Record<string, () => ReactElement> = {
   "revenue-potential": RevenuePotentialCalc,
   "product-price": ProductPriceCalc,
   "ads-breakeven": AdsBreakevenCalc,
+  "first-product": FirstProductCalc,
 };
 
 export const Route = createFileRoute("/tools/$slug")({

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, TrendingUp, Tag, Megaphone, CheckCircle2, Sparkles } from "lucide-react";
+import { Calculator, TrendingUp, Tag, Megaphone, CheckCircle2, Sparkles, Rocket } from "lucide-react";
 import { getToolsSummary } from "@/lib/tools.functions";
 
 export const Route = createFileRoute("/tools/")({
@@ -9,6 +9,13 @@ export const Route = createFileRoute("/tools/")({
 });
 
 const TOOLS = [
+  {
+    slug: "first-product",
+    title: "Sprzedaj pierwszy produkt",
+    desc: "Wybierz ebook lub kurs i policz przychód z pierwszej kampanii.",
+    icon: Rocket,
+    gradient: "from-rose-500 to-orange-500",
+  },
   {
     slug: "revenue-potential",
     title: "Potencjał przychodu",
