@@ -69,10 +69,19 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     };
   }, [user, loading]);
 
-  // Auto-launch on first visit after login
+  // Auto-launch on first visit after login, or whenever ?tour=1 is in the URL
   useEffect(() => {
     if (loading || !user) return;
     if (completedAt === undefined) return; // still loading status
+
+    const params = new URLSearchParams(window.location.search);
+    const forced = params.get("tour") === "1";
+    if (forced) {
+      triggeredRef.current = true;
+      const t = window.setTimeout(() => setOpen(true), 300);
+      return () => window.clearTimeout(t);
+    }
+
     if (completedAt) return; // already done
     if (triggeredRef.current) return;
     if (SKIP_AUTO_PREFIXES.some((p) => pathname.startsWith(p))) return;
@@ -135,6 +144,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     triggeredRef.current = true;
     setOpen(true);
   }, []);
+
+  // Expose a tiny window helper so QA / users can replay the tour from the
+  // browser console (useful especially on mobile where there is no menu entry).
+  useEffect(() => {
+    (window as unknown as { __startTour?: () => void }).__startTour = restart;
+    return () => {
+      delete (window as unknown as { __startTour?: () => void }).__startTour;
+    };
+  }, [restart]);
 
   return (
     <OnboardingContext.Provider value={{ open, start, restart }}>
