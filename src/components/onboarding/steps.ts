@@ -18,6 +18,8 @@ export type TourStep = {
   target: string | null;
   /** Optional override selector for mobile (<1024px). Falls back to `target`. */
   mobileTarget?: string | null;
+  /** Optional route the user must be on for the target to exist. Auto-navigates if not. */
+  requiresRoute?: string;
   title: string;
   body: string;
   icon: LucideIcon;
@@ -75,6 +77,7 @@ export const tourSteps: TourStep[] = [
     id: "credits",
     target: '[data-tour="credits-badge"]',
     mobileTarget: '[data-tour="mobile-credits-badge"]',
+    requiresRoute: "/",
     icon: Sparkles,
     title: "Twoje kredyty AI",
     body:
@@ -94,6 +97,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "streak",
     target: '[data-tour="streak-badge"]',
+    requiresRoute: "/",
     icon: Flame,
     title: "Streak — codzienna aktywność",
     body:
