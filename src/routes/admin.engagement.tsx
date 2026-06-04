@@ -169,10 +169,26 @@ function EngagementList() {
                       {r.label === "on_fire" ? "🔥 on fire" : r.label}
                     </span>
                   </td>
-                  <td className="py-3 pr-4 text-xs text-muted-foreground max-w-[260px]">
-                    A:{r.breakdown.activity ?? 0}/15 · S:{r.breakdown.streak ?? 0}/15 · K:
-                    {r.breakdown.course ?? 0}/20 · M:{r.breakdown.mentor ?? 0}/15 · P:
-                    {r.breakdown.product ?? 0}/25 · Ank:{r.breakdown.survey ?? 0}/10
+                  <td className="py-3 pr-4 text-xs max-w-[320px]">
+                    <div className="flex flex-wrap gap-1">
+                      {[
+                        { k: "Aktywność (7 dni)", v: r.breakdown.activity ?? 0, m: 15 },
+                        { k: "Streak (seria dni)", v: r.breakdown.streak ?? 0, m: 15 },
+                        { k: "Postęp w kursie", v: r.breakdown.course ?? 0, m: 20 },
+                        { k: "Zadania mentora", v: r.breakdown.mentor ?? 0, m: 15 },
+                        { k: "Produkt (kompletność)", v: r.breakdown.product ?? 0, m: 25 },
+                        { k: "Ankieta startowa", v: r.breakdown.survey ?? 0, m: 10 },
+                      ].map((it) => (
+                        <span
+                          key={it.k}
+                          title={it.k}
+                          className="px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium"
+                        >
+                          <span className="text-foreground">{it.k.split(" ")[0]}</span>{" "}
+                          {it.v}/{it.m}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="py-3 pr-4 text-xs text-muted-foreground">
                     {r.last_seen ? new Date(r.last_seen).toLocaleDateString("pl-PL") : "—"}
