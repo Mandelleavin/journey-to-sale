@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
 import { StreakBadge } from "./StreakBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { useCredits } from "@/hooks/useCredits";
 import {
   DropdownMenu,
   DropdownMenuContent,
