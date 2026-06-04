@@ -136,6 +136,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setOpen(true);
   }, []);
 
+  // Expose a tiny window helper so QA / users can replay the tour from the
+  // browser console (useful especially on mobile where there is no menu entry).
+  useEffect(() => {
+    (window as unknown as { __startTour?: () => void }).__startTour = restart;
+    return () => {
+      delete (window as unknown as { __startTour?: () => void }).__startTour;
+    };
+  }, [restart]);
+
   return (
     <OnboardingContext.Provider value={{ open, start, restart }}>
       {children}
