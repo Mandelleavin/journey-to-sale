@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
 import { StreakBadge } from "./StreakBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { useCredits } from "@/hooks/useCredits";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ type Props = {
 export function TopBar({ fullName, notificationsCount = 0 }: Props) {
   const { signOut, isAdmin, user } = useAuth();
   const { restart: restartTour } = useOnboarding();
+  const { credits } = useCredits();
   const name = fullName?.split(" ")[0] || "Twórco";
   const [streak, setStreak] = useState({ current: 0, multiplier: 1 });
 
@@ -70,6 +72,22 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
             <Shield className="w-3.5 h-3.5" /> Panel admina
           </Link>
         )}
+
+        <Link
+          to="/credits"
+          title="Twoje kredyty AI"
+          className="hidden md:inline-flex items-center gap-2 rounded-full border border-border bg-gradient-to-br from-violet-soft to-blue-soft pl-1.5 pr-3 py-1 shadow-soft hover:shadow-glow transition-shadow"
+        >
+          <span className="w-6 h-6 rounded-full bg-gradient-violet grid place-items-center text-primary-foreground">
+            <SparklesIcon className="w-3.5 h-3.5" />
+          </span>
+          <span className="font-display font-extrabold text-sm text-violet leading-none">
+            {credits?.available ?? 0}
+          </span>
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground leading-none">
+            kredytów
+          </span>
+        </Link>
 
         <StreakBadge current={streak.current} multiplier={streak.multiplier} />
 
