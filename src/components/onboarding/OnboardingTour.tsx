@@ -139,9 +139,12 @@ export function OnboardingTour({ open, onClose }: Props) {
       isElementVisible(node as HTMLElement),
     );
     if (targetAlreadyVisible) return;
+    window.dispatchEvent(new CustomEvent("onboarding-mobile-menu", { detail: { open: true } }));
+  }, [open, isMobile, selector, index]);
 
-    const menuButton = document.querySelector('[data-tour="mobile-menu"]') as HTMLButtonElement | null;
-    menuButton?.click();
+  useEffect(() => {
+    if (!open || !isMobile || !selector || MOBILE_MENU_TARGETS.has(selector)) return;
+    window.dispatchEvent(new CustomEvent("onboarding-mobile-menu", { detail: { open: false } }));
   }, [open, isMobile, selector, index]);
 
   // reset to first step whenever opened
