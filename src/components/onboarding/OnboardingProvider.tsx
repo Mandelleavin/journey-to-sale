@@ -7,9 +7,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { useRouterState, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { claimStarterReward } from "@/lib/onboarding.functions";
 import { OnboardingTour } from "./OnboardingTour";
 
 type OnboardingContextValue = {
