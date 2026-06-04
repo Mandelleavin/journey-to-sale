@@ -7,6 +7,7 @@ import { MissionCard } from "@/components/dashboard/MissionCard";
 import { CoursesSection } from "@/components/dashboard/CoursesSection";
 import { TasksAndAchievements } from "@/components/dashboard/TasksAndAchievements";
 import { ProgressPath } from "@/components/dashboard/ProgressPath";
+import { QuickActionBoxes } from "@/components/dashboard/QuickActionBoxes";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -187,6 +188,7 @@ function Index() {
             successPct={readiness}
           />
           <ProgressPath currentDay={currentDay} />
+          <QuickActionBoxes />
 
           {/* Plan na dziś — taki sam jak w „Moja ścieżka" */}
           <section className="bg-card rounded-3xl border border-border shadow-card p-5 lg:p-6">
