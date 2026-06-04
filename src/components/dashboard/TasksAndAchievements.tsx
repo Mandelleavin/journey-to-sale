@@ -137,6 +137,7 @@ export function TasksAndAchievements() {
         return acc;
       }, [])
       .slice(0, 5);
+    setAchievements(rows);
     setLoading(false);
     setLoadingAch(false);
   };
