@@ -477,6 +477,11 @@ function HeroCard({
   const [uploading, setUploading] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiBrief, setAiBrief] = useState("");
+  const [aiTitle, setAiTitle] = useState("");
+  const [aiSubtitle, setAiSubtitle] = useState("");
+  const [aiFormat, setAiFormat] = useState<
+    "ebook" | "course" | "workshop" | "masterclass" | "template" | "checklist" | "membership" | "coaching" | "other"
+  >("ebook");
   const [aiStyle, setAiStyle] = useState<"modern" | "elegant" | "bold" | "minimal" | "playful">("modern");
   const [aiBusy, setAiBusy] = useState(false);
   const genCover = useServerFn(generateProductCover);
@@ -502,20 +507,32 @@ function HeroCard({
   };
 
   const openAi = () => {
-    const seed = [product.title, product.subtitle, product.promise, product.target_audience]
+    const seed = [product.subtitle, product.promise, product.target_audience]
       .filter(Boolean)
       .join(" — ");
-    setAiBrief(seed || "");
+    setAiTitle(product.title || "");
+    setAiSubtitle(product.subtitle || "");
+    setAiBrief(seed || product.promise || "");
     setAiOpen(true);
   };
 
   const runAi = async () => {
+    if (aiTitle.trim().length < 1) return toast.error("Podaj tytuł produktu");
     if (aiBrief.trim().length < 3) return toast.error("Opisz krótko produkt");
     setAiBusy(true);
     try {
-      const r = await genCover({ data: { productId: product.id, brief: aiBrief.trim(), style: aiStyle } });
+      const r = await genCover({
+        data: {
+          productId: product.id,
+          brief: aiBrief.trim(),
+          title: aiTitle.trim(),
+          subtitle: aiSubtitle.trim() || undefined,
+          format: aiFormat,
+          style: aiStyle,
+        },
+      });
       await onUpdate({ cover_url: r.coverUrl });
-      toast.success("Okładka wygenerowana ✨");
+      toast.success(`Okładka wygenerowana ✨ (−${r.creditsCharged} kredytów)`);
       setAiOpen(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Nie udało się wygenerować");
