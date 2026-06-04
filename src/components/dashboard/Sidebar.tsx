@@ -27,32 +27,24 @@ export function Sidebar() {
   const { isAdmin } = useAuth();
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-card border border-border rounded-3xl p-5 shadow-soft sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
-      <Link to="/" className="flex flex-col gap-3 pb-5 border-b border-border">
-        <img
-          src={logoMark}
-          alt="Logo"
-          width={40}
-          height={40}
-          className="w-10 h-10 object-contain"
-        />
-        <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-2.5">
-          <div className="w-11 h-11 rounded-full bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
-            <span className="font-display font-extrabold text-base leading-none">90</span>
-          </div>
-          <div className="leading-tight">
-            <div className="font-display font-extrabold text-foreground text-sm">90 DNI</div>
-            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-              do pierwszej
-              <br />
-              sprzedaży online
-            </div>
+    <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-card rounded-3xl p-4 sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
+      <Link to="/" className="flex items-center gap-3 rounded-2xl p-2 mb-2">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
+          <span className="font-display font-extrabold text-base leading-none">90</span>
+        </div>
+        <div className="leading-tight">
+          <div className="font-display font-extrabold text-foreground text-[15px]">90 DNI</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            do pierwszej
+            <br />
+            sprzedaży online
           </div>
         </div>
       </Link>
 
+      <div className="h-px bg-border/70 mx-2 mb-2" />
 
-      <nav className="flex flex-col gap-1 mt-5 flex-1">
+      <nav className="flex flex-col gap-0.5 flex-1">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = isItemActive(item, pathname);
@@ -63,13 +55,13 @@ export function Sidebar() {
               to={item.to}
               data-tour={tourId}
               className={cn(
-                "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all",
                 active
                   ? "bg-gradient-violet text-primary-foreground shadow-glow"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
             >
-              <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+              <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
               <span>{item.label}</span>
             </Link>
           );
@@ -88,13 +80,13 @@ export function Sidebar() {
                   key={item.label}
                   to={item.to}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all",
                     active
                       ? "bg-gradient-violet text-primary-foreground shadow-glow"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                 >
-                  <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                  <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -102,23 +94,7 @@ export function Sidebar() {
           </>
         )}
       </nav>
-
-      <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-violet-soft to-blue-soft border border-border">
-        <div className="text-xs font-semibold text-foreground">Twoje XP dzisiaj</div>
-        <div className="mt-1 flex items-baseline gap-1">
-          <span className="font-display font-extrabold text-2xl text-violet">+120</span>
-          <span className="text-xs text-muted-foreground">XP</span>
-        </div>
-        <svg viewBox="0 0 120 30" className="w-full h-8 mt-1">
-          <path
-            d="M2 25 Q 20 22 30 18 T 60 12 T 90 8 T 118 4"
-            stroke="oklch(0.66 0.18 152)"
-            strokeWidth="2.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
     </aside>
   );
 }
+
