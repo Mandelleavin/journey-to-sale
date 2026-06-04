@@ -77,17 +77,18 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
           data-tour="credits-pill"
           className="hidden sm:flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 hover:shadow-glow transition-shadow"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-violet grid place-items-center">
-            <Zap className="w-4 h-4 text-white fill-white/30" strokeWidth={2.2} />
+          <div className="w-9 h-9 rounded-xl bg-violet-soft grid place-items-center">
+            <SparklesIcon className="w-4 h-4 text-violet" strokeWidth={2.4} />
           </div>
           <div className="leading-tight">
-            <div className="font-display font-extrabold text-sm text-foreground">
-              {credits?.available ?? 0} kredytów
+            <div className="font-display font-extrabold text-base text-violet">
+              {credits?.available ?? 0}
             </div>
-            <div className="text-[10px] text-muted-foreground font-semibold uppercase">
-              AI · doładuj
+            <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+              kredytów
             </div>
           </div>
+
         </Link>
 
 
