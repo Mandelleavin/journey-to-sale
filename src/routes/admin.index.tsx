@@ -545,7 +545,15 @@ function SubmissionsTab() {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="font-display font-bold text-lg">Zgłoszenia zadań ({items.length})</h2>
+        <h2 className="font-display font-bold text-lg">
+          Zgłoszenia zadań ({filtered.length}/{items.length})
+        </h2>
+        <Input
+          placeholder="Szukaj po zadaniu, użytkowniku, treści..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-72"
+        />
         <div className="flex gap-1">
           {(["pending", "needs_revision", "approved", "rejected", "all"] as const).map((s) => (
             <button
