@@ -116,6 +116,7 @@ function AdminIndexPage() {
               { value: "users", label: "Użytkownicy", icon: Users, desc: "Lista i gotowość", tone: "bg-violet/10 text-violet" },
               { value: "mentor", label: "Mentor AI", icon: Sparkles, desc: "Konfiguracja AI", tone: "bg-blue/10 text-blue" },
               { value: "submissions", label: "Zgłoszenia", icon: Inbox, desc: "Do oceny", tone: "bg-orange/10 text-orange" },
+              { value: "reports", label: "Problemy", icon: Inbox, desc: "Zgłoszenia od użytkowników", tone: "bg-orange/10 text-orange" },
               { value: "courses", label: "Kursy", icon: GraduationCap, desc: "Treści i lekcje", tone: "bg-violet/10 text-violet" },
               { value: "course-tasks", label: "Zadania", icon: ListChecks, desc: "Zadania w lekcjach", tone: "bg-green/10 text-green" },
               { value: "advisor", label: "Doradca", icon: ListChecks, desc: "Reguły doradcy", tone: "bg-blue/10 text-blue" },
