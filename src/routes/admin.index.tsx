@@ -324,15 +324,53 @@ function UsersTab() {
     <div className="rounded-3xl border border-border bg-card p-5">
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <div>
-          <h2 className="font-display font-bold text-lg">Użytkownicy ({rows.length})</h2>
+          <h2 className="font-display font-bold text-lg">
+            Użytkownicy ({filtered.length}/{rows.length})
+          </h2>
           <p className="text-xs text-muted-foreground">Posortowani wg gotowości do sprzedaży</p>
         </div>
-        <Input
-          placeholder="Szukaj po email / imieniu..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input
+            placeholder="Szukaj po email / imieniu..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-56"
+          />
+          <select
+            value={readinessFilter}
+            onChange={(e) => setReadinessFilter(e.target.value as typeof readinessFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Gotowość: wszystkie</option>
+            <option value="hot">🔥 Hot (≥70%)</option>
+            <option value="warm">☀️ Warm (40–69%)</option>
+            <option value="cold">❄️ Cold (&lt;40%)</option>
+          </select>
+          <select
+            value={planFilter}
+            onChange={(e) => setPlanFilter(e.target.value as typeof planFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Plan: wszystkie</option>
+            <option value="paid_ads">💰 Reklama</option>
+            <option value="organic_social">📱 Social</option>
+            <option value="unsure">🤔 Nie wie</option>
+            <option value="none">— Brak ankiety</option>
+          </select>
+          {(filter || planFilter !== "all" || readinessFilter !== "all") && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setFilter("");
+                setPlanFilter("all");
+                setReadinessFilter("all");
+              }}
+            >
+              <X className="w-3.5 h-3.5 mr-1" /> Wyczyść
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
