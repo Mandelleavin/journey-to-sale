@@ -484,6 +484,7 @@ function SubmissionsTab() {
   const [items, setItems] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<Submission["status"] | "all">("pending");
+  const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<Record<string, string>>({});
 
   const load = async () => {
