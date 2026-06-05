@@ -700,7 +700,7 @@ function ReportsTab() {
     load();
   }, []);
 
-  const update = async (id: string, patch: Partial<ProblemReport>) => {
+  const update = async (id: string, patch: { status?: string; admin_response?: string | null }) => {
     const { error } = await supabase.from("problem_reports").update(patch).eq("id", id);
     if (error) toast.error(error.message);
     else {
