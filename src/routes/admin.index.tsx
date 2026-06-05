@@ -116,6 +116,7 @@ function AdminIndexPage() {
               { value: "users", label: "Użytkownicy", icon: Users, desc: "Lista i gotowość", tone: "bg-violet/10 text-violet" },
               { value: "mentor", label: "Mentor AI", icon: Sparkles, desc: "Konfiguracja AI", tone: "bg-blue/10 text-blue" },
               { value: "submissions", label: "Zgłoszenia", icon: Inbox, desc: "Do oceny", tone: "bg-orange/10 text-orange" },
+              { value: "reports", label: "Problemy", icon: Inbox, desc: "Zgłoszenia od użytkowników", tone: "bg-orange/10 text-orange" },
               { value: "courses", label: "Kursy", icon: GraduationCap, desc: "Treści i lekcje", tone: "bg-violet/10 text-violet" },
               { value: "course-tasks", label: "Zadania", icon: ListChecks, desc: "Zadania w lekcjach", tone: "bg-green/10 text-green" },
               { value: "advisor", label: "Doradca", icon: ListChecks, desc: "Reguły doradcy", tone: "bg-blue/10 text-blue" },
@@ -155,6 +156,9 @@ function AdminIndexPage() {
           </TabsContent>
           <TabsContent value="submissions" className="mt-6">
             <SubmissionsTab />
+          </TabsContent>
+          <TabsContent value="reports" className="mt-6">
+            <ReportsTab />
           </TabsContent>
           <TabsContent value="courses" className="mt-6">
             <CoursesTab />
@@ -205,6 +209,8 @@ function UsersTab() {
   const [rows, setRows] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState<"all" | "paid_ads" | "organic_social" | "unsure" | "none">("all");
+  const [readinessFilter, setReadinessFilter] = useState<"all" | "hot" | "warm" | "cold">("all");
 
   const load = async () => {
     setLoading(true);
@@ -286,10 +292,27 @@ function UsersTab() {
 
   const filtered = useMemo(
     () =>
-      rows.filter((r) =>
-        (r.email + " " + (r.full_name ?? "")).toLowerCase().includes(filter.toLowerCase()),
-      ),
-    [rows, filter],
+      rows.filter((r) => {
+        const matchesText = (r.email + " " + (r.full_name ?? ""))
+          .toLowerCase()
+          .includes(filter.toLowerCase());
+        const matchesPlan =
+          planFilter === "all"
+            ? true
+            : planFilter === "none"
+              ? !r.acquisition_plan
+              : r.acquisition_plan === planFilter;
+        const matchesReadiness =
+          readinessFilter === "all"
+            ? true
+            : readinessFilter === "hot"
+              ? r.readiness_percent >= 70
+              : readinessFilter === "warm"
+                ? r.readiness_percent >= 40 && r.readiness_percent < 70
+                : r.readiness_percent < 40;
+        return matchesText && matchesPlan && matchesReadiness;
+      }),
+    [rows, filter, planFilter, readinessFilter],
   );
 
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
@@ -305,15 +328,53 @@ function UsersTab() {
     <div className="rounded-3xl border border-border bg-card p-5">
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <div>
-          <h2 className="font-display font-bold text-lg">Użytkownicy ({rows.length})</h2>
+          <h2 className="font-display font-bold text-lg">
+            Użytkownicy ({filtered.length}/{rows.length})
+          </h2>
           <p className="text-xs text-muted-foreground">Posortowani wg gotowości do sprzedaży</p>
         </div>
-        <Input
-          placeholder="Szukaj po email / imieniu..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input
+            placeholder="Szukaj po email / imieniu..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-56"
+          />
+          <select
+            value={readinessFilter}
+            onChange={(e) => setReadinessFilter(e.target.value as typeof readinessFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Gotowość: wszystkie</option>
+            <option value="hot">🔥 Hot (≥70%)</option>
+            <option value="warm">☀️ Warm (40–69%)</option>
+            <option value="cold">❄️ Cold (&lt;40%)</option>
+          </select>
+          <select
+            value={planFilter}
+            onChange={(e) => setPlanFilter(e.target.value as typeof planFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Plan: wszystkie</option>
+            <option value="paid_ads">💰 Reklama</option>
+            <option value="organic_social">📱 Social</option>
+            <option value="unsure">🤔 Nie wie</option>
+            <option value="none">— Brak ankiety</option>
+          </select>
+          {(filter || planFilter !== "all" || readinessFilter !== "all") && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setFilter("");
+                setPlanFilter("all");
+                setReadinessFilter("all");
+              }}
+            >
+              <X className="w-3.5 h-3.5 mr-1" /> Wyczyść
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -427,6 +488,7 @@ function SubmissionsTab() {
   const [items, setItems] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<Submission["status"] | "all">("pending");
+  const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<Record<string, string>>({});
 
   const load = async () => {
@@ -471,14 +533,31 @@ function SubmissionsTab() {
     }
   };
 
-  const filtered = items.filter((s) => statusFilter === "all" || s.status === statusFilter);
+  const filtered = items.filter((s) => {
+    if (statusFilter !== "all" && s.status !== statusFilter) return false;
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (s.task_title ?? "").toLowerCase().includes(q) ||
+      (s.user_email ?? "").toLowerCase().includes(q) ||
+      (s.content ?? "").toLowerCase().includes(q)
+    );
+  });
 
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
 
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 className="font-display font-bold text-lg">Zgłoszenia zadań ({items.length})</h2>
+        <h2 className="font-display font-bold text-lg">
+          Zgłoszenia zadań ({filtered.length}/{items.length})
+        </h2>
+        <Input
+          placeholder="Szukaj po zadaniu, użytkowniku, treści..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-72"
+        />
         <div className="flex gap-1">
           {(["pending", "needs_revision", "approved", "rejected", "all"] as const).map((s) => (
             <button
@@ -580,6 +659,185 @@ function SubmissionsTab() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ==================== PROBLEM REPORTS ==================== */
+
+type ProblemReport = {
+  id: string;
+  user_id: string;
+  category: "offer" | "website" | "sales" | "ads" | "technical" | "other";
+  description: string;
+  status: string;
+  admin_response: string | null;
+  created_at: string;
+  user_email?: string;
+};
+
+function ReportsTab() {
+  const [items, setItems] = useState<ProblemReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | ProblemReport["category"]>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">("open");
+  const [response, setResponse] = useState<Record<string, string>>({});
+
+  const load = async () => {
+    setLoading(true);
+    const [{ data: reports }, { data: profiles }] = await Promise.all([
+      supabase.from("problem_reports").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, email"),
+    ]);
+    const userMap = new Map((profiles ?? []).map((p) => [p.id, p.email]));
+    setItems(
+      ((reports ?? []) as ProblemReport[]).map((r) => ({
+        ...r,
+        user_email: userMap.get(r.user_id),
+      })),
+    );
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const update = async (id: string, patch: { status?: string; admin_response?: string | null }) => {
+    const { error } = await supabase.from("problem_reports").update(patch).eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Zapisano");
+      load();
+    }
+  };
+
+  const filtered = items.filter((r) => {
+    if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+    if (statusFilter !== "all" && r.status !== statusFilter) return false;
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (r.user_email ?? "").toLowerCase().includes(q) ||
+      r.description.toLowerCase().includes(q) ||
+      (r.admin_response ?? "").toLowerCase().includes(q)
+    );
+  });
+
+  const catLabel = (c: ProblemReport["category"]) =>
+    ({ offer: "Oferta", website: "Strona", sales: "Sprzedaż", ads: "Reklama", technical: "Techniczne", other: "Inne" })[c];
+
+  if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
+
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h2 className="font-display font-bold text-lg">
+          Zgłoszone problemy ({filtered.length}/{items.length})
+        </h2>
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input
+            placeholder="Szukaj po użytkowniku lub treści..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-64"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Status: wszystkie</option>
+            <option value="open">Otwarte</option>
+            <option value="in_progress">W toku</option>
+            <option value="resolved">Rozwiązane</option>
+          </select>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value as typeof categoryFilter)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            <option value="all">Kategoria: wszystkie</option>
+            <option value="offer">Oferta</option>
+            <option value="website">Strona</option>
+            <option value="sales">Sprzedaż</option>
+            <option value="ads">Reklama</option>
+            <option value="technical">Techniczne</option>
+            <option value="other">Inne</option>
+          </select>
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="p-8 text-center text-sm text-muted-foreground">Brak zgłoszeń</div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((r) => (
+            <div key={r.id} className="rounded-2xl border border-border p-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className="border-violet/40 text-violet">
+                      {catLabel(r.category)}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        r.status === "open" && "border-orange/40 text-orange",
+                        r.status === "in_progress" && "border-blue/40 text-blue",
+                        r.status === "resolved" && "border-green/40 text-green",
+                      )}
+                    >
+                      {r.status}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {r.user_email ?? "—"} · {new Date(r.created_at).toLocaleString("pl-PL")}
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-xl bg-muted/40 p-3 text-sm whitespace-pre-wrap">
+                {r.description}
+              </div>
+              <div className="mt-3 space-y-2">
+                <Textarea
+                  placeholder="Odpowiedź / notatka admina..."
+                  defaultValue={r.admin_response ?? ""}
+                  onChange={(e) => setResponse((s) => ({ ...s, [r.id]: e.target.value }))}
+                  className="min-h-[60px]"
+                />
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      update(r.id, {
+                        status: "in_progress",
+                        admin_response: response[r.id] ?? r.admin_response,
+                      })
+                    }
+                  >
+                    W toku
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-green text-white hover:bg-green/90"
+                    onClick={() =>
+                      update(r.id, {
+                        status: "resolved",
+                        admin_response: response[r.id] ?? r.admin_response,
+                      })
+                    }
+                  >
+                    <Check className="w-4 h-4 mr-1" /> Rozwiązane
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
