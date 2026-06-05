@@ -529,7 +529,16 @@ function SubmissionsTab() {
     }
   };
 
-  const filtered = items.filter((s) => statusFilter === "all" || s.status === statusFilter);
+  const filtered = items.filter((s) => {
+    if (statusFilter !== "all" && s.status !== statusFilter) return false;
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (s.task_title ?? "").toLowerCase().includes(q) ||
+      (s.user_email ?? "").toLowerCase().includes(q) ||
+      (s.content ?? "").toLowerCase().includes(q)
+    );
+  });
 
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
 
