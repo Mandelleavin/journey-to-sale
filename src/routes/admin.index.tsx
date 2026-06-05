@@ -157,6 +157,9 @@ function AdminIndexPage() {
           <TabsContent value="submissions" className="mt-6">
             <SubmissionsTab />
           </TabsContent>
+          <TabsContent value="reports" className="mt-6">
+            <ReportsTab />
+          </TabsContent>
           <TabsContent value="courses" className="mt-6">
             <CoursesTab />
           </TabsContent>
