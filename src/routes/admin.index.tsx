@@ -205,6 +205,8 @@ function UsersTab() {
   const [rows, setRows] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState<"all" | "paid_ads" | "organic_social" | "unsure" | "none">("all");
+  const [readinessFilter, setReadinessFilter] = useState<"all" | "hot" | "warm" | "cold">("all");
 
   const load = async () => {
     setLoading(true);
