@@ -288,10 +288,27 @@ function UsersTab() {
 
   const filtered = useMemo(
     () =>
-      rows.filter((r) =>
-        (r.email + " " + (r.full_name ?? "")).toLowerCase().includes(filter.toLowerCase()),
-      ),
-    [rows, filter],
+      rows.filter((r) => {
+        const matchesText = (r.email + " " + (r.full_name ?? ""))
+          .toLowerCase()
+          .includes(filter.toLowerCase());
+        const matchesPlan =
+          planFilter === "all"
+            ? true
+            : planFilter === "none"
+              ? !r.acquisition_plan
+              : r.acquisition_plan === planFilter;
+        const matchesReadiness =
+          readinessFilter === "all"
+            ? true
+            : readinessFilter === "hot"
+              ? r.readiness_percent >= 70
+              : readinessFilter === "warm"
+                ? r.readiness_percent >= 40 && r.readiness_percent < 70
+                : r.readiness_percent < 40;
+        return matchesText && matchesPlan && matchesReadiness;
+      }),
+    [rows, filter, planFilter, readinessFilter],
   );
 
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
