@@ -149,7 +149,7 @@ export function PathMappingTab() {
   if (!path) {
     return (
       <div className="p-6 text-sm text-muted-foreground">
-        {paths.length === 0 ? "Brak ścieżek. Utwórz ścieżkę w zakładce „Ścieżki"." : "Ładowanie..."}
+        {paths.length === 0 ? 'Brak ścieżek. Utwórz ścieżkę w zakładce „Ścieżki".' : "Ładowanie..."}
       </div>
     );
   }
