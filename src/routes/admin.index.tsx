@@ -124,6 +124,7 @@ function AdminIndexPage() {
               { value: "sales", label: "Sprzedaż", icon: Phone, desc: "Telefony i status", tone: "bg-orange/10 text-orange" },
               { value: "promo", label: "Kody rabatowe", icon: Tag, desc: "Promocje", tone: "bg-violet/10 text-violet" },
               { value: "paths", label: "Ścieżki", icon: CalendarDays, desc: "Plany 90 dni", tone: "bg-blue/10 text-blue" },
+              { value: "mapping", label: "Mapowanie", icon: Pin, desc: "Kursy → dni ścieżki", tone: "bg-violet/10 text-violet" },
               { value: "rewards", label: "Nagrody", icon: Gift, desc: "Odznaki i bonusy", tone: "bg-green/10 text-green" },
             ].map((t) => {
               const Icon = t.icon;
