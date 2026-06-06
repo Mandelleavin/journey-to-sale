@@ -33,7 +33,7 @@ import {
   Sparkles,
   Tag,
   Gift,
-} from "lucide-react";
+  Pin,
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
