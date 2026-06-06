@@ -33,12 +33,14 @@ import {
   Sparkles,
   Tag,
   Gift,
+  Pin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
+import { PathMappingTab } from "@/components/admin/PathMappingTab";
 import { RewardsTab } from "@/components/admin/RewardsTab";
 import { CourseTasksTab } from "@/components/admin/CourseTasksTab";
 
@@ -123,6 +125,7 @@ function AdminIndexPage() {
               { value: "sales", label: "Sprzedaż", icon: Phone, desc: "Telefony i status", tone: "bg-orange/10 text-orange" },
               { value: "promo", label: "Kody rabatowe", icon: Tag, desc: "Promocje", tone: "bg-violet/10 text-violet" },
               { value: "paths", label: "Ścieżki", icon: CalendarDays, desc: "Plany 90 dni", tone: "bg-blue/10 text-blue" },
+              { value: "mapping", label: "Mapowanie", icon: Pin, desc: "Kursy → dni ścieżki", tone: "bg-violet/10 text-violet" },
               { value: "rewards", label: "Nagrody", icon: Gift, desc: "Odznaki i bonusy", tone: "bg-green/10 text-green" },
             ].map((t) => {
               const Icon = t.icon;
@@ -177,6 +180,9 @@ function AdminIndexPage() {
           </TabsContent>
           <TabsContent value="paths" className="mt-6">
             <LearningPathsTab />
+          </TabsContent>
+          <TabsContent value="mapping" className="mt-6">
+            <PathMappingTab />
           </TabsContent>
           <TabsContent value="rewards" className="mt-6">
             <RewardsTab />
