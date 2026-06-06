@@ -181,6 +181,9 @@ function AdminIndexPage() {
           <TabsContent value="paths" className="mt-6">
             <LearningPathsTab />
           </TabsContent>
+          <TabsContent value="mapping" className="mt-6">
+            <PathMappingTab />
+          </TabsContent>
           <TabsContent value="rewards" className="mt-6">
             <RewardsTab />
           </TabsContent>
