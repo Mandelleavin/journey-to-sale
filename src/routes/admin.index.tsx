@@ -34,6 +34,7 @@ import {
   Tag,
   Gift,
   Pin,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
