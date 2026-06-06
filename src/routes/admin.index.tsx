@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { readinessLabel } from "@/lib/scoring";
 import { PromoCodesTab } from "@/components/admin/PromoCodesTab";
 import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
+import { PathMappingTab } from "@/components/admin/PathMappingTab";
 import { RewardsTab } from "@/components/admin/RewardsTab";
 import { CourseTasksTab } from "@/components/admin/CourseTasksTab";
 
