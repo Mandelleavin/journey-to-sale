@@ -1,17 +1,32 @@
+import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, Sparkles, Plus, Home } from "lucide-react";
+import { Menu, Sparkles, Home, Flame } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCredits } from "@/hooks/useCredits";
 import { useAuth } from "@/lib/auth-context";
 import { NotificationsBell } from "./NotificationsBell";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { mainItems, accountItems, adminItems, isItemActive } from "@/lib/nav-items";
 
 export function MobileTopNav() {
   const { credits, loading } = useCredits();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const available = credits?.available ?? 0;
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_streaks")
+      .select("current_streak")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setStreak(data.current_streak ?? 0);
+      });
+  }, [user]);
 
   const renderGroup = (items: typeof mainItems) =>
     items.map((it) => {
