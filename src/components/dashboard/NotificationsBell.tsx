@@ -34,9 +34,10 @@ type Notification = {
   type: string;
 };
 
-export function NotificationsBell({ initialCount = 0 }: { initialCount?: number }) {
+export function NotificationsBell({ initialCount = 0, compact = false }: { initialCount?: number; compact?: boolean }) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const uid = useId();
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(initialCount);
   const [open, setOpen] = useState(false);
