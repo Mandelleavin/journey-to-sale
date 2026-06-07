@@ -122,7 +122,9 @@ export function MobileTopNav() {
         </span>
       </Link>
 
-      <NotificationsBell compact />
+      <div className="ml-auto">
+        <NotificationsBell compact />
+      </div>
     </div>
   );
 }
