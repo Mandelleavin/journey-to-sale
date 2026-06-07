@@ -85,8 +85,11 @@ export function NotificationsBell({ initialCount = 0, compact = false }: { initi
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="relative w-12 h-12 rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors">
-          <Bell className="w-5 h-5 text-foreground" strokeWidth={2.2} />
+        <button className={cn(
+          "relative rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors",
+          compact ? "w-11 h-11" : "w-12 h-12",
+        )}>
+          <Bell className={cn(compact ? "w-4 h-4" : "w-5 h-5", "text-foreground")} strokeWidth={2.2} />
           {unread > 0 && (
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold grid place-items-center">
               {unread}
