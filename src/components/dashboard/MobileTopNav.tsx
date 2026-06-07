@@ -101,25 +101,29 @@ export function MobileTopNav() {
       <Link
         to="/credits"
         data-tour="mobile-credits-badge"
-        className="flex-1 min-w-0 rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft px-3 py-2 shadow-soft flex items-center gap-2"
+        className="flex-1 min-w-0 rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft px-2.5 py-2 shadow-soft flex items-center gap-2 whitespace-nowrap"
       >
-        <div className="w-8 h-8 rounded-xl bg-gradient-violet grid place-items-center text-primary-foreground shrink-0">
-          <Sparkles className="w-4 h-4" />
+        <div className="w-7 h-7 rounded-xl bg-gradient-violet grid place-items-center text-primary-foreground shrink-0">
+          <Sparkles className="w-3.5 h-3.5" />
         </div>
-        <div className="flex-1 min-w-0 leading-tight">
-          <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
-            Kredyty AI
-          </div>
-          <div className="font-display font-extrabold text-violet text-lg leading-none">
-            {loading ? "…" : available}
-            <span className="text-[10px] font-semibold text-muted-foreground ml-1 normal-case tracking-normal">
-              dostępnych
-            </span>
-          </div>
+        <div className="font-display font-extrabold text-violet text-base leading-none">
+          {loading ? "…" : available}
         </div>
-        <div className="w-8 h-8 rounded-xl bg-card border border-border grid place-items-center shrink-0">
-          <Plus className="w-4 h-4 text-violet" />
-        </div>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+          kredytów
+        </span>
+      </Link>
+
+      <Link
+        to="/tasks"
+        aria-label={`Seria: ${streak} dni`}
+        title={`Seria: ${streak} dni`}
+        className="h-11 shrink-0 rounded-2xl bg-card border border-border shadow-soft px-2.5 flex items-center gap-1.5"
+      >
+        <Flame className="w-4 h-4 text-orange fill-orange/30" strokeWidth={2.4} />
+        <span className="font-display font-extrabold text-sm text-foreground leading-none">
+          {streak}
+        </span>
       </Link>
 
       <NotificationsBell compact />
