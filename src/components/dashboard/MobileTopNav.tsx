@@ -106,6 +106,8 @@ export function MobileTopNav() {
           <Plus className="w-4 h-4 text-violet" />
         </div>
       </Link>
+
+      <NotificationsBell compact />
     </div>
   );
 }
