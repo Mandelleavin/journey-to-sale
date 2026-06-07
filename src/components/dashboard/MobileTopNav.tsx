@@ -3,6 +3,7 @@ import { Menu, Sparkles, Plus, Home } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCredits } from "@/hooks/useCredits";
 import { useAuth } from "@/lib/auth-context";
+import { NotificationsBell } from "./NotificationsBell";
 import { cn } from "@/lib/utils";
 import { mainItems, accountItems, adminItems, isItemActive } from "@/lib/nav-items";
 
@@ -105,6 +106,8 @@ export function MobileTopNav() {
           <Plus className="w-4 h-4 text-violet" />
         </div>
       </Link>
+
+      <NotificationsBell compact />
     </div>
   );
 }

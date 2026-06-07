@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,9 +34,10 @@ type Notification = {
   type: string;
 };
 
-export function NotificationsBell({ initialCount = 0 }: { initialCount?: number }) {
+export function NotificationsBell({ initialCount = 0, compact = false }: { initialCount?: number; compact?: boolean }) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const uid = useId();
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(initialCount);
   const [open, setOpen] = useState(false);
@@ -58,7 +59,7 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
     load();
     if (!user) return;
     const ch = supabase
-      .channel(`notif-${user.id}`)
+      .channel(`notif-${user.id}-${uid}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
@@ -84,8 +85,11 @@ export function NotificationsBell({ initialCount = 0 }: { initialCount?: number 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="relative w-12 h-12 rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors">
-          <Bell className="w-5 h-5 text-foreground" strokeWidth={2.2} />
+        <button className={cn(
+          "relative rounded-2xl bg-card border border-border shadow-soft grid place-items-center hover:bg-muted transition-colors",
+          compact ? "w-11 h-11" : "w-12 h-12",
+        )}>
+          <Bell className={cn(compact ? "w-4 h-4" : "w-5 h-5", "text-foreground")} strokeWidth={2.2} />
           {unread > 0 && (
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold grid place-items-center">
               {unread}
