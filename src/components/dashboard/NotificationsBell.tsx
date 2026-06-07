@@ -59,7 +59,7 @@ export function NotificationsBell({ initialCount = 0, compact = false }: { initi
     load();
     if (!user) return;
     const ch = supabase
-      .channel(`notif-${user.id}`)
+      .channel(`notif-${user.id}-${uid}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
