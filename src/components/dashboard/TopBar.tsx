@@ -94,7 +94,9 @@ export function TopBar({ fullName, notificationsCount = 0 }: Props) {
 
         <StreakBadge current={streak.current} multiplier={streak.multiplier} />
 
-        <NotificationsBell initialCount={notificationsCount} />
+        <div className="hidden lg:block">
+          <NotificationsBell initialCount={notificationsCount} />
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
