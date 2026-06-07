@@ -6,22 +6,21 @@ export function StreakBadge({ current, multiplier }: { current: number; multipli
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div data-tour="streak-badge" className="flex items-center gap-2 bg-card rounded-2xl border border-border shadow-soft px-3 py-2 cursor-help">
-            <div className="w-9 h-9 rounded-xl bg-orange/10 grid place-items-center">
-              <Flame className="w-4 h-4 text-orange fill-orange/30" strokeWidth={2.4} />
+          <div
+            data-tour="streak-badge"
+            className="flex items-center gap-1.5 bg-card rounded-full border border-border shadow-soft pl-1.5 pr-3 py-1 cursor-help"
+          >
+            <div className="w-7 h-7 rounded-full bg-orange/10 grid place-items-center">
+              <Flame className="w-3.5 h-3.5 text-orange fill-orange/30" strokeWidth={2.4} />
             </div>
-            <div className="leading-tight">
-              <div className="font-display font-extrabold text-base text-foreground">{current} dni</div>
-              <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                seria · ×{multiplier.toFixed(1)}
-              </div>
-            </div>
-
+            <span className="font-display font-extrabold text-sm text-foreground leading-none">
+              {current}
+            </span>
           </div>
         </TooltipTrigger>
         <TooltipContent>
           <div className="text-xs">
-            <p className="font-bold">Mnożnik XP: ×{multiplier.toFixed(1)}</p>
+            <p className="font-bold">Seria: {current} dni · Mnożnik XP: ×{multiplier.toFixed(1)}</p>
             <p>7 dni → ×1.5, 30 dni → ×2.0</p>
             <p className="text-muted-foreground">
               Wykonaj dziś dowolną akcję, żeby utrzymać serię.
