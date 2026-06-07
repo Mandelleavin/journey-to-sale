@@ -109,8 +109,8 @@ export function MobileTopNav() {
         <div className="font-display font-extrabold text-violet text-base leading-none">
           {loading ? "…" : available}
         </div>
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-          kredytów
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider truncate">
+          kr.
         </span>
       </Link>
 
