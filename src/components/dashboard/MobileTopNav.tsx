@@ -109,7 +109,7 @@ export function MobileTopNav() {
         <div className="font-display font-extrabold text-violet text-base leading-none">
           {loading ? "…" : available}
         </div>
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider truncate">
+        <span className="hidden xs:inline text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
           kr.
         </span>
       </Link>
