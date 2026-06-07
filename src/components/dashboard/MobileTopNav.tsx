@@ -101,16 +101,12 @@ export function MobileTopNav() {
       <Link
         to="/credits"
         data-tour="mobile-credits-badge"
-        className="flex-1 min-w-0 rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft px-2.5 py-2 shadow-soft flex items-center gap-2 whitespace-nowrap"
+        aria-label={`Kredyty AI: ${available}`}
+        className="h-11 shrink-0 rounded-2xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft px-2.5 shadow-soft flex items-center gap-1.5"
       >
-        <div className="w-7 h-7 rounded-xl bg-gradient-violet grid place-items-center text-primary-foreground shrink-0">
-          <Sparkles className="w-3.5 h-3.5" />
-        </div>
-        <div className="font-display font-extrabold text-violet text-base leading-none">
+        <Sparkles className="w-4 h-4 text-violet" strokeWidth={2.4} />
+        <span className="font-display font-extrabold text-violet text-sm leading-none">
           {loading ? "…" : available}
-        </div>
-        <span className="hidden xs:inline text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-          kr.
         </span>
       </Link>
 
