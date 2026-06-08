@@ -380,13 +380,29 @@ function LandingPageInner() {
             exit={{ y: 80, opacity: 0 }}
             className="fixed bottom-3 left-3 right-3 z-50 md:hidden"
           >
-            <Link
-              to="/auth"
-              className="relative flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-5 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)]"
-            >
-              <Rocket className="w-4 h-4" /> Zacznij za darmo
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <StickyCta />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function StickyCta() {
+  const { open } = useAuthDialog();
+  return (
+    <button
+      onClick={() => open("signup")}
+      className="relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-5 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)]"
+    >
+      <Rocket className="w-4 h-4" /> Zacznij za darmo
+      <ArrowRight className="w-4 h-4" />
+    </button>
+  );
+}
+
+function _spacer1() {
+  return null;
           </motion.div>
         )}
       </AnimatePresence>
