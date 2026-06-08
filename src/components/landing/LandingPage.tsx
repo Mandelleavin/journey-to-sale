@@ -311,6 +311,14 @@ const faqs = [
    ========================================================================= */
 
 export function LandingPage() {
+  return (
+    <AuthDialogProvider>
+      <LandingPageInner />
+    </AuthDialogProvider>
+  );
+}
+
+function LandingPageInner() {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, -80]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.6]);
