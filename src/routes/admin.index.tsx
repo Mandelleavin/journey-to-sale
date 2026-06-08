@@ -34,6 +34,7 @@ import {
   Tag,
   Gift,
   Pin,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ import { LearningPathsTab } from "@/components/admin/LearningPathsTab";
 import { PathMappingTab } from "@/components/admin/PathMappingTab";
 import { RewardsTab } from "@/components/admin/RewardsTab";
 import { CourseTasksTab } from "@/components/admin/CourseTasksTab";
+import { AdminsTab } from "@/components/admin/AdminsTab";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminIndexPage,
@@ -127,6 +129,7 @@ function AdminIndexPage() {
               { value: "paths", label: "Ścieżki", icon: CalendarDays, desc: "Plany 90 dni", tone: "bg-blue/10 text-blue" },
               { value: "mapping", label: "Mapowanie", icon: Pin, desc: "Kursy → dni ścieżki", tone: "bg-violet/10 text-violet" },
               { value: "rewards", label: "Nagrody", icon: Gift, desc: "Odznaki i bonusy", tone: "bg-green/10 text-green" },
+              { value: "admins", label: "Administratorzy", icon: Shield, desc: "Zarządzaj adminami", tone: "bg-violet/10 text-violet" },
             ].map((t) => {
               const Icon = t.icon;
               return (
@@ -186,6 +189,9 @@ function AdminIndexPage() {
           </TabsContent>
           <TabsContent value="rewards" className="mt-6">
             <RewardsTab />
+          </TabsContent>
+          <TabsContent value="admins" className="mt-6">
+            <AdminsTab />
           </TabsContent>
         </Tabs>
       </div>
