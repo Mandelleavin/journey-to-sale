@@ -833,6 +833,7 @@ function TestimonialsMarquee() {
 
 /* ============================== PRICING ============================== */
 function Pricing() {
+  const { open } = useAuthDialog();
   return (
     <Section id="cennik" eyebrow="Cennik" title="Wybierz tempo, jakie Ci pasuje" subtitle="Zacznij za darmo. Przejdziesz na płatny plan, gdy zobaczysz wartość.">
       <div className="grid md:grid-cols-3 gap-5">
@@ -864,8 +865,8 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Link
-                to="/auth"
+              <button
+                onClick={() => open("signup")}
                 className={`mt-6 inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold ${
                   p.highlight
                     ? "bg-gradient-to-r from-violet to-blue text-primary-foreground"
@@ -873,7 +874,7 @@ function Pricing() {
                 }`}
               >
                 {p.cta} <ArrowRight className="w-4 h-4" />
-              </Link>
+              </button>
             </div>
           </Reveal>
         ))}
