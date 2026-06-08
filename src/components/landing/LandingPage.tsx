@@ -401,14 +401,6 @@ function StickyCta() {
   );
 }
 
-function _spacer1() {
-  return null;
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 /* ============================== NAV ============================== */
 function Nav() {
