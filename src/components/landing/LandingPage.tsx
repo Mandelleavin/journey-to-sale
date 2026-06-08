@@ -404,6 +404,7 @@ function StickyCta() {
 
 /* ============================== NAV ============================== */
 function Nav() {
+  const { open } = useAuthDialog();
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
@@ -416,15 +417,18 @@ function Nav() {
           <a href="#faq" className="hover:text-foreground">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/auth" className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => open("signin")}
+            className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
             Zaloguj
-          </Link>
-          <Link
-            to="/auth"
+          </button>
+          <button
+            onClick={() => open("signup")}
             className="relative inline-flex items-center gap-1 rounded-xl bg-foreground text-background px-3.5 py-2 text-sm font-bold hover:opacity-90"
           >
             Zacznij za darmo <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </button>
         </div>
       </div>
     </header>
