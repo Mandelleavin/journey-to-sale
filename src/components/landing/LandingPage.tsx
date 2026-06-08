@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/landing/Logo";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "motion/react";
@@ -8,6 +7,7 @@ import {
   Wand2, FileText, Layout, Megaphone, Filter, CircleDot, Award, ChevronDown, PlayCircle,
   Clock, Flame, Coins, BadgeCheck,
 } from "lucide-react";
+import { AuthDialogProvider, useAuthDialog } from "@/components/auth/AuthDialog";
 
 /* =========================================================================
    PRIMITIVES (lightweight MagicUI-style effects, no external deps)
@@ -310,6 +310,14 @@ const faqs = [
    ========================================================================= */
 
 export function LandingPage() {
+  return (
+    <AuthDialogProvider>
+      <LandingPageInner />
+    </AuthDialogProvider>
+  );
+}
+
+function LandingPageInner() {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, -80]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.6]);
@@ -371,13 +379,7 @@ export function LandingPage() {
             exit={{ y: 80, opacity: 0 }}
             className="fixed bottom-3 left-3 right-3 z-50 md:hidden"
           >
-            <Link
-              to="/auth"
-              className="relative flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-5 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)]"
-            >
-              <Rocket className="w-4 h-4" /> Zacznij za darmo
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <StickyCta />
           </motion.div>
         )}
       </AnimatePresence>
@@ -385,8 +387,23 @@ export function LandingPage() {
   );
 }
 
+function StickyCta() {
+  const { open } = useAuthDialog();
+  return (
+    <button
+      onClick={() => open("signup")}
+      className="relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-5 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)]"
+    >
+      <Rocket className="w-4 h-4" /> Zacznij za darmo
+      <ArrowRight className="w-4 h-4" />
+    </button>
+  );
+}
+
+
 /* ============================== NAV ============================== */
 function Nav() {
+  const { open } = useAuthDialog();
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
@@ -399,15 +416,18 @@ function Nav() {
           <a href="#faq" className="hover:text-foreground">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/auth" className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => open("signin")}
+            className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
             Zaloguj
-          </Link>
-          <Link
-            to="/auth"
+          </button>
+          <button
+            onClick={() => open("signup")}
             className="relative inline-flex items-center gap-1 rounded-xl bg-foreground text-background px-3.5 py-2 text-sm font-bold hover:opacity-90"
           >
             Zacznij za darmo <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </button>
         </div>
       </div>
     </header>
@@ -416,6 +436,7 @@ function Nav() {
 
 /* ============================== HERO ============================== */
 function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
+  const { open } = useAuthDialog();
   return (
     <section className="relative overflow-hidden">
       {/* Animated background */}
@@ -451,14 +472,14 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
 
         <Reveal delay={0.15}>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/auth"
+            <button
+              onClick={() => open("signup")}
               className="relative inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-6 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:scale-[1.02] transition-transform"
             >
               <BorderBeam />
               <Rocket className="w-4 h-4" /> Zacznij za darmo
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <a
               href="#jak"
               className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-5 py-3.5 font-bold hover:border-violet/50"
@@ -811,6 +832,7 @@ function TestimonialsMarquee() {
 
 /* ============================== PRICING ============================== */
 function Pricing() {
+  const { open } = useAuthDialog();
   return (
     <Section id="cennik" eyebrow="Cennik" title="Wybierz tempo, jakie Ci pasuje" subtitle="Zacznij za darmo. Przejdziesz na płatny plan, gdy zobaczysz wartość.">
       <div className="grid md:grid-cols-3 gap-5">
@@ -842,8 +864,8 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Link
-                to="/auth"
+              <button
+                onClick={() => open("signup")}
                 className={`mt-6 inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold ${
                   p.highlight
                     ? "bg-gradient-to-r from-violet to-blue text-primary-foreground"
@@ -851,7 +873,7 @@ function Pricing() {
                 }`}
               >
                 {p.cta} <ArrowRight className="w-4 h-4" />
-              </Link>
+              </button>
             </div>
           </Reveal>
         ))}
@@ -904,6 +926,7 @@ function Faq() {
 
 /* ============================== FINAL CTA ============================== */
 function FinalCta() {
+  const { open } = useAuthDialog();
   return (
     <section className="relative overflow-hidden py-24 md:py-32">
       <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-violet via-blue to-violet" />
@@ -922,13 +945,13 @@ function FinalCta() {
         </Reveal>
         <Reveal delay={0.2}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/auth"
+            <button
+              onClick={() => open("signup")}
               className="relative inline-flex items-center gap-2 rounded-2xl bg-background text-foreground px-6 py-3.5 font-bold hover:scale-[1.02] transition-transform"
             >
               <Rocket className="w-4 h-4" /> Zacznij za darmo
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <a
               href="#cennik"
               className="inline-flex items-center gap-2 rounded-2xl border border-primary-foreground/30 px-5 py-3.5 font-bold hover:bg-primary-foreground/10"
@@ -944,6 +967,7 @@ function FinalCta() {
 
 /* ============================== FOOTER ============================== */
 function Footer() {
+  const { open } = useAuthDialog();
   return (
     <footer className="border-t border-border bg-card/40">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-6 text-sm">
@@ -959,7 +983,7 @@ function Footer() {
           <a href="#ai" className="hover:text-foreground">AI</a>
           <a href="#cennik" className="hover:text-foreground">Cennik</a>
           <a href="#faq" className="hover:text-foreground">FAQ</a>
-          <Link to="/auth" className="hover:text-foreground">Zaloguj</Link>
+          <button onClick={() => open("signin")} className="text-left hover:text-foreground">Zaloguj</button>
         </div>
         <div className="text-muted-foreground">
           © {new Date().getFullYear()} 90 Dni. Wszystkie prawa zastrzeżone.
