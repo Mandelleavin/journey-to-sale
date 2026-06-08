@@ -8,6 +8,7 @@ import {
   Wand2, FileText, Layout, Megaphone, Filter, CircleDot, Award, ChevronDown, PlayCircle,
   Clock, Flame, Coins, BadgeCheck,
 } from "lucide-react";
+import { AuthDialogProvider, useAuthDialog } from "@/components/auth/AuthDialog";
 
 /* =========================================================================
    PRIMITIVES (lightweight MagicUI-style effects, no external deps)
