@@ -619,6 +619,7 @@ function LessonPage() {
   <SubmitTaskDialog
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
+        taskInstructions={submitTask?.instructions ?? null}
         open={!!submitTask}
         onOpenChange={(v) => !v && setSubmitTask(null)}
         onSubmitted={load}
