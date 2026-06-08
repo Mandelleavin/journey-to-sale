@@ -437,6 +437,7 @@ function Nav() {
 
 /* ============================== HERO ============================== */
 function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
+  const { open } = useAuthDialog();
   return (
     <section className="relative overflow-hidden">
       {/* Animated background */}
@@ -472,14 +473,14 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
 
         <Reveal delay={0.15}>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/auth"
+            <button
+              onClick={() => open("signup")}
               className="relative inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet to-blue px-6 py-3.5 font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:scale-[1.02] transition-transform"
             >
               <BorderBeam />
               <Rocket className="w-4 h-4" /> Zacznij za darmo
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <a
               href="#jak"
               className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-5 py-3.5 font-bold hover:border-violet/50"
