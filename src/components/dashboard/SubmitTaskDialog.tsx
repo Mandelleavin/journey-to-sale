@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 type Props = {
   taskId: string | null;
   taskTitle?: string;
+  taskInstructions?: string | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSubmitted?: () => void;
@@ -47,7 +48,7 @@ function playFanfare() {
   }
 }
 
-export function SubmitTaskDialog({ taskId, taskTitle, open, onOpenChange, onSubmitted }: Props) {
+export function SubmitTaskDialog({ taskId, taskTitle, taskInstructions, open, onOpenChange, onSubmitted }: Props) {
   const { user } = useAuth();
   const [content, setContent] = useState("");
   const [link, setLink] = useState("");
@@ -85,19 +86,33 @@ export function SubmitTaskDialog({ taskId, taskTitle, open, onOpenChange, onSubm
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="rounded-3xl">
+        <DialogContent className="rounded-3xl max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Prześlij wykonanie</DialogTitle>
-            <DialogDescription>{taskTitle ?? "Opisz, co zrobiłaś/eś"}</DialogDescription>
+            <DialogTitle className="font-display text-2xl">
+              {taskTitle ?? "Prześlij wykonanie"}
+            </DialogTitle>
+            <DialogDescription>
+              Opisz, co zrobiłaś/eś — mentor sprawdzi i przyzna XP.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {taskInstructions && taskInstructions.trim() && (
+              <div className="rounded-2xl border-2 border-violet/30 bg-gradient-to-br from-violet-soft/40 to-blue-soft/20 p-4">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-violet mb-2">
+                  📋 Treść zadania
+                </div>
+                <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                  {taskInstructions}
+                </div>
+              </div>
+            )}
             <div>
               <Label>Twoja praca</Label>
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Wklej tekst, opis lub odpowiedź..."
-                className="mt-1 min-h-[140px]"
+                className="mt-1 min-h-[160px]"
               />
             </div>
             <div>
@@ -105,7 +120,7 @@ export function SubmitTaskDialog({ taskId, taskTitle, open, onOpenChange, onSubm
               <Input
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
-                placeholder="https://..."
+                placeholder="https://... (np. link do dokumentu, screenshot)"
                 className="mt-1"
               />
             </div>
