@@ -927,6 +927,7 @@ function Faq() {
 
 /* ============================== FINAL CTA ============================== */
 function FinalCta() {
+  const { open } = useAuthDialog();
   return (
     <section className="relative overflow-hidden py-24 md:py-32">
       <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-violet via-blue to-violet" />
@@ -945,13 +946,13 @@ function FinalCta() {
         </Reveal>
         <Reveal delay={0.2}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/auth"
+            <button
+              onClick={() => open("signup")}
               className="relative inline-flex items-center gap-2 rounded-2xl bg-background text-foreground px-6 py-3.5 font-bold hover:scale-[1.02] transition-transform"
             >
               <Rocket className="w-4 h-4" /> Zacznij za darmo
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <a
               href="#cennik"
               className="inline-flex items-center gap-2 rounded-2xl border border-primary-foreground/30 px-5 py-3.5 font-bold hover:bg-primary-foreground/10"
@@ -967,6 +968,7 @@ function FinalCta() {
 
 /* ============================== FOOTER ============================== */
 function Footer() {
+  const { open } = useAuthDialog();
   return (
     <footer className="border-t border-border bg-card/40">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-6 text-sm">
@@ -982,7 +984,7 @@ function Footer() {
           <a href="#ai" className="hover:text-foreground">AI</a>
           <a href="#cennik" className="hover:text-foreground">Cennik</a>
           <a href="#faq" className="hover:text-foreground">FAQ</a>
-          <Link to="/auth" className="hover:text-foreground">Zaloguj</Link>
+          <button onClick={() => open("signin")} className="text-left hover:text-foreground">Zaloguj</button>
         </div>
         <div className="text-muted-foreground">
           © {new Date().getFullYear()} 90 Dni. Wszystkie prawa zastrzeżone.
