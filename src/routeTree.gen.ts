@@ -13,6 +13,7 @@ import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RecommendedToolsRouteImport } from './routes/recommended-tools'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -69,6 +70,11 @@ const RewardsRoute = RewardsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecommendedToolsRoute = RecommendedToolsRouteImport.update({
+  id: '/recommended-tools',
+  path: '/recommended-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
+  '/recommended-tools': typeof RecommendedToolsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
+  '/recommended-tools': typeof RecommendedToolsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -362,6 +370,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
+  '/recommended-tools': typeof RecommendedToolsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -407,6 +416,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/products'
     | '/profile'
+    | '/recommended-tools'
     | '/reset-password'
     | '/rewards'
     | '/tasks'
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/products'
     | '/profile'
+    | '/recommended-tools'
     | '/reset-password'
     | '/rewards'
     | '/tasks'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/products'
     | '/profile'
+    | '/recommended-tools'
     | '/reset-password'
     | '/rewards'
     | '/tasks'
@@ -534,6 +546,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
+  RecommendedToolsRoute: typeof RecommendedToolsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
   TasksRoute: typeof TasksRoute
@@ -575,6 +588,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recommended-tools': {
+      id: '/recommended-tools'
+      path: '/recommended-tools'
+      fullPath: '/recommended-tools'
+      preLoaderRoute: typeof RecommendedToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -939,6 +959,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
+  RecommendedToolsRoute: RecommendedToolsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
   TasksRoute: TasksRoute,
