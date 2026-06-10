@@ -12,6 +12,7 @@ import {
   BookOpen,
   Bot,
   Flame,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ export const mainItems: NavItem[] = [
     to: "/generator",
   },
   { icon: Package, label: "Mój produkt", to: "/products" },
+  { icon: Wrench, label: "Polecane narzędzia", to: "/recommended-tools" },
   { icon: Users, label: "Społeczność", to: "/community" },
 ];
 
