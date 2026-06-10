@@ -223,7 +223,7 @@ const products = [
   { icon: GraduationCap, label: "Kurs online", price: "297–1997 zł", desc: "Skalowalny produkt premium.", time: "45–90 dni" },
   { icon: Bot, label: "Produkt AI", price: "97–497 zł / mies.", desc: "Subskrypcja zarabiająca 24/7.", time: "30–60 dni" },
   { icon: Smartphone, label: "Aplikacja / SaaS", price: "49–299 zł / mies.", desc: "Powtarzalny przychód.", time: "60–90 dni", span: "lg:col-span-2" },
-  { icon: MessageCircle, label: "Mentoring 1:1", price: "500–3000 zł", desc: "Najwyższe stawki bez produktu.", time: "od 14 dni" },
+  { icon: MessageCircle, label: "Mentoring 1:1", price: "3000–14500 zł", desc: "Najwyższe stawki bez produktu.", time: "od 14 dni" },
   { icon: Users, label: "Społeczność premium", price: "49–199 zł / mies.", desc: "Stały dochód i lojalna baza.", time: "21–45 dni" },
   { icon: Mail, label: "Newsletter premium", price: "29–99 zł / mies.", desc: "Niska bariera, świetna marża.", time: "14–30 dni" },
   { icon: Brain, label: "Konsultacje online", price: "300–1500 zł / h", desc: "Najszybszy start dla ekspertów.", time: "od 7 dni" },
