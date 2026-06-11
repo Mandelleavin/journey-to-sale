@@ -31,10 +31,12 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccelerateRouteImport } from './routes/accelerate'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolsIndexRouteImport } from './routes/tools.index'
+import { Route as RecommendedToolsIndexRouteImport } from './routes/recommended-tools.index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as ToolsSlugRouteImport } from './routes/tools.$slug'
+import { Route as RecommendedToolsSlugRouteImport } from './routes/recommended-tools.$slug'
 import { Route as OnboardingResultRouteImport } from './routes/onboarding.result'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as GeneratorSlugRouteImport } from './routes/generator.$slug'
@@ -162,6 +164,11 @@ const ToolsIndexRoute = ToolsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ToolsRoute,
 } as any)
+const RecommendedToolsIndexRoute = RecommendedToolsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RecommendedToolsRoute,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -181,6 +188,11 @@ const ToolsSlugRoute = ToolsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ToolsRoute,
+} as any)
+const RecommendedToolsSlugRoute = RecommendedToolsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => RecommendedToolsRoute,
 } as any)
 const OnboardingResultRoute = OnboardingResultRouteImport.update({
   id: '/result',
@@ -284,7 +296,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
-  '/recommended-tools': typeof RecommendedToolsRoute
+  '/recommended-tools': typeof RecommendedToolsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -300,10 +312,12 @@ export interface FileRoutesByFullPath {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/recommended-tools/$slug': typeof RecommendedToolsSlugRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/recommended-tools/': typeof RecommendedToolsIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -326,7 +340,6 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
-  '/recommended-tools': typeof RecommendedToolsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -341,10 +354,12 @@ export interface FileRoutesByTo {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/recommended-tools/$slug': typeof RecommendedToolsSlugRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin': typeof AdminIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/recommended-tools': typeof RecommendedToolsIndexRoute
   '/tools': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -370,7 +385,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
-  '/recommended-tools': typeof RecommendedToolsRoute
+  '/recommended-tools': typeof RecommendedToolsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
@@ -386,10 +401,12 @@ export interface FileRoutesById {
   '/generator/$slug': typeof GeneratorSlugRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/onboarding/result': typeof OnboardingResultRoute
+  '/recommended-tools/$slug': typeof RecommendedToolsSlugRoute
   '/tools/$slug': typeof ToolsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/recommended-tools/': typeof RecommendedToolsIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/admin/modules/$moduleId': typeof AdminModulesModuleIdRoute
   '/admin/courses/$courseId/lessons': typeof AdminCoursesCourseIdLessonsRoute
@@ -432,10 +449,12 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/recommended-tools/$slug'
     | '/tools/$slug'
     | '/u/$userId'
     | '/admin/'
     | '/courses/'
+    | '/recommended-tools/'
     | '/tools/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -458,7 +477,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/products'
     | '/profile'
-    | '/recommended-tools'
     | '/reset-password'
     | '/rewards'
     | '/tasks'
@@ -473,10 +491,12 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/recommended-tools/$slug'
     | '/tools/$slug'
     | '/u/$userId'
     | '/admin'
     | '/courses'
+    | '/recommended-tools'
     | '/tools'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -517,10 +537,12 @@ export interface FileRouteTypes {
     | '/generator/$slug'
     | '/lessons/$lessonId'
     | '/onboarding/result'
+    | '/recommended-tools/$slug'
     | '/tools/$slug'
     | '/u/$userId'
     | '/admin/'
     | '/courses/'
+    | '/recommended-tools/'
     | '/tools/'
     | '/admin/modules/$moduleId'
     | '/admin/courses/$courseId/lessons'
@@ -546,7 +568,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
-  RecommendedToolsRoute: typeof RecommendedToolsRoute
+  RecommendedToolsRoute: typeof RecommendedToolsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
   TasksRoute: typeof TasksRoute
@@ -716,6 +738,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsIndexRouteImport
       parentRoute: typeof ToolsRoute
     }
+    '/recommended-tools/': {
+      id: '/recommended-tools/'
+      path: '/'
+      fullPath: '/recommended-tools/'
+      preLoaderRoute: typeof RecommendedToolsIndexRouteImport
+      parentRoute: typeof RecommendedToolsRoute
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -743,6 +772,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tools/$slug'
       preLoaderRoute: typeof ToolsSlugRouteImport
       parentRoute: typeof ToolsRoute
+    }
+    '/recommended-tools/$slug': {
+      id: '/recommended-tools/$slug'
+      path: '/$slug'
+      fullPath: '/recommended-tools/$slug'
+      preLoaderRoute: typeof RecommendedToolsSlugRouteImport
+      parentRoute: typeof RecommendedToolsRoute
     }
     '/onboarding/result': {
       id: '/onboarding/result'
@@ -930,6 +966,19 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
   OnboardingRouteChildren,
 )
 
+interface RecommendedToolsRouteChildren {
+  RecommendedToolsSlugRoute: typeof RecommendedToolsSlugRoute
+  RecommendedToolsIndexRoute: typeof RecommendedToolsIndexRoute
+}
+
+const RecommendedToolsRouteChildren: RecommendedToolsRouteChildren = {
+  RecommendedToolsSlugRoute: RecommendedToolsSlugRoute,
+  RecommendedToolsIndexRoute: RecommendedToolsIndexRoute,
+}
+
+const RecommendedToolsRouteWithChildren =
+  RecommendedToolsRoute._addFileChildren(RecommendedToolsRouteChildren)
+
 interface ToolsRouteChildren {
   ToolsSlugRoute: typeof ToolsSlugRoute
   ToolsIndexRoute: typeof ToolsIndexRoute
@@ -959,7 +1008,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
-  RecommendedToolsRoute: RecommendedToolsRoute,
+  RecommendedToolsRoute: RecommendedToolsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
   TasksRoute: TasksRoute,
