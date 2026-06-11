@@ -98,10 +98,11 @@ export const Route = createFileRoute("/recommended-tools/$slug")({
 });
 
 function ToolDetailPage() {
-  const { tool } = Route.useLoaderData();
+  const data = Route.useLoaderData() as { tool: RecommendedTool };
+  const tool = data.tool;
   const category = getCategoryBySlug(tool.category);
   const alternatives = (tool.alternatives ?? [])
-    .map((s) => RECOMMENDED_TOOLS.find((t) => t.slug === s))
+    .map((s: string) => RECOMMENDED_TOOLS.find((t) => t.slug === s))
     .filter(Boolean) as RecommendedTool[];
 
   return (
