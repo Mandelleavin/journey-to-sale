@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { Crown, Sparkles, Star, ArrowRight, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { RecommendedTool } from "@/lib/recommended-tools-data";
+import type { RecommendedTool, ToolCategory } from "@/lib/recommended-tools-data";
 import { listRecommendedTools } from "@/lib/recommended-tools.functions";
 
 export const Route = createFileRoute("/recommended-tools/")({
@@ -54,7 +54,10 @@ export const Route = createFileRoute("/recommended-tools/")({
 });
 
 function RecommendedToolsListPage() {
-  const { categories, tools } = Route.useLoaderData();
+  const { categories, tools } = Route.useLoaderData() as {
+    categories: ToolCategory[];
+    tools: RecommendedTool[];
+  };
 
   return (
     <PageShell
