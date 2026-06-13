@@ -86,23 +86,23 @@ function RecommendedToolsListPage() {
       </div>
 
       {/* Categories */}
-      <div className="space-y-8">
+      <div className="space-y-14 md:space-y-20">
         {TOOL_CATEGORIES.map((cat) => {
           const tools = getToolsByCategory(cat.slug);
           if (!tools.length) return null;
           return (
             <section key={cat.slug} id={cat.slug} className="scroll-mt-24">
-              <header className="flex items-start gap-3 mb-4">
+              <header className="flex items-start gap-4 mb-6 md:mb-8">
                 <div
-                  className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${cat.gradient} grid place-items-center text-2xl shadow-soft shrink-0`}
+                  className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${cat.gradient} grid place-items-center text-3xl shadow-soft shrink-0`}
                 >
                   {cat.emoji}
                 </div>
-                <div>
-                  <h2 className="font-display font-extrabold text-xl leading-tight">
+                <div className="min-w-0">
+                  <h2 className="font-display font-extrabold text-2xl md:text-3xl leading-tight">
                     {cat.name}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{cat.description}</p>
+                  <p className="text-sm md:text-base text-muted-foreground mt-1">{cat.description}</p>
                 </div>
               </header>
 
