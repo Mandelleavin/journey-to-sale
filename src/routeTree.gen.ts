@@ -44,6 +44,7 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
 import { Route as AdminUserProductsRouteImport } from './routes/admin.user-products'
+import { Route as AdminRecommendedToolsRouteImport } from './routes/admin.recommended-tools'
 import { Route as AdminEventLogsRouteImport } from './routes/admin.event-logs'
 import { Route as AdminEngagementRouteImport } from './routes/admin.engagement'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
@@ -229,6 +230,11 @@ const AdminUserProductsRoute = AdminUserProductsRouteImport.update({
   path: '/user-products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRecommendedToolsRoute = AdminRecommendedToolsRouteImport.update({
+  id: '/recommended-tools',
+  path: '/recommended-tools',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminEventLogsRoute = AdminEventLogsRouteImport.update({
   id: '/event-logs',
   path: '/event-logs',
@@ -305,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
+  '/admin/recommended-tools': typeof AdminRecommendedToolsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -347,6 +354,7 @@ export interface FileRoutesByTo {
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
+  '/admin/recommended-tools': typeof AdminRecommendedToolsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -394,6 +402,7 @@ export interface FileRoutesById {
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
+  '/admin/recommended-tools': typeof AdminRecommendedToolsRoute
   '/admin/user-products': typeof AdminUserProductsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -442,6 +451,7 @@ export interface FileRouteTypes {
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
+    | '/admin/recommended-tools'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -484,6 +494,7 @@ export interface FileRouteTypes {
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
+    | '/admin/recommended-tools'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -530,6 +541,7 @@ export interface FileRouteTypes {
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
+    | '/admin/recommended-tools'
     | '/admin/user-products'
     | '/checkout/cancelled'
     | '/checkout/return'
@@ -829,6 +841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUserProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/recommended-tools': {
+      id: '/admin/recommended-tools'
+      path: '/recommended-tools'
+      fullPath: '/admin/recommended-tools'
+      preLoaderRoute: typeof AdminRecommendedToolsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/event-logs': {
       id: '/admin/event-logs'
       path: '/event-logs'
@@ -912,6 +931,7 @@ interface AdminRouteChildren {
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminEngagementRoute: typeof AdminEngagementRoute
   AdminEventLogsRoute: typeof AdminEventLogsRoute
+  AdminRecommendedToolsRoute: typeof AdminRecommendedToolsRoute
   AdminUserProductsRoute: typeof AdminUserProductsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminModulesModuleIdRoute: typeof AdminModulesModuleIdRoute
@@ -922,6 +942,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminEngagementRoute: AdminEngagementRoute,
   AdminEventLogsRoute: AdminEventLogsRoute,
+  AdminRecommendedToolsRoute: AdminRecommendedToolsRoute,
   AdminUserProductsRoute: AdminUserProductsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminModulesModuleIdRoute: AdminModulesModuleIdRoute,

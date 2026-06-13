@@ -1,79 +1,86 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { Crown, Sparkles, Star, ArrowRight, Users, MessageSquare } from "lucide-react";
+import { Crown, Sparkles, Star, ArrowRight, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  RECOMMENDED_TOOLS,
-  TOOL_CATEGORIES,
-  getToolsByCategory,
-  type RecommendedTool,
-} from "@/lib/recommended-tools-data";
+import type { RecommendedTool, ToolCategory } from "@/lib/recommended-tools-data";
+import { listRecommendedTools } from "@/lib/recommended-tools.functions";
 
 export const Route = createFileRoute("/recommended-tools/")({
-  head: () => ({
-    meta: [
-      { title: "Polecane narzędzia 2026 — stack do biznesu online | 90 Dni" },
-      {
-        name: "description",
-        content:
-          "Sprawdzone narzędzia do email marketingu, landing page, hostingu, AI i automatyzacji. Każde z osobistą rekomendacją mentora i bonusem dla społeczności 90 Dni.",
-      },
-      { property: "og:title", content: "Polecane narzędzia 2026 — stack do biznesu online" },
-      {
-        property: "og:description",
-        content:
-          "Email marketing, landing pages, hosting, AI voice i automatyzacja — narzędzia, których sam używam.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://journey-to-sale.lovable.app/recommended-tools" },
-    ],
-    links: [
-      { rel: "canonical", href: "https://journey-to-sale.lovable.app/recommended-tools" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "Polecane narzędzia 2026 — 90 Dni",
-          itemListElement: RECOMMENDED_TOOLS.map((t, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            url: `https://journey-to-sale.lovable.app/recommended-tools/${t.slug}`,
-            name: t.name,
-          })),
-        }),
-      },
-    ],
-  }),
+  loader: () => listRecommendedTools(),
+  head: ({ loaderData }) => {
+    const tools = loaderData?.tools ?? [];
+    return {
+      meta: [
+        { title: "Polecane narzędzia 2026 — stack do biznesu online | 90 Dni" },
+        {
+          name: "description",
+          content:
+            "Sprawdzone narzędzia do email marketingu, landing page, hostingu, AI i automatyzacji. Każde z osobistą rekomendacją mentora.",
+        },
+        { property: "og:title", content: "Polecane narzędzia 2026 — stack do biznesu online" },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://journey-to-sale.lovable.app/recommended-tools" },
+      ],
+      links: [{ rel: "canonical", href: "https://journey-to-sale.lovable.app/recommended-tools" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Polecane narzędzia 2026 — 90 Dni",
+            itemListElement: tools.map((t: RecommendedTool, i: number) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `https://journey-to-sale.lovable.app/recommended-tools/${t.slug}`,
+              name: t.name,
+            })),
+          }),
+        },
+      ],
+    };
+  },
+  errorComponent: () => (
+    <PageShell title="Polecane narzędzia" subtitle="Wystąpił błąd podczas ładowania.">
+      <p className="text-sm text-muted-foreground">Spróbuj odświeżyć stronę.</p>
+    </PageShell>
+  ),
+  notFoundComponent: () => (
+    <PageShell title="Nie znaleziono" subtitle="Brak danych do wyświetlenia.">
+      <Link to="/" className="text-violet font-semibold">← Wróć</Link>
+    </PageShell>
+  ),
   component: RecommendedToolsListPage,
 });
 
 function RecommendedToolsListPage() {
+  const { categories, tools } = Route.useLoaderData() as {
+    categories: ToolCategory[];
+    tools: RecommendedTool[];
+  };
+
   return (
     <PageShell
       title="Polecane narzędzia"
       subtitle="Sprawdzony stack do budowania biznesu online — w podziale na kategorie. Klikając wspierasz program 🙌"
     >
-      {/* Hero */}
       <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-5 lg:p-6 flex items-start gap-4 flex-wrap">
         <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
           <Sparkles className="w-6 h-6" />
         </div>
         <div className="flex-1 min-w-[240px]">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet">
-            <Crown className="w-3.5 h-3.5" /> Top wybór mentora · {RECOMMENDED_TOOLS.length} narzędzi
+            <Crown className="w-3.5 h-3.5" /> Top wybór mentora · {tools.length} narzędzi
           </div>
           <h1 className="font-display font-extrabold text-2xl mt-1">
             Najlepsze narzędzia do biznesu online w 2026
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Każda kategoria zawiera ranking moich rekomendacji. Kliknij w narzędzie, by zobaczyć szczegóły, plusy, minusy, cennik i bonus dla społeczności.
+            Każda kategoria zawiera ranking moich rekomendacji. Kliknij w narzędzie, by zobaczyć szczegóły, plusy, minusy, cennik i bonus.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {TOOL_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <a
               key={c.slug}
               href={`#${c.slug}`}
@@ -85,11 +92,10 @@ function RecommendedToolsListPage() {
         </div>
       </div>
 
-      {/* Categories */}
       <div className="space-y-14 md:space-y-20">
-        {TOOL_CATEGORIES.map((cat) => {
-          const tools = getToolsByCategory(cat.slug);
-          if (!tools.length) return null;
+        {categories.map((cat) => {
+          const catTools = tools.filter((t) => t.category === cat.slug);
+          if (!catTools.length) return null;
           return (
             <section key={cat.slug} id={cat.slug} className="scroll-mt-24">
               <header className="flex items-start gap-4 mb-6 md:mb-8">
@@ -107,7 +113,7 @@ function RecommendedToolsListPage() {
               </header>
 
               <ol className="rounded-3xl border border-border bg-card divide-y divide-border overflow-hidden shadow-soft">
-                {tools.map((tool, idx) => (
+                {catTools.map((tool, idx) => (
                   <ToolListItem key={tool.slug} tool={tool} rank={idx + 1} />
                 ))}
               </ol>

@@ -1338,6 +1338,140 @@ export type Database = {
         }
         Relationships: []
       }
+      recommended_tool_categories: {
+        Row: {
+          created_at: string
+          description: string
+          emoji: string
+          gradient: string
+          name: string
+          position: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          emoji?: string
+          gradient?: string
+          name: string
+          position?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          emoji?: string
+          gradient?: string
+          name?: string
+          position?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recommended_tools: {
+        Row: {
+          alternatives: Json
+          best_for: Json
+          category_slug: string
+          cons: Json
+          created_at: string
+          faq: Json
+          features: Json
+          gold: boolean
+          gradient: string
+          is_published: boolean
+          launched_year: number | null
+          letter: string
+          long_description: string
+          name: string
+          perk: string | null
+          position: number
+          pricing: Json
+          pros: Json
+          rating: number
+          reviews_count: number
+          short_description: string
+          slug: string
+          tagline: string
+          tags: Json
+          updated_at: string
+          url: string
+          used_by: number
+          website: string | null
+        }
+        Insert: {
+          alternatives?: Json
+          best_for?: Json
+          category_slug: string
+          cons?: Json
+          created_at?: string
+          faq?: Json
+          features?: Json
+          gold?: boolean
+          gradient?: string
+          is_published?: boolean
+          launched_year?: number | null
+          letter?: string
+          long_description?: string
+          name: string
+          perk?: string | null
+          position?: number
+          pricing?: Json
+          pros?: Json
+          rating?: number
+          reviews_count?: number
+          short_description?: string
+          slug: string
+          tagline?: string
+          tags?: Json
+          updated_at?: string
+          url?: string
+          used_by?: number
+          website?: string | null
+        }
+        Update: {
+          alternatives?: Json
+          best_for?: Json
+          category_slug?: string
+          cons?: Json
+          created_at?: string
+          faq?: Json
+          features?: Json
+          gold?: boolean
+          gradient?: string
+          is_published?: boolean
+          launched_year?: number | null
+          letter?: string
+          long_description?: string
+          name?: string
+          perk?: string | null
+          position?: number
+          pricing?: Json
+          pros?: Json
+          rating?: number
+          reviews_count?: number
+          short_description?: string
+          slug?: string
+          tagline?: string
+          tags?: Json
+          updated_at?: string
+          url?: string
+          used_by?: number
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommended_tools_category_slug_fkey"
+            columns: ["category_slug"]
+            isOneToOne: false
+            referencedRelation: "recommended_tool_categories"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       rewards: {
         Row: {
           course_id: string | null

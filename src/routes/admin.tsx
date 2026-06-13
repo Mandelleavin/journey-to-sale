@@ -18,6 +18,7 @@ import {
   Sparkles,
   Inbox,
   AlertTriangle,
+  Wrench,
 } from "lucide-react";
 
 const adminNav = [
@@ -26,6 +27,7 @@ const adminNav = [
   { to: "/admin/courses" as const, label: "Kursy", icon: GraduationCap },
   { to: "/admin/ai-generators" as const, label: "Generatory AI", icon: Bot },
   { to: "/admin/user-products" as const, label: "Produkty użytkowników", icon: Package },
+  { to: "/admin/recommended-tools" as const, label: "Polecane narzędzia", icon: Wrench },
   { to: "/admin/event-logs" as const, label: "Logi zdarzeń", icon: AlertTriangle },
 ];
 
