@@ -391,8 +391,8 @@ function ToolEditorDialog({
         </div>
       </div>
 
-      <Field label="Bonus (perk, np. „30 dni gratis")">
-        <Input value={form.perk ?? ""} onChange={(e) => set("perk", e.target.value)} />
+      <Field label="Bonus (perk)">
+        <Input value={form.perk ?? ""} onChange={(e) => set("perk", e.target.value)} placeholder='np. 30 dni gratis' />
       </Field>
 
       <Field label="Krótki opis (na liście)">
@@ -649,7 +649,7 @@ function ListEditor({
   );
 }
 
-function ObjectListEditor<T extends Record<string, string>>({
+function ObjectListEditor<T extends Record<string, string>>(props: {
   label,
   items,
   onChange,
