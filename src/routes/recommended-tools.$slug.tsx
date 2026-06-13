@@ -16,18 +16,19 @@ import {
   Users,
   Calendar,
 } from "lucide-react";
-import {
-  getCategoryBySlug,
-  getToolBySlug,
-  RECOMMENDED_TOOLS,
-  type RecommendedTool,
-} from "@/lib/recommended-tools-data";
+import type { RecommendedTool, ToolCategory } from "@/lib/recommended-tools-data";
+import { listRecommendedTools } from "@/lib/recommended-tools.functions";
 
 export const Route = createFileRoute("/recommended-tools/$slug")({
-  loader: ({ params }) => {
-    const tool = getToolBySlug(params.slug);
+  loader: async ({ params }) => {
+    const { tools, categories } = await listRecommendedTools();
+    const tool = tools.find((t) => t.slug === params.slug);
     if (!tool) throw notFound();
-    return { tool };
+    const category = categories.find((c) => c.slug === tool.category) ?? null;
+    const alternatives = (tool.alternatives ?? [])
+      .map((s) => tools.find((t) => t.slug === s))
+      .filter(Boolean) as RecommendedTool[];
+    return { tool, category, alternatives };
   },
   head: ({ params, loaderData }) => {
     const tool = loaderData?.tool;
@@ -98,12 +99,11 @@ export const Route = createFileRoute("/recommended-tools/$slug")({
 });
 
 function ToolDetailPage() {
-  const data = Route.useLoaderData() as { tool: RecommendedTool };
-  const tool = data.tool;
-  const category = getCategoryBySlug(tool.category);
-  const alternatives = (tool.alternatives ?? [])
-    .map((s: string) => RECOMMENDED_TOOLS.find((t) => t.slug === s))
-    .filter(Boolean) as RecommendedTool[];
+  const { tool, category, alternatives } = Route.useLoaderData() as {
+    tool: RecommendedTool;
+    category: ToolCategory | null;
+    alternatives: RecommendedTool[];
+  };
 
   return (
     <PageShell title={tool.name} subtitle={tool.tagline}>
@@ -114,7 +114,6 @@ function ToolDetailPage() {
         <ArrowLeft className="w-3 h-3" /> Wszystkie narzędzia
       </Link>
 
-      {/* Header */}
       <div className="rounded-3xl border border-border bg-card shadow-card p-5 md:p-7 flex flex-col md:flex-row gap-5">
         <div
           className={`w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br ${tool.gradient} grid place-items-center text-white font-display font-extrabold text-3xl shadow-soft shrink-0`}
@@ -204,27 +203,25 @@ function ToolDetailPage() {
         </div>
       </div>
 
-      {/* Best for */}
-      <section className="rounded-3xl border border-border bg-card shadow-soft p-5 md:p-6">
-        <h2 className="font-display font-extrabold text-lg inline-flex items-center gap-2">
-          <Target className="w-5 h-5 text-violet" /> Dla kogo najlepsze
-        </h2>
-        <ul className="mt-3 grid sm:grid-cols-2 gap-2">
-          {tool.bestFor.map((b) => (
-            <li key={b} className="flex items-start gap-2 text-sm">
-              <Check className="w-4 h-4 text-violet shrink-0 mt-0.5" />
-              <span>{b}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {tool.bestFor.length > 0 && (
+        <section className="rounded-3xl border border-border bg-card shadow-soft p-5 md:p-6">
+          <h2 className="font-display font-extrabold text-lg inline-flex items-center gap-2">
+            <Target className="w-5 h-5 text-violet" /> Dla kogo najlepsze
+          </h2>
+          <ul className="mt-3 grid sm:grid-cols-2 gap-2">
+            {tool.bestFor.map((b) => (
+              <li key={b} className="flex items-start gap-2 text-sm">
+                <Check className="w-4 h-4 text-violet shrink-0 mt-0.5" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-      {/* Pros / Cons */}
       <div className="grid md:grid-cols-2 gap-5">
         <section className="rounded-3xl border border-border bg-card shadow-soft p-5 md:p-6">
-          <h2 className="font-display font-extrabold text-lg text-green-600 dark:text-green-400">
-            Plusy
-          </h2>
+          <h2 className="font-display font-extrabold text-lg text-green-600 dark:text-green-400">Plusy</h2>
           <ul className="mt-3 space-y-2">
             {tool.pros.map((p) => (
               <li key={p} className="flex items-start gap-2 text-sm">
@@ -235,9 +232,7 @@ function ToolDetailPage() {
           </ul>
         </section>
         <section className="rounded-3xl border border-border bg-card shadow-soft p-5 md:p-6">
-          <h2 className="font-display font-extrabold text-lg text-orange-600 dark:text-orange-400">
-            Minusy
-          </h2>
+          <h2 className="font-display font-extrabold text-lg text-orange-600 dark:text-orange-400">Minusy</h2>
           <ul className="mt-3 space-y-2">
             {tool.cons.map((p) => (
               <li key={p} className="flex items-start gap-2 text-sm">
@@ -249,55 +244,54 @@ function ToolDetailPage() {
         </section>
       </div>
 
-      {/* Features */}
-      <section>
-        <h2 className="font-display font-extrabold text-xl mb-3">Najważniejsze funkcje</h2>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {tool.features.map((f) => (
-            <div key={f.title} className="rounded-2xl border border-border bg-card shadow-soft p-4">
-              <h3 className="font-display font-bold">{f.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{f.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section>
-        <h2 className="font-display font-extrabold text-xl mb-3">Cennik</h2>
-        <div className="rounded-3xl border border-border bg-card shadow-soft divide-y divide-border overflow-hidden">
-          {tool.pricing.map((p) => (
-            <div key={p.plan} className="flex items-center justify-between p-4 gap-3">
-              <div>
-                <div className="font-semibold">{p.plan}</div>
-                {p.note && <div className="text-xs text-muted-foreground">{p.note}</div>}
+      {tool.features.length > 0 && (
+        <section>
+          <h2 className="font-display font-extrabold text-xl mb-3">Najważniejsze funkcje</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {tool.features.map((f) => (
+              <div key={f.title} className="rounded-2xl border border-border bg-card shadow-soft p-4">
+                <h3 className="font-display font-bold">{f.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{f.description}</p>
               </div>
-              <div className="font-display font-bold text-lg">{p.price}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* FAQ */}
-      <section>
-        <h2 className="font-display font-extrabold text-xl mb-3">Najczęstsze pytania</h2>
-        <div className="space-y-3">
-          {tool.faq.map((f) => (
-            <details
-              key={f.q}
-              className="rounded-2xl border border-border bg-card shadow-soft p-4 group"
-            >
-              <summary className="cursor-pointer font-semibold list-none flex items-center justify-between gap-3">
-                {f.q}
-                <span className="text-violet text-xl transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="text-sm text-muted-foreground mt-2">{f.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
+      {tool.pricing.length > 0 && (
+        <section>
+          <h2 className="font-display font-extrabold text-xl mb-3">Cennik</h2>
+          <div className="rounded-3xl border border-border bg-card shadow-soft divide-y divide-border overflow-hidden">
+            {tool.pricing.map((p) => (
+              <div key={p.plan} className="flex items-center justify-between p-4 gap-3">
+                <div>
+                  <div className="font-semibold">{p.plan}</div>
+                  {p.note && <div className="text-xs text-muted-foreground">{p.note}</div>}
+                </div>
+                <div className="font-display font-bold text-lg">{p.price}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* CTA */}
+      {tool.faq.length > 0 && (
+        <section>
+          <h2 className="font-display font-extrabold text-xl mb-3">Najczęstsze pytania</h2>
+          <div className="space-y-3">
+            {tool.faq.map((f) => (
+              <details key={f.q} className="rounded-2xl border border-border bg-card shadow-soft p-4 group">
+                <summary className="cursor-pointer font-semibold list-none flex items-center justify-between gap-3">
+                  {f.q}
+                  <span className="text-violet text-xl transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="text-sm text-muted-foreground mt-2">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="rounded-3xl border border-violet/30 bg-gradient-to-br from-violet-soft to-blue-soft p-6 flex flex-col md:flex-row items-center gap-4">
         <div className="flex-1">
           <h2 className="font-display font-extrabold text-xl">Gotowy, żeby przetestować {tool.name}?</h2>
@@ -318,7 +312,6 @@ function ToolDetailPage() {
         </a>
       </section>
 
-      {/* Alternatives */}
       {alternatives.length > 0 && (
         <section>
           <h2 className="font-display font-extrabold text-xl mb-3">Powiązane narzędzia</h2>
