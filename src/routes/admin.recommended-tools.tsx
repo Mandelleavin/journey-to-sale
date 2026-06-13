@@ -649,7 +649,7 @@ function ListEditor({
   );
 }
 
-function ObjectListEditor<T extends Record<string, string>>({
+function ObjectListEditor<T extends Record<string, string>,>({
   label,
   items,
   onChange,
