@@ -128,10 +128,10 @@ function ToolListItem({ tool, rank }: { tool: RecommendedTool; rank: number }) {
     <Link
       to="/recommended-tools/$slug"
       params={{ slug: tool.slug }}
-      className="group flex items-start gap-4 p-4 md:p-5 hover:bg-muted/40 transition-colors"
+      className="group flex items-start gap-5 p-5 md:p-7 hover:bg-muted/40 transition-colors"
     >
       <div
-        className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br ${tool.gradient} grid place-items-center text-white font-display font-extrabold text-lg shadow-soft shrink-0`}
+        className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} grid place-items-center text-white font-display font-extrabold text-xl shadow-soft shrink-0`}
       >
         {tool.letter}
       </div>
