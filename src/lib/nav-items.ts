@@ -58,6 +58,7 @@ export const adminItems: NavItem[] = [
   { icon: Flame, label: "Engagement & Hot leady", to: "/admin/engagement" },
   { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" },
   { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" },
+  { icon: Wrench, label: "Polecane narzędzia", to: "/admin/recommended-tools" },
 ];
 
 export function isItemActive(item: NavItem, pathname: string): boolean {
