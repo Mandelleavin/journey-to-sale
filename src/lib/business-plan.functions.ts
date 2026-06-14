@@ -35,9 +35,11 @@ export type PlanSection = {
   fields: PlanField[];
 };
 
+export type PlanResponseValue = string | number | boolean | null | string[] | Record<string, unknown>;
+
 export type PlanResponse = {
   field_key: string;
-  value: unknown;
+  value: PlanResponseValue;
   source: string;
   updated_at: string;
   last_lesson_id: string | null;
