@@ -221,7 +221,7 @@ function PlanEditor({
         const v = responsesMap.get(f.field_key)?.value;
         if (Array.isArray(v)) return v.length > 0;
         if (typeof v === "string") return v.trim().length > 0;
-        return v !== null && v !== undefined && v !== "";
+        return v !== null && v !== undefined;
       }).length,
     0,
   );
