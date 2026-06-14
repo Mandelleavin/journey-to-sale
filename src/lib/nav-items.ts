@@ -13,6 +13,8 @@ import {
   Bot,
   Flame,
   Wrench,
+  ClipboardList,
+  KeyRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +37,7 @@ export const mainItems: NavItem[] = [
     matchPrefixes: ["/tasks", "/calendar"],
   },
   { icon: GraduationCap, label: "Kursy", to: "/courses" },
+  { icon: ClipboardList, label: "Plan 12 tygodni", to: "/plan-12-tygodni" },
   {
     icon: Sparkles,
     label: "Generator Produktu AI",
@@ -59,6 +62,7 @@ export const adminItems: NavItem[] = [
   { icon: BookOpen, label: "Zarządzaj kursami", to: "/admin/courses" },
   { icon: Bot, label: "Generatory AI", to: "/admin/ai-generators" },
   { icon: Wrench, label: "Polecane narzędzia", to: "/admin/recommended-tools" },
+  { icon: KeyRound, label: "Plan 12 tygodni", to: "/admin/business-plan" },
 ];
 
 export function isItemActive(item: NavItem, pathname: string): boolean {
