@@ -213,15 +213,17 @@ export const savePlanResponse = createServerFn({ method: "POST" })
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const patch: Record<string, string> = { [col]: data.value as string };
       if (prod) {
-        await supabase
-          .from("user_products")
-          .update({ [col]: data.value as string })
+        await (supabase.from("user_products") as unknown as {
+          update: (p: Record<string, string>) => { eq: (k: string, v: string) => Promise<unknown> };
+        })
+          .update(patch)
           .eq("id", prod.id);
       } else {
-        await supabase
-          .from("user_products")
-          .insert({ user_id: userId, [col]: data.value as string });
+        await (supabase.from("user_products") as unknown as {
+          insert: (p: Record<string, string>) => Promise<unknown>;
+        }).insert({ user_id: userId, ...patch });
       }
     }
     return { ok: true };
