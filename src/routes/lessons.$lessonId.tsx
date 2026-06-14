@@ -43,6 +43,7 @@ type Task = {
   xp_reward: number;
   is_required: boolean;
   due_in_days: number | null;
+  business_plan_field_key?: string | null;
 };
 type Sub = { id: string; task_id: string; status: string };
 type Comment = {
