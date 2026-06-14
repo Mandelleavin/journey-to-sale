@@ -12,11 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useServerFn } from "@tanstack/react-start";
+import { savePlanResponse } from "@/lib/business-plan.functions";
 
 type Props = {
   taskId: string | null;
   taskTitle?: string;
   taskInstructions?: string | null;
+  /** When set, the submission is also saved to the user's business plan under this field key. */
+  businessPlanFieldKey?: string | null;
+  lessonId?: string | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSubmitted?: () => void;
@@ -48,8 +53,9 @@ function playFanfare() {
   }
 }
 
-export function SubmitTaskDialog({ taskId, taskTitle, taskInstructions, open, onOpenChange, onSubmitted }: Props) {
+export function SubmitTaskDialog({ taskId, taskTitle, taskInstructions, businessPlanFieldKey, lessonId, open, onOpenChange, onSubmitted }: Props) {
   const { user } = useAuth();
+  const savePlan = useServerFn(savePlanResponse);
   const [content, setContent] = useState("");
   const [link, setLink] = useState("");
   const [busy, setBusy] = useState(false);
@@ -67,11 +73,28 @@ export function SubmitTaskDialog({ taskId, taskTitle, taskInstructions, open, on
       attachment_url: link || null,
       status: "pending",
     });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       setError(error.message);
       return;
     }
+    // Sync to business plan when this task is mapped to a plan field.
+    if (businessPlanFieldKey && content.trim()) {
+      try {
+        await savePlan({
+          data: {
+            field_key: businessPlanFieldKey,
+            value: content.trim(),
+            source: "lesson",
+            lesson_id: lessonId ?? undefined,
+            task_id: taskId,
+          },
+        });
+      } catch (e) {
+        console.warn("Plan sync failed", e);
+      }
+    }
+    setBusy(false);
     setContent("");
     setLink("");
     onSubmitted?.();

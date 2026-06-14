@@ -17,6 +17,7 @@ import { Route as RecommendedToolsRouteImport } from './routes/recommended-tools
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as Plan12TygodniRouteImport } from './routes/plan-12-tygodni'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -48,6 +49,7 @@ import { Route as AdminRecommendedToolsRouteImport } from './routes/admin.recomm
 import { Route as AdminEventLogsRouteImport } from './routes/admin.event-logs'
 import { Route as AdminEngagementRouteImport } from './routes/admin.engagement'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminBusinessPlanRouteImport } from './routes/admin.business-plan'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -93,6 +95,11 @@ const ProductsRoute = ProductsRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Plan12TygodniRoute = Plan12TygodniRouteImport.update({
+  id: '/plan-12-tygodni',
+  path: '/plan-12-tygodni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PathRoute = PathRouteImport.update({
@@ -250,6 +257,11 @@ const AdminCoursesRoute = AdminCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBusinessPlanRoute = AdminBusinessPlanRouteImport.update({
+  id: '/business-plan',
+  path: '/business-plan',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAiGeneratorsRoute = AdminAiGeneratorsRouteImport.update({
   id: '/ai-generators',
   path: '/ai-generators',
@@ -299,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -308,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -344,6 +358,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -351,6 +366,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -390,6 +406,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -399,6 +416,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -439,6 +457,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -448,6 +467,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/tools'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -484,6 +504,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -491,6 +512,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/tasks'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -529,6 +551,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -538,6 +561,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/tools'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -577,6 +601,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
+  Plan12TygodniRoute: typeof Plan12TygodniRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
@@ -650,6 +675,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan-12-tygodni': {
+      id: '/plan-12-tygodni'
+      path: '/plan-12-tygodni'
+      fullPath: '/plan-12-tygodni'
+      preLoaderRoute: typeof Plan12TygodniRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/path': {
@@ -869,6 +901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoursesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/business-plan': {
+      id: '/admin/business-plan'
+      path: '/business-plan'
+      fullPath: '/admin/business-plan'
+      preLoaderRoute: typeof AdminBusinessPlanRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ai-generators': {
       id: '/admin/ai-generators'
       path: '/ai-generators'
@@ -928,6 +967,7 @@ const AdminCoursesRouteWithChildren = AdminCoursesRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAiGeneratorsRoute: typeof AdminAiGeneratorsRoute
+  AdminBusinessPlanRoute: typeof AdminBusinessPlanRoute
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminEngagementRoute: typeof AdminEngagementRoute
   AdminEventLogsRoute: typeof AdminEventLogsRoute
@@ -939,6 +979,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAiGeneratorsRoute: AdminAiGeneratorsRoute,
+  AdminBusinessPlanRoute: AdminBusinessPlanRoute,
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminEngagementRoute: AdminEngagementRoute,
   AdminEventLogsRoute: AdminEventLogsRoute,
@@ -1026,6 +1067,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
+  Plan12TygodniRoute: Plan12TygodniRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,
@@ -1045,13 +1087,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

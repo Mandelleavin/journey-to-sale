@@ -249,6 +249,226 @@ export type Database = {
         }
         Relationships: []
       }
+      business_plan_access: {
+        Row: {
+          code_id: string | null
+          granted_at: string
+          granted_via: string
+          user_id: string
+        }
+        Insert: {
+          code_id?: string | null
+          granted_at?: string
+          granted_via: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string | null
+          granted_at?: string
+          granted_via?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plan_access_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "business_plan_access_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_plan_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          note: string | null
+          used_at: string | null
+          used_by_user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Relationships: []
+      }
+      business_plan_fields: {
+        Row: {
+          created_at: string
+          field_key: string
+          help_text: string | null
+          id: string
+          input_type: string
+          is_active: boolean
+          label: string
+          options: Json
+          placeholder: string | null
+          position: number
+          section_id: string
+          syncs_to_product_column: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          field_key: string
+          help_text?: string | null
+          id?: string
+          input_type?: string
+          is_active?: boolean
+          label: string
+          options?: Json
+          placeholder?: string | null
+          position?: number
+          section_id: string
+          syncs_to_product_column?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          field_key?: string
+          help_text?: string | null
+          id?: string
+          input_type?: string
+          is_active?: boolean
+          label?: string
+          options?: Json
+          placeholder?: string | null
+          position?: number
+          section_id?: string
+          syncs_to_product_column?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plan_fields_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "business_plan_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_plan_responses: {
+        Row: {
+          created_at: string
+          field_key: string
+          id: string
+          last_lesson_id: string | null
+          last_task_id: string | null
+          source: string
+          updated_at: string
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          field_key: string
+          id?: string
+          last_lesson_id?: string | null
+          last_task_id?: string | null
+          source?: string
+          updated_at?: string
+          user_id: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          field_key?: string
+          id?: string
+          last_lesson_id?: string | null
+          last_task_id?: string | null
+          source?: string
+          updated_at?: string
+          user_id?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plan_responses_last_lesson_id_fkey"
+            columns: ["last_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_plan_responses_last_task_id_fkey"
+            columns: ["last_task_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_plan_sections: {
+        Row: {
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          is_active: boolean
+          key: string
+          position: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          position?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          position?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      business_plan_settings: {
+        Row: {
+          global_password: string | null
+          id: number
+          is_open: boolean
+          updated_at: string
+        }
+        Insert: {
+          global_password?: string | null
+          id?: number
+          is_open?: boolean
+          updated_at?: string
+        }
+        Update: {
+          global_password?: string | null
+          id?: number
+          is_open?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cancellation_feedback: {
         Row: {
           comment: string | null
@@ -839,6 +1059,7 @@ export type Database = {
       }
       lesson_tasks: {
         Row: {
+          business_plan_field_key: string | null
           created_at: string
           due_in_days: number | null
           id: string
@@ -849,6 +1070,7 @@ export type Database = {
           xp_reward: number
         }
         Insert: {
+          business_plan_field_key?: string | null
           created_at?: string
           due_in_days?: number | null
           id?: string
@@ -859,6 +1081,7 @@ export type Database = {
           xp_reward?: number
         }
         Update: {
+          business_plan_field_key?: string | null
           created_at?: string
           due_in_days?: number | null
           id?: string

@@ -43,6 +43,7 @@ type Task = {
   xp_reward: number;
   is_required: boolean;
   due_in_days: number | null;
+  business_plan_field_key?: string | null;
 };
 type Sub = { id: string; task_id: string; status: string };
 type Comment = {
@@ -92,7 +93,7 @@ function LessonPage() {
           .maybeSingle(),
         supabase
           .from("lesson_tasks")
-          .select("id, title, instructions, xp_reward, is_required, due_in_days")
+          .select("id, title, instructions, xp_reward, is_required, due_in_days, business_plan_field_key")
           .eq("lesson_id", lessonId),
         supabase.from("task_submissions").select("id, task_id, status").eq("user_id", user.id),
         supabase
@@ -620,6 +621,8 @@ function LessonPage() {
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
         taskInstructions={submitTask?.instructions ?? null}
+        businessPlanFieldKey={submitTask?.business_plan_field_key ?? null}
+        lessonId={lessonId}
         open={!!submitTask}
         onOpenChange={(v) => !v && setSubmitTask(null)}
         onSubmitted={load}
