@@ -621,6 +621,8 @@ function LessonPage() {
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
         taskInstructions={submitTask?.instructions ?? null}
+        businessPlanFieldKey={submitTask?.business_plan_field_key ?? null}
+        lessonId={lessonId}
         open={!!submitTask}
         onOpenChange={(v) => !v && setSubmitTask(null)}
         onSubmitted={load}
