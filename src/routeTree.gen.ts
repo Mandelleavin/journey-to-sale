@@ -17,6 +17,7 @@ import { Route as RecommendedToolsRouteImport } from './routes/recommended-tools
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as Plan12TygodniRouteImport } from './routes/plan-12-tygodni'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PackageRouteImport } from './routes/package'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -93,6 +94,11 @@ const ProductsRoute = ProductsRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Plan12TygodniRoute = Plan12TygodniRouteImport.update({
+  id: '/plan-12-tygodni',
+  path: '/plan-12-tygodni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PathRoute = PathRouteImport.update({
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -390,6 +398,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/package': typeof PackageRoute
   '/path': typeof PathRoute
+  '/plan-12-tygodni': typeof Plan12TygodniRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/profile': typeof ProfileRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -484,6 +494,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/package'
     | '/path'
+    | '/plan-12-tygodni'
     | '/pricing'
     | '/products'
     | '/profile'
@@ -577,6 +589,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRouteWithChildren
   PackageRoute: typeof PackageRoute
   PathRoute: typeof PathRoute
+  Plan12TygodniRoute: typeof Plan12TygodniRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   ProfileRoute: typeof ProfileRoute
@@ -650,6 +663,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan-12-tygodni': {
+      id: '/plan-12-tygodni'
+      path: '/plan-12-tygodni'
+      fullPath: '/plan-12-tygodni'
+      preLoaderRoute: typeof Plan12TygodniRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/path': {
@@ -1026,6 +1046,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRouteWithChildren,
   PackageRoute: PackageRoute,
   PathRoute: PathRoute,
+  Plan12TygodniRoute: Plan12TygodniRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   ProfileRoute: ProfileRoute,

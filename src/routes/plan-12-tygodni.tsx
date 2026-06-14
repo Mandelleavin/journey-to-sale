@@ -251,7 +251,8 @@ function PlanEditor({
           {sections.map((s) => {
             const sectionFilled = s.fields.filter((f) => {
               const v = responsesMap.get(f.field_key)?.value;
-              return Array.isArray(v) ? v.length > 0 : !!v && String(v).trim() !== "";
+              if (Array.isArray(v)) return v.length > 0;
+              return v !== null && v !== undefined && String(v).trim() !== "";
             }).length;
             const active = s.key === current?.key;
             return (
