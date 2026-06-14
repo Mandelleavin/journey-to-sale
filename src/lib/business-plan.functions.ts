@@ -35,7 +35,7 @@ export type PlanSection = {
   fields: PlanField[];
 };
 
-export type PlanResponseValue = string | number | boolean | null | string[] | Record<string, unknown>;
+export type PlanResponseValue = string | number | boolean | null | string[];
 
 export type PlanResponse = {
   field_key: string;
