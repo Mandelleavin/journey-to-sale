@@ -49,6 +49,7 @@ import { Route as AdminRecommendedToolsRouteImport } from './routes/admin.recomm
 import { Route as AdminEventLogsRouteImport } from './routes/admin.event-logs'
 import { Route as AdminEngagementRouteImport } from './routes/admin.engagement'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
+import { Route as AdminBusinessPlanRouteImport } from './routes/admin.business-plan'
 import { Route as AdminAiGeneratorsRouteImport } from './routes/admin.ai-generators'
 import { Route as AdminModulesModuleIdRouteImport } from './routes/admin.modules.$moduleId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -256,6 +257,11 @@ const AdminCoursesRoute = AdminCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBusinessPlanRoute = AdminBusinessPlanRouteImport.update({
+  id: '/business-plan',
+  path: '/business-plan',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAiGeneratorsRoute = AdminAiGeneratorsRouteImport.update({
   id: '/ai-generators',
   path: '/ai-generators',
@@ -315,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/tasks': typeof TasksRoute
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -408,6 +416,7 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/tools': typeof ToolsRouteWithChildren
   '/admin/ai-generators': typeof AdminAiGeneratorsRoute
+  '/admin/business-plan': typeof AdminBusinessPlanRoute
   '/admin/courses': typeof AdminCoursesRouteWithChildren
   '/admin/engagement': typeof AdminEngagementRoute
   '/admin/event-logs': typeof AdminEventLogsRoute
@@ -458,6 +467,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/tools'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/tasks'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/tools'
     | '/admin/ai-generators'
+    | '/admin/business-plan'
     | '/admin/courses'
     | '/admin/engagement'
     | '/admin/event-logs'
@@ -889,6 +901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoursesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/business-plan': {
+      id: '/admin/business-plan'
+      path: '/business-plan'
+      fullPath: '/admin/business-plan'
+      preLoaderRoute: typeof AdminBusinessPlanRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ai-generators': {
       id: '/admin/ai-generators'
       path: '/ai-generators'
@@ -948,6 +967,7 @@ const AdminCoursesRouteWithChildren = AdminCoursesRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAiGeneratorsRoute: typeof AdminAiGeneratorsRoute
+  AdminBusinessPlanRoute: typeof AdminBusinessPlanRoute
   AdminCoursesRoute: typeof AdminCoursesRouteWithChildren
   AdminEngagementRoute: typeof AdminEngagementRoute
   AdminEventLogsRoute: typeof AdminEventLogsRoute
@@ -959,6 +979,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAiGeneratorsRoute: AdminAiGeneratorsRoute,
+  AdminBusinessPlanRoute: AdminBusinessPlanRoute,
   AdminCoursesRoute: AdminCoursesRouteWithChildren,
   AdminEngagementRoute: AdminEngagementRoute,
   AdminEventLogsRoute: AdminEventLogsRoute,

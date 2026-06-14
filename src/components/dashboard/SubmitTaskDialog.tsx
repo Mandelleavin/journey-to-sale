@@ -12,11 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useServerFn } from "@tanstack/react-start";
+import { savePlanResponse } from "@/lib/business-plan.functions";
 
 type Props = {
   taskId: string | null;
   taskTitle?: string;
   taskInstructions?: string | null;
+  /** When set, the submission is also saved to the user's business plan under this field key. */
+  businessPlanFieldKey?: string | null;
+  lessonId?: string | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSubmitted?: () => void;
