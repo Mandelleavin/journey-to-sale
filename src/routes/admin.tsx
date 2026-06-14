@@ -19,6 +19,7 @@ import {
   Inbox,
   AlertTriangle,
   Wrench,
+  KeyRound,
 } from "lucide-react";
 
 const adminNav = [
@@ -28,6 +29,7 @@ const adminNav = [
   { to: "/admin/ai-generators" as const, label: "Generatory AI", icon: Bot },
   { to: "/admin/user-products" as const, label: "Produkty użytkowników", icon: Package },
   { to: "/admin/recommended-tools" as const, label: "Polecane narzędzia", icon: Wrench },
+  { to: "/admin/business-plan" as const, label: "Plan 12 tygodni", icon: KeyRound },
   { to: "/admin/event-logs" as const, label: "Logi zdarzeń", icon: AlertTriangle },
 ];
 
