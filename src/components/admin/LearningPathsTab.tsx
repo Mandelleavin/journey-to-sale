@@ -24,13 +24,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 const pathSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(3, "Tytuł musi mieć min. 3 znaki")
-    .max(100, "Maks. 100 znaków"),
+  title: z.string().trim().min(3, "Tytuł musi mieć min. 3 znaki").max(100, "Maks. 100 znaków"),
   total_days: z
     .number()
     .int("Liczba dni musi być całkowita")
@@ -41,11 +38,7 @@ const pathSchema = z.object({
 
 const stepSchema = z
   .object({
-    label: z
-      .string()
-      .trim()
-      .min(2, "Etykieta min. 2 znaki")
-      .max(60, "Maks. 60 znaków"),
+    label: z.string().trim().min(2, "Etykieta min. 2 znaki").max(60, "Maks. 60 znaków"),
     day_number: z.number().int().min(1, "Min. dzień 1"),
     icon: z.string().min(1, "Wybierz ikonę"),
     course_id: z.string().nullable(),
@@ -55,7 +48,6 @@ const stepSchema = z
     message: "Powiąż krok z kursem lub modułem",
     path: ["course_id"],
   });
-
 
 type Path = {
   id: string;
@@ -110,8 +102,8 @@ export function LearningPathsTab() {
     ]);
     setPaths((p ?? []) as Path[]);
     setSteps((s ?? []) as Step[]);
-    setCourses(c ?? []);
-    setModules(m ?? []);
+    setCourses(normalizeProgramCourseRows(c ?? []));
+    setModules(normalizeProgramCourseRows(m ?? []));
   };
 
   useEffect(() => {
@@ -151,7 +143,10 @@ export function LearningPathsTab() {
       toast.error(parsed.error.issues[0].message);
       return;
     }
-    const slug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+    const slug = parsed.data.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .slice(0, 60);
     const { error } = await supabase
       .from("learning_paths")
       .insert({ title: parsed.data.title, slug, total_days: 90, position: paths.length });
@@ -193,7 +188,6 @@ export function LearningPathsTab() {
       setPaths((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
     }
   };
-
 
   const setDefault = async (id: string) => {
     await supabase.from("learning_paths").update({ is_default: false }).neq("id", id);
@@ -252,7 +246,6 @@ export function LearningPathsTab() {
     if (error) toast.error(error.message);
   };
 
-
   const deleteStep = async (id: string) => {
     await supabase.from("learning_path_steps").delete().eq("id", id);
     load();
@@ -261,9 +254,7 @@ export function LearningPathsTab() {
   // Reorder: zamienia dwa kroki miejscami i przepisuje position + day_number wg kolejności.
   // day_number sortowane rosnąco — zachowujemy oryginalne wartości dni, zmieniamy tylko ich przypisanie do pozycji.
   const moveStep = async (pathId: string, index: number, direction: -1 | 1) => {
-    const list = steps
-      .filter((s) => s.path_id === pathId)
-      .sort((a, b) => a.position - b.position);
+    const list = steps.filter((s) => s.path_id === pathId).sort((a, b) => a.position - b.position);
     const target = index + direction;
     if (target < 0 || target >= list.length) return;
 
@@ -297,7 +288,6 @@ export function LearningPathsTab() {
         .eq("id", u.id);
     }
   };
-
 
   return (
     <div className="space-y-4">
@@ -368,9 +358,7 @@ export function LearningPathsTab() {
                       className={cn(pathErrors[p.id]?.total_days && "border-destructive")}
                     />
                     {pathErrors[p.id]?.total_days && (
-                      <p className="text-xs text-destructive mt-1">
-                        {pathErrors[p.id].total_days}
-                      </p>
+                      <p className="text-xs text-destructive mt-1">{pathErrors[p.id].total_days}</p>
                     )}
                   </div>
                   <div className="md:col-span-2">

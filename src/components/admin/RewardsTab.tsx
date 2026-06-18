@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 type Reward = {
   id: string;
@@ -69,7 +70,7 @@ export function RewardsTab() {
     ]);
     if (error) toast.error(error.message);
     setRewards((data ?? []) as Reward[]);
-    setCourses((cs ?? []) as CourseOpt[]);
+    setCourses(normalizeProgramCourseRows((cs ?? []) as CourseOpt[]));
     setLoading(false);
   };
 
@@ -141,9 +142,7 @@ export function RewardsTab() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl font-bold">Nagrody</h2>
-          <p className="text-sm text-muted-foreground">
-            Zarządzaj nagrodami wymienianymi za XP.
-          </p>
+          <p className="text-sm text-muted-foreground">Zarządzaj nagrodami wymienianymi za XP.</p>
         </div>
         <Button onClick={openNew} className="bg-gradient-violet text-primary-foreground">
           <Plus className="w-4 h-4 mr-1" /> Dodaj nagrodę
@@ -280,7 +279,8 @@ export function RewardsTab() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
-                Nagroda przypisana do kursu jest widoczna w sekcji nagród tego kursu i opłacana XP zdobytym w nim.
+                Nagroda przypisana do kursu jest widoczna w sekcji nagród tego kursu i opłacana XP
+                zdobytym w nim.
               </p>
             </div>
             <div className="flex items-center gap-2">

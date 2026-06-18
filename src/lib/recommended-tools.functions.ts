@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { z } from "zod";
 import type {
   RecommendedTool,
@@ -7,6 +9,8 @@ import type {
   ToolFaq,
   ToolFeature,
   ToolPricing,
+  ToolReview,
+  ToolReviewSummary,
 } from "./recommended-tools-data";
 
 type Row = Record<string, unknown>;
@@ -53,16 +57,24 @@ function mapCategory(r: Row): ToolCategory {
   };
 }
 
+function mapReview(r: Row): ToolReview {
+  return {
+    id: String(r.id),
+    toolSlug: String(r.tool_slug),
+    authorName: String(r.author_name ?? "Użytkownik 90 Dni"),
+    rating: Number(r.rating),
+    comment: String(r.comment),
+    createdAt: String(r.created_at),
+  };
+}
+
 // ============ PUBLIC ============
 
 export const listRecommendedTools = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { supabase } = await import("@/integrations/supabase/client");
   const [{ data: cats, error: cErr }, { data: tools, error: tErr }] = await Promise.all([
-    supabaseAdmin
-      .from("recommended_tool_categories")
-      .select("*")
-      .order("position", { ascending: true }),
-    supabaseAdmin
+    supabase.from("recommended_tool_categories").select("*").order("position", { ascending: true }),
+    supabase
       .from("recommended_tools")
       .select("*")
       .eq("is_published", true)
@@ -77,10 +89,12 @@ export const listRecommendedTools = createServerFn({ method: "GET" }).handler(as
 });
 
 export const getRecommendedToolBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1).max(120) }).parse(input))
+  .inputValidator((input: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(120) }).parse(input),
+  )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data: row, error } = await supabase
       .from("recommended_tools")
       .select("*")
       .eq("slug", data.slug)
@@ -90,9 +104,98 @@ export const getRecommendedToolBySlug = createServerFn({ method: "GET" })
     return row ? mapTool(row as Row) : null;
   });
 
+export const listRecommendedToolReviews = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(120) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data: rows, error } = await supabase
+      .from("recommended_tool_reviews")
+      .select("id, tool_slug, author_name, rating, comment, created_at")
+      .eq("tool_slug", data.slug)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      const reviewsTableMissing =
+        error.code === "42P01" ||
+        error.code === "PGRST205" ||
+        error.message.includes("recommended_tool_reviews");
+      if (reviewsTableMissing) {
+        return {
+          reviews: [] as ToolReview[],
+          summary: { averageRating: null, reviewCount: 0 } satisfies ToolReviewSummary,
+          available: false,
+        };
+      }
+      throw error;
+    }
+
+    const reviews = (rows ?? []).map((row) => mapReview(row as Row));
+    const summary: ToolReviewSummary = {
+      averageRating:
+        reviews.length > 0
+          ? reviews.reduce((total, review) => total + review.rating, 0) / reviews.length
+          : null,
+      reviewCount: reviews.length,
+    };
+
+    return { reviews, summary, available: true };
+  });
+
+const reviewInputSchema = z.object({
+  slug: z.string().min(1).max(120),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().min(20).max(2000),
+});
+
+export type ToolReviewInput = z.infer<typeof reviewInputSchema>;
+
+export const submitRecommendedToolReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: ToolReviewInput) => reviewInputSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: tool, error: toolError } = await context.supabase
+      .from("recommended_tools")
+      .select("slug")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+
+    if (toolError) throw toolError;
+    if (!tool) throw new Error("To narzędzie nie jest już dostępne.");
+
+    const { error } = await context.supabase.from("recommended_tool_reviews").upsert(
+      {
+        tool_slug: data.slug,
+        user_id: context.userId,
+        rating: data.rating,
+        comment: data.comment,
+        status: "published",
+      },
+      { onConflict: "tool_slug,user_id" },
+    );
+
+    if (
+      error &&
+      (error.code === "42P01" ||
+        error.code === "PGRST205" ||
+        error.message.includes("recommended_tool_reviews"))
+    ) {
+      throw new Error("Moduł opinii wymaga jeszcze aktualizacji bazy danych.");
+    }
+    if (error) throw error;
+    return { ok: true };
+  });
+
 // ============ ADMIN ============
 
-const featureSchema = z.object({ title: z.string().min(1).max(200), description: z.string().max(1000).default("") });
+const featureSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(1000).default(""),
+});
 const pricingSchema = z.object({
   plan: z.string().min(1).max(120),
   price: z.string().min(1).max(120),
@@ -101,7 +204,11 @@ const pricingSchema = z.object({
 const faqSchema = z.object({ q: z.string().min(1).max(300), a: z.string().min(1).max(2000) });
 
 const toolInputSchema = z.object({
-  slug: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/, "Slug: małe litery, cyfry i myślniki."),
+  slug: z
+    .string()
+    .min(1)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/, "Slug: małe litery, cyfry i myślniki."),
   originalSlug: z.string().optional(),
   name: z.string().min(1).max(120),
   tagline: z.string().max(200).default(""),
@@ -132,7 +239,7 @@ const toolInputSchema = z.object({
 
 export type ToolInput = z.infer<typeof toolInputSchema>;
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
+async function assertAdmin(context: { supabase: SupabaseClient<Database>; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
@@ -146,7 +253,7 @@ export const upsertRecommendedTool = createServerFn({ method: "POST" })
   .inputValidator((input: ToolInput) => toolInputSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = context.supabase;
 
     const row = {
       slug: data.slug,
@@ -178,13 +285,13 @@ export const upsertRecommendedTool = createServerFn({ method: "POST" })
     };
 
     if (data.originalSlug && data.originalSlug !== data.slug) {
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from("recommended_tools")
         .update(row)
         .eq("slug", data.originalSlug);
       if (error) throw error;
     } else {
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from("recommended_tools")
         .upsert(row, { onConflict: "slug" });
       if (error) throw error;
@@ -194,11 +301,15 @@ export const upsertRecommendedTool = createServerFn({ method: "POST" })
 
 export const deleteRecommendedTool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1).max(80) }).parse(input))
+  .inputValidator((input: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(80) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("recommended_tools").delete().eq("slug", data.slug);
+    const { error } = await context.supabase
+      .from("recommended_tools")
+      .delete()
+      .eq("slug", data.slug);
     if (error) throw error;
     return { ok: true };
   });
@@ -208,10 +319,13 @@ export const adminListRecommendedTools = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: cats, error: cErr }, { data: tools, error: tErr }] = await Promise.all([
-      supabaseAdmin.from("recommended_tool_categories").select("*").order("position"),
-      supabaseAdmin.from("recommended_tools").select("*").order("category_slug").order("position"),
+      context.supabase.from("recommended_tool_categories").select("*").order("position"),
+      context.supabase
+        .from("recommended_tools")
+        .select("*")
+        .order("category_slug")
+        .order("position"),
     ]);
     if (cErr) throw cErr;
     if (tErr) throw tErr;
@@ -222,7 +336,11 @@ export const adminListRecommendedTools = createServerFn({ method: "GET" })
   });
 
 const categoryInputSchema = z.object({
-  slug: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/),
   originalSlug: z.string().optional(),
   name: z.string().min(1).max(120),
   description: z.string().max(400).default(""),
@@ -237,7 +355,7 @@ export const upsertToolCategory = createServerFn({ method: "POST" })
   .inputValidator((input: CategoryInput) => categoryInputSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = context.supabase;
     const row = {
       slug: data.slug,
       name: data.name,
@@ -247,13 +365,13 @@ export const upsertToolCategory = createServerFn({ method: "POST" })
       position: data.position,
     };
     if (data.originalSlug && data.originalSlug !== data.slug) {
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from("recommended_tool_categories")
         .update(row)
         .eq("slug", data.originalSlug);
       if (error) throw error;
     } else {
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from("recommended_tool_categories")
         .upsert(row, { onConflict: "slug" });
       if (error) throw error;
@@ -263,11 +381,12 @@ export const upsertToolCategory = createServerFn({ method: "POST" })
 
 export const deleteToolCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1).max(80) }).parse(input))
+  .inputValidator((input: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(80) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const { error } = await context.supabase
       .from("recommended_tool_categories")
       .delete()
       .eq("slug", data.slug);

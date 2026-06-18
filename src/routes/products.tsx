@@ -24,8 +24,6 @@ import {
   Target,
   Trash2,
   Upload,
-  Wand2,
-  FileDown,
   Lightbulb,
   ChevronDown,
   AlertCircle,
@@ -40,7 +38,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
-import { generateProductCover } from "@/lib/product-cover.functions";
+import { COVER_CREDIT_COST, generateProductCover } from "@/lib/product-cover.functions";
 import {
   Dialog,
   DialogContent,
@@ -90,12 +88,46 @@ const PRODUCT_TYPES = [
   { v: "inne", l: "Inne" },
 ] as const;
 
+type AiCoverFormat =
+  | "ebook"
+  | "course"
+  | "workshop"
+  | "masterclass"
+  | "template"
+  | "checklist"
+  | "membership"
+  | "coaching"
+  | "app"
+  | "other";
+
+type AiCoverPresentation = "mockup" | "flat";
+
+const AI_FORMAT_BY_PRODUCT_TYPE: Record<string, AiCoverFormat> = {
+  ebook: "ebook",
+  kurs: "course",
+  warsztat: "workshop",
+  aplikacja: "app",
+  konsultacje: "coaching",
+  abonament: "membership",
+  inne: "other",
+};
+
 const STATUSES = [
   { v: "idea", l: "Pomysł", color: "bg-orange-soft text-orange" },
   { v: "building", l: "W budowie", color: "bg-blue-soft text-blue" },
   { v: "ready", l: "Gotowy do sprzedaży", color: "bg-violet-soft text-violet" },
   { v: "published", l: "Opublikowany", color: "bg-green/10 text-green" },
 ] as const;
+
+function pluralizePolish(count: number, one: string, few: string, many: string) {
+  if (count === 1) return one;
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
+    return few;
+  }
+  return many;
+}
 
 function ProductsPage() {
   const { user } = useAuth();
@@ -108,11 +140,14 @@ function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [openStage, setOpenStage] = useState<number>(1);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [viewedProfile, setViewedProfile] = useState<{ email: string | null; full_name: string | null } | null>(null);
+  const [viewedProfile, setViewedProfile] = useState<{
+    email: string | null;
+    full_name: string | null;
+  } | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
 
   const adminMode = Boolean(searchUserId && searchUserId !== user?.id);
-  const targetUserId = adminMode ? searchUserId! : user?.id ?? null;
+  const targetUserId = adminMode ? searchUserId! : (user?.id ?? null);
 
   const active = products.find((p) => p.id === activeId) ?? null;
   const limit = PLAN_PRODUCT_LIMITS[plan] ?? 1;
@@ -155,7 +190,6 @@ function ProductsPage() {
     loadAll();
   }, [loadAll]);
 
-
   // load packages + materials for active product
   useEffect(() => {
     if (!activeId) {
@@ -186,10 +220,19 @@ function ProductsPage() {
     [active, packages, materials],
   );
 
+  const jumpToStage = useCallback((stage: number) => {
+    setOpenStage(stage);
+    requestAnimationFrame(() => {
+      editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
   const createProduct = async () => {
     if (!user) return;
     if (products.length >= limit) {
-      toast.error(`Twój plan ${plan.toUpperCase()} pozwala na ${limit} produkt(y). Zmień plan, aby dodać więcej.`);
+      toast.error(
+        `Twój plan ${plan.toUpperCase()} pozwala na ${limit} produkt(y). Zmień plan, aby dodać więcej.`,
+      );
       return;
     }
     const { data, error } = await supabase
@@ -207,7 +250,10 @@ function ProductsPage() {
   const updateActive = async (patch: Partial<Product>) => {
     if (!active) return;
     setProducts((ps) => ps.map((p) => (p.id === active.id ? { ...p, ...patch } : p)));
-    const { error } = await supabase.from("user_products").update(patch as never).eq("id", active.id);
+    const { error } = await supabase
+      .from("user_products")
+      .update(patch as never)
+      .eq("id", active.id);
     if (error) toast.error(error.message);
   };
 
@@ -243,7 +289,8 @@ function ProductsPage() {
             Stwórz swój pierwszy produkt
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto mb-6">
-            Nie przerabiasz kursu — <strong>budujesz swój produkt</strong>, który będziesz sprzedawać. Krok po kroku.
+            Nie przerabiasz kursu — <strong>budujesz swój produkt</strong>, który będziesz
+            sprzedawać. Krok po kroku.
           </p>
           <Button
             size="lg"
@@ -254,7 +301,6 @@ function ProductsPage() {
             Dodaj mój produkt
           </Button>
         </div>
-        <CourseModulesLink />
       </PageShell>
     );
   }
@@ -268,11 +314,16 @@ function ProductsPage() {
             <Lightbulb className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs uppercase font-bold text-orange">Podgląd jako administrator</div>
+            <div className="text-xs uppercase font-bold text-orange">
+              Podgląd jako administrator
+            </div>
             <div className="font-display font-bold truncate">
               {viewedProfile?.full_name || viewedProfile?.email || "Użytkownik"}
               {viewedProfile?.email && viewedProfile?.full_name && (
-                <span className="text-muted-foreground font-normal text-sm"> · {viewedProfile.email}</span>
+                <span className="text-muted-foreground font-normal text-sm">
+                  {" "}
+                  · {viewedProfile.email}
+                </span>
               )}
             </div>
           </div>
@@ -314,7 +365,11 @@ function ProductsPage() {
                 : "Dodaj produkt"
             }
           >
-            {products.length >= limit ? <Lock className="w-3.5 h-3.5 inline mr-1" /> : <Plus className="w-3.5 h-3.5 inline mr-1" />}
+            {products.length >= limit ? (
+              <Lock className="w-3.5 h-3.5 inline mr-1" />
+            ) : (
+              <Plus className="w-3.5 h-3.5 inline mr-1" />
+            )}
             {products.length}/{limit}
           </button>
         )}
@@ -322,6 +377,13 @@ function ProductsPage() {
 
       {active && score && (
         <>
+          <NextStepCard
+            nextHint={score.nextStep.hint}
+            stage={score.nextStep.stage}
+            breakdown={score.breakdown}
+            onJump={jumpToStage}
+          />
+
           <HeroCard
             product={active}
             score={score.score}
@@ -329,27 +391,11 @@ function ProductsPage() {
             onDelete={deleteProduct}
           />
 
-          <NextStepCard
-            nextHint={score.nextStep.hint}
-            stage={score.nextStep.stage}
-            onJump={(s) => {
-              setOpenStage(s);
-              requestAnimationFrame(() => {
-                editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              });
-            }}
-          />
-
-          {/* JOURNEY — 5 wielkich boxów ze strzałkami */}
+          {/* JOURNEY — 5 etapów budowy produktu */}
           <ProductJourney
             breakdown={score.breakdown}
             openStage={openStage}
-            onSelect={(s) => {
-              setOpenStage(s);
-              requestAnimationFrame(() => {
-                editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              });
-            }}
+            onSelect={jumpToStage}
           />
 
           {/* AKTYWNY EDYTOR ETAPU */}
@@ -364,6 +410,13 @@ function ProductsPage() {
                 onMarkReady={async () => {
                   if (active.status === "idea") await updateActive({ status: "building" });
                 }}
+                nextStage={{
+                  num: 2,
+                  title: "Oferta sprzedażowa",
+                  summary:
+                    "Uzupełnisz nagłówek, minimum 3 korzyści, program produktu, bonus, FAQ i CTA.",
+                }}
+                onContinue={() => jumpToStage(2)}
               >
                 <StageFundament product={active} onUpdate={updateActive} />
               </StageEditor>
@@ -375,6 +428,12 @@ function ProductsPage() {
                 emoji="💎"
                 subtitle="Nagłówek, korzyści, agenda, bonusy i FAQ."
                 stageBreakdown={score.breakdown.slice(7, 13)}
+                nextStage={{
+                  num: 3,
+                  title: "Cena i pakiety",
+                  summary: "Dodasz warianty cenowe i wybierzesz pakiet, który chcesz polecać.",
+                }}
+                onContinue={() => jumpToStage(3)}
               >
                 <StageOffer product={active} onUpdate={updateActive} />
               </StageEditor>
@@ -386,6 +445,12 @@ function ProductsPage() {
                 emoji="💰"
                 subtitle="Zbuduj 1–3 pakiety i wyróżnij polecany."
                 stageBreakdown={score.breakdown.slice(13, 16)}
+                nextStage={{
+                  num: 4,
+                  title: "Materiały produktu",
+                  summary: "Dodasz okładkę oraz pliki, workbooki lub linki potrzebne klientowi.",
+                }}
+                onContinue={() => jumpToStage(4)}
               >
                 <StagePricing
                   productId={active.id}
@@ -402,6 +467,12 @@ function ProductsPage() {
                 emoji="📚"
                 subtitle="Wgraj okładkę, PDF-y, workbooki i linki."
                 stageBreakdown={score.breakdown.slice(16, 18)}
+                nextStage={{
+                  num: 5,
+                  title: "Publikacja i sprzedaż",
+                  summary: "Przejdziesz checklistę gotowości przed uruchomieniem sprzedaży.",
+                }}
+                onContinue={() => jumpToStage(5)}
               >
                 <StageMaterials
                   productId={active.id}
@@ -428,34 +499,9 @@ function ProductsPage() {
             )}
           </div>
 
-
           <ScoreCard breakdown={score.breakdown} score={score.score} onJump={setOpenStage} />
-
-          {/* EXPORTS (placeholder) */}
-          <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
-            <h3 className="font-display font-bold text-lg flex items-center gap-2 mb-3">
-              <FileDown className="w-5 h-5 text-violet" /> Eksporty
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Wygenerujesz PDF oferty, tabelę cen i 7-dniowy plan sprzedaży. Funkcja wkrótce.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" disabled>
-                <FileDown className="w-4 h-4 mr-2" /> PDF oferty (wkrótce)
-              </Button>
-              <Button variant="outline" disabled>
-                <FileDown className="w-4 h-4 mr-2" /> Tabela cen (wkrótce)
-              </Button>
-              <Button variant="outline" disabled>
-                <Wand2 className="w-4 h-4 mr-2" /> Plan sprzedaży 7 dni (wkrótce)
-              </Button>
-            </div>
-          </div>
         </>
       )}
-
-
-      <CourseModulesLink />
     </PageShell>
   );
 }
@@ -479,10 +525,11 @@ function HeroCard({
   const [aiBrief, setAiBrief] = useState("");
   const [aiTitle, setAiTitle] = useState("");
   const [aiSubtitle, setAiSubtitle] = useState("");
-  const [aiFormat, setAiFormat] = useState<
-    "ebook" | "course" | "workshop" | "masterclass" | "template" | "checklist" | "membership" | "coaching" | "other"
-  >("ebook");
-  const [aiStyle, setAiStyle] = useState<"modern" | "elegant" | "bold" | "minimal" | "playful">("modern");
+  const [aiFormat, setAiFormat] = useState<AiCoverFormat>("ebook");
+  const [aiPresentation, setAiPresentation] = useState<AiCoverPresentation>("mockup");
+  const [aiStyle, setAiStyle] = useState<"modern" | "elegant" | "bold" | "minimal" | "playful">(
+    "modern",
+  );
   const [aiBusy, setAiBusy] = useState(false);
   const genCover = useServerFn(generateProductCover);
   const statusMeta = STATUSES.find((s) => s.v === product.status) ?? STATUSES[0];
@@ -507,12 +554,14 @@ function HeroCard({
   };
 
   const openAi = () => {
-    const seed = [product.subtitle, product.promise, product.target_audience]
+    const seed = [product.promise, product.target_audience, product.problem, product.result]
       .filter(Boolean)
       .join(" — ");
     setAiTitle(product.title || "");
     setAiSubtitle(product.subtitle || "");
     setAiBrief(seed || product.promise || "");
+    setAiFormat(AI_FORMAT_BY_PRODUCT_TYPE[product.product_type ?? ""] ?? "other");
+    setAiPresentation("mockup");
     setAiOpen(true);
   };
 
@@ -528,6 +577,7 @@ function HeroCard({
           title: aiTitle.trim(),
           subtitle: aiSubtitle.trim() || undefined,
           format: aiFormat,
+          presentation: aiPresentation,
           style: aiStyle,
         },
       });
@@ -543,34 +593,38 @@ function HeroCard({
 
   return (
     <div className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden">
-      <div className="grid lg:grid-cols-[260px,1fr] gap-0">
+      <div className="grid lg:grid-cols-[200px_minmax(0,1fr)] gap-0">
         {/* COVER */}
-        <div className="relative lg:aspect-auto lg:min-h-[280px] bg-muted/40 grid place-items-center p-3 lg:p-0">
-          {product.cover_url ? (
-            <img
-              src={product.cover_url}
-              alt={product.title ?? "Okładka produktu"}
-              className="max-h-[260px] lg:max-h-none lg:h-full w-auto lg:w-full lg:object-cover object-contain rounded-xl lg:rounded-none"
-            />
-          ) : (
-            <div className="text-center p-6">
-              <ImagePlus className="w-10 h-10 mx-auto text-violet mb-2" />
-              <p className="text-xs text-muted-foreground">Wgraj lub wygeneruj okładkę</p>
-            </div>
-          )}
-          <div className="absolute bottom-3 right-3 flex flex-col gap-1.5 items-end">
+        <div className="bg-muted/40 p-4 lg:p-5 flex flex-col items-center justify-center gap-3">
+          <div className="relative w-full max-w-[150px] aspect-[4/5] overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
+            {product.cover_url ? (
+              <img
+                src={product.cover_url}
+                alt={product.title ?? "Okładka produktu"}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full grid place-items-center text-center p-4">
+                <div>
+                  <ImagePlus className="w-9 h-9 mx-auto text-violet mb-2" />
+                  <p className="text-xs text-muted-foreground">Dodaj okładkę produktu</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={openAi}
               disabled={uploading || aiBusy}
               className="px-3 py-1.5 rounded-full bg-gradient-to-r from-violet to-fuchsia-500 text-white text-xs font-semibold hover:opacity-90 flex items-center gap-1.5 shadow-lg"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              {aiBusy ? "Generuję..." : "Wygeneruj AI"}
+              {aiBusy ? "Generuję..." : "Generuj AI"}
             </button>
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploading || aiBusy}
-              className="px-3 py-1.5 rounded-full bg-black/70 text-white text-xs font-semibold hover:bg-black flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-80 flex items-center gap-1.5"
             >
               <Upload className="w-3.5 h-3.5" />
               {uploading ? "Wgrywam..." : product.cover_url ? "Zmień" : "Wgraj"}
@@ -588,28 +642,50 @@ function HeroCard({
         <Dialog open={aiOpen} onOpenChange={setAiOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>✨ Wygeneruj okładkę AI</DialogTitle>
+              <DialogTitle>✨ Wygeneruj grafikę produktu AI</DialogTitle>
               <DialogDescription>
-                AI stworzy okładkę z Twoim tytułem. Koszt: <strong>15 kredytów</strong>. Zawsze możesz ją podmienić wgrywając własną.
+                Wybierz rodzaj produktu, a AI przygotuje dopasowany mockup lub płaską okładkę.
+                Koszt: <strong>{COVER_CREDIT_COST} kredytów</strong>.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Format produktu</Label>
+                <Label className="text-xs">Rodzaj produktu</Label>
                 <Select value={aiFormat} onValueChange={(v) => setAiFormat(v as typeof aiFormat)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ebook">📖 Ebook / PDF</SelectItem>
-                    <SelectItem value="course">🎓 Kurs online</SelectItem>
-                    <SelectItem value="workshop">🛠️ Warsztat / Webinar</SelectItem>
-                    <SelectItem value="masterclass">🎬 Masterclass</SelectItem>
-                    <SelectItem value="template">📋 Szablon / Pakiet</SelectItem>
-                    <SelectItem value="checklist">✅ Checklista / Cheatsheet</SelectItem>
-                    <SelectItem value="membership">👥 Społeczność / Membership</SelectItem>
-                    <SelectItem value="coaching">🤝 Coaching 1:1</SelectItem>
-                    <SelectItem value="other">📦 Inny</SelectItem>
+                    <SelectItem value="ebook">Ebook / PDF</SelectItem>
+                    <SelectItem value="course">Kurs online</SelectItem>
+                    <SelectItem value="workshop">Warsztat / Webinar</SelectItem>
+                    <SelectItem value="masterclass">Masterclass</SelectItem>
+                    <SelectItem value="template">Szablon / Pakiet</SelectItem>
+                    <SelectItem value="checklist">Checklista / Cheatsheet</SelectItem>
+                    <SelectItem value="membership">Społeczność / Membership</SelectItem>
+                    <SelectItem value="coaching">Coaching / Konsultacje</SelectItem>
+                    <SelectItem value="app">Aplikacja / SaaS</SelectItem>
+                    <SelectItem value="other">Inny produkt cyfrowy</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Sposób prezentacji</Label>
+                <Select
+                  value={aiPresentation}
+                  onValueChange={(v) => setAiPresentation(v as AiCoverPresentation)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mockup">Mockup produktu (polecane)</SelectItem>
+                    <SelectItem value="flat">Płaska okładka / grafika</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  Mockup pokaże ebook jako książkę, kurs na ekranie, a szablony jako gotowy pakiet.
+                </p>
               </div>
               <div className="grid grid-cols-1 gap-3">
                 <div className="space-y-1.5">
@@ -632,18 +708,20 @@ function HeroCard({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">O czym jest produkt?</Label>
+                <Label className="text-xs">Opis i wskazówki dla AI</Label>
                 <Textarea
                   value={aiBrief}
                   onChange={(e) => setAiBrief(e.target.value)}
-                  placeholder="np. Dla freelancerów — uczy jak budować markę osobistą i zdobywać klientów z Instagrama"
+                  placeholder="Np. kurs dla freelancerek o budowaniu marki. Kolory: granat i róż. Motyw: pewność siebie i rozwój."
                   rows={3}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Styl wizualny</Label>
                 <Select value={aiStyle} onValueChange={(v) => setAiStyle(v as typeof aiStyle)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="modern">Nowoczesny / tech</SelectItem>
                     <SelectItem value="elegant">Elegancki / premium</SelectItem>
@@ -655,33 +733,54 @@ function HeroCard({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={() => setAiOpen(false)} disabled={aiBusy}>Anuluj</Button>
-              <Button onClick={runAi} disabled={aiBusy} className="bg-gradient-to-r from-violet to-fuchsia-500 text-white">
+              <Button variant="ghost" onClick={() => setAiOpen(false)} disabled={aiBusy}>
+                Anuluj
+              </Button>
+              <Button
+                onClick={runAi}
+                disabled={aiBusy}
+                className="bg-gradient-to-r from-violet to-fuchsia-500 text-white"
+              >
                 {aiBusy ? "Generuję..." : "Wygeneruj (−15 kredytów)"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-
         {/* INFO */}
         <div className="p-5 lg:p-6 space-y-4">
-          <div className="flex items-start justify-between gap-3 flex-wrap">
-            <div className="flex-1 min-w-0 space-y-1">
-              <Input
-                value={product.title ?? ""}
-                onChange={(e) => onUpdate({ title: e.target.value })}
-                placeholder="Nazwa produktu"
-                className="font-display font-extrabold text-2xl border-0 px-0 focus-visible:ring-0 h-auto py-0"
-              />
-              <Input
-                value={product.subtitle ?? ""}
-                onChange={(e) => onUpdate({ subtitle: e.target.value })}
-                placeholder={'Podtytuł produktu (np. „Praktyczny kurs dla początkujących")'}
-                className="text-sm text-muted-foreground border-0 px-0 focus-visible:ring-0 h-auto py-0"
-              />
+          <div className="flex items-start gap-3">
+            <div className="flex-1 min-w-0 space-y-3">
+              <div>
+                <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
+                  Nazwa produktu
+                </Label>
+                <Input
+                  value={product.title ?? ""}
+                  onChange={(e) => onUpdate({ title: e.target.value })}
+                  placeholder="Wpisz nazwę swojego produktu"
+                  className="mt-1 min-h-12 rounded-xl border-border/70 bg-background px-4 font-display font-extrabold text-lg sm:text-xl"
+                />
+              </div>
+              <div>
+                <Label className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
+                  Podtytuł
+                </Label>
+                <Input
+                  value={product.subtitle ?? ""}
+                  onChange={(e) => onUpdate({ subtitle: e.target.value })}
+                  placeholder={'Podtytuł produktu (np. „Praktyczny kurs dla początkujących")'}
+                  className="mt-1 h-10 rounded-xl border-border/70 bg-background px-4 text-sm"
+                />
+              </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onDelete}
+              className="mt-5 shrink-0 text-muted-foreground hover:text-destructive"
+              aria-label="Usuń produkt"
+            >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
@@ -696,7 +795,9 @@ function HeroCard({
               <Textarea
                 value={product.promise ?? ""}
                 onChange={(e) => onUpdate({ promise: e.target.value })}
-                placeholder={'Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")'}
+                placeholder={
+                  'Co dokładnie obiecujesz klientowi? (np. „W 14 dni zbudujesz pierwszy produkt cyfrowy")'
+                }
                 className="min-h-[72px] bg-background border-border/60 rounded-xl resize-none text-sm leading-relaxed"
               />
             </div>
@@ -760,7 +861,9 @@ function HeroCard({
                     placeholder="497"
                     className="h-10 rounded-xl border-border/60 bg-background pr-10 font-semibold"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">zł</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                    zł
+                  </span>
                 </div>
               </div>
             </div>
@@ -772,12 +875,16 @@ function HeroCard({
                   <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
                     Gotowość sprzedażowa
                   </span>
-                  <Badge className={cn("font-semibold text-[10px] h-5", statusMeta.color)} variant="outline">
+                  <Badge
+                    className={cn("font-semibold text-[10px] h-5", statusMeta.color)}
+                    variant="outline"
+                  >
                     {statusMeta.l}
                   </Badge>
                 </div>
                 <span className="font-display font-extrabold text-2xl text-violet leading-none">
-                  {score}<span className="text-muted-foreground text-sm font-bold">/100</span>
+                  {score}
+                  <span className="text-muted-foreground text-sm font-bold">/100</span>
                 </span>
               </div>
               <div className="h-2.5 rounded-full bg-background/80 overflow-hidden shadow-inner">
@@ -788,7 +895,6 @@ function HeroCard({
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -799,25 +905,109 @@ function HeroCard({
 function NextStepCard({
   nextHint,
   stage,
+  breakdown,
   onJump,
 }: {
   nextHint: string;
   stage: number;
+  breakdown: ScoreBreakdown[];
   onJump: (s: number) => void;
 }) {
+  const stageMeta = JOURNEY_STAGES.find((item) => item.num === stage) ?? JOURNEY_STAGES[0];
+  const stageFields = breakdown.slice(stageMeta.from, stageMeta.to);
+  const missingFields = stageFields.filter((field) => !field.done);
+  const completedFields = stageFields.length - missingFields.length;
+
   return (
-    <div className="rounded-3xl border-2 border-violet/30 bg-gradient-to-r from-violet-soft via-blue-soft to-violet-soft p-5 shadow-soft">
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
-          <Target className="w-6 h-6" />
+    <div className="overflow-hidden rounded-3xl border-2 border-violet/30 bg-card shadow-soft">
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.65fr)]">
+        <div className="flex items-start gap-4 bg-gradient-to-br from-violet-soft via-blue-soft to-background p-5 sm:p-6">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
+            <Target className="w-6 h-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <Badge className="border-violet/20 bg-background/80 text-violet" variant="outline">
+                Krok {stage} z 5
+              </Badge>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {stageMeta.title}
+              </span>
+            </div>
+            <h3 className="font-display text-xl font-extrabold sm:text-2xl">
+              {missingFields.length > 0 ? nextHint : `Krok ${stage} jest gotowy`}
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {missingFields.length > 0
+                ? `Uzupełnij brakujące elementy i przejdź dalej. Gotowe ${completedFields}/${stageFields.length}.`
+                : "Wszystkie wymagane elementy są uzupełnione. Możesz przejść do kolejnego etapu."}
+            </p>
+            <Button
+              onClick={() => onJump(stage)}
+              className="mt-4 bg-gradient-violet text-primary-foreground shadow-soft"
+            >
+              {missingFields.length > 0 ? `Uzupełnij krok ${stage}` : `Otwórz krok ${stage}`}
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-xs uppercase font-bold text-muted-foreground">Twój następny krok</div>
-          <div className="font-display font-extrabold text-lg">{nextHint}</div>
+
+        <div className="border-t border-border/70 bg-muted/20 p-5 sm:p-6 lg:border-l lg:border-t-0">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Do uzupełnienia
+              </div>
+              <div className="font-display font-bold">
+                {missingFields.length === 0
+                  ? "Wszystko gotowe"
+                  : `${missingFields.length} ${pluralizePolish(
+                      missingFields.length,
+                      "element",
+                      "elementy",
+                      "elementów",
+                    )}`}
+              </div>
+            </div>
+            <span className="rounded-full bg-background px-3 py-1 text-xs font-bold text-violet shadow-sm">
+              {completedFields}/{stageFields.length}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {(missingFields.length > 0 ? missingFields : stageFields).slice(0, 4).map((field) => (
+              <div
+                key={field.label}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm",
+                  field.done
+                    ? "border-green/20 bg-green/5 text-green"
+                    : "border-border/70 bg-background text-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-5 w-5 shrink-0 place-items-center rounded-full border",
+                    field.done
+                      ? "border-green bg-green text-white"
+                      : "border-violet/40 bg-violet-soft text-violet",
+                  )}
+                >
+                  {field.done ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                  )}
+                </span>
+                <span className="font-medium">{field.label}</span>
+              </div>
+            ))}
+            {missingFields.length > 4 && (
+              <div className="pl-1 text-xs font-semibold text-muted-foreground">
+                + {missingFields.length - 4} kolejne elementy
+              </div>
+            )}
+          </div>
         </div>
-        <Button onClick={() => onJump(stage)} className="bg-gradient-violet text-primary-foreground">
-          Wykonaj <ArrowRight className="w-4 h-4 ml-1" />
-        </Button>
       </div>
     </div>
   );
@@ -853,7 +1043,9 @@ function ScoreCard({
             ✓ Gotowe ({done.length})
           </div>
           <ul className="space-y-1 text-sm">
-            {done.length === 0 && <li className="text-muted-foreground">Jeszcze nic — zacznij od Fundamentu.</li>}
+            {done.length === 0 && (
+              <li className="text-muted-foreground">Jeszcze nic — zacznij od Fundamentu.</li>
+            )}
             {done.map((b, i) => (
               <li key={i} className="flex items-center gap-2 text-foreground">
                 <Check className="w-3.5 h-3.5 text-green shrink-0" /> {b.label}
@@ -880,13 +1072,34 @@ function ScoreCard({
 }
 
 /* ---------------- PRODUCT JOURNEY (5 boxów ze strzałkami) ---------------- */
-type StageMeta = { num: number; title: string; emoji: string; from: number; to: number; gradient: string };
+type StageMeta = {
+  num: number;
+  title: string;
+  emoji: string;
+  from: number;
+  to: number;
+  gradient: string;
+};
 const JOURNEY_STAGES: StageMeta[] = [
-  { num: 1, title: "Fundament",  emoji: "🧱", from: 0,  to: 7,  gradient: "from-violet to-blue" },
-  { num: 2, title: "Oferta",     emoji: "💎", from: 7,  to: 13, gradient: "from-blue to-cyan-500" },
-  { num: 3, title: "Pakiety",    emoji: "💰", from: 13, to: 16, gradient: "from-amber-500 to-orange" },
-  { num: 4, title: "Materiały",  emoji: "📚", from: 16, to: 18, gradient: "from-pink-500 to-violet" },
-  { num: 5, title: "Publikacja", emoji: "🚀", from: 18, to: 19, gradient: "from-green to-emerald-500" },
+  { num: 1, title: "Fundament", emoji: "🧱", from: 0, to: 7, gradient: "from-violet to-blue" },
+  { num: 2, title: "Oferta", emoji: "💎", from: 7, to: 13, gradient: "from-blue to-cyan-500" },
+  { num: 3, title: "Pakiety", emoji: "💰", from: 13, to: 16, gradient: "from-amber-500 to-orange" },
+  {
+    num: 4,
+    title: "Materiały",
+    emoji: "📚",
+    from: 16,
+    to: 18,
+    gradient: "from-pink-500 to-violet",
+  },
+  {
+    num: 5,
+    title: "Publikacja",
+    emoji: "🚀",
+    from: 18,
+    to: 19,
+    gradient: "from-green to-emerald-500",
+  },
 ];
 
 function ProductJourney({
@@ -913,7 +1126,9 @@ function ProductJourney({
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="font-display font-extrabold text-lg sm:text-xl">Mapa budowy produktu</h3>
-          <p className="text-sm text-muted-foreground">Kliknij etap, aby otworzyć edytor poniżej.</p>
+          <p className="text-sm text-muted-foreground">
+            Kliknij etap, aby otworzyć edytor poniżej.
+          </p>
         </div>
       </div>
 
@@ -953,39 +1168,41 @@ function ProductJourney({
                 </span>
                 <span className="text-2xl">{s.emoji}</span>
               </div>
-              <div className={cn(
-                "relative text-[10px] uppercase tracking-wider font-bold mb-0.5",
-                openStage === s.num ? "text-primary-foreground/80" : "text-muted-foreground",
-              )}>
+              <div
+                className={cn(
+                  "relative text-[10px] uppercase tracking-wider font-bold mb-0.5",
+                  openStage === s.num ? "text-primary-foreground/80" : "text-muted-foreground",
+                )}
+              >
                 Etap {s.num}
               </div>
               <div className="relative font-display font-extrabold text-base mb-3">{s.title}</div>
-              <div className={cn(
-                "relative h-1.5 rounded-full overflow-hidden",
-                openStage === s.num ? "bg-white/20" : "bg-border",
-              )}>
+              <div
+                className={cn(
+                  "relative h-1.5 rounded-full overflow-hidden",
+                  openStage === s.num ? "bg-white/20" : "bg-border",
+                )}
+              >
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-700",
-                    openStage === s.num
-                      ? "bg-white"
-                      : s.done
-                        ? "bg-green"
-                        : "bg-gradient-violet",
+                    openStage === s.num ? "bg-white" : s.done ? "bg-green" : "bg-gradient-violet",
                   )}
                   style={{ width: `${s.pct}%` }}
                 />
               </div>
-              <div className={cn(
-                "relative mt-1.5 text-xs font-semibold",
-                openStage === s.num
-                  ? "text-primary-foreground/90"
-                  : s.done
-                    ? "text-green"
-                    : s.started
-                      ? "text-violet"
-                      : "text-muted-foreground",
-              )}>
+              <div
+                className={cn(
+                  "relative mt-1.5 text-xs font-semibold",
+                  openStage === s.num
+                    ? "text-primary-foreground/90"
+                    : s.done
+                      ? "text-green"
+                      : s.started
+                        ? "text-violet"
+                        : "text-muted-foreground",
+                )}
+              >
                 {s.done ? "Gotowe ✓" : s.started ? `${s.pct}%` : "Do zrobienia"}
               </div>
             </button>
@@ -994,16 +1211,20 @@ function ProductJourney({
             {idx < stageStats.length - 1 && (
               <div className="flex items-center justify-center" aria-hidden>
                 <div className="hidden md:flex items-center">
-                  <ArrowRight className={cn(
-                    "w-6 h-6 transition-colors",
-                    stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
-                  )} />
+                  <ArrowRight
+                    className={cn(
+                      "w-6 h-6 transition-colors",
+                      stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
+                    )}
+                  />
                 </div>
                 <div className="md:hidden flex justify-center py-1">
-                  <ChevronDown className={cn(
-                    "w-5 h-5 transition-colors",
-                    stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
-                  )} />
+                  <ChevronDown
+                    className={cn(
+                      "w-5 h-5 transition-colors",
+                      stageStats[idx].done ? "text-green animate-pulse" : "text-violet/50",
+                    )}
+                  />
                 </div>
               </div>
             )}
@@ -1023,6 +1244,8 @@ function StageEditor({
   children,
   stageBreakdown,
   onMarkReady,
+  nextStage,
+  onContinue,
   readyLabel = "Oznacz etap jako gotowy",
 }: {
   num: number;
@@ -1032,6 +1255,12 @@ function StageEditor({
   children: React.ReactNode;
   stageBreakdown?: ScoreBreakdown[];
   onMarkReady?: () => Promise<void> | void;
+  nextStage?: {
+    num: number;
+    title: string;
+    summary: string;
+  };
+  onContinue?: () => void;
   readyLabel?: string;
 }) {
   const missing = (stageBreakdown ?? []).filter((b) => !b.done);
@@ -1042,13 +1271,25 @@ function StageEditor({
   const handleMark = async () => {
     if (!allDone) {
       setShowErrors(true);
-      toast.error(`Uzupełnij ${missing.length} ${missing.length === 1 ? "pole" : "pola/pól"}, aby zamknąć ten etap.`);
+      toast.error(
+        `Uzupełnij ${missing.length} ${pluralizePolish(
+          missing.length,
+          "pole",
+          "pola",
+          "pól",
+        )}, aby zamknąć ten etap.`,
+      );
       return;
     }
     setBusy(true);
     try {
       await onMarkReady?.();
-      toast.success(`Etap ${num} oznaczony jako gotowy 🎉`);
+      if (nextStage && onContinue) {
+        toast.success(`Krok ${num} ukończony. Przechodzisz do kroku ${nextStage.num}.`);
+        onContinue();
+      } else {
+        toast.success(`Etap ${num} oznaczony jako gotowy 🎉`);
+      }
     } finally {
       setBusy(false);
     }
@@ -1061,7 +1302,9 @@ function StageEditor({
           {emoji}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] uppercase tracking-wider font-bold text-violet">Etap {num} z 5</div>
+          <div className="text-[10px] uppercase tracking-wider font-bold text-violet">
+            Etap {num} z 5
+          </div>
           <h3 className="font-display font-extrabold text-xl sm:text-2xl">{title}</h3>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
@@ -1069,12 +1312,70 @@ function StageEditor({
       <div className="p-5 sm:p-6">{children}</div>
 
       {stageBreakdown && stageBreakdown.length > 0 && (
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-3">
+        <div className="space-y-4 px-5 pb-5 sm:px-6 sm:pb-6">
+          <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Co trzeba uzupełnić w tym kroku
+                </div>
+                <div className="font-display font-bold">
+                  {stageBreakdown.length - missing.length} z {stageBreakdown.length} gotowych
+                </div>
+              </div>
+              <span
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-bold",
+                  allDone ? "bg-green/10 text-green" : "bg-violet-soft text-violet",
+                )}
+              >
+                {allDone ? "Komplet" : `${missing.length} brakuje`}
+              </span>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {stageBreakdown.map((field) => (
+                <div
+                  key={field.label}
+                  className={cn(
+                    "flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm",
+                    field.done ? "border-green/20 bg-green/5" : "border-border/70 bg-background",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border",
+                      field.done
+                        ? "border-green bg-green text-white"
+                        : "border-violet/40 bg-violet-soft text-violet",
+                    )}
+                  >
+                    {field.done ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <div className={cn("font-semibold", field.done && "text-green")}>
+                      {field.label}
+                    </div>
+                    {!field.done && (
+                      <div className="text-xs leading-relaxed text-muted-foreground">
+                        {field.hint}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {showErrors && !allDone && (
             <div className="rounded-2xl border-2 border-destructive/30 bg-destructive/5 p-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-2 text-destructive font-semibold text-sm">
                 <AlertCircle className="w-4 h-4" />
-                Brakuje {missing.length} {missing.length === 1 ? "pola" : "pól"} aby zamknąć ten etap:
+                Brakuje {missing.length} {pluralizePolish(missing.length, "pola", "pól", "pól")},
+                aby zamknąć ten etap:
               </div>
               <ul className="space-y-1 text-sm pl-6">
                 {missing.map((m, i) => (
@@ -1088,28 +1389,47 @@ function StageEditor({
           )}
 
           {allDone && (
-            <div className="rounded-2xl border-2 border-green/40 bg-green/5 p-4 flex items-center gap-2 text-green font-semibold text-sm">
-              <CheckCircle2 className="w-5 h-5" />
-              Wszystkie pola tego etapu są wypełnione poprawnie.
+            <div className="rounded-2xl border-2 border-green/40 bg-green/5 p-4">
+              <div className="flex items-center gap-2 text-green font-semibold text-sm">
+                <CheckCircle2 className="w-5 h-5" />
+                Wszystkie pola tego etapu są wypełnione poprawnie.
+              </div>
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="text-xs text-muted-foreground">
-              Gotowe: <span className="font-bold text-foreground">{stageBreakdown.length - missing.length}/{stageBreakdown.length}</span>
+          {nextStage && (
+            <div className="rounded-2xl border border-violet/25 bg-gradient-to-r from-violet-soft to-blue-soft p-4">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-violet">
+                Następnie: krok {nextStage.num}
+              </div>
+              <div className="font-display text-lg font-extrabold">{nextStage.title}</div>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {nextStage.summary}
+              </p>
             </div>
+          )}
+
+          <div className="flex items-center justify-end gap-3">
             <Button
               onClick={handleMark}
               disabled={busy}
               className={cn(
-                "shadow-soft",
+                "min-h-11 w-full px-5 shadow-soft sm:w-auto",
                 allDone
-                  ? "bg-gradient-to-r from-green to-emerald-500 text-white hover:opacity-90"
-                  : "bg-muted text-muted-foreground hover:bg-muted",
+                  ? "bg-gradient-violet text-primary-foreground hover:opacity-90"
+                  : "border border-violet/20 bg-violet-soft text-violet hover:bg-violet/15",
               )}
             >
-              {allDone ? <CheckCircle2 className="w-4 h-4 mr-1" /> : <AlertCircle className="w-4 h-4 mr-1" />}
-              {readyLabel}
+              {allDone ? (
+                <ArrowRight className="w-4 h-4 mr-1" />
+              ) : (
+                <AlertCircle className="w-4 h-4 mr-1" />
+              )}
+              {allDone && nextStage
+                ? `Przejdź do kroku ${nextStage.num}: ${nextStage.title}`
+                : allDone
+                  ? readyLabel
+                  : `Pokaż brakujące pola (${missing.length})`}
             </Button>
           </div>
         </div>
@@ -1117,7 +1437,6 @@ function StageEditor({
     </div>
   );
 }
-
 
 /* ---------------- STAGE 1: FUNDAMENT ---------------- */
 function StageFundament({
@@ -1317,7 +1636,10 @@ function StagePricing({
 
   const update = async (id: string, patch: Partial<Pkg>) => {
     setPackages((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-    await supabase.from("user_product_packages").update(patch as never).eq("id", id);
+    await supabase
+      .from("user_product_packages")
+      .update(patch as never)
+      .eq("id", id);
   };
 
   const toggleFeatured = async (id: string, next: boolean) => {
@@ -1328,10 +1650,16 @@ function StagePricing({
         packages
           .filter((p) => p.id !== id && p.is_featured)
           .map((p) =>
-            supabase.from("user_product_packages").update({ is_featured: false } as never).eq("id", p.id),
+            supabase
+              .from("user_product_packages")
+              .update({ is_featured: false } as never)
+              .eq("id", p.id),
           ),
       );
-      await supabase.from("user_product_packages").update({ is_featured: true } as never).eq("id", id);
+      await supabase
+        .from("user_product_packages")
+        .update({ is_featured: true } as never)
+        .eq("id", id);
     } else {
       update(id, { is_featured: false });
     }
@@ -1359,9 +1687,7 @@ function StagePricing({
               <div className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
                 Pakiety
               </div>
-              <div className="font-display font-extrabold text-lg">
-                {count} z 3 gotowych
-              </div>
+              <div className="font-display font-extrabold text-lg">{count} z 3 gotowych</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -1435,7 +1761,8 @@ function StagePricing({
                     </div>
                   </div>
                   <div className="font-display font-extrabold text-2xl mb-2">
-                    {preset.price} <span className="text-xs text-muted-foreground font-semibold">PLN</span>
+                    {preset.price}{" "}
+                    <span className="text-xs text-muted-foreground font-semibold">PLN</span>
                   </div>
                   <ul className="space-y-1">
                     {preset.items.slice(0, 3).map((it, i) => (
@@ -1541,7 +1868,12 @@ function PkgCard({
               : "bg-muted text-muted-foreground hover:text-orange hover:bg-orange/10",
           )}
         >
-          <Star className={cn("w-4 h-4 transition-transform", pkg.is_featured && "fill-current animate-pulse")} />
+          <Star
+            className={cn(
+              "w-4 h-4 transition-transform",
+              pkg.is_featured && "fill-current animate-pulse",
+            )}
+          />
         </button>
       </div>
 
@@ -1553,9 +1885,7 @@ function PkgCard({
           <Input
             type="number"
             value={pkg.price ?? ""}
-            onChange={(e) =>
-              onUpdate({ price: e.target.value ? Number(e.target.value) : null })
-            }
+            onChange={(e) => onUpdate({ price: e.target.value ? Number(e.target.value) : null })}
             placeholder="497"
             className="font-display font-extrabold text-3xl border-0 px-0 focus-visible:ring-0 h-auto bg-transparent"
           />
@@ -1586,13 +1916,7 @@ function PkgCard({
   );
 }
 
-function PkgItems({
-  items,
-  onChange,
-}: {
-  items: string[];
-  onChange: (items: string[]) => void;
-}) {
+function PkgItems({ items, onChange }: { items: string[]; onChange: (items: string[]) => void }) {
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -1784,8 +2108,13 @@ function StageMaterials({
 
       <ul className="space-y-1.5">
         {materials.map((m) => (
-          <li key={m.id} className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/20">
-            <span className="text-xl">{m.kind === "link" ? "🔗" : m.kind === "pdf" ? "📄" : "📎"}</span>
+          <li
+            key={m.id}
+            className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/20"
+          >
+            <span className="text-xl">
+              {m.kind === "link" ? "🔗" : m.kind === "pdf" ? "📄" : "📎"}
+            </span>
             <a
               href={m.file_url ?? m.external_link ?? "#"}
               target="_blank"
@@ -1806,7 +2135,10 @@ function StageMaterials({
                 ))}
               </SelectContent>
             </Select>
-            <button onClick={() => remove(m.id)} className="text-muted-foreground hover:text-destructive p-1">
+            <button
+              onClick={() => remove(m.id)}
+              className="text-muted-foreground hover:text-destructive p-1"
+            >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </li>
@@ -1850,7 +2182,9 @@ function StagePublish({
               >
                 {checklist[it.key] && <Check className="w-3.5 h-3.5" />}
               </span>
-              <span className={cn("text-sm", checklist[it.key] && "line-through text-muted-foreground")}>
+              <span
+                className={cn("text-sm", checklist[it.key] && "line-through text-muted-foreground")}
+              >
                 {it.label}
               </span>
             </button>
@@ -1861,7 +2195,7 @@ function StagePublish({
       <div className="rounded-2xl bg-gradient-to-r from-violet-soft to-blue-soft p-4 text-center">
         <Lightbulb className="w-6 h-6 mx-auto text-violet mb-1" />
         <p className="font-semibold text-sm">
-          Twój produkt jest gotowy w <span className="text-violet font-extrabold">{score}%</span>. 
+          Twój produkt jest gotowy w <span className="text-violet font-extrabold">{score}%</span>.
           Odhacz pozycje ({done}/{PUBLISH_CHECKLIST_ITEMS.length}), aby przygotować go do sprzedaży.
         </p>
       </div>
@@ -1912,10 +2246,12 @@ function Field({
           {required && <span className="text-destructive ml-0.5">*</span>}
         </Label>
         {minLength && (
-          <span className={cn(
-            "text-[10px] tabular-nums",
-            trimmed.length >= minLength ? "text-green" : "text-muted-foreground",
-          )}>
+          <span
+            className={cn(
+              "text-[10px] tabular-nums",
+              trimmed.length >= minLength ? "text-green" : "text-muted-foreground",
+            )}
+          >
             {trimmed.length}/{minLength}
           </span>
         )}
@@ -2061,26 +2397,5 @@ function FaqField({
         <Plus className="w-3.5 h-3.5 mr-1" /> Dodaj pytanie
       </Button>
     </div>
-  );
-}
-
-/* ---------------- LINK TO COURSE MODULES ---------------- */
-function CourseModulesLink() {
-  return (
-    <Link
-      to="/course-builder"
-      className="block rounded-2xl border border-border bg-card hover:border-violet/40 transition-all p-4"
-    >
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">🗺️</span>
-        <div className="flex-1">
-          <div className="font-display font-bold text-sm">Mapa kursu: 7 modułów</div>
-          <div className="text-xs text-muted-foreground">
-            Lekcje, zadania i checklisty — przejdź do widoku modułów.
-          </div>
-        </div>
-        <ArrowRight className="w-5 h-5 text-violet" />
-      </div>
-    </Link>
   );
 }

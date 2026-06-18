@@ -17,8 +17,9 @@ import { Label } from "@/components/ui/label";
 import { Flashlight } from "@/components/auth/Flashlight";
 import { LockKey } from "@/components/auth/LockKey";
 import { cn } from "@/lib/utils";
+import { getAuthErrorMessage, validateAuthForm, type AuthMode } from "@/lib/auth-errors";
 
-type Mode = "signin" | "signup" | "reset";
+type Mode = AuthMode;
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -47,6 +48,12 @@ function AuthPage() {
   const passwordStrength = Math.min(1, password.length / 8);
   const unlocked = password.length >= 8;
 
+  const changeMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    setError(null);
+    setInfo(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -58,20 +65,30 @@ function AuthPage() {
       return;
     }
 
+    const validationError = validateAuthForm({ mode, email, password });
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setBusy(true);
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
         if (error) throw error;
         navigate({ to: "/" });
       } else if (mode === "signup") {
         const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: redirectTo,
-            data: { full_name: fullName || email.split("@")[0] },
+            data: { full_name: fullName.trim() || normalizedEmail.split("@")[0] },
           },
         });
         if (error) throw error;
@@ -82,12 +99,14 @@ function AuthPage() {
       } else if (mode === "reset") {
         const redirectTo =
           typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+          redirectTo,
+        });
         if (error) throw error;
         setInfo("Link do resetu hasła wysłany. Sprawdź skrzynkę.");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Coś poszło nie tak");
+      setError(getAuthErrorMessage(err, mode));
     } finally {
       setBusy(false);
     }
@@ -136,13 +155,13 @@ function AuthPage() {
           {/* prawa kolumna — formularz */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
             <div className="mb-6 flex gap-2 rounded-full bg-white/5 p-1">
-              <TabBtn active={mode === "signin"} onClick={() => setMode("signin")}>
+              <TabBtn active={mode === "signin"} onClick={() => changeMode("signin")}>
                 Logowanie
               </TabBtn>
-              <TabBtn active={mode === "signup"} onClick={() => setMode("signup")}>
+              <TabBtn active={mode === "signup"} onClick={() => changeMode("signup")}>
                 Rejestracja
               </TabBtn>
-              <TabBtn active={mode === "reset"} onClick={() => setMode("reset")}>
+              <TabBtn active={mode === "reset"} onClick={() => changeMode("reset")}>
                 Reset
               </TabBtn>
             </div>
@@ -252,7 +271,7 @@ function AuthPage() {
               {mode === "signin" && (
                 <button
                   type="button"
-                  onClick={() => setMode("reset")}
+                  onClick={() => changeMode("reset")}
                   className="w-full text-center text-xs text-white/60 hover:text-white"
                 >
                   Nie pamiętasz hasła?

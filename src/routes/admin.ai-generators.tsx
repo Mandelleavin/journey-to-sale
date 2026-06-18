@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Bot, Pencil, Save, Sparkles, ToggleLeft, ToggleRight } from "lucide-react";
+import { Bot, ImageIcon, KeyRound, Pencil, Save, Sparkles, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/ai-generators")({
@@ -49,10 +49,21 @@ const MODELS = [
   "openai/gpt-5",
 ];
 
+const IMAGE_MODELS = ["gpt-image-1-mini", "gpt-image-2", "gpt-image-1"] as const;
+const IMAGE_SIZES = ["1024x1536", "1024x1024", "1536x1024"] as const;
+const IMAGE_QUALITIES = ["low", "medium", "high"] as const;
+
 function AdminAIGenerators() {
   const [items, setItems] = useState<Generator[]>([]);
   const [creditValue, setCreditValue] = useState(0.5);
   const [marginMult, setMarginMult] = useState(7);
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [lovableKey, setLovableKey] = useState("");
+  const [hasOpenaiKey, setHasOpenaiKey] = useState(false);
+  const [hasLovableKey, setHasLovableKey] = useState(false);
+  const [imageModel, setImageModel] = useState("gpt-image-1-mini");
+  const [imageSize, setImageSize] = useState("1024x1536");
+  const [imageQuality, setImageQuality] = useState("low");
   const [editing, setEditing] = useState<Generator | null>(null);
 
   const refresh = async () => {
@@ -62,8 +73,20 @@ function AdminAIGenerators() {
     ]);
     setItems((gens ?? []) as Generator[]);
     if (settings) {
-      setCreditValue(Number(settings.credit_value_pln));
-      setMarginMult(Number(settings.minimum_margin_multiplier));
+      const s = settings as typeof settings & {
+        openai_api_key?: string | null;
+        lovable_api_key?: string | null;
+        openai_image_model?: string | null;
+        openai_image_size?: string | null;
+        openai_image_quality?: string | null;
+      };
+      setCreditValue(Number(s.credit_value_pln));
+      setMarginMult(Number(s.minimum_margin_multiplier));
+      setHasOpenaiKey(Boolean(s.openai_api_key));
+      setHasLovableKey(Boolean(s.lovable_api_key));
+      setImageModel(s.openai_image_model || "gpt-image-1-mini");
+      setImageSize(s.openai_image_size || "1024x1536");
+      setImageQuality(s.openai_image_quality || "low");
     }
   };
 
@@ -92,6 +115,34 @@ function AdminAIGenerators() {
       : await supabase.from("ai_settings").insert(payload);
     if (error) toast.error(error.message);
     else toast.success("Ustawienia zapisane");
+  };
+
+  const saveAiConfig = async () => {
+    const { data: existing } = await supabase.from("ai_settings").select("id").maybeSingle();
+    const payload: Record<string, unknown> = {
+      ai_provider: "openai",
+      openai_image_model: imageModel,
+      openai_image_size: imageSize,
+      openai_image_quality: imageQuality,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (openaiKey.trim()) payload.openai_api_key = openaiKey.trim();
+    if (lovableKey.trim()) payload.lovable_api_key = lovableKey.trim();
+
+    const { error } = existing
+      ? await supabase.from("ai_settings").update(payload as never).eq("id", existing.id)
+      : await supabase.from("ai_settings").insert(payload as never);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Konfiguracja AI zapisana");
+    setOpenaiKey("");
+    setLovableKey("");
+    refresh();
   };
 
   const saveGenerator = async (g: Generator) => {
@@ -154,6 +205,120 @@ function AdminAIGenerators() {
             <Button onClick={saveSettings} className="bg-gradient-violet text-primary-foreground w-full">
               <Save className="w-4 h-4 mr-2" />
               Zapisz ustawienia
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-violet/25 bg-gradient-to-br from-violet/10 via-card to-blue/10 p-5 shadow-soft">
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-violet text-primary-foreground grid place-items-center shadow-soft">
+              <KeyRound className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-display font-bold text-lg">Konfiguracja AI</div>
+              <p className="text-sm text-muted-foreground max-w-2xl">
+                Wklej tutaj klucz OpenAI do generowania okładek produktów. Funkcja serwerowa pobierze go
+                z bazy, więc nie trzeba ręcznie ustawiać sekretów w Supabase CLI po każdej zmianie.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Badge
+              variant="outline"
+              className={hasOpenaiKey ? "border-green/40 text-green" : "border-orange/40 text-orange"}
+            >
+              OpenAI: {hasOpenaiKey ? "aktywny" : "brak klucza"}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={hasLovableKey ? "border-green/40 text-green" : "border-muted text-muted-foreground"}
+            >
+              Lovable: {hasLovableKey ? "aktywny" : "opcjonalny"}
+            </Badge>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-4">
+          <div className="rounded-2xl border border-border bg-card/80 p-4">
+            <div className="flex items-center gap-2 font-semibold mb-3">
+              <ImageIcon className="w-4 h-4 text-violet" />
+              Tani model do okładek produktów
+            </div>
+            <div className="grid md:grid-cols-3 gap-3">
+              <div>
+                <Label>Model obrazu</Label>
+                <select
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  value={imageModel}
+                  onChange={(e) => setImageModel(e.target.value)}
+                >
+                  {IMAGE_MODELS.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">Najtaniej: gpt-image-1-mini.</p>
+              </div>
+              <div>
+                <Label>Rozmiar</Label>
+                <select
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  value={imageSize}
+                  onChange={(e) => setImageSize(e.target.value)}
+                >
+                  {IMAGE_SIZES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">Pionowy format najlepiej pasuje do mockupów.</p>
+              </div>
+              <div>
+                <Label>Jakość</Label>
+                <select
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  value={imageQuality}
+                  onChange={(e) => setImageQuality(e.target.value)}
+                >
+                  {IMAGE_QUALITIES.map((q) => (
+                    <option key={q} value={q}>{q}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">Do testów ustaw low, żeby ciąć koszt.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card/80 p-4 space-y-3">
+            <div>
+              <Label>OpenAI API key</Label>
+              <Input
+                type="password"
+                value={openaiKey}
+                onChange={(e) => setOpenaiKey(e.target.value)}
+                placeholder={hasOpenaiKey ? "Klucz zapisany - wpisz nowy, aby zmienić" : "sk-..."}
+                autoComplete="off"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Wymagane dla przycisku „Generuj AI” przy okładce produktu.
+              </p>
+            </div>
+            <div>
+              <Label>Lovable API key / fallback</Label>
+              <Input
+                type="password"
+                value={lovableKey}
+                onChange={(e) => setLovableKey(e.target.value)}
+                placeholder={hasLovableKey ? "Klucz zapisany - wpisz nowy, aby zmienić" : "Opcjonalnie dla generatorów tekstowych"}
+                autoComplete="off"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Opcjonalny fallback dla starszych generatorów tekstowych.
+              </p>
+            </div>
+            <Button onClick={saveAiConfig} className="bg-gradient-violet text-primary-foreground w-full">
+              <Save className="w-4 h-4 mr-2" />
+              Zapisz konfigurację AI
             </Button>
           </div>
         </div>

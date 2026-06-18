@@ -35,6 +35,10 @@ import {
   Gift,
   Pin,
   Shield,
+  Eye,
+  ExternalLink,
+  Package,
+  ClipboardList,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -45,6 +49,7 @@ import { PathMappingTab } from "@/components/admin/PathMappingTab";
 import { RewardsTab } from "@/components/admin/RewardsTab";
 import { CourseTasksTab } from "@/components/admin/CourseTasksTab";
 import { AdminsTab } from "@/components/admin/AdminsTab";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminIndexPage,
@@ -116,20 +121,104 @@ function AdminIndexPage() {
         <Tabs defaultValue="hotleads" className="w-full">
           <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 h-auto bg-transparent p-0 mb-6">
             {[
-              { value: "hotleads", label: "Hot leady", icon: Flame, desc: "Najbliżsi zakupu", tone: "bg-orange/10 text-orange" },
-              { value: "users", label: "Użytkownicy", icon: Users, desc: "Lista i gotowość", tone: "bg-violet/10 text-violet" },
-              { value: "mentor", label: "Mentor AI", icon: Sparkles, desc: "Konfiguracja AI", tone: "bg-blue/10 text-blue" },
-              { value: "submissions", label: "Zgłoszenia", icon: Inbox, desc: "Do oceny", tone: "bg-orange/10 text-orange" },
-              { value: "reports", label: "Problemy", icon: Inbox, desc: "Zgłoszenia od użytkowników", tone: "bg-orange/10 text-orange" },
-              { value: "courses", label: "Kursy", icon: GraduationCap, desc: "Treści i lekcje", tone: "bg-violet/10 text-violet" },
-              { value: "course-tasks", label: "Zadania", icon: ListChecks, desc: "Zadania w lekcjach", tone: "bg-green/10 text-green" },
-              { value: "advisor", label: "Doradca", icon: ListChecks, desc: "Reguły doradcy", tone: "bg-blue/10 text-blue" },
-              { value: "sales", label: "Sprzedaż", icon: Phone, desc: "Telefony i status", tone: "bg-orange/10 text-orange" },
-              { value: "promo", label: "Kody rabatowe", icon: Tag, desc: "Promocje", tone: "bg-violet/10 text-violet" },
-              { value: "paths", label: "Ścieżki", icon: CalendarDays, desc: "Plany 90 dni", tone: "bg-blue/10 text-blue" },
-              { value: "mapping", label: "Mapowanie", icon: Pin, desc: "Kursy → dni ścieżki", tone: "bg-violet/10 text-violet" },
-              { value: "rewards", label: "Nagrody", icon: Gift, desc: "Odznaki i bonusy", tone: "bg-green/10 text-green" },
-              { value: "admins", label: "Administratorzy", icon: Shield, desc: "Zarządzaj adminami", tone: "bg-violet/10 text-violet" },
+              {
+                value: "hotleads",
+                label: "Hot leady",
+                icon: Flame,
+                desc: "Najbliżsi zakupu",
+                tone: "bg-orange/10 text-orange",
+              },
+              {
+                value: "users",
+                label: "Użytkownicy",
+                icon: Users,
+                desc: "Lista i gotowość",
+                tone: "bg-violet/10 text-violet",
+              },
+              {
+                value: "mentor",
+                label: "Mentor AI",
+                icon: Sparkles,
+                desc: "Konfiguracja AI",
+                tone: "bg-blue/10 text-blue",
+              },
+              {
+                value: "submissions",
+                label: "Zgłoszenia",
+                icon: Inbox,
+                desc: "Do oceny",
+                tone: "bg-orange/10 text-orange",
+              },
+              {
+                value: "reports",
+                label: "Problemy",
+                icon: Inbox,
+                desc: "Zgłoszenia od użytkowników",
+                tone: "bg-orange/10 text-orange",
+              },
+              {
+                value: "courses",
+                label: "Kursy",
+                icon: GraduationCap,
+                desc: "Treści i lekcje",
+                tone: "bg-violet/10 text-violet",
+              },
+              {
+                value: "course-tasks",
+                label: "Zadania",
+                icon: ListChecks,
+                desc: "Zadania w lekcjach",
+                tone: "bg-green/10 text-green",
+              },
+              {
+                value: "advisor",
+                label: "Doradca",
+                icon: ListChecks,
+                desc: "Reguły doradcy",
+                tone: "bg-blue/10 text-blue",
+              },
+              {
+                value: "sales",
+                label: "Sprzedaż",
+                icon: Phone,
+                desc: "Telefony i status",
+                tone: "bg-orange/10 text-orange",
+              },
+              {
+                value: "promo",
+                label: "Kody rabatowe",
+                icon: Tag,
+                desc: "Promocje",
+                tone: "bg-violet/10 text-violet",
+              },
+              {
+                value: "paths",
+                label: "Ścieżki",
+                icon: CalendarDays,
+                desc: "Plany 90 dni",
+                tone: "bg-blue/10 text-blue",
+              },
+              {
+                value: "mapping",
+                label: "Mapowanie",
+                icon: Pin,
+                desc: "Kursy → dni ścieżki",
+                tone: "bg-violet/10 text-violet",
+              },
+              {
+                value: "rewards",
+                label: "Nagrody",
+                icon: Gift,
+                desc: "Odznaki i bonusy",
+                tone: "bg-green/10 text-green",
+              },
+              {
+                value: "admins",
+                label: "Administratorzy",
+                icon: Shield,
+                desc: "Zarządzaj adminami",
+                tone: "bg-violet/10 text-violet",
+              },
             ].map((t) => {
               const Icon = t.icon;
               return (
@@ -142,14 +231,15 @@ function AdminIndexPage() {
                     <Icon className="w-4 h-4" strokeWidth={2.2} />
                   </div>
                   <div className="text-left">
-                    <div className="font-display font-bold text-sm text-foreground leading-tight">{t.label}</div>
+                    <div className="font-display font-bold text-sm text-foreground leading-tight">
+                      {t.label}
+                    </div>
                     <div className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</div>
                   </div>
                 </TabsTrigger>
               );
             })}
           </TabsList>
-
 
           <TabsContent value="hotleads" className="mt-6">
             <HotLeadsTab />
@@ -217,11 +307,78 @@ type UserRow = {
   has_free_course: boolean;
 };
 
+type UserDetailProfile = {
+  phone: string | null;
+  social_link: string | null;
+  lead_temp: string | null;
+  admin_notes: string | null;
+};
+
+type UserDetailSurvey = {
+  goal_90_days: string | null;
+  biggest_problem: string | null;
+  weekly_hours: number | null;
+  product_idea_details: string | null;
+  has_landing_page: boolean | null;
+  updated_at: string;
+};
+
+type UserDetailProduct = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  promise: string | null;
+  target_audience: string | null;
+  problem: string | null;
+  result: string | null;
+  status: string;
+  product_type: string | null;
+  price_draft: number | null;
+  cover_url: string | null;
+  updated_at: string;
+};
+
+type UserDetailSubscription = {
+  plan: string;
+  status: string;
+  current_period_end: string;
+};
+
+type UserDetailMentorTask = {
+  id: string;
+  title: string;
+  status: string;
+  xp_reward: number;
+  due_date: string | null;
+  submitted_at: string | null;
+  created_at: string;
+};
+
+type UserDetailSubmission = {
+  id: string;
+  status: string;
+  content: string;
+  admin_feedback: string | null;
+  created_at: string;
+};
+
+type UserDetailsState = {
+  profile: UserDetailProfile | null;
+  survey: UserDetailSurvey | null;
+  products: UserDetailProduct[];
+  subscription: UserDetailSubscription | null;
+  mentorTasks: UserDetailMentorTask[];
+  submissions: UserDetailSubmission[];
+};
+
 function UsersTab() {
   const [rows, setRows] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
-  const [planFilter, setPlanFilter] = useState<"all" | "paid_ads" | "organic_social" | "unsure" | "none">("all");
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  const [planFilter, setPlanFilter] = useState<
+    "all" | "paid_ads" | "organic_social" | "unsure" | "none"
+  >("all");
   const [readinessFilter, setReadinessFilter] = useState<"all" | "hot" | "warm" | "cold">("all");
 
   const load = async () => {
@@ -271,8 +428,7 @@ function UsersTab() {
       const s = surveyMap.get(p.id);
       const surveyPct = s?.readiness_percent ?? 0;
       const watched = watchedFreeByUser.get(p.id) ?? 0;
-      const freePct =
-        totalFreeLessons > 0 ? Math.round((watched / totalFreeLessons) * 100) : 0;
+      const freePct = totalFreeLessons > 0 ? Math.round((watched / totalFreeLessons) * 100) : 0;
       const freeDone = totalFreeLessons > 0 && watched >= totalFreeLessons;
       // Free course progress is a strong intent signal — boost up to +25 pts.
       const courseBoost = Math.round((freePct / 100) * 25);
@@ -400,6 +556,7 @@ function UsersTab() {
               <th className="py-2 px-2">Pomysł / Oferta</th>
               <th className="py-2 px-2">XP</th>
               <th className="py-2 px-2">Rejestracja</th>
+              <th className="py-2 px-2 text-right">Akcje</th>
             </tr>
           </thead>
           <tbody>
@@ -472,12 +629,403 @@ function UsersTab() {
                   <td className="py-3 px-2 text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString("pl-PL")}
                   </td>
+                  <td className="py-3 px-2 text-right">
+                    <Button size="sm" variant="outline" onClick={() => setSelectedUser(r)}>
+                      <Eye className="w-3.5 h-3.5 mr-1" />
+                      Szczegóły
+                    </Button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      <UserDetailsDialog
+        userRow={selectedUser}
+        open={Boolean(selectedUser)}
+        onOpenChange={(open) => !open && setSelectedUser(null)}
+        planLabel={planLabel}
+      />
+    </div>
+  );
+}
+
+function UserDetailsDialog({
+  userRow,
+  open,
+  onOpenChange,
+  planLabel,
+}: {
+  userRow: UserRow | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  planLabel: (plan: string | null) => string;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [details, setDetails] = useState<UserDetailsState | null>(null);
+
+  useEffect(() => {
+    if (!open || !userRow) return;
+
+    (async () => {
+      setLoading(true);
+      const [
+        { data: profile },
+        { data: survey },
+        { data: products },
+        { data: subscription },
+        { data: mentorTasks },
+        { data: submissions },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("phone, social_link, lead_temp, admin_notes")
+          .eq("id", userRow.id)
+          .maybeSingle(),
+        supabase
+          .from("survey_responses")
+          .select(
+            "goal_90_days, biggest_problem, weekly_hours, product_idea_details, has_landing_page, updated_at",
+          )
+          .eq("user_id", userRow.id)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("user_products")
+          .select(
+            "id, title, subtitle, promise, target_audience, problem, result, status, product_type, price_draft, cover_url, updated_at",
+          )
+          .eq("user_id", userRow.id)
+          .order("updated_at", { ascending: false })
+          .limit(3),
+        supabase
+          .from("user_subscriptions")
+          .select("plan, status, current_period_end")
+          .eq("user_id", userRow.id)
+          .maybeSingle(),
+        supabase
+          .from("mentor_assigned_tasks")
+          .select("id, title, status, xp_reward, due_date, submitted_at, created_at")
+          .eq("user_id", userRow.id)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("task_submissions")
+          .select("id, status, content, admin_feedback, created_at")
+          .eq("user_id", userRow.id)
+          .order("created_at", { ascending: false })
+          .limit(5),
+      ]);
+
+      setDetails({
+        profile: (profile as UserDetailProfile) ?? null,
+        survey: (survey as UserDetailSurvey) ?? null,
+        products: (products ?? []) as UserDetailProduct[],
+        subscription: (subscription as UserDetailSubscription) ?? null,
+        mentorTasks: (mentorTasks ?? []) as UserDetailMentorTask[],
+        submissions: (submissions ?? []) as UserDetailSubmission[],
+      });
+      setLoading(false);
+    })();
+  }, [open, userRow]);
+
+  const tag = userRow ? readinessLabel(userRow.readiness_percent) : null;
+  const mainProduct = details?.products[0] ?? null;
+  const yesNo = (value: boolean | null | undefined) =>
+    value === true ? "Tak" : value === false ? "Nie" : "—";
+  const shortText = (value: string | null | undefined, fallback = "Brak danych") =>
+    value && value.trim() ? value : fallback;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Szczegóły użytkownika</DialogTitle>
+        </DialogHeader>
+
+        {!userRow ? null : (
+          <div className="space-y-4">
+            <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft/70 via-card to-blue-soft/40 p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display text-2xl font-extrabold">
+                      {userRow.full_name ?? "Bez imienia"}
+                    </h3>
+                    {tag && (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px]",
+                          tag.tone === "green" && "border-green/40 text-green",
+                          tag.tone === "blue" && "border-blue/40 text-blue",
+                          tag.tone === "orange" && "border-orange/40 text-orange",
+                          tag.tone === "violet" && "border-violet/40 text-violet",
+                        )}
+                      >
+                        {tag.label}
+                      </Badge>
+                    )}
+                    {details?.subscription && (
+                      <Badge className="border-0 bg-violet-soft text-violet">
+                        {details.subscription.plan} · {details.subscription.status}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground break-all">{userRow.email}</p>
+                  <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                    <div>
+                      <span className="text-muted-foreground">Telefon: </span>
+                      <span className="font-semibold">{details?.profile?.phone ?? "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Social: </span>
+                      <span className="font-semibold break-all">
+                        {details?.profile?.social_link ?? "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Rejestracja: </span>
+                      <span className="font-semibold">
+                        {new Date(userRow.created_at).toLocaleDateString("pl-PL")}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">XP: </span>
+                      <span className="font-semibold">{userRow.total_xp}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    to="/u/$userId"
+                    params={{ userId: userRow.id }}
+                    className="inline-flex h-9 items-center rounded-md border border-border bg-card px-3 text-sm font-semibold hover:bg-muted"
+                  >
+                    <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                    Profil
+                  </Link>
+                  <Link
+                    to="/products"
+                    search={{ userId: userRow.id }}
+                    className="inline-flex h-9 items-center rounded-md bg-gradient-violet px-3 text-sm font-semibold text-primary-foreground"
+                  >
+                    <Package className="mr-1.5 h-3.5 w-3.5" />
+                    Produkty
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="rounded-2xl border border-border p-8 text-center text-sm text-muted-foreground">
+                Ładowanie szczegółów...
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-3 md:grid-cols-4">
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-xs font-bold uppercase text-muted-foreground">
+                      Gotowość
+                    </div>
+                    <div className="mt-1 font-display text-2xl font-extrabold text-violet">
+                      {userRow.readiness_percent}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      ankieta {userRow.survey_percent}% + kurs +
+                      {userRow.readiness_percent - userRow.survey_percent}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-xs font-bold uppercase text-muted-foreground">
+                      Kurs bezpłatny
+                    </div>
+                    <div className="mt-1 font-display text-2xl font-extrabold text-green">
+                      {userRow.free_course_percent}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {userRow.free_course_done ? "ukończony" : "w trakcie / brak postępu"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-xs font-bold uppercase text-muted-foreground">
+                      Pozyskiwanie
+                    </div>
+                    <div className="mt-1 font-display text-lg font-extrabold">
+                      {planLabel(userRow.acquisition_plan)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">z ankiety onboardingowej</div>
+                  </div>
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-xs font-bold uppercase text-muted-foreground">
+                      Produkt / oferta
+                    </div>
+                    <div className="mt-1 text-sm font-semibold">
+                      Pomysł: {yesNo(userRow.has_product_idea)}
+                    </div>
+                    <div className="text-sm font-semibold">Oferta: {yesNo(userRow.has_offer)}</div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+                  <section className="rounded-2xl border border-border bg-card p-4">
+                    <h4 className="mb-3 flex items-center gap-2 font-display font-bold">
+                      <ClipboardList className="h-4 w-4 text-violet" />
+                      Ankieta i potrzeby
+                    </h4>
+                    <div className="space-y-3 text-sm">
+                      <DetailLine label="Cel 90 dni" value={details?.survey?.goal_90_days} />
+                      <DetailLine label="Największy problem" value={details?.survey?.biggest_problem} />
+                      <DetailLine
+                        label="Pomysł na produkt"
+                        value={details?.survey?.product_idea_details}
+                      />
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <DetailPill label="Godziny tygodniowo" value={details?.survey?.weekly_hours ?? "—"} />
+                        <DetailPill label="Landing page" value={yesNo(details?.survey?.has_landing_page)} />
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-border bg-card p-4">
+                    <h4 className="mb-3 flex items-center gap-2 font-display font-bold">
+                      <Package className="h-4 w-4 text-blue" />
+                      Główny produkt
+                    </h4>
+                    {mainProduct ? (
+                      <div className="flex gap-3">
+                        {mainProduct.cover_url ? (
+                          <img
+                            src={mainProduct.cover_url}
+                            alt=""
+                            className="h-32 w-24 shrink-0 rounded-xl border border-border object-cover"
+                          />
+                        ) : (
+                          <div className="grid h-32 w-24 shrink-0 place-items-center rounded-xl bg-muted text-xs text-muted-foreground">
+                            brak okładki
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1 space-y-1.5 text-sm">
+                          <div className="font-display text-lg font-extrabold">
+                            {mainProduct.title || "Bez nazwy"}
+                          </div>
+                          <div className="text-muted-foreground">
+                            {shortText(mainProduct.subtitle, "Brak podtytułu")}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Obietnica: </span>
+                            {shortText(mainProduct.promise, "brak")}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Cena: </span>
+                            {mainProduct.price_draft ? `${mainProduct.price_draft} zł` : "—"}
+                          </div>
+                          <Badge variant="outline" className="text-[10px]">
+                            {mainProduct.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
+                        Ten użytkownik nie ma jeszcze produktu.
+                      </div>
+                    )}
+                  </section>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <section className="rounded-2xl border border-border bg-card p-4">
+                    <h4 className="mb-3 font-display font-bold">Ostatnie zadania mentora</h4>
+                    <div className="space-y-2">
+                      {(details?.mentorTasks ?? []).length === 0 ? (
+                        <div className="text-sm text-muted-foreground">Brak zadań mentora.</div>
+                      ) : (
+                        details?.mentorTasks.map((task) => (
+                          <div key={task.id} className="rounded-xl border border-border p-3 text-sm">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-semibold">{task.title}</span>
+                              <Badge variant="outline" className="text-[10px]">
+                                {task.status}
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              +{task.xp_reward} XP
+                              {task.due_date
+                                ? ` · termin ${new Date(task.due_date).toLocaleDateString("pl-PL")}`
+                                : ""}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-border bg-card p-4">
+                    <h4 className="mb-3 font-display font-bold">Ostatnie odpowiedzi z lekcji</h4>
+                    <div className="space-y-2">
+                      {(details?.submissions ?? []).length === 0 ? (
+                        <div className="text-sm text-muted-foreground">Brak wysłanych odpowiedzi.</div>
+                      ) : (
+                        details?.submissions.map((submission) => (
+                          <div
+                            key={submission.id}
+                            className="rounded-xl border border-border p-3 text-sm"
+                          >
+                            <div className="mb-1 flex items-center justify-between gap-2">
+                              <Badge variant="outline" className="text-[10px]">
+                                {submission.status}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(submission.created_at).toLocaleDateString("pl-PL")}
+                              </span>
+                            </div>
+                            <p className="line-clamp-3 text-muted-foreground">
+                              {submission.content}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </section>
+                </div>
+
+                {details?.profile?.admin_notes && (
+                  <section className="rounded-2xl border border-orange/20 bg-orange-soft/30 p-4">
+                    <h4 className="font-display font-bold">Notatki administratora</h4>
+                    <p className="mt-2 whitespace-pre-wrap text-sm">{details.profile.admin_notes}</p>
+                  </section>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DetailLine({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div>
+      <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-1 rounded-xl bg-muted/40 p-3 text-sm whitespace-pre-wrap">
+        {value && value.trim() ? value : "—"}
+      </div>
+    </div>
+  );
+}
+
+function DetailPill({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-1 font-semibold">{value}</div>
     </div>
   );
 }
@@ -693,7 +1241,9 @@ function ReportsTab() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<"all" | ProblemReport["category"]>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">("open");
+  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">(
+    "open",
+  );
   const [response, setResponse] = useState<Record<string, string>>({});
 
   const load = async () => {
@@ -738,7 +1288,14 @@ function ReportsTab() {
   });
 
   const catLabel = (c: ProblemReport["category"]) =>
-    ({ offer: "Oferta", website: "Strona", sales: "Sprzedaż", ads: "Reklama", technical: "Techniczne", other: "Inne" })[c];
+    ({
+      offer: "Oferta",
+      website: "Strona",
+      sales: "Sprzedaż",
+      ads: "Reklama",
+      technical: "Techniczne",
+      other: "Inne",
+    })[c];
 
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>;
 
@@ -891,7 +1448,7 @@ function CoursesTab() {
       supabase.from("lessons").select("*").order("position"),
       supabase.from("lesson_tasks").select("*"),
     ]);
-    setCourses((c ?? []) as Course[]);
+    setCourses(normalizeProgramCourseRows((c ?? []) as Course[]));
     setLessons((l ?? []) as Lesson[]);
     setTasks((t ?? []) as LessonTask[]);
     setLoading(false);
@@ -2459,14 +3016,8 @@ function SalesTab() {
 
   const refresh = async () => {
     const [{ data: r }, { data: c }] = await Promise.all([
-      supabase
-        .from("service_requests")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("cancellation_feedback")
-        .select("*")
-        .order("created_at", { ascending: false }),
+      supabase.from("service_requests").select("*").order("created_at", { ascending: false }),
+      supabase.from("cancellation_feedback").select("*").order("created_at", { ascending: false }),
     ]);
     setReqs((r ?? []) as ServiceReq[]);
     setCancels((c ?? []) as CancelFb[]);
@@ -2478,10 +3029,7 @@ function SalesTab() {
   }, []);
 
   const setStatus = async (id: string, status: ServiceReq["status"]) => {
-    const { error } = await supabase
-      .from("service_requests")
-      .update({ status })
-      .eq("id", id);
+    const { error } = await supabase.from("service_requests").update({ status }).eq("id", id);
     if (error) toast.error(error.message);
     else {
       toast.success("Zaktualizowano");
@@ -2498,9 +3046,7 @@ function SalesTab() {
           Zlecenia wdrożeniowe ({reqs.length})
         </h3>
         <div className="grid gap-3">
-          {reqs.length === 0 && (
-            <div className="text-sm text-muted-foreground">Brak zleceń.</div>
-          )}
+          {reqs.length === 0 && <div className="text-sm text-muted-foreground">Brak zleceń.</div>}
           {reqs.map((r) => (
             <div
               key={r.id}
@@ -2508,7 +3054,9 @@ function SalesTab() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="text-[10px]">{r.service_type}</Badge>
+                  <Badge variant="outline" className="text-[10px]">
+                    {r.service_type}
+                  </Badge>
                   <Badge
                     variant="outline"
                     className={cn(
@@ -2524,9 +3072,7 @@ function SalesTab() {
                   <span className="text-xs text-muted-foreground">{r.email}</span>
                   {r.phone && <span className="text-xs">{r.phone}</span>}
                 </div>
-                {r.message && (
-                  <p className="text-sm text-muted-foreground mt-2">{r.message}</p>
-                )}
+                {r.message && <p className="text-sm text-muted-foreground mt-2">{r.message}</p>}
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {new Date(r.created_at).toLocaleString("pl-PL")}
                 </p>
@@ -2558,7 +3104,9 @@ function SalesTab() {
           {cancels.map((c) => (
             <div key={c.id} className="rounded-xl border border-border p-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="text-[10px]">{c.reason}</Badge>
+                <Badge variant="outline" className="text-[10px]">
+                  {c.reason}
+                </Badge>
                 <span className="text-[11px] text-muted-foreground">
                   {new Date(c.created_at).toLocaleString("pl-PL")}
                 </span>

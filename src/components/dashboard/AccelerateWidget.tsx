@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Rocket, Phone, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Clock3, MailCheck, Megaphone, MonitorUp, Phone, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,10 +16,35 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 
 const SERVICES = [
+  {
+    id: "product-plan",
+    name: "Plan produktu online",
+    price: "697 zł",
+    description:
+      "Ładnie rozpisany pomysł na produkt, pomysł na landing page oraz pomysły na reklamę z gotowym copy.",
+  },
   { id: "landing", name: "Wdrożenie landing page", price: "od 1500 zł" },
   { id: "funnel", name: "Lejek sprzedażowy + maile", price: "od 2500 zł" },
   { id: "ads", name: "Konfiguracja reklam Meta/Google", price: "od 1900 zł" },
   { id: "consult", name: "1h konsultacji 1:1 z ekspertem", price: "499 zł" },
+];
+
+const SERVICE_HIGHLIGHTS = [
+  {
+    icon: MonitorUp,
+    title: "Landing page",
+    description: "Gotowa strona sprzedażowa nawet w 5 dni.",
+  },
+  {
+    icon: Megaphone,
+    title: "Reklamy",
+    description: "Konfiguracja kampanii Meta i Google.",
+  },
+  {
+    icon: MailCheck,
+    title: "Lejek i maile",
+    description: "Automatyzacja drogi klienta do zakupu.",
+  },
 ];
 
 export function AccelerateWidget() {
@@ -30,6 +55,7 @@ export function AccelerateWidget() {
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const selectedService = SERVICES.find((item) => item.id === service);
 
   const submit = async () => {
     if (!user || !name) {
@@ -57,41 +83,76 @@ export function AccelerateWidget() {
   };
 
   return (
-    <div className="rounded-3xl border border-border bg-gradient-to-br from-orange/10 to-violet-soft p-5 shadow-soft">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-orange grid place-items-center text-white shadow-glow">
-            <Rocket className="w-5 h-5" />
+    <section className="relative overflow-hidden rounded-3xl border border-violet/15 bg-card shadow-soft">
+      <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(520px,1.15fr)]">
+        <div className="relative overflow-hidden bg-gradient-to-br from-violet via-violet to-blue p-6 text-white sm:p-7">
+          <div className="absolute -right-14 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-orange/25 blur-3xl" />
+
+          <div className="relative">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/85 backdrop-blur">
+              <Rocket className="h-3.5 w-3.5" />
+              Wsparcie ekspertów
+            </div>
+
+            <h2 className="max-w-md font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+              Nie musisz wdrażać wszystkiego sam
+            </h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/75">
+              Zleć techniczne elementy zespołowi Journey to Sale i skup się na produkcie oraz
+              sprzedaży.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button
+                className="h-11 rounded-xl bg-white px-5 font-bold text-violet shadow-lg shadow-black/10 hover:bg-white/90"
+                onClick={() => setOpen(true)}
+              >
+                Sprawdź zakres i wycenę
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/70">
+                <Clock3 className="h-3.5 w-3.5" />
+                Odpowiadamy w ciągu 24 godzin
+              </span>
+            </div>
           </div>
-          <div>
-            <div className="font-display font-bold">Przyspiesz wdrożenie</div>
-            <div className="text-xs text-muted-foreground">Zleć ekspertom Journey to Sale</div>
+        </div>
+
+        <div className="p-5 sm:p-6">
+          <div className="mb-4">
+            <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-violet">
+              Przyspiesz wdrożenie
+            </div>
+            <h3 className="mt-1 font-display text-lg font-extrabold">
+              Co możemy przygotować za Ciebie?
+            </h3>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {SERVICE_HIGHLIGHTS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="group rounded-2xl border border-border bg-muted/25 p-4 transition-all hover:-translate-y-0.5 hover:border-violet/30 hover:bg-violet-soft/50 hover:shadow-soft"
+                >
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-violet-soft text-violet transition-colors group-hover:bg-violet group-hover:text-white">
+                    <Icon className="h-4.5 w-4.5" />
+                  </div>
+                  <div className="mt-3 text-sm font-extrabold">{item.title}</div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-green/20 bg-green/5 px-4 py-3 text-xs text-muted-foreground">
+            <Phone className="h-4 w-4 shrink-0 text-green" />
+            Najpierw krótko omawiamy potrzeby. Wycena nie zobowiązuje do zakupu.
           </div>
         </div>
       </div>
-
-      <ul className="mt-3 space-y-1.5 text-sm">
-        <li className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-green" />
-          Landing page gotowy w 5 dni
-        </li>
-        <li className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-green" />
-          Konfiguracja reklam Meta/Google
-        </li>
-        <li className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-green" />
-          Lejek sprzedażowy + maile
-        </li>
-      </ul>
-
-      <Button
-        className="mt-4 w-full bg-gradient-violet text-primary-foreground"
-        onClick={() => setOpen(true)}
-      >
-        <Phone className="w-4 h-4 mr-1" />
-        Zamów wycenę
-      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
@@ -112,6 +173,12 @@ export function AccelerateWidget() {
                   </option>
                 ))}
               </select>
+              {selectedService?.description && (
+                <div className="mt-3 rounded-2xl border border-violet/15 bg-violet-soft/40 px-4 py-3 text-sm leading-6 text-muted-foreground">
+                  <span className="font-bold text-foreground">W zakresie: </span>
+                  {selectedService.description}
+                </div>
+              )}
             </div>
             <div>
               <Label>Imię</Label>
@@ -145,6 +212,6 @@ export function AccelerateWidget() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </section>
   );
 }

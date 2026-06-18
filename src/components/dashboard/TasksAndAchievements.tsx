@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { formatXpReason, type XpEventKind } from "@/lib/xp-reasons";
 
 type MentorTask = {
   id: string;
@@ -61,47 +62,18 @@ const achColor = {
   orange: "bg-orange-soft text-orange",
 } as const;
 
-const TOOL_NAMES: Record<string, string> = {
-  "ads-breakeven": "Kalkulator progu rentowności reklam",
-  "product-price": "Kalkulator ceny produktu",
-  "revenue-potential": "Kalkulator potencjału przychodu",
-  "offer-builder": "Kreator oferty",
-  "landing-copy": "Generator landing page",
-  "email-sequence": "Generator sekwencji maili",
-  "ad-copy": "Generator reklam",
-  "idea-generator": "Generator pomysłów",
+const XP_EVENT_STYLE: Record<XpEventKind, { icon: typeof PlayCircle; color: AchievementColor }> = {
+  onboarding: { icon: Award, color: "violet" },
+  tool: { icon: Zap, color: "violet" },
+  lesson: { icon: PlayCircle, color: "violet" },
+  task: { icon: FileCheck, color: "green" },
+  course: { icon: Trophy, color: "orange" },
+  challenge: { icon: Trophy, color: "orange" },
+  badge: { icon: Award, color: "orange" },
+  mission: { icon: Trophy, color: "orange" },
+  streak: { icon: Zap, color: "orange" },
+  other: { icon: Award, color: "blue" },
 };
-
-function friendlyToolName(slug: string): string {
-  if (TOOL_NAMES[slug]) return TOOL_NAMES[slug];
-  return slug
-    .split(/[-_]/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-function mapXpReason(reason: string): { title: string; icon: typeof PlayCircle; color: AchievementColor } {
-  const r = reason.toLowerCase();
-  if (r === "onboarding_starter" || r.includes("onboarding")) {
-    return { title: "Ukończyłeś wprowadzenie", icon: Award, color: "violet" };
-  }
-  if (r.startsWith("tool:") || r.startsWith("tool_")) {
-    const slug = reason.split(/[:_]/).slice(1).join("-") || "narzędzie";
-    return { title: `Użyłeś narzędzia: ${friendlyToolName(slug)}`, icon: Zap, color: "violet" };
-  }
-  // Bare tool slugs (e.g. "ads-breakeven")
-  if (TOOL_NAMES[reason]) {
-    return { title: `Użyłeś narzędzia: ${TOOL_NAMES[reason]}`, icon: Zap, color: "violet" };
-  }
-  if (r.includes("zatwierdz")) return { title: "Zatwierdzono Twoje zadanie", icon: Award, color: "green" };
-  if (r.includes("lekcj")) return { title: "Ukończyłeś lekcję", icon: PlayCircle, color: "violet" };
-  if (r.includes("zadan") || r.includes("task")) return { title: "Przesłałeś zadanie", icon: FileCheck, color: "blue" };
-  if (r.includes("kurs") || r.includes("course")) return { title: "Ukończyłeś kurs", icon: Trophy, color: "orange" };
-  if (r.includes("badge") || r.includes("odznak")) return { title: "Zdobyłeś odznakę", icon: Award, color: "orange" };
-  if (r.includes("misj")) return { title: "Wykonałeś misję", icon: Trophy, color: "orange" };
-  if (r.includes("streak") || r.includes("seri")) return { title: "Utrzymujesz serię dni", icon: Zap, color: "orange" };
-  return { title: friendlyToolName(reason), icon: Award, color: "blue" };
-}
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -118,7 +90,6 @@ function relativeTime(iso: string): string {
 }
 
 export function TasksAndAchievements() {
-  
   const { user } = useAuth();
   const [tasks, setTasks] = useState<MentorTask[]>([]);
   const [achievements, setAchievements] = useState<AchievementRow[]>([]);
@@ -147,12 +118,13 @@ export function TasksAndAchievements() {
     setTasks((tasksRes.data ?? []) as MentorTask[]);
     const rows = (xpRes.data ?? [])
       .map((x) => {
-        const meta = mapXpReason(x.reason);
+        const event = formatXpReason(x.reason);
+        const style = XP_EVENT_STYLE[event.kind];
         return {
           id: x.id,
-          title: meta.title,
-          icon: meta.icon,
-          color: meta.color,
+          title: event.title,
+          icon: style.icon,
+          color: style.color,
           xp: x.amount,
           createdAt: x.created_at,
         } satisfies AchievementRow;
@@ -172,7 +144,6 @@ export function TasksAndAchievements() {
     load();
   }, [user]);
 
-
   const toggleStatus = async (t: MentorTask) => {
     const meta = STATUS_META[t.status];
     if (!meta.userToggleable) {
@@ -180,8 +151,7 @@ export function TasksAndAchievements() {
       return;
     }
     // Cycle: assigned -> in_progress -> assigned. needs_revision -> in_progress.
-    const next: MentorTask["status"] =
-      t.status === "in_progress" ? "assigned" : "in_progress";
+    const next: MentorTask["status"] = t.status === "in_progress" ? "assigned" : "in_progress";
     setPendingId(t.id);
     const { error } = await supabase
       .from("mentor_assigned_tasks")
@@ -202,7 +172,8 @@ export function TasksAndAchievements() {
       return <CircleDashed className="w-4 h-4 text-violet animate-spin-slow" strokeWidth={2.2} />;
     if (t.status === "in_progress")
       return <CircleDashed className="w-4 h-4 text-blue" strokeWidth={2.2} />;
-    if (t.status === "rejected") return <Lock className="w-4 h-4 text-destructive" strokeWidth={2.2} />;
+    if (t.status === "rejected")
+      return <Lock className="w-4 h-4 text-destructive" strokeWidth={2.2} />;
     return <Square className="w-4 h-4 text-muted-foreground" strokeWidth={2.2} />;
   };
 
@@ -234,10 +205,11 @@ export function TasksAndAchievements() {
                   >
                     <Icon className="w-4 h-4" strokeWidth={2.2} />
                   </div>
-                  <span className="flex-1 text-sm font-medium text-foreground truncate">{a.title}</span>
+                  <span className="flex-1 text-sm font-medium text-foreground truncate">
+                    {a.title}
+                  </span>
                   <span className="text-xs font-bold text-violet flex items-center gap-1">
-                    <Zap className="w-3 h-3 fill-violet" />
-                    +{a.xp} XP
+                    <Zap className="w-3 h-3 fill-violet" />+{a.xp} XP
                   </span>
                   <span className="text-[11px] text-muted-foreground w-20 text-right">
                     {relativeTime(a.createdAt)}

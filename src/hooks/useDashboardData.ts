@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 export type CourseRow = {
   id: string;
@@ -99,7 +100,7 @@ export function useDashboardData(): DashboardData {
       ]);
 
     setTotalXp((xpRes.data ?? []).reduce((s, r) => s + (r.amount ?? 0), 0));
-    setCourses((coursesRes.data ?? []) as CourseRow[]);
+    setCourses(normalizeProgramCourseRows((coursesRes.data ?? []) as CourseRow[]));
     setLessons((lessonsRes.data ?? []) as LessonRow[]);
     setTasks((tasksRes.data ?? []) as LessonTaskRow[]);
     setEnrolled(new Set((enrollRes.data ?? []).map((r) => r.course_id)));

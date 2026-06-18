@@ -3,9 +3,23 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { PlanGate } from "@/components/PlanGate";
-import { ArrowLeft, Lock, PlayCircle, Check, Clock, Layers, Trophy, BookOpen, Play, Sparkles, X, Gift } from "lucide-react";
+import {
+  ArrowLeft,
+  Lock,
+  PlayCircle,
+  Check,
+  Clock,
+  Layers,
+  Trophy,
+  BookOpen,
+  Play,
+  Sparkles,
+  X,
+  Gift,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeProgramCourseRows, normalizeProgramCourseTitle } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/courses/$courseId")({
   component: CourseDetailPage,
@@ -133,8 +147,8 @@ function CourseDetailPage() {
             .eq("course_id", courseId)
             .maybeSingle(),
         ]);
-      setCourse(c as Course);
-      setModules((m ?? []) as Module[]);
+      setCourse(c ? { ...(c as Course), title: normalizeProgramCourseTitle(c.title) } : null);
+      setModules(normalizeProgramCourseRows((m ?? []) as Module[]));
       const lessonsData = (l ?? []) as Lesson[];
       setLessons(lessonsData);
       setWatched(new Set((prog ?? []).map((p) => p.lesson_id)));
@@ -159,17 +173,22 @@ function CourseDetailPage() {
         supabase.from("user_rewards").select("reward_id").eq("user_id", user.id),
       ]);
       const claimedIds = new Set((ur ?? []).map((r) => r.reward_id));
-      const courseCatalog = ((rw ?? []) as Array<{
-        id: string;
-        title: string;
-        description: string | null;
-        xp_cost: number;
-        is_available: boolean;
-        course_id: string | null;
-      }>).filter((r) => r.course_id === courseId);
+      const courseCatalog = (
+        (rw ?? []) as Array<{
+          id: string;
+          title: string;
+          description: string | null;
+          xp_cost: number;
+          is_available: boolean;
+          course_id: string | null;
+        }>
+      ).filter((r) => r.course_id === courseId);
       // Pobierz payload tylko dla nagród już odebranych (RLS na to pozwala)
       const claimedHere = courseCatalog.filter((r) => claimedIds.has(r.id)).map((r) => r.id);
-      const payloads = new Map<string, { payload_url: string | null; payload_content: string | null }>();
+      const payloads = new Map<
+        string,
+        { payload_url: string | null; payload_content: string | null }
+      >();
       if (claimedHere.length) {
         const { data: pl } = await supabase
           .from("rewards")
@@ -187,7 +206,6 @@ function CourseDetailPage() {
         })) as Reward[],
       );
       setClaimedRewards(claimedIds);
-
 
       setLoading(false);
     })();
@@ -365,11 +383,7 @@ function CourseDetailPage() {
         {/* Hero z okładką */}
         {course.cover_url && (
           <div className="mt-3 aspect-[16/7] rounded-2xl overflow-hidden bg-muted border border-border">
-            <img
-              src={course.cover_url}
-              alt={course.title}
-              className="w-full h-full object-cover"
-            />
+            <img src={course.cover_url} alt={course.title} className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -422,7 +436,6 @@ function CourseDetailPage() {
           )}
         </div>
 
-
         {lockedByXp && (
           <div className="mt-4 rounded-2xl border border-orange/40 bg-orange-soft/30 p-4 text-sm">
             <div className="font-bold text-orange flex items-center gap-2">
@@ -438,83 +451,91 @@ function CourseDetailPage() {
           const modulesEl = (
             <div className="mt-6 space-y-6">
               {modules.map((m, mIdx) => {
-            const lInMod = lessons.filter((l) => l.module_id === m.id);
-            const unlockAt = moduleUnlockedAt(m);
-            const timeOk = unlockAt <= new Date();
-            const prevOk =
-              !m.requires_previous_module || mIdx === 0 || moduleCompleted(modules[mIdx - 1]);
-            const moduleAvailable = !lockedByXp && timeOk && prevOk;
-            const modWatched = lInMod.filter((l) => watched.has(l.id)).length;
+                const lInMod = lessons.filter((l) => l.module_id === m.id);
+                const unlockAt = moduleUnlockedAt(m);
+                const timeOk = unlockAt <= new Date();
+                const prevOk =
+                  !m.requires_previous_module || mIdx === 0 || moduleCompleted(modules[mIdx - 1]);
+                const moduleAvailable = !lockedByXp && timeOk && prevOk;
+                const modWatched = lInMod.filter((l) => watched.has(l.id)).length;
 
-            return (
-              <section key={m.id}>
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="font-display font-bold text-lg flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-violet" /> {m.title}
-                  </h2>
-                  <div className="text-xs text-muted-foreground">
-                    {modWatched} / {lInMod.length}
-                  </div>
-                </div>
-                {m.description && (
-                  <p className="text-xs text-muted-foreground mb-2">{m.description}</p>
-                )}
-                {!moduleAvailable && (
-                  <div className="rounded-xl bg-muted/50 border border-border p-3 text-xs flex items-center gap-2 mb-2">
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                    {!timeOk
-                      ? `Moduł odblokuje się ${unlockAt.toLocaleDateString("pl-PL")} (${m.unlock_after_hours}h od zapisania)`
-                      : !prevOk
-                        ? "Wymaga ukończenia poprzedniego modułu"
-                        : "Niedostępny"}
-                  </div>
-                )}
-                <div className="space-y-2">
-                  {lInMod.map((l, idx) => (
-                    <LessonRow
-                      key={l.id}
-                      l={l}
-                      idx={idx}
-                      totalIdx={lessons.findIndex((x) => x.id === l.id)}
-                      status={lessonStatus(l, idx, lInMod, moduleAvailable)}
-                      watched={watched.has(l.id)}
-                    />
-                  ))}
-                  {lInMod.length === 0 && (
-                    <div className="text-xs text-muted-foreground italic">Brak lekcji w module</div>
+                return (
+                  <section key={m.id}>
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="font-display font-bold text-lg flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-violet" /> {m.title}
+                      </h2>
+                      <div className="text-xs text-muted-foreground">
+                        {modWatched} / {lInMod.length}
+                      </div>
+                    </div>
+                    {m.description && (
+                      <p className="text-xs text-muted-foreground mb-2">{m.description}</p>
+                    )}
+                    {!moduleAvailable && (
+                      <div className="rounded-xl bg-muted/50 border border-border p-3 text-xs flex items-center gap-2 mb-2">
+                        <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                        {!timeOk
+                          ? `Moduł odblokuje się ${unlockAt.toLocaleDateString("pl-PL")} (${m.unlock_after_hours}h od zapisania)`
+                          : !prevOk
+                            ? "Wymaga ukończenia poprzedniego modułu"
+                            : "Niedostępny"}
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      {lInMod.map((l, idx) => (
+                        <LessonRow
+                          key={l.id}
+                          l={l}
+                          idx={idx}
+                          totalIdx={lessons.findIndex((x) => x.id === l.id)}
+                          status={lessonStatus(l, idx, lInMod, moduleAvailable)}
+                          watched={watched.has(l.id)}
+                        />
+                      ))}
+                      {lInMod.length === 0 && (
+                        <div className="text-xs text-muted-foreground italic">
+                          Brak lekcji w module
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+
+              {orphanLessons.length > 0 && (
+                <section>
+                  {modules.length > 0 && (
+                    <h2 className="font-display font-bold text-lg mb-2">Pozostałe lekcje</h2>
                   )}
-                </div>
-              </section>
-            );
-          })}
-
-          {orphanLessons.length > 0 && (
-            <section>
-              {modules.length > 0 && (
-                <h2 className="font-display font-bold text-lg mb-2">Pozostałe lekcje</h2>
+                  <div className="space-y-2">
+                    {orphanLessons.map((l, idx) => (
+                      <LessonRow
+                        key={l.id}
+                        l={l}
+                        idx={idx}
+                        totalIdx={lessons.findIndex((x) => x.id === l.id)}
+                        status={lessonStatus(l, idx, orphanLessons, !lockedByXp)}
+                        watched={watched.has(l.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
               )}
-              <div className="space-y-2">
-                {orphanLessons.map((l, idx) => (
-                  <LessonRow
-                    key={l.id}
-                    l={l}
-                    idx={idx}
-                    totalIdx={lessons.findIndex((x) => x.id === l.id)}
-                    status={lessonStatus(l, idx, orphanLessons, !lockedByXp)}
-                    watched={watched.has(l.id)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
 
-          {lessons.length === 0 && (
-            <div className="text-sm text-muted-foreground p-4">Brak lekcji w tym kursie.</div>
-          )}
-        </div>
-      );
-      return course.is_free ? modulesEl : <PlanGate feature="courses_all" compact>{modulesEl}</PlanGate>;
-    })()}
+              {lessons.length === 0 && (
+                <div className="text-sm text-muted-foreground p-4">Brak lekcji w tym kursie.</div>
+              )}
+            </div>
+          );
+          return course.is_free ? (
+            modulesEl
+          ) : (
+            <PlanGate feature="courses_all" compact>
+              {modulesEl}
+            </PlanGate>
+          );
+        })()}
 
         {rewards.length > 0 && (
           <section className="mt-10">

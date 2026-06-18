@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
+import { normalizeProgramCourseRows, normalizeProgramCourseTitle } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/admin/courses/$courseId/lessons")({
   component: AllLessonsPage,
@@ -45,8 +46,8 @@ function AllLessonsPage() {
           .eq("course_id", courseId)
           .order("position"),
       ]);
-      setCourse(c as never);
-      setModules((m ?? []) as Module[]);
+      setCourse(c ? { title: normalizeProgramCourseTitle(c.title) } : null);
+      setModules(normalizeProgramCourseRows((m ?? []) as Module[]));
       setLessons((l ?? []) as Lesson[]);
     })();
   }, [isAdmin, courseId]);

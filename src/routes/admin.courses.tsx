@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/admin/courses")({
   component: AdminCoursesPage,
@@ -72,9 +73,9 @@ function AdminCoursesPage() {
       supabase.from("modules").select("*").order("position"),
       supabase.from("lessons").select("id, course_id"),
     ]);
-    setCourses((c ?? []) as Course[]);
+    setCourses(normalizeProgramCourseRows((c ?? []) as Course[]));
     const byCourse: Record<string, Module[]> = {};
-    (m ?? []).forEach((mod) => {
+    normalizeProgramCourseRows((m ?? []) as Module[]).forEach((mod) => {
       const k = (mod as Module).course_id;
       (byCourse[k] ||= []).push(mod as Module);
     });
@@ -192,211 +193,208 @@ function AdminCoursesPage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             Twórz kursy, moduły i lekcje. Wszystko bez programisty.
-            </p>
-          </div>
-          <Button
-            onClick={() => setEditingCourse({ title: "", required_xp: 0, is_published: true })}
-            className="bg-gradient-violet text-primary-foreground rounded-xl"
-          >
-            <Plus className="w-4 h-4 mr-1" /> Nowy kurs
-          </Button>
+          </p>
         </div>
+        <Button
+          onClick={() => setEditingCourse({ title: "", required_xp: 0, is_published: true })}
+          className="bg-gradient-violet text-primary-foreground rounded-xl"
+        >
+          <Plus className="w-4 h-4 mr-1" /> Nowy kurs
+        </Button>
+      </div>
 
-        {loadingData ? (
-          <div className="text-sm text-muted-foreground p-6">Ładowanie...</div>
-        ) : courses.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-            <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-            <div className="font-bold">Brak kursów</div>
-            <p className="text-sm text-muted-foreground mt-1">Kliknij „Nowy kurs", aby zacząć.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {courses.map((c, idx) => {
-              const mods = modules[c.id] ?? [];
-              const expanded = expandedCourse === c.id;
-              return (
-                <div
-                  key={c.id}
-                  className="rounded-2xl border border-border bg-card overflow-hidden"
-                >
-                  <div className="flex items-center gap-3 p-4">
-                    <div className="flex flex-col gap-0.5">
-                      <button
-                        onClick={() => moveCourse(c.id, -1)}
-                        disabled={idx === 0}
-                        className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
-                      >
-                        <ArrowUp className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => moveCourse(c.id, 1)}
-                        disabled={idx === courses.length - 1}
-                        className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
-                      >
-                        <ArrowDown className="w-3 h-3" />
-                      </button>
-                    </div>
+      {loadingData ? (
+        <div className="text-sm text-muted-foreground p-6">Ładowanie...</div>
+      ) : courses.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
+          <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+          <div className="font-bold">Brak kursów</div>
+          <p className="text-sm text-muted-foreground mt-1">Kliknij „Nowy kurs", aby zacząć.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {courses.map((c, idx) => {
+            const mods = modules[c.id] ?? [];
+            const expanded = expandedCourse === c.id;
+            return (
+              <div key={c.id} className="rounded-2xl border border-border bg-card overflow-hidden">
+                <div className="flex items-center gap-3 p-4">
+                  <div className="flex flex-col gap-0.5">
                     <button
-                      onClick={() => setExpandedCourse(expanded ? null : c.id)}
-                      className="flex-1 text-left flex items-center gap-3 min-w-0"
+                      onClick={() => moveCourse(c.id, -1)}
+                      disabled={idx === 0}
+                      className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
                     >
-                      <ChevronRight
-                        className={cn(
-                          "w-4 h-4 text-muted-foreground transition-transform shrink-0",
-                          expanded && "rotate-90",
-                        )}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-display font-bold truncate flex items-center gap-2">
-                          {c.title}
-                          {!c.is_published && (
-                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
-                              szkic
-                            </span>
-                          )}
-                          {c.is_free && (
-                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-soft text-green">
-                              bezpłatny
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {mods.length} modułów · {lessonCounts[c.id] ?? 0} lekcji · wymaga{" "}
-                          {c.required_xp} XP
-                        </div>
-                      </div>
+                      <ArrowUp className="w-3 h-3" />
                     </button>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button size="sm" variant="outline" onClick={() => setEditingCourse(c)}>
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
+                    <button
+                      onClick={() => moveCourse(c.id, 1)}
+                      disabled={idx === courses.length - 1}
+                      className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setExpandedCourse(expanded ? null : c.id)}
+                    className="flex-1 text-left flex items-center gap-3 min-w-0"
+                  >
+                    <ChevronRight
+                      className={cn(
+                        "w-4 h-4 text-muted-foreground transition-transform shrink-0",
+                        expanded && "rotate-90",
+                      )}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-display font-bold truncate flex items-center gap-2">
+                        {c.title}
+                        {!c.is_published && (
+                          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
+                            szkic
+                          </span>
+                        )}
+                        {c.is_free && (
+                          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-soft text-green">
+                            bezpłatny
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {mods.length} modułów · {lessonCounts[c.id] ?? 0} lekcji · wymaga{" "}
+                        {c.required_xp} XP
+                      </div>
+                    </div>
+                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="sm" variant="outline" onClick={() => setEditingCourse(c)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteCourse(c.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {expanded && (
+                  <div className="border-t border-border bg-muted/20 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold flex items-center gap-1.5">
+                        <Layers className="w-4 h-4" /> Moduły
+                      </h3>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => deleteCourse(c.id)}
-                        className="text-destructive"
+                        onClick={() =>
+                          setEditingModule({
+                            courseId: c.id,
+                            module: { title: "", unlock_after_hours: 0, is_published: true },
+                          })
+                        }
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Nowy moduł
                       </Button>
                     </div>
-                  </div>
-
-                  {expanded && (
-                    <div className="border-t border-border bg-muted/20 p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold flex items-center gap-1.5">
-                          <Layers className="w-4 h-4" /> Moduły
-                        </h3>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            setEditingModule({
-                              courseId: c.id,
-                              module: { title: "", unlock_after_hours: 0, is_published: true },
-                            })
-                          }
-                        >
-                          <Plus className="w-3.5 h-3.5 mr-1" /> Nowy moduł
-                        </Button>
+                    {mods.length === 0 ? (
+                      <div className="text-xs text-muted-foreground italic">
+                        Brak modułów. Dodaj pierwszy moduł, by uporządkować lekcje.
                       </div>
-                      {mods.length === 0 ? (
-                        <div className="text-xs text-muted-foreground italic">
-                          Brak modułów. Dodaj pierwszy moduł, by uporządkować lekcje.
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {mods.map((m, mIdx) => (
-                            <div
-                              key={m.id}
-                              className="rounded-xl border border-border bg-card p-3 flex items-center gap-3"
-                            >
-                              <div className="flex flex-col gap-0.5">
-                                <button
-                                  onClick={() => moveModule(c.id, m.id, -1)}
-                                  disabled={mIdx === 0}
-                                  className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
-                                >
-                                  <ArrowUp className="w-3 h-3" />
-                                </button>
-                                <button
-                                  onClick={() => moveModule(c.id, m.id, 1)}
-                                  disabled={mIdx === mods.length - 1}
-                                  className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
-                                >
-                                  <ArrowDown className="w-3 h-3" />
-                                </button>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-sm flex items-center gap-2 flex-wrap">
-                                  {m.title}
-                                  {!m.is_published && (
-                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
-                                      szkic
-                                    </span>
-                                  )}
-                                  {m.unlock_after_hours > 0 && (
-                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-soft text-blue">
-                                      drip {m.unlock_after_hours}h
-                                    </span>
-                                  )}
-                                  {m.requires_previous_module && (
-                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-soft text-violet">
-                                      po poprz.
-                                    </span>
-                                  )}
-                                </div>
-                                {m.description && (
-                                  <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                                    {m.description}
-                                  </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {mods.map((m, mIdx) => (
+                          <div
+                            key={m.id}
+                            className="rounded-xl border border-border bg-card p-3 flex items-center gap-3"
+                          >
+                            <div className="flex flex-col gap-0.5">
+                              <button
+                                onClick={() => moveModule(c.id, m.id, -1)}
+                                disabled={mIdx === 0}
+                                className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
+                              >
+                                <ArrowUp className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => moveModule(c.id, m.id, 1)}
+                                disabled={mIdx === mods.length - 1}
+                                className="h-5 w-5 grid place-items-center rounded hover:bg-muted disabled:opacity-30"
+                              >
+                                <ArrowDown className="w-3 h-3" />
+                              </button>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-sm flex items-center gap-2 flex-wrap">
+                                {m.title}
+                                {!m.is_published && (
+                                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-soft text-orange">
+                                    szkic
+                                  </span>
+                                )}
+                                {m.unlock_after_hours > 0 && (
+                                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-soft text-blue">
+                                    drip {m.unlock_after_hours}h
+                                  </span>
+                                )}
+                                {m.requires_previous_module && (
+                                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-soft text-violet">
+                                    po poprz.
+                                  </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Link
-                                  to="/admin/modules/$moduleId"
-                                  params={{ moduleId: m.id }}
-                                  className="text-xs font-bold text-violet inline-flex items-center gap-1 px-2 hover:underline"
-                                >
-                                  <BookOpen className="w-3.5 h-3.5" /> Lekcje
-                                </Link>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingModule({ courseId: c.id, module: m })}
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => deleteModule(m.id)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
+                              {m.description && (
+                                <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                  {m.description}
+                                </div>
+                              )}
                             </div>
-                          ))}
-                        </div>
-                      )}
-                      <div className="pt-2 border-t border-border">
-                        <Link
-                          to="/admin/courses/$courseId/lessons"
-                          params={{ courseId: c.id }}
-                          className="text-xs font-bold text-violet inline-flex items-center gap-1 hover:underline"
-                        >
-                          <BookOpen className="w-3.5 h-3.5" /> Wszystkie lekcje kursu →
-                        </Link>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Link
+                                to="/admin/modules/$moduleId"
+                                params={{ moduleId: m.id }}
+                                className="text-xs font-bold text-violet inline-flex items-center gap-1 px-2 hover:underline"
+                              >
+                                <BookOpen className="w-3.5 h-3.5" /> Lekcje
+                              </Link>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingModule({ courseId: c.id, module: m })}
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => deleteModule(m.id)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                    )}
+                    <div className="pt-2 border-t border-border">
+                      <Link
+                        to="/admin/courses/$courseId/lessons"
+                        params={{ courseId: c.id }}
+                        className="text-xs font-bold text-violet inline-flex items-center gap-1 hover:underline"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" /> Wszystkie lekcje kursu →
+                      </Link>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* DIALOG: COURSE */}
       <Dialog open={!!editingCourse} onOpenChange={(v) => !v && setEditingCourse(null)}>

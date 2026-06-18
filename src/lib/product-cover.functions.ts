@@ -1,9 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-export const COVER_CREDIT_COST = 15;
+export const COVER_CREDIT_COST = 5;
 
 const FORMATS = [
   "ebook",
@@ -14,8 +13,11 @@ const FORMATS = [
   "checklist",
   "membership",
   "coaching",
+  "app",
   "other",
 ] as const;
+
+const PRESENTATIONS = ["mockup", "flat"] as const;
 
 const Input = z.object({
   productId: z.string().uuid(),
@@ -23,44 +25,104 @@ const Input = z.object({
   title: z.string().min(1).max(80),
   subtitle: z.string().max(120).optional(),
   format: z.enum(FORMATS).default("ebook"),
-  style: z
-    .enum(["modern", "elegant", "bold", "minimal", "playful"])
-    .default("modern"),
+  presentation: z.enum(PRESENTATIONS).default("mockup"),
+  style: z.enum(["modern", "elegant", "bold", "minimal", "playful"]).default("modern"),
 });
 
 const STYLE_HINT: Record<string, string> = {
   modern:
-    "modern editorial digital product cover, clean geometric composition, soft gradients, premium tech feel, vibrant accent color, crisp typography",
+    "modern editorial art direction, clean geometry, soft gradients, premium technology feel, one vibrant accent color, crisp contemporary typography",
   elegant:
-    "elegant luxury cover, soft beige and deep navy palette, refined serif typography, subtle gold accents, sophisticated lighting",
-  bold:
-    "bold high-contrast cover, saturated colors, dynamic shapes, strong focal element, confident energetic vibe, heavy bold sans-serif typography",
+    "elegant premium art direction, soft beige and deep navy palette, refined serif typography, restrained gold accents, sophisticated studio lighting",
+  bold: "bold high-contrast art direction, saturated colors, dynamic shapes, strong focal element, confident energy, heavy sans-serif typography",
   minimal:
-    "ultra minimal cover, lots of whitespace, single iconic element, restrained palette, swiss design feel, refined geometric sans-serif typography",
+    "ultra-minimal art direction, generous whitespace, one iconic element, restrained palette, Swiss design influence, refined geometric typography",
   playful:
-    "playful illustrated cover, friendly rounded shapes, warm pastel palette, hand-crafted feel, approachable, rounded display typography",
+    "playful illustrated art direction, friendly rounded shapes, warm pastel palette, polished hand-crafted feel, approachable display typography",
 };
 
-const FORMAT_HINT: Record<(typeof FORMATS)[number], string> = {
-  ebook:
-    "ebook cover artwork — vertical book cover layout with a clearly readable big title at the top half and small tagline below",
-  course:
-    "online course cover — landscape-friendly hero composition with course title prominently displayed and small subtitle, looks like a Udemy/Coursera-class banner",
-  workshop:
-    "live workshop poster — bold title, date-style accent, event poster vibe",
-  masterclass:
-    "premium masterclass cover — cinematic dark background, big elegant title, subtle gold/violet accents, looks like a MasterClass episode poster",
-  template:
-    "template pack cover — clean showcase of stylized template/document mockups in the background, with title overlay",
-  checklist:
-    "checklist/cheatsheet cover — printable feel, paper texture hint, big title and small subtitle",
-  membership:
-    "membership / community cover — warm welcoming composition, premium brand feel, big title",
-  coaching:
-    "1:1 coaching program cover — professional, trust-building, portrait-like composition, big title",
-  other:
-    "digital product cover — clear hierarchy with big title and small subtitle",
+type CoverFormat = (typeof FORMATS)[number];
+
+const FORMAT_LABEL: Record<CoverFormat, string> = {
+  ebook: "ebook or PDF guide",
+  course: "online course",
+  workshop: "live workshop or webinar",
+  masterclass: "premium masterclass",
+  template: "digital template pack",
+  checklist: "checklist or cheatsheet",
+  membership: "membership or online community",
+  coaching: "one-to-one coaching program",
+  app: "digital application or SaaS product",
+  other: "digital product",
 };
+
+const MOCKUP_SCENE: Record<CoverFormat, string> = {
+  ebook:
+    "Create a realistic premium 3D ebook product mockup: one upright book with visible spine, supported by a tablet or a small stack of pages. Put the exact title on the front cover. The scene must unmistakably look like a sellable ebook, not a loose poster.",
+  course:
+    "Create a premium online-course mockup shown on a laptop or desktop screen, supported by a tablet or phone. The main screen should look like a polished learning platform with abstract lesson cards and a visible course hero. Put the exact title once in the hero area; use shapes and lines instead of fake interface text.",
+  workshop:
+    "Create a cohesive workshop kit mockup: a presentation screen or laptop, a workbook and one small event card arranged as a premium set. Put the exact title on the primary screen or workbook. Do not invent dates, speakers or venue details.",
+  masterclass:
+    "Create a cinematic masterclass mockup on a large tablet or widescreen display with a premium lesson-player composition and subtle supporting workbook. Put the exact title once on the main screen; secondary interface elements must be abstract and text-free.",
+  template:
+    "Create a premium template bundle mockup: a laptop plus a fanned stack of elegant document or social-media layouts. Put the exact title on the main package card. Supporting templates should use abstract blocks, charts and shapes without fake words.",
+  checklist:
+    "Create a realistic printable checklist mockup: a clipboard or clean stack of sheets with a pen and subtle check marks. Put the exact title on the top sheet and keep all smaller content as simple lines or boxes without fake text.",
+  membership:
+    "Create a warm premium membership mockup on a laptop and phone, showing an abstract community dashboard with profile circles, post cards and conversation blocks. Put the exact title once in the main hero area; do not generate names, comments or interface copy.",
+  coaching:
+    "Create a premium coaching-program mockup using a tablet or laptop, an elegant workbook and a planning notebook. The composition should communicate trust, transformation and personal guidance. Put the exact title once on the main product surface; do not invent a coach name.",
+  app: "Create a polished application mockup shown across a laptop and phone, with a coherent abstract interface tailored to the product brief. Put the exact title once as the product hero heading; render all smaller UI content as text-free blocks and icons.",
+  other:
+    "Create a polished digital-product bundle mockup using the most suitable combination of a product box, tablet, phone, workbook or cards based on the brief. Put the exact title once on the primary product surface.",
+};
+
+const FLAT_SCENE: Record<CoverFormat, string> = {
+  ebook:
+    "Design a flat vertical ebook cover, ready to use as the front cover. Do not show a book, device, room or product mockup.",
+  course:
+    "Design a flat premium online-course key visual with a strong central concept and clear title hierarchy. Do not show devices or a product mockup.",
+  workshop:
+    "Design a flat workshop or webinar poster with an energetic focal point. Do not invent dates, speakers or venue information.",
+  masterclass:
+    "Design a flat cinematic masterclass poster with premium lighting and a strong editorial composition.",
+  template:
+    "Design a flat cover graphic for a digital template bundle, using a refined grid and abstract layout previews without fake text.",
+  checklist:
+    "Design a flat cover for a printable checklist or cheatsheet, with subtle check-mark and document motifs.",
+  membership:
+    "Design a flat welcoming membership or community key visual with a premium brand feel and abstract connection motifs.",
+  coaching:
+    "Design a flat premium coaching-program key visual that communicates trust, clarity and transformation without using a fake person or coach identity.",
+  app: "Design a flat launch graphic for a digital application, using abstract interface motifs and a strong product title.",
+  other: "Design a flat premium cover graphic for the digital product described in the brief.",
+};
+
+function buildProductCoverPrompt(data: z.infer<typeof Input>) {
+  const scene =
+    data.presentation === "mockup" ? MOCKUP_SCENE[data.format] : FLAT_SCENE[data.format];
+  const subtitleInstruction = data.subtitle?.trim()
+    ? `Render this subtitle exactly once, smaller than the title: "${data.subtitle.trim()}".`
+    : "Do not add a subtitle.";
+
+  return [
+    "Create one polished commercial product thumbnail for a Polish creator's sales page.",
+    "The final image must have a 4:5 portrait aspect ratio and fill the entire canvas.",
+    `Product format: ${FORMAT_LABEL[data.format]}.`,
+    `Presentation: ${data.presentation === "mockup" ? "realistic premium product mockup" : "flat cover artwork"}.`,
+    `Scene direction: ${scene}`,
+    `Product context: "${data.brief.trim()}". Use this context to choose relevant colors, symbols, props and imagery.`,
+    `Render this Polish title exactly once, with correct spelling and clear Polish characters: "${data.title.trim()}".`,
+    subtitleInstruction,
+    `Visual direction: ${STYLE_HINT[data.style]}.`,
+    "Keep a strong hierarchy: the title is the dominant text, the subtitle is secondary, and the product remains recognizable at thumbnail size.",
+    "Use one coherent visual concept rather than a collage of unrelated stock elements.",
+    "No extra words, random letters, lorem ipsum, dates, prices, author names, logos, badges, URLs, signatures or watermarks.",
+    "Any small interface, page or document details must be represented by abstract lines, blocks and icons, never illegible pseudo-text.",
+    "Professional studio-quality lighting, realistic materials where relevant, clean edges, balanced spacing, premium sales-page finish.",
+  ].join("\n");
+}
 
 export const generateProductCover = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -79,123 +141,35 @@ export const generateProductCover = createServerFn({ method: "POST" })
       throw new Error("Brak dostępu do produktu");
     }
 
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Brak konfiguracji AI");
-
-    // charge credits up-front (refund on failure)
-    const { data: charged, error: cErr } = await supabaseAdmin.rpc(
-      "consume_credits",
-      {
-        _user_id: userId,
-        _amount: COVER_CREDIT_COST,
-        _description: `Okładka AI: ${data.title}`,
+    const { data: result, error } = await supabase.functions.invoke("generate-ai", {
+      body: {
+        operation: "product_cover",
+        product_id: data.productId,
+        title: data.title,
+        prompt: buildProductCoverPrompt(data),
       },
-    );
-    if (cErr) throw new Error(cErr.message);
-    if (charged === false) {
-      throw new Error(
-        `Brak kredytów AI (potrzeba ${COVER_CREDIT_COST}). Doładuj pakiet w sekcji Kredyty.`,
-      );
+    });
+
+    if (error) {
+      let message = error.message || "Nie udało się wygenerować grafiki";
+      const context = (error as { context?: Response }).context;
+      if (context) {
+        try {
+          const payload = (await context.json()) as { error?: string };
+          if (payload.error) message = payload.error;
+        } catch {
+          // Supabase can return an empty response for transport errors.
+        }
+      }
+      throw new Error(message);
     }
 
-    const refund = async () => {
-      await supabaseAdmin.rpc("add_credits", {
-        _user_id: userId,
-        _amount: COVER_CREDIT_COST,
-        _type: "bonus",
-        _description: `Zwrot za nieudaną okładkę AI`,
-        _bonus_validity_days: 30,
-      });
+    if (!result?.ok || !result.cover_url) {
+      throw new Error(result?.error || "AI nie zwróciło obrazu");
+    }
+
+    return {
+      coverUrl: result.cover_url as string,
+      creditsCharged: Number(result.credits_used) || COVER_CREDIT_COST,
     };
-
-    try {
-      const subtitleLine = data.subtitle?.trim()
-        ? `Small subtitle text: "${data.subtitle.trim()}".`
-        : "";
-
-      const prompt = [
-        `Design a stunning, professional ${FORMAT_HINT[data.format]}.`,
-        `Aspect ratio 4:5 portrait.`,
-        `Product brief: ${data.brief}.`,
-        `BIG TITLE TEXT on the cover (must be perfectly legible, correctly spelled, no typos, no extra letters): "${data.title}".`,
-        subtitleLine,
-        `Visual style: ${STYLE_HINT[data.style]}.`,
-        `Strong visual hierarchy: title dominates, subtitle is small and secondary.`,
-        `Polish/European premium digital product aesthetic, suitable for a sales page hero.`,
-        `Do NOT add any other text, no fake logos, no watermarks, no website urls, no author names. Only the provided title and (optional) subtitle text.`,
-        `High quality, sharp focus, balanced composition, magazine-cover-level finish.`,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      const res = await fetch(
-        "https://ai.gateway.lovable.dev/v1/images/generations",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${key}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3-pro-image-preview",
-            messages: [{ role: "user", content: prompt }],
-            modalities: ["image", "text"],
-          }),
-        },
-      );
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        await refund();
-        if (res.status === 429)
-          throw new Error("Limit AI — spróbuj za chwilę");
-        if (res.status === 402)
-          throw new Error("Brak kredytów AI po stronie platformy");
-        throw new Error(`Błąd generowania: ${res.status} ${txt.slice(0, 120)}`);
-      }
-
-      const json = (await res.json()) as {
-        data?: Array<{ b64_json?: string }>;
-      };
-      const b64 = json.data?.[0]?.b64_json;
-      if (!b64) {
-        await refund();
-        throw new Error("AI nie zwróciło obrazu");
-      }
-
-      const buffer = Buffer.from(b64, "base64");
-      const path = `${userId}/${data.productId}/cover-ai-${Date.now()}.png`;
-      const { error: upErr } = await supabaseAdmin.storage
-        .from("product-assets")
-        .upload(path, buffer, {
-          contentType: "image/png",
-          upsert: true,
-          cacheControl: "3600",
-        });
-      if (upErr) {
-        await refund();
-        throw new Error(upErr.message);
-      }
-
-      const { data: pub } = supabaseAdmin.storage
-        .from("product-assets")
-        .getPublicUrl(path);
-
-      const { error: updErr } = await supabaseAdmin
-        .from("user_products")
-        .update({ cover_url: pub.publicUrl })
-        .eq("id", data.productId);
-      if (updErr) {
-        await refund();
-        throw new Error(updErr.message);
-      }
-
-      return { coverUrl: pub.publicUrl, creditsCharged: COVER_CREDIT_COST };
-    } catch (e) {
-      // safety net — if we somehow get here without an explicit refund
-      if (e instanceof Error && !e.message.startsWith("Brak kredytów")) {
-        // already refunded in branches above; no-op here
-      }
-      throw e;
-    }
   });
