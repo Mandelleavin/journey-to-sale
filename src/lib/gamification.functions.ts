@@ -77,10 +77,10 @@ export const claimChallenge = createServerFn({ method: "POST" })
       .single();
     if (!ch) return { ok: false, error: "Wyzwanie nie istnieje" };
 
-    await supabase.from("user_xp_log").insert({
-      user_id: userId,
-      amount: ch.xp_reward,
-      reason: `Wyzwanie: ${ch.title}`,
+    await supabase.rpc("award_xp", {
+      _user_id: userId,
+      _amount: ch.xp_reward,
+      _reason: `Wyzwanie: ${ch.title}`,
     });
     if (ch.badge_code) {
       await supabase.rpc("award_badge", { _user_id: userId, _badge_code: ch.badge_code });
