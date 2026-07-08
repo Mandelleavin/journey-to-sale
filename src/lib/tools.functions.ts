@@ -68,9 +68,11 @@ export const saveToolResult = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!existing) {
-      const { error: xpErr } = await supabase
-        .from("user_xp_log")
-        .insert({ user_id: userId, amount: 10, reason });
+      const { error: xpErr } = await supabase.rpc("award_xp", {
+        _user_id: userId,
+        _amount: 10,
+        _reason: reason,
+      });
       if (!xpErr) xpAwarded = 10;
     }
 
