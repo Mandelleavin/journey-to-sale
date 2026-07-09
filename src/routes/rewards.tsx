@@ -14,6 +14,7 @@ import { Trophy, Gift, Sparkles, Download, ExternalLink, BookOpen } from "lucide
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/rewards")({
   head: () => ({
@@ -87,7 +88,10 @@ function RewardsPage() {
     const claimsList = (c ?? []) as Claim[];
     // Fetch payloads only for rewards the user has redeemed (RLS allows this).
     const claimedIds = Array.from(new Set(claimsList.map((x) => x.reward_id)));
-    const payloads = new Map<string, { payload_url: string | null; payload_content: string | null }>();
+    const payloads = new Map<
+      string,
+      { payload_url: string | null; payload_content: string | null }
+    >();
     if (claimedIds.length) {
       const { data: pl } = await supabase
         .from("rewards")
@@ -105,7 +109,7 @@ function RewardsPage() {
       })) as Reward[],
     );
     setClaims(claimsList);
-    setCourses((cs ?? []) as Course[]);
+    setCourses(normalizeProgramCourseRows((cs ?? []) as Course[]));
     setLessons((ls ?? []) as Lesson[]);
     setLessonTasks((lts ?? []) as LessonTask[]);
     const xpData = (xp ?? []) as XpRow[];
@@ -113,7 +117,6 @@ function RewardsPage() {
     setTotalXp(xpData.reduce((s, r) => s + (r.amount ?? 0), 0));
     setLoading(false);
   };
-
 
   useEffect(() => {
     load();
@@ -173,15 +176,9 @@ function RewardsPage() {
 
   const claim = async (reward: Reward) => {
     if (!user) return;
-    const available = reward.course_id
-      ? courseAvailableXp(reward.course_id)
-      : globalAvailable;
+    const available = reward.course_id ? courseAvailableXp(reward.course_id) : globalAvailable;
     if (available < reward.xp_cost) {
-      return toast.error(
-        reward.course_id
-          ? "Za mało XP w tym kursie"
-          : "Za mało XP",
-      );
+      return toast.error(reward.course_id ? "Za mało XP w tym kursie" : "Za mało XP");
     }
     if (!confirm(`Odebrać "${reward.title}" za ${reward.xp_cost} XP?`)) return;
     const { error } = await supabase.from("user_rewards").insert({
@@ -256,7 +253,10 @@ function RewardsPage() {
   };
 
   return (
-    <PageShell title="Nagrody" subtitle={`Masz ${globalAvailable} XP do wydania na nagrody globalne. Nagrody w kursach opłacasz XP zdobytym w danym kursie.`}>
+    <PageShell
+      title="Nagrody"
+      subtitle={`Masz ${globalAvailable} XP do wydania na nagrody globalne. Nagrody w kursach opłacasz XP zdobytym w danym kursie.`}
+    >
       <div className="rounded-3xl border border-border bg-gradient-to-br from-violet-soft to-blue-soft p-5">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow">

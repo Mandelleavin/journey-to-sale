@@ -2,10 +2,38 @@ import { Logo } from "@/components/landing/Logo";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import {
-  Sparkles, Rocket, Check, X, ArrowRight, BookOpen, GraduationCap, Bot, Smartphone,
-  MessageCircle, Users, Mail, Brain, Trophy, Zap, Shield, Star, Target, TrendingUp,
-  Wand2, FileText, Layout, Megaphone, Filter, CircleDot, Award, ChevronDown, PlayCircle,
-  Clock, Flame, Coins, BadgeCheck,
+  Sparkles,
+  Rocket,
+  Check,
+  X,
+  ArrowRight,
+  BookOpen,
+  GraduationCap,
+  Bot,
+  Smartphone,
+  MessageCircle,
+  Users,
+  Mail,
+  Brain,
+  Trophy,
+  Zap,
+  Shield,
+  Star,
+  Target,
+  TrendingUp,
+  Wand2,
+  FileText,
+  Layout,
+  Megaphone,
+  Filter,
+  CircleDot,
+  Award,
+  ChevronDown,
+  PlayCircle,
+  Clock,
+  Flame,
+  Coins,
+  BadgeCheck,
 } from "lucide-react";
 import { AuthDialogProvider, useAuthDialog } from "@/components/auth/AuthDialog";
 
@@ -13,7 +41,13 @@ import { AuthDialogProvider, useAuthDialog } from "@/components/auth/AuthDialog"
    PRIMITIVES (lightweight MagicUI-style effects, no external deps)
    ========================================================================= */
 
-function AuroraText({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function AuroraText({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <span
       className={`relative inline-block bg-clip-text text-transparent ${className}`}
@@ -38,8 +72,7 @@ function BorderBeam({ className = "" }: { className?: string }) {
         padding: 1,
         background:
           "conic-gradient(from var(--beam-a, 0deg), transparent 0 70%, oklch(0.7 0.22 290) 80%, oklch(0.72 0.2 200) 90%, transparent 100%)",
-        WebkitMask:
-          "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+        WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
         WebkitMaskComposite: "xor",
         maskComposite: "exclude",
         animation: "beam 4s linear infinite",
@@ -149,17 +182,20 @@ function CountUp({ to, duration = 1.8 }: { to: number; duration?: number }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      const start = performance.now();
-      const tick = (t: number) => {
-        const p = Math.min(1, (t - start) / (duration * 1000));
-        setN(Math.floor(to * (1 - Math.pow(1 - p, 3))));
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-      obs.disconnect();
-    }, { threshold: 0.4 });
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        const start = performance.now();
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - start) / (duration * 1000));
+          setN(Math.floor(to * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.disconnect();
+      },
+      { threshold: 0.4 },
+    );
     obs.observe(el);
     return () => obs.disconnect();
   }, [to, duration]);
@@ -173,19 +209,26 @@ function WordRotate({ words, interval = 2200 }: { words: string[]; interval?: nu
     return () => clearInterval(t);
   }, [words.length, interval]);
   return (
-    <span className="relative inline-grid align-baseline">
-      <AnimatePresence mode="popLayout">
-        <motion.span
-          key={words[i]}
-          initial={{ y: 14, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -14, opacity: 0 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className="col-start-1 row-start-1 text-violet font-extrabold"
-        >
-          {words[i]}
-        </motion.span>
-      </AnimatePresence>
+    <span className="relative mx-1 inline-flex h-9 min-w-32 items-center justify-center overflow-hidden rounded-full border border-white/45 bg-gradient-to-r from-violet via-fuchsia-500 to-blue px-2.5 align-middle text-primary-foreground shadow-[0_14px_35px_-15px_rgba(124,58,237,0.95)] ring-2 ring-violet/15">
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.48),transparent_34%),linear-gradient(120deg,transparent,rgba(255,255,255,0.26),transparent)]"
+      />
+      <Sparkles className="relative mr-1.5 h-3.5 w-3.5 shrink-0 text-white/90" />
+      <span className="relative inline-grid min-w-[5.75rem] place-items-center overflow-hidden">
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={words[i]}
+            initial={{ y: 14, opacity: 0, filter: "blur(4px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            exit={{ y: -14, opacity: 0, filter: "blur(4px)" }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="col-start-1 row-start-1 font-extrabold tracking-tight text-white drop-shadow-sm"
+          >
+            {words[i]}
+          </motion.span>
+        </AnimatePresence>
+      </span>
     </span>
   );
 }
@@ -219,14 +262,64 @@ function Reveal({
    ========================================================================= */
 
 const products = [
-  { icon: BookOpen, label: "Ebook", price: "47–197 zł", desc: "Najszybsza droga do pierwszej sprzedaży.", time: "14–30 dni", span: "lg:col-span-2" },
-  { icon: GraduationCap, label: "Kurs online", price: "297–1997 zł", desc: "Skalowalny produkt premium.", time: "45–90 dni" },
-  { icon: Bot, label: "Produkt AI", price: "97–497 zł / mies.", desc: "Subskrypcja zarabiająca 24/7.", time: "30–60 dni" },
-  { icon: Smartphone, label: "Aplikacja / SaaS", price: "49–299 zł / mies.", desc: "Powtarzalny przychód.", time: "60–90 dni", span: "lg:col-span-2" },
-  { icon: MessageCircle, label: "Mentoring 1:1", price: "3000–14500 zł", desc: "Najwyższe stawki bez produktu.", time: "od 14 dni" },
-  { icon: Users, label: "Społeczność premium", price: "49–199 zł / mies.", desc: "Stały dochód i lojalna baza.", time: "21–45 dni" },
-  { icon: Mail, label: "Newsletter premium", price: "29–99 zł / mies.", desc: "Niska bariera, świetna marża.", time: "14–30 dni" },
-  { icon: Brain, label: "Konsultacje online", price: "300–1500 zł / h", desc: "Najszybszy start dla ekspertów.", time: "od 7 dni" },
+  {
+    icon: BookOpen,
+    label: "Ebook",
+    price: "47–197 zł",
+    desc: "Najszybsza droga do pierwszej sprzedaży.",
+    time: "14–30 dni",
+    span: "lg:col-span-2",
+  },
+  {
+    icon: GraduationCap,
+    label: "Kurs online",
+    price: "297–1997 zł",
+    desc: "Skalowalny produkt premium.",
+    time: "45–90 dni",
+  },
+  {
+    icon: Bot,
+    label: "Produkt AI",
+    price: "97–497 zł / mies.",
+    desc: "Subskrypcja zarabiająca 24/7.",
+    time: "30–60 dni",
+  },
+  {
+    icon: Smartphone,
+    label: "Aplikacja / SaaS",
+    price: "49–299 zł / mies.",
+    desc: "Powtarzalny przychód.",
+    time: "60–90 dni",
+    span: "lg:col-span-2",
+  },
+  {
+    icon: MessageCircle,
+    label: "Mentoring 1:1",
+    price: "3000–14500 zł",
+    desc: "Najwyższe stawki bez produktu.",
+    time: "od 14 dni",
+  },
+  {
+    icon: Users,
+    label: "Społeczność premium",
+    price: "49–199 zł / mies.",
+    desc: "Stały dochód i lojalna baza.",
+    time: "21–45 dni",
+  },
+  {
+    icon: Mail,
+    label: "Newsletter premium",
+    price: "29–99 zł / mies.",
+    desc: "Niska bariera, świetna marża.",
+    time: "14–30 dni",
+  },
+  {
+    icon: Brain,
+    label: "Konsultacje online",
+    price: "300–1500 zł / h",
+    desc: "Najszybszy start dla ekspertów.",
+    time: "od 7 dni",
+  },
 ];
 
 const timeline = [
@@ -241,7 +334,12 @@ const timeline = [
 
 const aiTools = [
   { icon: Wand2, label: "Generator Produktu", desc: "Koncept w 2 min", save: "~8h/tydz" },
-  { icon: FileText, label: "Generator Oferty", desc: "Gotowa oferta sprzedażowa", save: "~5h/tydz" },
+  {
+    icon: FileText,
+    label: "Generator Oferty",
+    desc: "Gotowa oferta sprzedażowa",
+    save: "~5h/tydz",
+  },
   { icon: Layout, label: "Generator Landing", desc: "Strona, która konwertuje", save: "~10h/tydz" },
   { icon: Mail, label: "Generator Maili", desc: "Sekwencja sprzedażowa", save: "~6h/tydz" },
   { icon: Megaphone, label: "Generator Reklam", desc: "Kreacje Meta i Google", save: "~4h/tydz" },
@@ -249,9 +347,24 @@ const aiTools = [
 ];
 
 const steps = [
-  { n: 1, title: "Pomysł", desc: "Z AI wybierasz produkt, który możesz sprzedać w 30 dni.", icon: Sparkles },
-  { n: 2, title: "Produkt", desc: "Codzienny plan i generatory budują ofertę, landing i maile.", icon: Rocket },
-  { n: 3, title: "Sprzedaż", desc: "Uruchamiasz reklamy, mentor pomaga skalować do stabilnych wyników.", icon: TrendingUp },
+  {
+    n: 1,
+    title: "Pomysł",
+    desc: "Z AI wybierasz produkt, który możesz sprzedać w 30 dni.",
+    icon: Sparkles,
+  },
+  {
+    n: 2,
+    title: "Produkt",
+    desc: "Codzienny plan i generatory budują ofertę, landing i maile.",
+    icon: Rocket,
+  },
+  {
+    n: 3,
+    title: "Sprzedaż",
+    desc: "Uruchamiasz reklamy, mentor pomaga skalować do stabilnych wyników.",
+    icon: TrendingUp,
+  },
 ];
 
 const compare = {
@@ -272,37 +385,104 @@ const compare = {
 };
 
 const testimonials = [
-  { name: "Anna K.", role: "Ebook „Mindful Mama”", xp: 4820, quote: "W końcu stworzyłam swój pierwszy ebook. System prowadził mnie krok po kroku." },
-  { name: "Marek P.", role: "Mentoring online", xp: 6210, quote: "Po 30 dniach miałem pierwszych płacących klientów. Nie wierzyłem, że to możliwe." },
-  { name: "Julia W.", role: "Kurs „Canva dla firm”", xp: 3540, quote: "Generatory AI to game changer. Oszczędzam 10h tygodniowo." },
-  { name: "Tomek S.", role: "SaaS dla fryzjerów", xp: 7120, quote: "Mentor wyciągnął mnie z impasu w tydzień. Dziś 38 płacących użytkowników." },
-  { name: "Kasia R.", role: "Newsletter premium", xp: 2980, quote: "Po 6 tygodniach 240 płatnych subskrybentów. Magia codziennych zadań." },
+  {
+    name: "Anna K.",
+    role: "Ebook „Mindful Mama”",
+    xp: 4820,
+    quote: "W końcu stworzyłam swój pierwszy ebook. System prowadził mnie krok po kroku.",
+  },
+  {
+    name: "Marek P.",
+    role: "Mentoring online",
+    xp: 6210,
+    quote: "Po 30 dniach miałem pierwszych płacących klientów. Nie wierzyłem, że to możliwe.",
+  },
+  {
+    name: "Julia W.",
+    role: "Kurs „Canva dla firm”",
+    xp: 3540,
+    quote: "Generatory AI to game changer. Oszczędzam 10h tygodniowo.",
+  },
+  {
+    name: "Tomek S.",
+    role: "SaaS dla fryzjerów",
+    xp: 7120,
+    quote: "Mentor wyciągnął mnie z impasu w tydzień. Dziś 38 płacących użytkowników.",
+  },
+  {
+    name: "Kasia R.",
+    role: "Newsletter premium",
+    xp: 2980,
+    quote: "Po 6 tygodniach 240 płatnych subskrybentów. Magia codziennych zadań.",
+  },
 ];
 
 const pricing = [
   {
-    name: "Start", price: "0 zł", per: "/ na zawsze", cta: "Zacznij za darmo",
-    features: ["Dostęp do ścieżki 90 dni (pierwsze 14 dni)", "1 generator AI / dzień", "Społeczność na Discordzie", "Codzienne zadania i XP"],
+    name: "Start",
+    price: "0 zł",
+    per: "/ na zawsze",
+    cta: "Zacznij za darmo",
+    features: [
+      "Dostęp do ścieżki 90 dni (pierwsze 14 dni)",
+      "1 generator AI / dzień",
+      "Społeczność na Discordzie",
+      "Codzienne zadania i XP",
+    ],
     highlight: false,
   },
   {
-    name: "Pro", price: "79 zł", per: "/ miesiąc", cta: "Wybierz Pro",
-    features: ["Pełna ścieżka 90 dni", "Wszystkie generatory AI bez limitów", "Biblioteka kursów wideo", "Mentor zbiorowy (live Q&A 2x/mies.)", "Rewards i odznaki"],
-    highlight: true, badge: "Najczęstszy wybór",
+    name: "Pro",
+    price: "79 zł",
+    per: "/ miesiąc",
+    cta: "Wybierz Pro",
+    features: [
+      "Pełna ścieżka 90 dni",
+      "Wszystkie generatory AI bez limitów",
+      "Biblioteka kursów wideo",
+      "Mentor zbiorowy (live Q&A 2x/mies.)",
+      "Rewards i odznaki",
+    ],
+    highlight: true,
+    badge: "Najczęstszy wybór",
   },
   {
-    name: "VIP", price: "299 zł", per: "/ miesiąc", cta: "Aplikuj na VIP",
-    features: ["Wszystko z Pro", "Mentor 1:1 — 2 sesje / mies.", "Priorytetowe review zadań w 24h", "Dostęp do zamkniętej grupy VIP", "Gwarancja 1. sprzedaży w 60 dni*"],
+    name: "VIP",
+    price: "299 zł",
+    per: "/ miesiąc",
+    cta: "Aplikuj na VIP",
+    features: [
+      "Wszystko z Pro",
+      "Mentor 1:1 — 2 sesje / mies.",
+      "Priorytetowe review zadań w 24h",
+      "Dostęp do zamkniętej grupy VIP",
+      "Gwarancja 1. sprzedaży w 60 dni*",
+    ],
     highlight: false,
   },
 ];
 
 const faqs = [
-  { q: "Czy potrzebuję wcześniejszego doświadczenia?", a: "Nie. Ścieżka prowadzi Cię od pomysłu do pierwszej sprzedaży — niezależnie od poziomu. Każde zadanie ma instrukcję i przykład." },
-  { q: "Ile czasu dziennie muszę poświęcić?", a: "Średnio 30–45 minut. Codzienne mikrozadania można zrobić rano z kawą lub wieczorem zamiast scrollowania." },
-  { q: "Co jeśli nie mam pomysłu na produkt?", a: "Pierwsze 3 dni to praca z generatorem pomysłów AI, który dopiera produkt do Twoich umiejętności i czasu." },
-  { q: "Czy mogę zrezygnować w każdej chwili?", a: "Tak. Anulujesz jednym kliknięciem w panelu. Bez pytań, bez ukrytych kosztów." },
-  { q: "Czy działa też dla osób z pracą na etacie?", a: "Tak — plan jest celowo zaprojektowany pod 30 min dziennie, w sam raz po pracy." },
+  {
+    q: "Czy potrzebuję wcześniejszego doświadczenia?",
+    a: "Nie. Ścieżka prowadzi Cię od pomysłu do pierwszej sprzedaży — niezależnie od poziomu. Każde zadanie ma instrukcję i przykład.",
+  },
+  {
+    q: "Ile czasu dziennie muszę poświęcić?",
+    a: "Średnio 30–45 minut. Codzienne mikrozadania można zrobić rano z kawą lub wieczorem zamiast scrollowania.",
+  },
+  {
+    q: "Co jeśli nie mam pomysłu na produkt?",
+    a: "Pierwsze 3 dni to praca z generatorem pomysłów AI, który dopiera produkt do Twoich umiejętności i czasu.",
+  },
+  {
+    q: "Czy mogę zrezygnować w każdej chwili?",
+    a: "Tak. Anulujesz jednym kliknięciem w panelu. Bez pytań, bez ukrytych kosztów.",
+  },
+  {
+    q: "Czy działa też dla osób z pracą na etacie?",
+    a: "Tak — plan jest celowo zaprojektowany pod 30 min dziennie, w sam raz po pracy.",
+  },
 ];
 
 /* =========================================================================
@@ -400,7 +580,6 @@ function StickyCta() {
   );
 }
 
-
 /* ============================== NAV ============================== */
 function Nav() {
   const { open } = useAuthDialog();
@@ -409,11 +588,21 @@ function Nav() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
         <Logo size="sm" />
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <a href="#produkty" className="hover:text-foreground">Produkty</a>
-          <a href="#jak" className="hover:text-foreground">Jak działa</a>
-          <a href="#ai" className="hover:text-foreground">AI</a>
-          <a href="#cennik" className="hover:text-foreground">Cennik</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
+          <a href="#produkty" className="hover:text-foreground">
+            Produkty
+          </a>
+          <a href="#jak" className="hover:text-foreground">
+            Jak działa
+          </a>
+          <a href="#ai" className="hover:text-foreground">
+            AI
+          </a>
+          <a href="#cennik" className="hover:text-foreground">
+            Cennik
+          </a>
+          <a href="#faq" className="hover:text-foreground">
+            FAQ
+          </a>
         </nav>
         <div className="flex items-center gap-2">
           <button
@@ -446,7 +635,10 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
       </div>
       <Particles count={30} />
 
-      <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-20 md:pb-28">
+      <motion.div
+        style={{ y: heroY, opacity: heroOpacity }}
+        className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-20 md:pb-28"
+      >
         <Reveal>
           <div className="mx-auto w-fit flex items-center gap-2 rounded-full border border-border bg-card/70 backdrop-blur px-3 py-1.5 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-violet" />
@@ -457,15 +649,16 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
         <Reveal delay={0.05}>
           <h1 className="mt-6 text-center font-display font-extrabold tracking-tight text-4xl sm:text-5xl md:text-7xl leading-[1.05]">
             Twój pierwszy biznes online
-            <br />
-            w <AuroraText>90 dni</AuroraText>
+            <br />w <AuroraText>90 dni</AuroraText>
           </h1>
         </Reveal>
 
         <Reveal delay={0.1}>
           <p className="mt-5 mx-auto max-w-2xl text-center text-base sm:text-lg text-muted-foreground">
             Codzienny plan, 6 generatorów AI i mentor. Zbuduj swój własny{" "}
-            <WordRotate words={["ebook", "kurs", "SaaS", "newsletter", "mentoring", "produkt AI"]} />{" "}
+            <WordRotate
+              words={["ebook", "kurs", "SaaS", "newsletter", "mentoring", "produkt AI"]}
+            />{" "}
             — bez teorii, bez kodu, z realnym wynikiem.
           </p>
         </Reveal>
@@ -491,9 +684,15 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
 
         <Reveal delay={0.2}>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 30 min dziennie</span>
-            <span className="inline-flex items-center gap-1.5"><Target className="w-3.5 h-3.5" /> 1. sprzedaż w 30–60 dni</span>
-            <span className="inline-flex items-center gap-1.5"><Bot className="w-3.5 h-3.5" /> AI robi 70% pracy</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" /> 30 min dziennie
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5" /> 1. sprzedaż w 30–60 dni
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Bot className="w-3.5 h-3.5" /> AI robi 70% pracy
+            </span>
           </div>
         </Reveal>
 
@@ -518,7 +717,17 @@ function Hero({ heroY, heroOpacity }: { heroY: any; heroOpacity: any }) {
   );
 }
 
-function Stat({ n, suffix = "", label, fixed }: { n: number; suffix?: string; label: string; fixed?: boolean }) {
+function Stat({
+  n,
+  suffix = "",
+  label,
+  fixed,
+}: {
+  n: number;
+  suffix?: string;
+  label: string;
+  fixed?: boolean;
+}) {
   return (
     <div>
       <div className="font-display font-extrabold text-3xl md:text-4xl">
@@ -533,9 +742,35 @@ function Stat({ n, suffix = "", label, fixed }: { n: number; suffix?: string; la
 function FloatingCards() {
   const reduce = useReducedMotion();
   const cards = [
-    { icon: BookOpen, title: "Ebook · 30 stron", price: "97 zł", grad: "from-violet to-blue", rot: -6, top: "0%", left: "-2%" },
-    { icon: GraduationCap, title: "Kurs 5 modułów", price: "597 zł", grad: "from-blue to-violet", rot: 4, top: "10%", left: "auto", right: "-2%" },
-    { icon: Bot, title: "Generator postów AI", price: "149 zł/m", grad: "from-orange to-violet", rot: -3, top: "auto", bottom: "-6%", left: "10%" },
+    {
+      icon: BookOpen,
+      title: "Ebook · 30 stron",
+      price: "97 zł",
+      grad: "from-violet to-blue",
+      rot: -6,
+      top: "0%",
+      left: "-2%",
+    },
+    {
+      icon: GraduationCap,
+      title: "Kurs 5 modułów",
+      price: "597 zł",
+      grad: "from-blue to-violet",
+      rot: 4,
+      top: "10%",
+      left: "auto",
+      right: "-2%",
+    },
+    {
+      icon: Bot,
+      title: "Generator postów AI",
+      price: "149 zł/m",
+      grad: "from-orange to-violet",
+      rot: -3,
+      top: "auto",
+      bottom: "-6%",
+      left: "10%",
+    },
   ];
   return (
     <div className="relative h-[280px] md:h-[340px]">
@@ -575,7 +810,12 @@ function FloatingCards() {
           </div>
           <div className="col-span-3 grid grid-cols-3 gap-2 text-[11px]">
             {["Pomysł ✓", "Oferta ✓", "Landing →"].map((t, i) => (
-              <div key={t} className={`rounded-xl border p-2 ${i === 2 ? "border-violet bg-violet-soft text-violet font-bold" : "border-border text-muted-foreground"}`}>{t}</div>
+              <div
+                key={t}
+                className={`rounded-xl border p-2 ${i === 2 ? "border-violet bg-violet-soft text-violet font-bold" : "border-border text-muted-foreground"}`}
+              >
+                {t}
+              </div>
             ))}
           </div>
         </div>
@@ -589,14 +829,24 @@ function FloatingCards() {
           whileInView={{ opacity: 1, y: 0, rotate: c.rot }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
-          animate={
-            reduce ? undefined : { y: [0, -8, 0] }
-          }
-          {...(!reduce && { transition: { y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" }, delay: i * 0.4 } })}
+          animate={reduce ? undefined : { y: [0, -8, 0] }}
+          {...(!reduce && {
+            transition: {
+              y: { duration: 4 + i, repeat: Infinity, ease: "easeInOut" },
+              delay: i * 0.4,
+            },
+          })}
           className="absolute hidden sm:flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 shadow-[var(--shadow-card)]"
-          style={{ top: c.top, left: c.left as string, right: (c.right as string) ?? undefined, bottom: (c.bottom as string) ?? undefined }}
+          style={{
+            top: c.top,
+            left: c.left as string,
+            right: (c.right as string) ?? undefined,
+            bottom: (c.bottom as string) ?? undefined,
+          }}
         >
-          <span className={`grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br ${c.grad} text-primary-foreground`}>
+          <span
+            className={`grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br ${c.grad} text-primary-foreground`}
+          >
             <c.icon className="w-4 h-4" />
           </span>
           <div>
@@ -623,7 +873,9 @@ function TrustBar() {
         </div>
         <span className="hidden sm:block w-px h-5 bg-border" />
         {["Forbes", "My Company", "Business Insider", "ProductHunt", "Mam Startup"].map((l) => (
-          <span key={l} className="font-display font-bold text-sm tracking-tight opacity-70">{l}</span>
+          <span key={l} className="font-display font-bold text-sm tracking-tight opacity-70">
+            {l}
+          </span>
         ))}
       </div>
     </section>
@@ -633,13 +885,25 @@ function TrustBar() {
 /* ============================== PRODUCTS BENTO ============================== */
 function ProductsBento() {
   return (
-    <Section id="produkty" eyebrow="Co możesz zbudować" title="8 produktów, które działają w 2026" subtitle="Wybierz drogę pasującą do Twojej wiedzy i czasu. AI poprowadzi resztę.">
+    <Section
+      id="produkty"
+      eyebrow="Co możesz zbudować"
+      title="8 produktów, które działają w 2026"
+      subtitle="Wybierz drogę pasującą do Twojej wiedzy i czasu. AI poprowadzi resztę."
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {products.map((p, i) => (
           <Reveal key={p.label} delay={i * 0.04}>
-            <div className={`group relative h-full rounded-3xl border border-border bg-card p-5 hover:border-violet/40 hover:shadow-[var(--shadow-card)] transition-all overflow-hidden ${p.span ?? ""}`}>
-              <div aria-hidden className="absolute -top-16 -right-16 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: "radial-gradient(circle, oklch(0.7 0.2 290 / 0.25), transparent 70%)" }} />
+            <div
+              className={`group relative h-full rounded-3xl border border-border bg-card p-5 hover:border-violet/40 hover:shadow-[var(--shadow-card)] transition-all overflow-hidden ${p.span ?? ""}`}
+            >
+              <div
+                aria-hidden
+                className="absolute -top-16 -right-16 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background: "radial-gradient(circle, oklch(0.7 0.2 290 / 0.25), transparent 70%)",
+                }}
+              />
               <span className="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
                 <p.icon className="w-5 h-5" />
               </span>
@@ -647,7 +911,9 @@ function ProductsBento() {
               <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
               <div className="mt-4 flex items-center justify-between text-xs">
                 <span className="font-bold text-violet">{p.price}</span>
-                <span className="inline-flex items-center gap-1 text-muted-foreground"><Clock className="w-3 h-3" /> {p.time}</span>
+                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                  <Clock className="w-3 h-3" /> {p.time}
+                </span>
               </div>
             </div>
           </Reveal>
@@ -660,9 +926,17 @@ function ProductsBento() {
 /* ============================== HOW IT WORKS ============================== */
 function HowItWorks() {
   return (
-    <Section id="jak" eyebrow="Jak to działa" title="Trzy kroki do gotowego biznesu" subtitle="Bez kursów w odcinkach, bez czytania 400 stron. Robisz — i widzisz wynik.">
+    <Section
+      id="jak"
+      eyebrow="Jak to działa"
+      title="Trzy kroki do gotowego biznesu"
+      subtitle="Bez kursów w odcinkach, bez czytania 400 stron. Robisz — i widzisz wynik."
+    >
       <div className="grid md:grid-cols-3 gap-5 relative">
-        <div aria-hidden className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-violet/40 to-transparent" />
+        <div
+          aria-hidden
+          className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-violet/40 to-transparent"
+        />
         {steps.map((s, i) => (
           <Reveal key={s.n} delay={i * 0.1}>
             <div className="relative rounded-3xl border border-border bg-card p-6 h-full">
@@ -687,11 +961,21 @@ function Timeline() {
   const lineW = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <Section eyebrow="90-dniowa ścieżka" title="Każdego dnia mały krok — w 90 dni gotowy biznes" subtitle="Wiesz dokładnie co zrobić dziś, jutro i pojutrze. Zero zgadywanki.">
-      <div ref={ref} className="relative rounded-3xl border border-border bg-card p-6 md:p-10 overflow-hidden">
+    <Section
+      eyebrow="90-dniowa ścieżka"
+      title="Każdego dnia mały krok — w 90 dni gotowy biznes"
+      subtitle="Wiesz dokładnie co zrobić dziś, jutro i pojutrze. Zero zgadywanki."
+    >
+      <div
+        ref={ref}
+        className="relative rounded-3xl border border-border bg-card p-6 md:p-10 overflow-hidden"
+      >
         <div className="relative">
           <div className="absolute left-0 right-0 top-7 h-1 rounded-full bg-muted" />
-          <motion.div style={{ width: lineW }} className="absolute left-0 top-7 h-1 rounded-full bg-gradient-to-r from-violet to-blue" />
+          <motion.div
+            style={{ width: lineW }}
+            className="absolute left-0 top-7 h-1 rounded-full bg-gradient-to-r from-violet to-blue"
+          />
           <div className="relative grid grid-cols-7 gap-2">
             {timeline.map((t, i) => (
               <motion.div
@@ -705,7 +989,9 @@ function Timeline() {
                 <span className="grid place-items-center w-14 h-14 rounded-full bg-card border-2 border-violet/40 text-violet shadow-[var(--shadow-card)]">
                   <t.icon className="w-5 h-5" />
                 </span>
-                <div className="mt-2 text-[10px] font-bold text-muted-foreground">DZIEŃ {t.day}</div>
+                <div className="mt-2 text-[10px] font-bold text-muted-foreground">
+                  DZIEŃ {t.day}
+                </div>
                 <div className="text-xs md:text-sm font-bold mt-0.5">{t.title}</div>
               </motion.div>
             ))}
@@ -719,7 +1005,12 @@ function Timeline() {
 /* ============================== AI TOOLS ============================== */
 function AiToolsGrid() {
   return (
-    <Section id="ai" eyebrow="Generatory AI" title="6 generatorów, które robią 70% pracy" subtitle="Wpisujesz kontekst — AI dostarcza gotowy materiał. Pełna kontrola, zero pustej kartki.">
+    <Section
+      id="ai"
+      eyebrow="Generatory AI"
+      title="6 generatorów, które robią 70% pracy"
+      subtitle="Wpisujesz kontekst — AI dostarcza gotowy materiał. Pełna kontrola, zero pustej kartki."
+    >
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {aiTools.map((t, i) => (
           <Reveal key={t.label} delay={i * 0.05}>
@@ -728,7 +1019,9 @@ function AiToolsGrid() {
                 <span className="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet to-blue text-primary-foreground">
                   <t.icon className="w-5 h-5" />
                 </span>
-                <span className="text-[10px] font-bold uppercase rounded-full bg-green-soft text-green px-2 py-1">{t.save}</span>
+                <span className="text-[10px] font-bold uppercase rounded-full bg-green-soft text-green px-2 py-1">
+                  {t.save}
+                </span>
               </div>
               <div className="mt-4 font-display font-extrabold">{t.label}</div>
               <p className="text-sm text-muted-foreground mt-1">{t.desc}</p>
@@ -751,7 +1044,11 @@ function AiToolsGrid() {
 /* ============================== COMPARISON ============================== */
 function Comparison() {
   return (
-    <Section eyebrow="Sam vs z 90 Dni" title="Dlaczego sam najczęściej się nie udaje" subtitle="To nie kwestia talentu. To kwestia systemu i konsekwencji.">
+    <Section
+      eyebrow="Sam vs z 90 Dni"
+      title="Dlaczego sam najczęściej się nie udaje"
+      subtitle="To nie kwestia talentu. To kwestia systemu i konsekwencji."
+    >
       <div className="grid md:grid-cols-2 gap-5">
         <Reveal>
           <div className="rounded-3xl border border-destructive/30 bg-card p-6 h-full">
@@ -798,12 +1095,22 @@ function Comparison() {
 function TestimonialsMarquee() {
   const items = [...testimonials, ...testimonials];
   return (
-    <Section eyebrow="Społeczność" title="Ludzie, którzy już zaczęli" subtitle="Realne historie z bieżącej kohorty. Każda zaczęła się od jednego dnia 1.">
-      <div className="relative overflow-hidden mask-fade">
+    <Section
+      eyebrow="Społeczność"
+      title="Ludzie, którzy już zaczęli"
+      subtitle="Realne historie z bieżącej kohorty. Każda zaczęła się od jednego dnia 1."
+    >
+      <div className="relative max-w-full overflow-hidden overflow-x-clip mask-fade">
         <style>{`.mask-fade { mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent); }`}</style>
-        <div className="flex gap-4 w-max" style={{ animation: "marquee 40s linear infinite" }}>
+        <div
+          className="flex max-w-none gap-4 will-change-transform"
+          style={{ width: "max-content", animation: "marquee 40s linear infinite" }}
+        >
           {items.map((t, i) => (
-            <div key={i} className="w-[320px] sm:w-[380px] shrink-0 rounded-3xl border border-border bg-card p-5">
+            <div
+              key={i}
+              className="w-[min(78vw,320px)] shrink-0 rounded-3xl border border-border bg-card p-5 sm:w-[380px]"
+            >
               <div className="flex items-center gap-3">
                 <span className="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-violet to-blue text-primary-foreground font-bold">
                   {t.name[0]}
@@ -834,7 +1141,12 @@ function TestimonialsMarquee() {
 function Pricing() {
   const { open } = useAuthDialog();
   return (
-    <Section id="cennik" eyebrow="Cennik" title="Wybierz tempo, jakie Ci pasuje" subtitle="Zacznij za darmo. Przejdziesz na płatny plan, gdy zobaczysz wartość.">
+    <Section
+      id="cennik"
+      eyebrow="Cennik"
+      title="Wybierz tempo, jakie Ci pasuje"
+      subtitle="Zacznij za darmo. Przejdziesz na płatny plan, gdy zobaczysz wartość."
+    >
       <div className="grid md:grid-cols-3 gap-5">
         {pricing.map((p, i) => (
           <Reveal key={p.name} delay={i * 0.08}>
@@ -879,9 +1191,15 @@ function Pricing() {
         ))}
       </div>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> 14 dni gwarancji zwrotu</span>
-        <span className="inline-flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5" /> Anuluj jednym kliknięciem</span>
-        <span className="inline-flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> Płatność szyfrowana</span>
+        <span className="inline-flex items-center gap-1.5">
+          <Shield className="w-3.5 h-3.5" /> 14 dni gwarancji zwrotu
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <BadgeCheck className="w-3.5 h-3.5" /> Anuluj jednym kliknięciem
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Award className="w-3.5 h-3.5" /> Płatność szyfrowana
+        </span>
       </div>
     </Section>
   );
@@ -891,7 +1209,12 @@ function Pricing() {
 function Faq() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <Section id="faq" eyebrow="FAQ" title="Pytania, które padają najczęściej" subtitle="Jeśli czegoś brakuje — napisz na hello@90dni.app.">
+    <Section
+      id="faq"
+      eyebrow="FAQ"
+      title="Pytania, które padają najczęściej"
+      subtitle="Jeśli czegoś brakuje — napisz na hello@90dni.app."
+    >
       <div className="max-w-3xl mx-auto space-y-3">
         {faqs.map((f, i) => (
           <div key={f.q} className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -929,7 +1252,10 @@ function FinalCta() {
   const { open } = useAuthDialog();
   return (
     <section className="relative overflow-hidden py-24 md:py-32">
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-violet via-blue to-violet" />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-br from-violet via-blue to-violet"
+      />
       <Meteors count={18} />
       <div className="relative max-w-4xl mx-auto px-4 md:px-6 text-center text-primary-foreground">
         <Reveal>
@@ -978,12 +1304,24 @@ function Footer() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-muted-foreground">
-          <a href="#produkty" className="hover:text-foreground">Produkty</a>
-          <a href="#jak" className="hover:text-foreground">Jak działa</a>
-          <a href="#ai" className="hover:text-foreground">AI</a>
-          <a href="#cennik" className="hover:text-foreground">Cennik</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
-          <button onClick={() => open("signin")} className="text-left hover:text-foreground">Zaloguj</button>
+          <a href="#produkty" className="hover:text-foreground">
+            Produkty
+          </a>
+          <a href="#jak" className="hover:text-foreground">
+            Jak działa
+          </a>
+          <a href="#ai" className="hover:text-foreground">
+            AI
+          </a>
+          <a href="#cennik" className="hover:text-foreground">
+            Cennik
+          </a>
+          <a href="#faq" className="hover:text-foreground">
+            FAQ
+          </a>
+          <button onClick={() => open("signin")} className="text-left hover:text-foreground">
+            Zaloguj
+          </button>
         </div>
         <div className="text-muted-foreground">
           © {new Date().getFullYear()} 90 Dni. Wszystkie prawa zastrzeżone.
@@ -996,9 +1334,17 @@ function Footer() {
 
 /* ============================== SECTION WRAPPER ============================== */
 function Section({
-  id, eyebrow, title, subtitle, children,
+  id,
+  eyebrow,
+  title,
+  subtitle,
+  children,
 }: {
-  id?: string; eyebrow: string; title: string; subtitle?: string; children: React.ReactNode;
+  id?: string;
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
 }) {
   return (
     <section id={id} className="relative py-20 md:py-28">
@@ -1011,9 +1357,7 @@ function Section({
             <h2 className="mt-4 font-display font-extrabold text-3xl md:text-5xl tracking-tight">
               {title}
             </h2>
-            {subtitle && (
-              <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
-            )}
+            {subtitle && <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
           </div>
         </Reveal>
         {children}

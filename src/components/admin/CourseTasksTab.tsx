@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, ListChecks } from "lucide-react";
 import { toast } from "sonner";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 type Course = { id: string; title: string };
 type Lesson = { id: string; title: string; course_id: string; position: number };
@@ -48,7 +49,7 @@ export function CourseTasksTab() {
       supabase.from("lessons").select("id, title, course_id, position").order("position"),
       supabase.from("lesson_tasks").select("*").order("created_at", { ascending: false }),
     ]);
-    setCourses((c ?? []) as Course[]);
+    setCourses(normalizeProgramCourseRows((c ?? []) as Course[]));
     setLessons((l ?? []) as Lesson[]);
     setTasks((t ?? []) as LessonTask[]);
   };
@@ -130,7 +131,13 @@ export function CourseTasksTab() {
         </div>
         <Button
           onClick={() =>
-            setEditing({ title: "", xp_reward: 50, is_required: false, instructions: "", due_in_days: 7 })
+            setEditing({
+              title: "",
+              xp_reward: 50,
+              is_required: false,
+              instructions: "",
+              due_in_days: 7,
+            })
           }
           className="bg-gradient-violet text-primary-foreground rounded-xl"
         >
@@ -241,9 +248,7 @@ export function CourseTasksTab() {
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>
-              {editing?.id ? "Edytuj zadanie" : "Nowe zadanie kursu"}
-            </DialogTitle>
+            <DialogTitle>{editing?.id ? "Edytuj zadanie" : "Nowe zadanie kursu"}</DialogTitle>
           </DialogHeader>
           {editing && (
             <div className="space-y-3">
@@ -281,9 +286,7 @@ export function CourseTasksTab() {
                 <Textarea
                   rows={5}
                   value={editing.instructions ?? ""}
-                  onChange={(e) =>
-                    setEditing({ ...editing, instructions: e.target.value })
-                  }
+                  onChange={(e) => setEditing({ ...editing, instructions: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">

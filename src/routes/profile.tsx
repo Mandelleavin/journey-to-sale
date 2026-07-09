@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ArrowLeft, User, KeyRound, Zap, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
+import { formatXpReason } from "@/lib/xp-reasons";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -206,7 +207,7 @@ function XpTab() {
         {rows.map((r) => (
           <li key={r.id} className="py-2.5 flex items-center justify-between text-sm">
             <div>
-              <div className="font-semibold">{r.reason}</div>
+              <div className="font-semibold">{formatXpReason(r.reason).title}</div>
               <div className="text-xs text-muted-foreground">
                 {new Date(r.created_at).toLocaleString("pl-PL")}
               </div>

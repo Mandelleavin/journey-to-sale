@@ -47,7 +47,9 @@ export const Route = createFileRoute("/recommended-tools/")({
   ),
   notFoundComponent: () => (
     <PageShell title="Nie znaleziono" subtitle="Brak danych do wyświetlenia.">
-      <Link to="/" className="text-violet font-semibold">← Wróć</Link>
+      <Link to="/" className="text-violet font-semibold">
+        ← Wróć
+      </Link>
     </PageShell>
   ),
   component: RecommendedToolsListPage,
@@ -76,7 +78,8 @@ function RecommendedToolsListPage() {
             Najlepsze narzędzia do biznesu online w 2026
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Każda kategoria zawiera ranking moich rekomendacji. Kliknij w narzędzie, by zobaczyć szczegóły, plusy, minusy, cennik i bonus.
+            Każda kategoria zawiera ranking moich rekomendacji. Kliknij w narzędzie, by zobaczyć
+            szczegóły, plusy, minusy, cennik i bonus.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -108,7 +111,9 @@ function RecommendedToolsListPage() {
                   <h2 className="font-display font-extrabold text-2xl md:text-3xl leading-tight">
                     {cat.name}
                   </h2>
-                  <p className="text-sm md:text-base text-muted-foreground mt-1">{cat.description}</p>
+                  <p className="text-sm md:text-base text-muted-foreground mt-1">
+                    {cat.description}
+                  </p>
                 </div>
               </header>
 
@@ -154,14 +159,11 @@ function ToolListItem({ tool, rank }: { tool: RecommendedTool; rank: number }) {
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
-          {tool.shortDescription}
-        </p>
+        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{tool.shortDescription}</p>
         <div className="flex items-center gap-3 mt-2 flex-wrap text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 font-semibold text-foreground">
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            {tool.rating.toFixed(1)}
-            <span className="text-muted-foreground font-normal">({tool.reviewsCount})</span>
+            Ocena redakcji: {tool.rating.toFixed(1)}
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="w-3.5 h-3.5" /> Używa: {tool.usedBy}

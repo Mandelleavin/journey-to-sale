@@ -20,6 +20,7 @@ import {
 import { Trash2, Pin, CalendarDays, BookOpen, CheckCircle2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeProgramCourseRows } from "@/lib/course-numbering";
 
 type Path = { id: string; title: string; total_days: number; is_default: boolean };
 type Step = {
@@ -42,9 +43,11 @@ export function PathMappingTab() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [editingStep, setEditingStep] = useState<Step | null>(null);
-  const [pinTarget, setPinTarget] = useState<
-    { type: "course" | "module"; id: string; title: string } | null
-  >(null);
+  const [pinTarget, setPinTarget] = useState<{
+    type: "course" | "module";
+    id: string;
+    title: string;
+  } | null>(null);
   const [pinDay, setPinDay] = useState<number>(1);
   const [pinLabel, setPinLabel] = useState<string>("");
 
@@ -57,8 +60,8 @@ export function PathMappingTab() {
     ]);
     setPaths((p ?? []) as Path[]);
     setSteps((s ?? []) as Step[]);
-    setCourses(c ?? []);
-    setModules(m ?? []);
+    setCourses(normalizeProgramCourseRows(c ?? []));
+    setModules(normalizeProgramCourseRows(m ?? []));
     if (!pathId && p?.length) {
       setPathId((p.find((x) => x.is_default) ?? p[0]).id);
     }
@@ -182,8 +185,8 @@ export function PathMappingTab() {
           </Select>
         </div>
         <div className="text-xs text-muted-foreground">
-          Przypiętych kroków: <b className="text-foreground">{pathSteps.length}</b> ·
-          Niepowiązanych kursów:{" "}
+          Przypiętych kroków: <b className="text-foreground">{pathSteps.length}</b> · Niepowiązanych
+          kursów:{" "}
           <b className="text-foreground">{courses.filter((c) => !stepByCourse.has(c.id)).length}</b>
         </div>
       </div>
@@ -203,7 +206,10 @@ export function PathMappingTab() {
           {/* Timeline bar */}
           <div className="relative mb-6">
             <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-violet to-blue" style={{ width: "100%" }} />
+              <div
+                className="h-full bg-gradient-to-r from-violet to-blue"
+                style={{ width: "100%" }}
+              />
             </div>
             <div className="relative h-20 mt-2">
               {pathSteps.map((s) => {
@@ -260,7 +266,9 @@ export function PathMappingTab() {
                     <div className="text-xs text-muted-foreground truncate">
                       {course && <>📚 Kurs: {course.title}</>}
                       {mod && <>📦 Moduł: {mod.title}</>}
-                      {!course && !mod && <span className="text-destructive">⚠ brak powiązania</span>}
+                      {!course && !mod && (
+                        <span className="text-destructive">⚠ brak powiązania</span>
+                      )}
                     </div>
                   </div>
                   <Button size="sm" variant="ghost" onClick={() => setEditingStep(s)}>

@@ -18,8 +18,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { LockKey } from "@/components/auth/LockKey";
 import { cn } from "@/lib/utils";
+import { getAuthErrorMessage, validateAuthForm, type AuthMode } from "@/lib/auth-errors";
 
-type Mode = "signin" | "signup" | "reset";
+type Mode = AuthMode;
 
 type Ctx = {
   open: (mode?: Mode) => void;
@@ -96,6 +97,12 @@ function AuthDialog({
   const passwordStrength = Math.min(1, password.length / 8);
   const unlocked = password.length >= 8;
 
+  const changeMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    setError(null);
+    setInfo(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -104,21 +111,30 @@ function AuthDialog({
       setInfo("Sprawdź skrzynkę.");
       return;
     }
+    const validationError = validateAuthForm({ mode, email, password });
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setBusy(true);
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
         if (error) throw error;
         onOpenChange(false);
         navigate({ to: "/" });
       } else if (mode === "signup") {
         const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: redirectTo,
-            data: { full_name: fullName || email.split("@")[0] },
+            data: { full_name: fullName.trim() || normalizedEmail.split("@")[0] },
           },
         });
         if (error) throw error;
@@ -131,12 +147,14 @@ function AuthDialog({
       } else if (mode === "reset") {
         const redirectTo =
           typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+          redirectTo,
+        });
         if (error) throw error;
         setInfo("Link do resetu hasła wysłany. Sprawdź skrzynkę.");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Coś poszło nie tak");
+      setError(getAuthErrorMessage(err, mode));
     } finally {
       setBusy(false);
     }
@@ -181,7 +199,10 @@ function AuthDialog({
               <div className="flex items-center gap-3 text-xs text-white/50">
                 <div className="flex -space-x-2">
                   {["bg-violet", "bg-pink-500", "bg-orange", "bg-blue"].map((c, i) => (
-                    <div key={i} className={cn("h-7 w-7 rounded-full border-2 border-[#0F0D23]", c)} />
+                    <div
+                      key={i}
+                      className={cn("h-7 w-7 rounded-full border-2 border-[#0F0D23]", c)}
+                    />
                   ))}
                 </div>
                 <span>2 137 osób już zaczęło</span>
@@ -191,13 +212,13 @@ function AuthDialog({
             {/* RIGHT — form */}
             <div className="p-6 sm:p-8">
               <div className="mb-5 flex gap-1 rounded-full bg-white/5 p-1">
-                <TabBtn active={mode === "signin"} onClick={() => setMode("signin")}>
+                <TabBtn active={mode === "signin"} onClick={() => changeMode("signin")}>
                   Logowanie
                 </TabBtn>
-                <TabBtn active={mode === "signup"} onClick={() => setMode("signup")}>
+                <TabBtn active={mode === "signup"} onClick={() => changeMode("signup")}>
                   Rejestracja
                 </TabBtn>
-                <TabBtn active={mode === "reset"} onClick={() => setMode("reset")}>
+                <TabBtn active={mode === "reset"} onClick={() => changeMode("reset")}>
                   Reset
                 </TabBtn>
               </div>
@@ -269,7 +290,11 @@ function AuthDialog({
                         className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-white/50 hover:bg-white/10 hover:text-white"
                         aria-label={showPassword ? "Ukryj" : "Pokaż"}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                     {mode === "signup" && (
@@ -312,7 +337,7 @@ function AuthDialog({
                 {mode === "signin" && (
                   <button
                     type="button"
-                    onClick={() => setMode("reset")}
+                    onClick={() => changeMode("reset")}
                     className="w-full text-center text-xs text-white/60 hover:text-white"
                   >
                     Nie pamiętasz hasła?

@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { ContentBlocksEditor, type ContentBlock } from "@/components/admin/ContentBlocksEditor";
 import { cn } from "@/lib/utils";
+import { normalizeProgramCourseTitle } from "@/lib/course-numbering";
 
 export const Route = createFileRoute("/admin/modules/$moduleId")({
   component: AdminModuleLessonsPage,
@@ -106,13 +107,13 @@ function AdminModuleLessonsPage() {
       toast.error("Moduł nie istnieje");
       return;
     }
-    setModuleInfo(mod as never);
+    setModuleInfo({ ...mod, title: normalizeProgramCourseTitle(mod.title) } as never);
     const { data: course } = await supabase
       .from("courses")
       .select("title")
       .eq("id", mod.course_id)
       .maybeSingle();
-    setCourseTitle(course?.title ?? "");
+    setCourseTitle(course?.title ? normalizeProgramCourseTitle(course.title) : "");
     const { data: ls } = await supabase
       .from("lessons")
       .select("*")
@@ -492,7 +493,8 @@ function AdminModuleLessonsPage() {
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="text-sm font-bold flex items-center gap-1.5">
-                            <ListChecks className="w-4 h-4 text-violet" /> Auto-zadania od mentora po lekcji
+                            <ListChecks className="w-4 h-4 text-violet" /> Auto-zadania od mentora
+                            po lekcji
                           </h4>
                           <Button
                             size="sm"
@@ -513,7 +515,8 @@ function AdminModuleLessonsPage() {
                           </Button>
                         </div>
                         <p className="text-[11px] text-muted-foreground mb-2">
-                          Po ukończeniu tej lekcji każdy kursant automatycznie dostanie te zadania od mentora do wykonania.
+                          Po ukończeniu tej lekcji każdy kursant automatycznie dostanie te zadania
+                          od mentora do wykonania.
                         </p>
                         {(mentorByLesson[l.id] ?? []).length === 0 ? (
                           <div className="text-xs text-muted-foreground italic">Brak szablonów</div>
@@ -534,15 +537,14 @@ function AdminModuleLessonsPage() {
                                     )}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    +{tpl.xp_reward} XP · termin: {tpl.due_in_days} dni od ukończenia
+                                    +{tpl.xp_reward} XP · termin: {tpl.due_in_days} dni od
+                                    ukończenia
                                   </div>
                                 </div>
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() =>
-                                    setEditingMentor({ lessonId: l.id, tpl })
-                                  }
+                                  onClick={() => setEditingMentor({ lessonId: l.id, tpl })}
                                 >
                                   <Pencil className="w-3 h-3" />
                                 </Button>
@@ -883,10 +885,7 @@ function AdminModuleLessonsPage() {
             <Button variant="outline" onClick={() => setEditingMentor(null)}>
               Anuluj
             </Button>
-            <Button
-              onClick={saveMentorTpl}
-              className="bg-gradient-violet text-primary-foreground"
-            >
+            <Button onClick={saveMentorTpl} className="bg-gradient-violet text-primary-foreground">
               Zapisz
             </Button>
           </DialogFooter>

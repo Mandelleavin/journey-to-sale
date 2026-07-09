@@ -6,8 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
-import { Copy, Trash2, KeyRound, Plus } from "lucide-react";
+import { Copy, Trash2, KeyRound, Plus, Search, Eye, Users, Loader2 } from "lucide-react";
 import {
   adminGetPlanSettings,
   adminUpdatePlanSettings,
@@ -15,6 +31,10 @@ import {
   adminCreateAccessCodes,
   adminDeleteAccessCode,
   adminGetPlanAnalytics,
+  adminListPlanUsers,
+  adminGetPlanUserSurvey,
+  type AdminPlanUserSummary,
+  type AdminPlanSurveyAnswer,
 } from "@/lib/business-plan.functions";
 
 export const Route = createFileRoute("/admin/business-plan")({
@@ -30,6 +50,10 @@ type Code = {
   used_at: string | null;
   created_at: string;
 };
+type SurveyDetails = {
+  user: { user_id: string; full_name: string | null; email: string };
+  answers: AdminPlanSurveyAnswer[];
+};
 
 function AdminBusinessPlanPage() {
   const getSettings = useServerFn(adminGetPlanSettings);
@@ -38,6 +62,8 @@ function AdminBusinessPlanPage() {
   const createCodes = useServerFn(adminCreateAccessCodes);
   const deleteCode = useServerFn(adminDeleteAccessCode);
   const getAnalytics = useServerFn(adminGetPlanAnalytics);
+  const listPlanUsers = useServerFn(adminListPlanUsers);
+  const getUserSurvey = useServerFn(adminGetPlanUserSurvey);
 
   const [settings, setSettings] = useState<Settings | null>(null);
   const [password, setPassword] = useState("");
@@ -50,14 +76,25 @@ function AdminBusinessPlanPage() {
     totalResponses: number;
     perField: Record<string, number>;
   } | null>(null);
+  const [planUsers, setPlanUsers] = useState<AdminPlanUserSummary[]>([]);
+  const [userSearch, setUserSearch] = useState("");
+  const [selectedUser, setSelectedUser] = useState<AdminPlanUserSummary | null>(null);
+  const [survey, setSurvey] = useState<SurveyDetails | null>(null);
+  const [surveyLoading, setSurveyLoading] = useState(false);
 
   const reload = async () => {
-    const [s, c, a] = await Promise.all([getSettings(), listCodes(), getAnalytics()]);
+    const [s, c, a, u] = await Promise.all([
+      getSettings(),
+      listCodes(),
+      getAnalytics(),
+      listPlanUsers(),
+    ]);
     setSettings(s);
     setPassword(s.global_password ?? "");
     setIsOpen(s.is_open);
     setCodes(c.codes as Code[]);
     setAnalytics(a);
+    setPlanUsers(u.users);
   };
   useEffect(() => {
     reload();
@@ -81,6 +118,27 @@ function AdminBusinessPlanPage() {
     await deleteCode({ data: { id } });
     reload();
   };
+
+  const openSurvey = async (user: AdminPlanUserSummary) => {
+    setSelectedUser(user);
+    setSurvey(null);
+    setSurveyLoading(true);
+    try {
+      const details = await getUserSurvey({ data: { userId: user.user_id } });
+      setSurvey(details);
+    } catch (error) {
+      console.error("Loading business plan survey failed", error);
+      toast.error("Nie udało się pobrać odpowiedzi użytkownika.");
+    } finally {
+      setSurveyLoading(false);
+    }
+  };
+
+  const filteredUsers = planUsers.filter((user) => {
+    const query = userSearch.trim().toLowerCase();
+    if (!query) return true;
+    return `${user.full_name ?? ""} ${user.email}`.toLowerCase().includes(query);
+  });
 
   return (
     <div className="space-y-6">
@@ -155,10 +213,7 @@ function AdminBusinessPlanPage() {
             <p className="text-sm text-muted-foreground">Brak kodów. Wygeneruj nową pulę.</p>
           )}
           {codes.map((c) => (
-            <div
-              key={c.id}
-              className="flex items-center gap-3 rounded-xl border border-border p-3"
-            >
+            <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
               <code className="font-mono font-bold text-base flex-1">{c.code}</code>
               {c.used_at ? (
                 <Badge className="bg-muted text-muted-foreground border-0">Użyty</Badge>
@@ -227,6 +282,173 @@ function AdminBusinessPlanPage() {
           </>
         )}
       </section>
+
+      {/* User surveys */}
+      <section className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 font-display text-xl font-extrabold">
+              <Users className="h-5 w-5 text-violet" /> Ankiety użytkowników
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Postęp i kompletne odpowiedzi zapisane w Planie 12 tygodni.
+            </p>
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={userSearch}
+              onChange={(event) => setUserSearch(event.target.value)}
+              placeholder="Szukaj po imieniu lub e-mailu"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        {filteredUsers.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
+            {planUsers.length === 0
+              ? "Nikt jeszcze nie odblokował ani nie wypełnił planu."
+              : "Nie znaleziono użytkownika."}
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Użytkownik</TableHead>
+                <TableHead className="min-w-48">Postęp</TableHead>
+                <TableHead>Odpowiedzi</TableHead>
+                <TableHead>Ostatnia aktywność</TableHead>
+                <TableHead className="text-right">Podgląd</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user) => (
+                <TableRow key={user.user_id}>
+                  <TableCell>
+                    <div className="font-semibold">{user.full_name || "Bez imienia"}</div>
+                    <div className="text-xs text-muted-foreground">{user.email}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span>{user.completion_percent}%</span>
+                      {user.granted_via && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          {user.granted_via === "code" ? "Kod VIP" : "Hasło"}
+                        </Badge>
+                      )}
+                    </div>
+                    <Progress value={user.completion_percent} className="h-2" />
+                  </TableCell>
+                  <TableCell className="font-semibold">{user.answered_fields}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {user.last_answer_at
+                      ? new Date(user.last_answer_at).toLocaleString("pl-PL")
+                      : user.granted_at
+                        ? new Date(user.granted_at).toLocaleString("pl-PL")
+                        : "Brak"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" size="sm" onClick={() => openSurvey(user)}>
+                      <Eye className="mr-1 h-4 w-4" /> Zobacz ankietę
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </section>
+
+      <Dialog
+        open={!!selectedUser}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedUser(null);
+            setSurvey(null);
+          }
+        }}
+      >
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedUser?.full_name || "Ankieta użytkownika"}</DialogTitle>
+            <DialogDescription>{selectedUser?.email}</DialogDescription>
+          </DialogHeader>
+
+          {surveyLoading ? (
+            <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" /> Ładowanie odpowiedzi…
+            </div>
+          ) : survey?.answers.length ? (
+            <SurveyAnswers answers={survey.answers} />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
+              Ten użytkownik nie zapisał jeszcze żadnej odpowiedzi.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+function SurveyAnswers({ answers }: { answers: AdminPlanSurveyAnswer[] }) {
+  const sections = new Map<
+    string,
+    { title: string; emoji: string | null; answers: AdminPlanSurveyAnswer[] }
+  >();
+  for (const answer of answers) {
+    const section = sections.get(answer.section_id) ?? {
+      title: answer.section_title,
+      emoji: answer.section_emoji,
+      answers: [],
+    };
+    section.answers.push(answer);
+    sections.set(answer.section_id, section);
+  }
+
+  return (
+    <div className="space-y-5">
+      {Array.from(sections.entries()).map(([sectionId, section]) => (
+        <section key={sectionId} className="rounded-2xl border border-border p-4">
+          <h3 className="mb-4 font-display text-lg font-extrabold">
+            {section.emoji && <span className="mr-2">{section.emoji}</span>}
+            {section.title}
+          </h3>
+          <div className="space-y-4">
+            {section.answers.map((answer) => (
+              <div
+                key={answer.field_key}
+                className="border-b border-border pb-4 last:border-0 last:pb-0"
+              >
+                <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-sm font-bold">{answer.label}</div>
+                  <div className="flex items-center gap-2">
+                    {answer.source === "lesson" && (
+                      <Badge className="border-0 bg-blue-soft text-[10px] text-blue">
+                        Z lekcji
+                      </Badge>
+                    )}
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(answer.updated_at).toLocaleString("pl-PL")}
+                    </span>
+                  </div>
+                </div>
+                <div className="whitespace-pre-wrap rounded-xl bg-muted/60 p-3 text-sm">
+                  {formatAnswerValue(answer.value)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function formatAnswerValue(value: AdminPlanSurveyAnswer["value"]): string {
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "Brak odpowiedzi";
+  if (value === null || value === undefined || value === "") return "Brak odpowiedzi";
+  if (typeof value === "boolean") return value ? "Tak" : "Nie";
+  return String(value);
 }

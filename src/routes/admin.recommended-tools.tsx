@@ -36,22 +36,32 @@ export const Route = createFileRoute("/admin/recommended-tools")({
   component: AdminRecommendedToolsPage,
 });
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 function AdminRecommendedToolsPage() {
   const router = useRouter();
   const fetchAll = useServerFn(adminListRecommendedTools);
-  const [data, setData] = useState<{ categories: ToolCategory[]; tools: RecommendedTool[] } | null>(null);
+  const [data, setData] = useState<{ categories: ToolCategory[]; tools: RecommendedTool[] } | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [editingTool, setEditingTool] = useState<RecommendedTool | "new" | null>(null);
   const [editingCategory, setEditingCategory] = useState<ToolCategory | "new" | null>(null);
 
   const reload = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetchAll();
       setData(res);
     } catch (e) {
-      toast.error("Nie udało się załadować danych");
       console.error(e);
+      const message = e instanceof Error ? e.message : "Nie udało się pobrać listy narzędzi.";
+      setLoadError(message);
+      toast.error("Nie udało się załadować danych");
     } finally {
       setLoading(false);
     }
@@ -62,8 +72,22 @@ function AdminRecommendedToolsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading || !data) {
+  if (loading) {
     return <div className="p-6 text-muted-foreground">Ładowanie panelu narzędzi…</div>;
+  }
+
+  if (loadError || !data) {
+    return (
+      <div className="rounded-3xl border border-destructive/20 bg-card p-8 text-center shadow-soft">
+        <h1 className="font-display text-xl font-extrabold">Nie udało się załadować narzędzi</h1>
+        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+          {loadError ?? "Spróbuj ponownie za chwilę."}
+        </p>
+        <Button className="mt-5" onClick={reload}>
+          Spróbuj ponownie
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -79,7 +103,10 @@ function AdminRecommendedToolsPage() {
           <Button variant="outline" onClick={() => setEditingCategory("new")}>
             <TagIcon className="w-4 h-4" /> Nowa kategoria
           </Button>
-          <Button onClick={() => setEditingTool("new")} className="bg-gradient-violet text-primary-foreground">
+          <Button
+            onClick={() => setEditingTool("new")}
+            className="bg-gradient-violet text-primary-foreground"
+          >
             <Plus className="w-4 h-4" /> Nowe narzędzie
           </Button>
         </div>
@@ -115,8 +142,8 @@ function AdminRecommendedToolsPage() {
                     await deleteToolCategory({ data: { slug: c.slug } });
                     toast.success("Usunięto");
                     reload();
-                  } catch (e: any) {
-                    toast.error(e?.message ?? "Błąd — może zawiera narzędzia.");
+                  } catch (e) {
+                    toast.error(getErrorMessage(e, "Błąd — może zawiera narzędzia."));
                   }
                 }}
               >
@@ -132,7 +159,10 @@ function AdminRecommendedToolsPage() {
         {data.categories.map((cat) => {
           const tools = data.tools.filter((t) => t.category === cat.slug);
           return (
-            <div key={cat.slug} className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+            <div
+              key={cat.slug}
+              className="rounded-3xl border border-border bg-card p-5 shadow-soft"
+            >
               <h3 className="font-display font-bold text-base mb-3 flex items-center gap-2">
                 <span>{cat.emoji}</span> {cat.name}
                 <span className="text-xs font-normal text-muted-foreground">({tools.length})</span>
@@ -163,7 +193,9 @@ function AdminRecommendedToolsPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-xs text-muted-foreground truncate">{t.shortDescription}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {t.shortDescription}
+                        </div>
                       </div>
                       <span className="text-xs text-muted-foreground hidden md:inline">
                         poz. {t.position}
@@ -180,8 +212,8 @@ function AdminRecommendedToolsPage() {
                             await deleteRecommendedTool({ data: { slug: t.slug } });
                             toast.success("Usunięto");
                             reload();
-                          } catch (e: any) {
-                            toast.error(e?.message ?? "Błąd");
+                          } catch (e) {
+                            toast.error(getErrorMessage(e, "Błąd"));
                           }
                         }}
                       >
@@ -279,9 +311,9 @@ function ToolEditorDialog({
       });
       toast.success("Zapisano");
       onSaved();
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      toast.error(e?.message ?? "Błąd zapisu — sprawdź pola.");
+      toast.error(getErrorMessage(e, "Błąd zapisu — sprawdź pola."));
     } finally {
       setSaving(false);
     }
@@ -319,7 +351,11 @@ function ToolEditorDialog({
           <Input value={form.website ?? ""} onChange={(e) => set("website", e.target.value)} />
         </Field>
         <Field label="Litera (logo)">
-          <Input maxLength={4} value={form.letter} onChange={(e) => set("letter", e.target.value)} />
+          <Input
+            maxLength={4}
+            value={form.letter}
+            onChange={(e) => set("letter", e.target.value)}
+          />
         </Field>
         <Field label="Gradient">
           <select
@@ -334,7 +370,7 @@ function ToolEditorDialog({
             ))}
           </select>
         </Field>
-        <Field label="Ocena (0–5)">
+        <Field label="Ocena redakcji (0–5)">
           <Input
             type="number"
             step="0.1"
@@ -342,13 +378,6 @@ function ToolEditorDialog({
             max={5}
             value={form.rating}
             onChange={(e) => set("rating", Number(e.target.value))}
-          />
-        </Field>
-        <Field label="Liczba opinii">
-          <Input
-            type="number"
-            value={form.reviewsCount}
-            onChange={(e) => set("reviewsCount", Number(e.target.value))}
           />
         </Field>
         <Field label="Używa (osób)">
@@ -362,9 +391,7 @@ function ToolEditorDialog({
           <Input
             type="number"
             value={form.launchedYear ?? ""}
-            onChange={(e) =>
-              set("launchedYear", e.target.value ? Number(e.target.value) : null)
-            }
+            onChange={(e) => set("launchedYear", e.target.value ? Number(e.target.value) : null)}
           />
         </Field>
         <Field label="Pozycja w kategorii">
@@ -376,7 +403,11 @@ function ToolEditorDialog({
         </Field>
         <div className="flex items-center gap-6 pt-6">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.gold} onChange={(e) => set("gold", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.gold}
+              onChange={(e) => set("gold", e.target.checked)}
+            />
             <Crown className="w-4 h-4 text-amber-500" /> Top pick (złota odznaka)
           </label>
           <label className="flex items-center gap-2 text-sm">
@@ -392,7 +423,11 @@ function ToolEditorDialog({
       </div>
 
       <Field label="Bonus (perk)">
-        <Input value={form.perk ?? ""} onChange={(e) => set("perk", e.target.value)} placeholder='np. 30 dni gratis' />
+        <Input
+          value={form.perk ?? ""}
+          onChange={(e) => set("perk", e.target.value)}
+          placeholder="np. 30 dni gratis"
+        />
       </Field>
 
       <Field label="Krótki opis (na liście)">
@@ -411,9 +446,24 @@ function ToolEditorDialog({
         />
       </Field>
 
-      <ListEditor label="Tagi" items={form.tags} onChange={(v) => set("tags", v)} placeholder="np. Newsletter" />
-      <ListEditor label="Plusy" items={form.pros} onChange={(v) => set("pros", v)} placeholder="Zaleta" />
-      <ListEditor label="Minusy" items={form.cons} onChange={(v) => set("cons", v)} placeholder="Wada" />
+      <ListEditor
+        label="Tagi"
+        items={form.tags}
+        onChange={(v) => set("tags", v)}
+        placeholder="np. Newsletter"
+      />
+      <ListEditor
+        label="Plusy"
+        items={form.pros}
+        onChange={(v) => set("pros", v)}
+        placeholder="Zaleta"
+      />
+      <ListEditor
+        label="Minusy"
+        items={form.cons}
+        onChange={(v) => set("cons", v)}
+        placeholder="Wada"
+      />
       <ListEditor
         label="Dla kogo najlepsze"
         items={form.bestFor}
@@ -466,7 +516,11 @@ function ToolEditorDialog({
         <Button variant="outline" onClick={onClose} disabled={saving}>
           Anuluj
         </Button>
-        <Button onClick={handleSave} disabled={saving} className="bg-gradient-violet text-primary-foreground">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-gradient-violet text-primary-foreground"
+        >
           <Save className="w-4 h-4" /> {saving ? "Zapisywanie…" : "Zapisz"}
         </Button>
       </div>
@@ -504,15 +558,18 @@ function CategoryEditorDialog({
       await upsertToolCategory({ data: form });
       toast.success("Zapisano");
       onSaved();
-    } catch (e: any) {
-      toast.error(e?.message ?? "Błąd zapisu");
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Błąd zapisu"));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <DialogShell title={initial ? `Edytuj kategorię: ${initial.name}` : "Nowa kategoria"} onClose={onClose}>
+    <DialogShell
+      title={initial ? `Edytuj kategorię: ${initial.name}` : "Nowa kategoria"}
+      onClose={onClose}
+    >
       <div className="grid grid-cols-2 gap-4">
         <Field label="Nazwa">
           <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
@@ -545,13 +602,21 @@ function CategoryEditorDialog({
         </Field>
       </div>
       <Field label="Opis">
-        <Textarea rows={3} value={form.description} onChange={(e) => set("description", e.target.value)} />
+        <Textarea
+          rows={3}
+          value={form.description}
+          onChange={(e) => set("description", e.target.value)}
+        />
       </Field>
       <div className="flex justify-end gap-2 pt-4 border-t border-border">
         <Button variant="outline" onClick={onClose} disabled={saving}>
           Anuluj
         </Button>
-        <Button onClick={handleSave} disabled={saving} className="bg-gradient-violet text-primary-foreground">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-gradient-violet text-primary-foreground"
+        >
           <Save className="w-4 h-4" /> {saving ? "Zapisywanie…" : "Zapisz"}
         </Button>
       </div>
@@ -649,7 +714,7 @@ function ListEditor({
   );
 }
 
-function ObjectListEditor<T extends Record<string, string>,>({
+function ObjectListEditor<T extends Record<string, string>>({
   label,
   items,
   onChange,

@@ -1,2922 +1,2950 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       advisor_messages: {
         Row: {
-          advisor_type: Database["public"]["Enums"]["advisor_type"]
-          created_at: string
-          id: string
-          message: string
-          replied_at: string | null
-          replied_by: string | null
-          reply: string | null
-          user_id: string
-        }
+          advisor_type: Database["public"]["Enums"]["advisor_type"];
+          created_at: string;
+          id: string;
+          message: string;
+          replied_at: string | null;
+          replied_by: string | null;
+          reply: string | null;
+          user_id: string;
+        };
         Insert: {
-          advisor_type: Database["public"]["Enums"]["advisor_type"]
-          created_at?: string
-          id?: string
-          message: string
-          replied_at?: string | null
-          replied_by?: string | null
-          reply?: string | null
-          user_id: string
-        }
+          advisor_type: Database["public"]["Enums"]["advisor_type"];
+          created_at?: string;
+          id?: string;
+          message: string;
+          replied_at?: string | null;
+          replied_by?: string | null;
+          reply?: string | null;
+          user_id: string;
+        };
         Update: {
-          advisor_type?: Database["public"]["Enums"]["advisor_type"]
-          created_at?: string
-          id?: string
-          message?: string
-          replied_at?: string | null
-          replied_by?: string | null
-          reply?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+          advisor_type?: Database["public"]["Enums"]["advisor_type"];
+          created_at?: string;
+          id?: string;
+          message?: string;
+          replied_at?: string | null;
+          replied_by?: string | null;
+          reply?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       ai_credit_transactions: {
         Row: {
-          amount: number
-          created_at: string
-          description: string | null
-          id: string
-          related_generation_id: string | null
-          type: Database["public"]["Enums"]["ai_credit_tx_type"]
-          user_id: string
-        }
+          amount: number;
+          created_at: string;
+          description: string | null;
+          id: string;
+          related_generation_id: string | null;
+          type: Database["public"]["Enums"]["ai_credit_tx_type"];
+          user_id: string;
+        };
         Insert: {
-          amount: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          related_generation_id?: string | null
-          type: Database["public"]["Enums"]["ai_credit_tx_type"]
-          user_id: string
-        }
+          amount: number;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          related_generation_id?: string | null;
+          type: Database["public"]["Enums"]["ai_credit_tx_type"];
+          user_id: string;
+        };
         Update: {
-          amount?: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          related_generation_id?: string | null
-          type?: Database["public"]["Enums"]["ai_credit_tx_type"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+          amount?: number;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          related_generation_id?: string | null;
+          type?: Database["public"]["Enums"]["ai_credit_tx_type"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       ai_generation_history: {
         Row: {
-          created_at: string
-          credits_used: number
-          generator_id: string | null
-          generator_slug: string
-          id: string
-          input_data: Json
-          model: string | null
-          output_data: string | null
-          quality_mode: Database["public"]["Enums"]["ai_quality_mode"]
-          user_id: string
-        }
+          created_at: string;
+          credits_used: number;
+          generator_id: string | null;
+          generator_slug: string;
+          id: string;
+          input_data: Json;
+          model: string | null;
+          output_data: string | null;
+          quality_mode: Database["public"]["Enums"]["ai_quality_mode"];
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          credits_used?: number
-          generator_id?: string | null
-          generator_slug: string
-          id?: string
-          input_data?: Json
-          model?: string | null
-          output_data?: string | null
-          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"]
-          user_id: string
-        }
+          created_at?: string;
+          credits_used?: number;
+          generator_id?: string | null;
+          generator_slug: string;
+          id?: string;
+          input_data?: Json;
+          model?: string | null;
+          output_data?: string | null;
+          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"];
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          credits_used?: number
-          generator_id?: string | null
-          generator_slug?: string
-          id?: string
-          input_data?: Json
-          model?: string | null
-          output_data?: string | null
-          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          credits_used?: number;
+          generator_id?: string | null;
+          generator_slug?: string;
+          id?: string;
+          input_data?: Json;
+          model?: string | null;
+          output_data?: string | null;
+          quality_mode?: Database["public"]["Enums"]["ai_quality_mode"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       ai_generators: {
         Row: {
-          category: string | null
-          created_at: string
-          credit_cost: number
-          description: string | null
-          estimated_api_cost_pln: number
-          form_schema: Json
-          id: string
-          max_output_tokens: number
-          model: string
-          name: string
-          position: number
-          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
-          slug: string
-          status: Database["public"]["Enums"]["ai_generator_status"]
-          supports_quality_modes: boolean
-          system_prompt: string
-          temperature: number
-          updated_at: string
-          user_prompt_template: string
-          version: number
-        }
+          category: string | null;
+          created_at: string;
+          credit_cost: number;
+          description: string | null;
+          estimated_api_cost_pln: number;
+          form_schema: Json;
+          id: string;
+          max_output_tokens: number;
+          model: string;
+          name: string;
+          position: number;
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug: string;
+          status: Database["public"]["Enums"]["ai_generator_status"];
+          supports_quality_modes: boolean;
+          system_prompt: string;
+          temperature: number;
+          updated_at: string;
+          user_prompt_template: string;
+          version: number;
+        };
         Insert: {
-          category?: string | null
-          created_at?: string
-          credit_cost?: number
-          description?: string | null
-          estimated_api_cost_pln?: number
-          form_schema?: Json
-          id?: string
-          max_output_tokens?: number
-          model?: string
-          name: string
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          slug: string
-          status?: Database["public"]["Enums"]["ai_generator_status"]
-          supports_quality_modes?: boolean
-          system_prompt: string
-          temperature?: number
-          updated_at?: string
-          user_prompt_template: string
-          version?: number
-        }
+          category?: string | null;
+          created_at?: string;
+          credit_cost?: number;
+          description?: string | null;
+          estimated_api_cost_pln?: number;
+          form_schema?: Json;
+          id?: string;
+          max_output_tokens?: number;
+          model?: string;
+          name: string;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug: string;
+          status?: Database["public"]["Enums"]["ai_generator_status"];
+          supports_quality_modes?: boolean;
+          system_prompt: string;
+          temperature?: number;
+          updated_at?: string;
+          user_prompt_template: string;
+          version?: number;
+        };
         Update: {
-          category?: string | null
-          created_at?: string
-          credit_cost?: number
-          description?: string | null
-          estimated_api_cost_pln?: number
-          form_schema?: Json
-          id?: string
-          max_output_tokens?: number
-          model?: string
-          name?: string
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          slug?: string
-          status?: Database["public"]["Enums"]["ai_generator_status"]
-          supports_quality_modes?: boolean
-          system_prompt?: string
-          temperature?: number
-          updated_at?: string
-          user_prompt_template?: string
-          version?: number
-        }
-        Relationships: []
-      }
+          category?: string | null;
+          created_at?: string;
+          credit_cost?: number;
+          description?: string | null;
+          estimated_api_cost_pln?: number;
+          form_schema?: Json;
+          id?: string;
+          max_output_tokens?: number;
+          model?: string;
+          name?: string;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug?: string;
+          status?: Database["public"]["Enums"]["ai_generator_status"];
+          supports_quality_modes?: boolean;
+          system_prompt?: string;
+          temperature?: number;
+          updated_at?: string;
+          user_prompt_template?: string;
+          version?: number;
+        };
+        Relationships: [];
+      };
       ai_settings: {
         Row: {
-          credit_value_pln: number
-          default_model: string
-          id: string
-          minimum_margin_multiplier: number
-          updated_at: string
-        }
+          ai_provider: string;
+          credit_value_pln: number;
+          default_model: string;
+          id: string;
+          minimum_margin_multiplier: number;
+          lovable_api_key: string | null;
+          openai_api_key: string | null;
+          openai_image_model: string;
+          openai_image_quality: string;
+          openai_image_size: string;
+          updated_at: string;
+        };
         Insert: {
-          credit_value_pln?: number
-          default_model?: string
-          id?: string
-          minimum_margin_multiplier?: number
-          updated_at?: string
-        }
+          ai_provider?: string;
+          credit_value_pln?: number;
+          default_model?: string;
+          id?: string;
+          minimum_margin_multiplier?: number;
+          lovable_api_key?: string | null;
+          openai_api_key?: string | null;
+          openai_image_model?: string;
+          openai_image_quality?: string;
+          openai_image_size?: string;
+          updated_at?: string;
+        };
         Update: {
-          credit_value_pln?: number
-          default_model?: string
-          id?: string
-          minimum_margin_multiplier?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          ai_provider?: string;
+          credit_value_pln?: number;
+          default_model?: string;
+          id?: string;
+          minimum_margin_multiplier?: number;
+          lovable_api_key?: string | null;
+          openai_api_key?: string | null;
+          openai_image_model?: string;
+          openai_image_quality?: string;
+          openai_image_size?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       badges: {
         Row: {
-          code: string
-          created_at: string
-          description: string | null
-          icon: string
-          id: string
-          name: string
-          position: number
-          rarity: Database["public"]["Enums"]["badge_rarity"]
-          xp_bonus: number
-        }
+          code: string;
+          created_at: string;
+          description: string | null;
+          icon: string;
+          id: string;
+          name: string;
+          position: number;
+          rarity: Database["public"]["Enums"]["badge_rarity"];
+          xp_bonus: number;
+        };
         Insert: {
-          code: string
-          created_at?: string
-          description?: string | null
-          icon?: string
-          id?: string
-          name: string
-          position?: number
-          rarity?: Database["public"]["Enums"]["badge_rarity"]
-          xp_bonus?: number
-        }
+          code: string;
+          created_at?: string;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name: string;
+          position?: number;
+          rarity?: Database["public"]["Enums"]["badge_rarity"];
+          xp_bonus?: number;
+        };
         Update: {
-          code?: string
-          created_at?: string
-          description?: string | null
-          icon?: string
-          id?: string
-          name?: string
-          position?: number
-          rarity?: Database["public"]["Enums"]["badge_rarity"]
-          xp_bonus?: number
-        }
-        Relationships: []
-      }
+          code?: string;
+          created_at?: string;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name?: string;
+          position?: number;
+          rarity?: Database["public"]["Enums"]["badge_rarity"];
+          xp_bonus?: number;
+        };
+        Relationships: [];
+      };
       business_plan_access: {
         Row: {
-          code_id: string | null
-          granted_at: string
-          granted_via: string
-          user_id: string
-        }
+          code_id: string | null;
+          granted_at: string;
+          granted_via: string;
+          user_id: string;
+        };
         Insert: {
-          code_id?: string | null
-          granted_at?: string
-          granted_via: string
-          user_id: string
-        }
+          code_id?: string | null;
+          granted_at?: string;
+          granted_via: string;
+          user_id: string;
+        };
         Update: {
-          code_id?: string | null
-          granted_at?: string
-          granted_via?: string
-          user_id?: string
-        }
+          code_id?: string | null;
+          granted_at?: string;
+          granted_via?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "business_plan_access_code_id_fkey"
-            columns: ["code_id"]
-            isOneToOne: false
-            referencedRelation: "business_plan_access_codes"
-            referencedColumns: ["id"]
+            foreignKeyName: "business_plan_access_code_id_fkey";
+            columns: ["code_id"];
+            isOneToOne: false;
+            referencedRelation: "business_plan_access_codes";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       business_plan_access_codes: {
         Row: {
-          code: string
-          created_at: string
-          id: string
-          note: string | null
-          used_at: string | null
-          used_by_user_id: string | null
-        }
+          code: string;
+          created_at: string;
+          id: string;
+          note: string | null;
+          used_at: string | null;
+          used_by_user_id: string | null;
+        };
         Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          note?: string | null
-          used_at?: string | null
-          used_by_user_id?: string | null
-        }
+          code: string;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          used_at?: string | null;
+          used_by_user_id?: string | null;
+        };
         Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          note?: string | null
-          used_at?: string | null
-          used_by_user_id?: string | null
-        }
-        Relationships: []
-      }
+          code?: string;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          used_at?: string | null;
+          used_by_user_id?: string | null;
+        };
+        Relationships: [];
+      };
       business_plan_fields: {
         Row: {
-          created_at: string
-          field_key: string
-          help_text: string | null
-          id: string
-          input_type: string
-          is_active: boolean
-          label: string
-          options: Json
-          placeholder: string | null
-          position: number
-          section_id: string
-          syncs_to_product_column: string | null
-          updated_at: string
-        }
+          created_at: string;
+          field_key: string;
+          help_text: string | null;
+          id: string;
+          input_type: string;
+          is_active: boolean;
+          label: string;
+          options: Json;
+          placeholder: string | null;
+          position: number;
+          section_id: string;
+          syncs_to_product_column: string | null;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          field_key: string
-          help_text?: string | null
-          id?: string
-          input_type?: string
-          is_active?: boolean
-          label: string
-          options?: Json
-          placeholder?: string | null
-          position?: number
-          section_id: string
-          syncs_to_product_column?: string | null
-          updated_at?: string
-        }
+          created_at?: string;
+          field_key: string;
+          help_text?: string | null;
+          id?: string;
+          input_type?: string;
+          is_active?: boolean;
+          label: string;
+          options?: Json;
+          placeholder?: string | null;
+          position?: number;
+          section_id: string;
+          syncs_to_product_column?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          field_key?: string
-          help_text?: string | null
-          id?: string
-          input_type?: string
-          is_active?: boolean
-          label?: string
-          options?: Json
-          placeholder?: string | null
-          position?: number
-          section_id?: string
-          syncs_to_product_column?: string | null
-          updated_at?: string
-        }
+          created_at?: string;
+          field_key?: string;
+          help_text?: string | null;
+          id?: string;
+          input_type?: string;
+          is_active?: boolean;
+          label?: string;
+          options?: Json;
+          placeholder?: string | null;
+          position?: number;
+          section_id?: string;
+          syncs_to_product_column?: string | null;
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "business_plan_fields_section_id_fkey"
-            columns: ["section_id"]
-            isOneToOne: false
-            referencedRelation: "business_plan_sections"
-            referencedColumns: ["id"]
+            foreignKeyName: "business_plan_fields_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "business_plan_sections";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       business_plan_responses: {
         Row: {
-          created_at: string
-          field_key: string
-          id: string
-          last_lesson_id: string | null
-          last_task_id: string | null
-          source: string
-          updated_at: string
-          user_id: string
-          value: Json
-        }
+          created_at: string;
+          field_key: string;
+          id: string;
+          last_lesson_id: string | null;
+          last_task_id: string | null;
+          source: string;
+          updated_at: string;
+          user_id: string;
+          value: Json;
+        };
         Insert: {
-          created_at?: string
-          field_key: string
-          id?: string
-          last_lesson_id?: string | null
-          last_task_id?: string | null
-          source?: string
-          updated_at?: string
-          user_id: string
-          value?: Json
-        }
+          created_at?: string;
+          field_key: string;
+          id?: string;
+          last_lesson_id?: string | null;
+          last_task_id?: string | null;
+          source?: string;
+          updated_at?: string;
+          user_id: string;
+          value?: Json;
+        };
         Update: {
-          created_at?: string
-          field_key?: string
-          id?: string
-          last_lesson_id?: string | null
-          last_task_id?: string | null
-          source?: string
-          updated_at?: string
-          user_id?: string
-          value?: Json
-        }
+          created_at?: string;
+          field_key?: string;
+          id?: string;
+          last_lesson_id?: string | null;
+          last_task_id?: string | null;
+          source?: string;
+          updated_at?: string;
+          user_id?: string;
+          value?: Json;
+        };
         Relationships: [
           {
-            foreignKeyName: "business_plan_responses_last_lesson_id_fkey"
-            columns: ["last_lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "business_plan_responses_last_lesson_id_fkey";
+            columns: ["last_lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "business_plan_responses_last_task_id_fkey"
-            columns: ["last_task_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_tasks"
-            referencedColumns: ["id"]
+            foreignKeyName: "business_plan_responses_last_task_id_fkey";
+            columns: ["last_task_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_tasks";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       business_plan_sections: {
         Row: {
-          created_at: string
-          description: string | null
-          emoji: string | null
-          id: string
-          is_active: boolean
-          key: string
-          position: number
-          title: string
-          updated_at: string
-        }
+          created_at: string;
+          description: string | null;
+          emoji: string | null;
+          id: string;
+          is_active: boolean;
+          key: string;
+          position: number;
+          title: string;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          description?: string | null
-          emoji?: string | null
-          id?: string
-          is_active?: boolean
-          key: string
-          position?: number
-          title: string
-          updated_at?: string
-        }
+          created_at?: string;
+          description?: string | null;
+          emoji?: string | null;
+          id?: string;
+          is_active?: boolean;
+          key: string;
+          position?: number;
+          title: string;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          description?: string | null
-          emoji?: string | null
-          id?: string
-          is_active?: boolean
-          key?: string
-          position?: number
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          description?: string | null;
+          emoji?: string | null;
+          id?: string;
+          is_active?: boolean;
+          key?: string;
+          position?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       business_plan_settings: {
         Row: {
-          global_password: string | null
-          id: number
-          is_open: boolean
-          updated_at: string
-        }
+          global_password: string | null;
+          id: number;
+          is_open: boolean;
+          updated_at: string;
+        };
         Insert: {
-          global_password?: string | null
-          id?: number
-          is_open?: boolean
-          updated_at?: string
-        }
+          global_password?: string | null;
+          id?: number;
+          is_open?: boolean;
+          updated_at?: string;
+        };
         Update: {
-          global_password?: string | null
-          id?: number
-          is_open?: boolean
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          global_password?: string | null;
+          id?: number;
+          is_open?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       cancellation_feedback: {
         Row: {
-          comment: string | null
-          created_at: string
-          id: string
-          reason: string
-          retention_offer_accepted: string | null
-          user_id: string
-        }
+          comment: string | null;
+          created_at: string;
+          id: string;
+          reason: string;
+          retention_offer_accepted: string | null;
+          user_id: string;
+        };
         Insert: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          reason: string
-          retention_offer_accepted?: string | null
-          user_id: string
-        }
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          reason: string;
+          retention_offer_accepted?: string | null;
+          user_id: string;
+        };
         Update: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          reason?: string
-          retention_offer_accepted?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          reason?: string;
+          retention_offer_accepted?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       challenges: {
         Row: {
-          badge_code: string | null
-          created_at: string
-          description: string | null
-          ends_at: string
-          goal_value: number
-          id: string
-          is_active: boolean
-          metric: Database["public"]["Enums"]["challenge_metric"]
-          starts_at: string
-          title: string
-          type: Database["public"]["Enums"]["challenge_type"]
-          xp_reward: number
-        }
+          badge_code: string | null;
+          created_at: string;
+          description: string | null;
+          ends_at: string;
+          goal_value: number;
+          id: string;
+          is_active: boolean;
+          metric: Database["public"]["Enums"]["challenge_metric"];
+          starts_at: string;
+          title: string;
+          type: Database["public"]["Enums"]["challenge_type"];
+          xp_reward: number;
+        };
         Insert: {
-          badge_code?: string | null
-          created_at?: string
-          description?: string | null
-          ends_at: string
-          goal_value: number
-          id?: string
-          is_active?: boolean
-          metric: Database["public"]["Enums"]["challenge_metric"]
-          starts_at?: string
-          title: string
-          type: Database["public"]["Enums"]["challenge_type"]
-          xp_reward?: number
-        }
+          badge_code?: string | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at: string;
+          goal_value: number;
+          id?: string;
+          is_active?: boolean;
+          metric: Database["public"]["Enums"]["challenge_metric"];
+          starts_at?: string;
+          title: string;
+          type: Database["public"]["Enums"]["challenge_type"];
+          xp_reward?: number;
+        };
         Update: {
-          badge_code?: string | null
-          created_at?: string
-          description?: string | null
-          ends_at?: string
-          goal_value?: number
-          id?: string
-          is_active?: boolean
-          metric?: Database["public"]["Enums"]["challenge_metric"]
-          starts_at?: string
-          title?: string
-          type?: Database["public"]["Enums"]["challenge_type"]
-          xp_reward?: number
-        }
-        Relationships: []
-      }
+          badge_code?: string | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string;
+          goal_value?: number;
+          id?: string;
+          is_active?: boolean;
+          metric?: Database["public"]["Enums"]["challenge_metric"];
+          starts_at?: string;
+          title?: string;
+          type?: Database["public"]["Enums"]["challenge_type"];
+          xp_reward?: number;
+        };
+        Relationships: [];
+      };
       coach_usage: {
         Row: {
-          id: string
-          message_count: number
-          used_date: string
-          user_id: string
-        }
+          id: string;
+          message_count: number;
+          used_date: string;
+          user_id: string;
+        };
         Insert: {
-          id?: string
-          message_count?: number
-          used_date?: string
-          user_id: string
-        }
+          id?: string;
+          message_count?: number;
+          used_date?: string;
+          user_id: string;
+        };
         Update: {
-          id?: string
-          message_count?: number
-          used_date?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          id?: string;
+          message_count?: number;
+          used_date?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       community_comments: {
         Row: {
-          content: string
-          created_at: string
-          id: string
-          post_id: string
-          user_id: string
-        }
+          content: string;
+          created_at: string;
+          id: string;
+          post_id: string;
+          user_id: string;
+        };
         Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          post_id: string
-          user_id: string
-        }
+          content: string;
+          created_at?: string;
+          id?: string;
+          post_id: string;
+          user_id: string;
+        };
         Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          post_id?: string
-          user_id?: string
-        }
+          content?: string;
+          created_at?: string;
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "community_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "community_posts"
-            referencedColumns: ["id"]
+            foreignKeyName: "community_comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       community_posts: {
         Row: {
-          category: string
-          content: string
-          created_at: string
-          id: string
-          is_approved: boolean
-          is_example: boolean
-          updated_at: string
-          user_id: string
-        }
+          category: string;
+          content: string;
+          created_at: string;
+          id: string;
+          is_approved: boolean;
+          is_example: boolean;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          category?: string
-          content: string
-          created_at?: string
-          id?: string
-          is_approved?: boolean
-          is_example?: boolean
-          updated_at?: string
-          user_id: string
-        }
+          category?: string;
+          content: string;
+          created_at?: string;
+          id?: string;
+          is_approved?: boolean;
+          is_example?: boolean;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          category?: string
-          content?: string
-          created_at?: string
-          id?: string
-          is_approved?: boolean
-          is_example?: boolean
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          category?: string;
+          content?: string;
+          created_at?: string;
+          id?: string;
+          is_approved?: boolean;
+          is_example?: boolean;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       courses: {
         Row: {
-          cover_url: string | null
-          created_at: string
-          description: string | null
-          id: string
-          is_free: boolean
-          is_published: boolean
-          position: number
-          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
-          required_xp: number
-          slug: string | null
-          title: string
-          updated_at: string
-        }
+          cover_url: string | null;
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_free: boolean;
+          is_published: boolean;
+          position: number;
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null;
+          required_xp: number;
+          slug: string | null;
+          title: string;
+          updated_at: string;
+        };
         Insert: {
-          cover_url?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_free?: boolean
-          is_published?: boolean
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          required_xp?: number
-          slug?: string | null
-          title: string
-          updated_at?: string
-        }
+          cover_url?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_free?: boolean;
+          is_published?: boolean;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          required_xp?: number;
+          slug?: string | null;
+          title: string;
+          updated_at?: string;
+        };
         Update: {
-          cover_url?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_free?: boolean
-          is_published?: boolean
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          required_xp?: number
-          slug?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          cover_url?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_free?: boolean;
+          is_published?: boolean;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          required_xp?: number;
+          slug?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       credit_redemption_codes: {
         Row: {
-          code: string
-          created_at: string
-          created_by: string | null
-          credits: number
-          description: string | null
-          expires_at: string | null
-          id: string
-          is_active: boolean
-          max_redemptions: number | null
-          redemption_count: number
-          validity_days: number
-        }
+          code: string;
+          created_at: string;
+          created_by: string | null;
+          credits: number;
+          description: string | null;
+          expires_at: string | null;
+          id: string;
+          is_active: boolean;
+          max_redemptions: number | null;
+          redemption_count: number;
+          validity_days: number;
+        };
         Insert: {
-          code: string
-          created_at?: string
-          created_by?: string | null
-          credits: number
-          description?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean
-          max_redemptions?: number | null
-          redemption_count?: number
-          validity_days?: number
-        }
+          code: string;
+          created_at?: string;
+          created_by?: string | null;
+          credits: number;
+          description?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          is_active?: boolean;
+          max_redemptions?: number | null;
+          redemption_count?: number;
+          validity_days?: number;
+        };
         Update: {
-          code?: string
-          created_at?: string
-          created_by?: string | null
-          credits?: number
-          description?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean
-          max_redemptions?: number | null
-          redemption_count?: number
-          validity_days?: number
-        }
-        Relationships: []
-      }
+          code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          credits?: number;
+          description?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          is_active?: boolean;
+          max_redemptions?: number | null;
+          redemption_count?: number;
+          validity_days?: number;
+        };
+        Relationships: [];
+      };
       duels: {
         Row: {
-          challenger_id: string
-          challenger_progress: number
-          created_at: string
-          ends_at: string
-          id: string
-          metric: Database["public"]["Enums"]["duel_metric"]
-          opponent_id: string
-          opponent_progress: number
-          starts_at: string | null
-          status: Database["public"]["Enums"]["duel_status"]
-          target: number
-          updated_at: string
-          winner_id: string | null
-          xp_stake: number
-        }
+          challenger_id: string;
+          challenger_progress: number;
+          created_at: string;
+          ends_at: string;
+          id: string;
+          metric: Database["public"]["Enums"]["duel_metric"];
+          opponent_id: string;
+          opponent_progress: number;
+          starts_at: string | null;
+          status: Database["public"]["Enums"]["duel_status"];
+          target: number;
+          updated_at: string;
+          winner_id: string | null;
+          xp_stake: number;
+        };
         Insert: {
-          challenger_id: string
-          challenger_progress?: number
-          created_at?: string
-          ends_at: string
-          id?: string
-          metric: Database["public"]["Enums"]["duel_metric"]
-          opponent_id: string
-          opponent_progress?: number
-          starts_at?: string | null
-          status?: Database["public"]["Enums"]["duel_status"]
-          target: number
-          updated_at?: string
-          winner_id?: string | null
-          xp_stake?: number
-        }
+          challenger_id: string;
+          challenger_progress?: number;
+          created_at?: string;
+          ends_at: string;
+          id?: string;
+          metric: Database["public"]["Enums"]["duel_metric"];
+          opponent_id: string;
+          opponent_progress?: number;
+          starts_at?: string | null;
+          status?: Database["public"]["Enums"]["duel_status"];
+          target: number;
+          updated_at?: string;
+          winner_id?: string | null;
+          xp_stake?: number;
+        };
         Update: {
-          challenger_id?: string
-          challenger_progress?: number
-          created_at?: string
-          ends_at?: string
-          id?: string
-          metric?: Database["public"]["Enums"]["duel_metric"]
-          opponent_id?: string
-          opponent_progress?: number
-          starts_at?: string | null
-          status?: Database["public"]["Enums"]["duel_status"]
-          target?: number
-          updated_at?: string
-          winner_id?: string | null
-          xp_stake?: number
-        }
-        Relationships: []
-      }
+          challenger_id?: string;
+          challenger_progress?: number;
+          created_at?: string;
+          ends_at?: string;
+          id?: string;
+          metric?: Database["public"]["Enums"]["duel_metric"];
+          opponent_id?: string;
+          opponent_progress?: number;
+          starts_at?: string | null;
+          status?: Database["public"]["Enums"]["duel_status"];
+          target?: number;
+          updated_at?: string;
+          winner_id?: string | null;
+          xp_stake?: number;
+        };
+        Relationships: [];
+      };
       email_sequences_queue: {
         Row: {
-          created_at: string
-          id: string
-          meta: Json
-          scheduled_for: string
-          sent_at: string | null
-          status: string
-          template: string
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          meta: Json;
+          scheduled_for: string;
+          sent_at: string | null;
+          status: string;
+          template: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          meta?: Json
-          scheduled_for?: string
-          sent_at?: string | null
-          status?: string
-          template: string
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          meta?: Json;
+          scheduled_for?: string;
+          sent_at?: string | null;
+          status?: string;
+          template: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          meta?: Json
-          scheduled_for?: string
-          sent_at?: string | null
-          status?: string
-          template?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          meta?: Json;
+          scheduled_for?: string;
+          sent_at?: string | null;
+          status?: string;
+          template?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       lead_calls: {
         Row: {
-          called_at: string | null
-          created_at: string
-          created_by: string | null
-          id: string
-          notes: string | null
-          scheduled_for: string
-          status: Database["public"]["Enums"]["call_status"]
-          updated_at: string
-          user_id: string
-        }
+          called_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          notes: string | null;
+          scheduled_for: string;
+          status: Database["public"]["Enums"]["call_status"];
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          called_at?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          notes?: string | null
-          scheduled_for: string
-          status?: Database["public"]["Enums"]["call_status"]
-          updated_at?: string
-          user_id: string
-        }
+          called_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          notes?: string | null;
+          scheduled_for: string;
+          status?: Database["public"]["Enums"]["call_status"];
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          called_at?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          notes?: string | null
-          scheduled_for?: string
-          status?: Database["public"]["Enums"]["call_status"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          called_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          notes?: string | null;
+          scheduled_for?: string;
+          status?: Database["public"]["Enums"]["call_status"];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       leads: {
         Row: {
-          created_at: string
-          email: string
-          first_name: string | null
-          id: string
-          magnet: string | null
-          marketing_consent: boolean
-          source: string | null
-        }
+          created_at: string;
+          email: string;
+          first_name: string | null;
+          id: string;
+          magnet: string | null;
+          marketing_consent: boolean;
+          source: string | null;
+        };
         Insert: {
-          created_at?: string
-          email: string
-          first_name?: string | null
-          id?: string
-          magnet?: string | null
-          marketing_consent?: boolean
-          source?: string | null
-        }
+          created_at?: string;
+          email: string;
+          first_name?: string | null;
+          id?: string;
+          magnet?: string | null;
+          marketing_consent?: boolean;
+          source?: string | null;
+        };
         Update: {
-          created_at?: string
-          email?: string
-          first_name?: string | null
-          id?: string
-          magnet?: string | null
-          marketing_consent?: boolean
-          source?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          email?: string;
+          first_name?: string | null;
+          id?: string;
+          magnet?: string | null;
+          marketing_consent?: boolean;
+          source?: string | null;
+        };
+        Relationships: [];
+      };
       learning_path_steps: {
         Row: {
-          course_id: string | null
-          created_at: string
-          day_number: number
-          icon: string
-          id: string
-          label: string
-          module_id: string | null
-          path_id: string
-          position: number
-        }
+          course_id: string | null;
+          created_at: string;
+          day_number: number;
+          icon: string;
+          id: string;
+          label: string;
+          module_id: string | null;
+          path_id: string;
+          position: number;
+        };
         Insert: {
-          course_id?: string | null
-          created_at?: string
-          day_number: number
-          icon?: string
-          id?: string
-          label: string
-          module_id?: string | null
-          path_id: string
-          position?: number
-        }
+          course_id?: string | null;
+          created_at?: string;
+          day_number: number;
+          icon?: string;
+          id?: string;
+          label: string;
+          module_id?: string | null;
+          path_id: string;
+          position?: number;
+        };
         Update: {
-          course_id?: string | null
-          created_at?: string
-          day_number?: number
-          icon?: string
-          id?: string
-          label?: string
-          module_id?: string | null
-          path_id?: string
-          position?: number
-        }
+          course_id?: string | null;
+          created_at?: string;
+          day_number?: number;
+          icon?: string;
+          id?: string;
+          label?: string;
+          module_id?: string | null;
+          path_id?: string;
+          position?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "learning_path_steps_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "learning_path_steps_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "learning_path_steps_module_id_fkey"
-            columns: ["module_id"]
-            isOneToOne: false
-            referencedRelation: "modules"
-            referencedColumns: ["id"]
+            foreignKeyName: "learning_path_steps_module_id_fkey";
+            columns: ["module_id"];
+            isOneToOne: false;
+            referencedRelation: "modules";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "learning_path_steps_path_id_fkey"
-            columns: ["path_id"]
-            isOneToOne: false
-            referencedRelation: "learning_paths"
-            referencedColumns: ["id"]
+            foreignKeyName: "learning_path_steps_path_id_fkey";
+            columns: ["path_id"];
+            isOneToOne: false;
+            referencedRelation: "learning_paths";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       learning_paths: {
         Row: {
-          created_at: string
-          description: string | null
-          id: string
-          is_active: boolean
-          is_default: boolean
-          position: number
-          requires_purchase: boolean
-          slug: string
-          title: string
-          total_days: number
-          updated_at: string
-        }
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          is_default: boolean;
+          position: number;
+          requires_purchase: boolean;
+          slug: string;
+          title: string;
+          total_days: number;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          position?: number
-          requires_purchase?: boolean
-          slug: string
-          title: string
-          total_days?: number
-          updated_at?: string
-        }
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          is_default?: boolean;
+          position?: number;
+          requires_purchase?: boolean;
+          slug: string;
+          title: string;
+          total_days?: number;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          position?: number
-          requires_purchase?: boolean
-          slug?: string
-          title?: string
-          total_days?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          is_default?: boolean;
+          position?: number;
+          requires_purchase?: boolean;
+          slug?: string;
+          title?: string;
+          total_days?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       lesson_attachments: {
         Row: {
-          created_at: string
-          file_size_bytes: number | null
-          file_type: string | null
-          file_url: string
-          id: string
-          lesson_id: string
-          position: number
-          title: string
-        }
+          created_at: string;
+          file_size_bytes: number | null;
+          file_type: string | null;
+          file_url: string;
+          id: string;
+          lesson_id: string;
+          position: number;
+          title: string;
+        };
         Insert: {
-          created_at?: string
-          file_size_bytes?: number | null
-          file_type?: string | null
-          file_url: string
-          id?: string
-          lesson_id: string
-          position?: number
-          title: string
-        }
+          created_at?: string;
+          file_size_bytes?: number | null;
+          file_type?: string | null;
+          file_url: string;
+          id?: string;
+          lesson_id: string;
+          position?: number;
+          title: string;
+        };
         Update: {
-          created_at?: string
-          file_size_bytes?: number | null
-          file_type?: string | null
-          file_url?: string
-          id?: string
-          lesson_id?: string
-          position?: number
-          title?: string
-        }
+          created_at?: string;
+          file_size_bytes?: number | null;
+          file_type?: string | null;
+          file_url?: string;
+          id?: string;
+          lesson_id?: string;
+          position?: number;
+          title?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "lesson_attachments_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "lesson_attachments_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       lesson_comments: {
         Row: {
-          content: string
-          created_at: string
-          id: string
-          is_admin_reply: boolean
-          lesson_id: string
-          parent_id: string | null
-          updated_at: string
-          user_id: string
-        }
+          content: string;
+          created_at: string;
+          id: string;
+          is_admin_reply: boolean;
+          lesson_id: string;
+          parent_id: string | null;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_admin_reply?: boolean
-          lesson_id: string
-          parent_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
+          content: string;
+          created_at?: string;
+          id?: string;
+          is_admin_reply?: boolean;
+          lesson_id: string;
+          parent_id?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_admin_reply?: boolean
-          lesson_id?: string
-          parent_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
+          content?: string;
+          created_at?: string;
+          id?: string;
+          is_admin_reply?: boolean;
+          lesson_id?: string;
+          parent_id?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "lesson_comments_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "lesson_comments_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "lesson_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_comments"
-            referencedColumns: ["id"]
+            foreignKeyName: "lesson_comments_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_comments";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       lesson_tasks: {
         Row: {
-          business_plan_field_key: string | null
-          created_at: string
-          due_in_days: number | null
-          id: string
-          instructions: string | null
-          is_required: boolean
-          lesson_id: string
-          title: string
-          xp_reward: number
-        }
+          business_plan_field_key: string | null;
+          created_at: string;
+          due_in_days: number | null;
+          id: string;
+          instructions: string | null;
+          is_required: boolean;
+          lesson_id: string;
+          title: string;
+          xp_reward: number;
+        };
         Insert: {
-          business_plan_field_key?: string | null
-          created_at?: string
-          due_in_days?: number | null
-          id?: string
-          instructions?: string | null
-          is_required?: boolean
-          lesson_id: string
-          title: string
-          xp_reward?: number
-        }
+          business_plan_field_key?: string | null;
+          created_at?: string;
+          due_in_days?: number | null;
+          id?: string;
+          instructions?: string | null;
+          is_required?: boolean;
+          lesson_id: string;
+          title: string;
+          xp_reward?: number;
+        };
         Update: {
-          business_plan_field_key?: string | null
-          created_at?: string
-          due_in_days?: number | null
-          id?: string
-          instructions?: string | null
-          is_required?: boolean
-          lesson_id?: string
-          title?: string
-          xp_reward?: number
-        }
+          business_plan_field_key?: string | null;
+          created_at?: string;
+          due_in_days?: number | null;
+          id?: string;
+          instructions?: string | null;
+          is_required?: boolean;
+          lesson_id?: string;
+          title?: string;
+          xp_reward?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "lesson_tasks_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "lesson_tasks_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       lesson_unlock_notifications: {
         Row: {
-          id: string
-          lesson_id: string
-          sent_at: string
-          user_id: string
-        }
+          id: string;
+          lesson_id: string;
+          sent_at: string;
+          user_id: string;
+        };
         Insert: {
-          id?: string
-          lesson_id: string
-          sent_at?: string
-          user_id: string
-        }
+          id?: string;
+          lesson_id: string;
+          sent_at?: string;
+          user_id: string;
+        };
         Update: {
-          id?: string
-          lesson_id?: string
-          sent_at?: string
-          user_id?: string
-        }
+          id?: string;
+          lesson_id?: string;
+          sent_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "lesson_unlock_notifications_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "lesson_unlock_notifications_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       lessons: {
         Row: {
-          content: string | null
-          content_blocks: Json
-          course_id: string
-          created_at: string
-          description: string | null
-          due_in_days: number | null
-          id: string
-          is_published: boolean
-          module_id: string | null
-          position: number
-          requires_task_completion: boolean
-          title: string
-          unlock_after_hours: number
-          updated_at: string
-          video_url: string | null
-          xp_reward: number
-        }
+          content: string | null;
+          content_blocks: Json;
+          course_id: string;
+          created_at: string;
+          description: string | null;
+          due_in_days: number | null;
+          id: string;
+          is_published: boolean;
+          module_id: string | null;
+          position: number;
+          requires_task_completion: boolean;
+          title: string;
+          unlock_after_hours: number;
+          updated_at: string;
+          video_url: string | null;
+          xp_reward: number;
+        };
         Insert: {
-          content?: string | null
-          content_blocks?: Json
-          course_id: string
-          created_at?: string
-          description?: string | null
-          due_in_days?: number | null
-          id?: string
-          is_published?: boolean
-          module_id?: string | null
-          position?: number
-          requires_task_completion?: boolean
-          title: string
-          unlock_after_hours?: number
-          updated_at?: string
-          video_url?: string | null
-          xp_reward?: number
-        }
+          content?: string | null;
+          content_blocks?: Json;
+          course_id: string;
+          created_at?: string;
+          description?: string | null;
+          due_in_days?: number | null;
+          id?: string;
+          is_published?: boolean;
+          module_id?: string | null;
+          position?: number;
+          requires_task_completion?: boolean;
+          title: string;
+          unlock_after_hours?: number;
+          updated_at?: string;
+          video_url?: string | null;
+          xp_reward?: number;
+        };
         Update: {
-          content?: string | null
-          content_blocks?: Json
-          course_id?: string
-          created_at?: string
-          description?: string | null
-          due_in_days?: number | null
-          id?: string
-          is_published?: boolean
-          module_id?: string | null
-          position?: number
-          requires_task_completion?: boolean
-          title?: string
-          unlock_after_hours?: number
-          updated_at?: string
-          video_url?: string | null
-          xp_reward?: number
-        }
+          content?: string | null;
+          content_blocks?: Json;
+          course_id?: string;
+          created_at?: string;
+          description?: string | null;
+          due_in_days?: number | null;
+          id?: string;
+          is_published?: boolean;
+          module_id?: string | null;
+          position?: number;
+          requires_task_completion?: boolean;
+          title?: string;
+          unlock_after_hours?: number;
+          updated_at?: string;
+          video_url?: string | null;
+          xp_reward?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "lessons_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "lessons_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "lessons_module_id_fkey"
-            columns: ["module_id"]
-            isOneToOne: false
-            referencedRelation: "modules"
-            referencedColumns: ["id"]
+            foreignKeyName: "lessons_module_id_fkey";
+            columns: ["module_id"];
+            isOneToOne: false;
+            referencedRelation: "modules";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       mentor_assigned_tasks: {
         Row: {
-          admin_feedback: string | null
-          assigned_by: string
-          created_at: string
-          due_date: string | null
-          id: string
-          instructions: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["mentor_task_status"]
-          submission_content: string | null
-          submitted_at: string | null
-          title: string
-          updated_at: string
-          user_id: string
-          xp_reward: number
-        }
+          admin_feedback: string | null;
+          assigned_by: string;
+          created_at: string;
+          due_date: string | null;
+          id: string;
+          instructions: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          status: Database["public"]["Enums"]["mentor_task_status"];
+          submission_content: string | null;
+          submitted_at: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+          xp_reward: number;
+        };
         Insert: {
-          admin_feedback?: string | null
-          assigned_by: string
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          instructions?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["mentor_task_status"]
-          submission_content?: string | null
-          submitted_at?: string | null
-          title: string
-          updated_at?: string
-          user_id: string
-          xp_reward?: number
-        }
+          admin_feedback?: string | null;
+          assigned_by: string;
+          created_at?: string;
+          due_date?: string | null;
+          id?: string;
+          instructions?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["mentor_task_status"];
+          submission_content?: string | null;
+          submitted_at?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+          xp_reward?: number;
+        };
         Update: {
-          admin_feedback?: string | null
-          assigned_by?: string
-          created_at?: string
-          due_date?: string | null
-          id?: string
-          instructions?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["mentor_task_status"]
-          submission_content?: string | null
-          submitted_at?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-          xp_reward?: number
-        }
-        Relationships: []
-      }
+          admin_feedback?: string | null;
+          assigned_by?: string;
+          created_at?: string;
+          due_date?: string | null;
+          id?: string;
+          instructions?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["mentor_task_status"];
+          submission_content?: string | null;
+          submitted_at?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+          xp_reward?: number;
+        };
+        Relationships: [];
+      };
       mentor_task_templates: {
         Row: {
-          created_at: string
-          due_in_days: number
-          id: string
-          instructions: string | null
-          is_active: boolean
-          lesson_id: string
-          title: string
-          updated_at: string
-          xp_reward: number
-        }
+          created_at: string;
+          due_in_days: number;
+          id: string;
+          instructions: string | null;
+          is_active: boolean;
+          lesson_id: string;
+          title: string;
+          updated_at: string;
+          xp_reward: number;
+        };
         Insert: {
-          created_at?: string
-          due_in_days?: number
-          id?: string
-          instructions?: string | null
-          is_active?: boolean
-          lesson_id: string
-          title: string
-          updated_at?: string
-          xp_reward?: number
-        }
+          created_at?: string;
+          due_in_days?: number;
+          id?: string;
+          instructions?: string | null;
+          is_active?: boolean;
+          lesson_id: string;
+          title: string;
+          updated_at?: string;
+          xp_reward?: number;
+        };
         Update: {
-          created_at?: string
-          due_in_days?: number
-          id?: string
-          instructions?: string | null
-          is_active?: boolean
-          lesson_id?: string
-          title?: string
-          updated_at?: string
-          xp_reward?: number
-        }
+          created_at?: string;
+          due_in_days?: number;
+          id?: string;
+          instructions?: string | null;
+          is_active?: boolean;
+          lesson_id?: string;
+          title?: string;
+          updated_at?: string;
+          xp_reward?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "mentor_task_templates_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "mentor_task_templates_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       modules: {
         Row: {
-          course_id: string
-          created_at: string
-          description: string | null
-          id: string
-          is_published: boolean
-          position: number
-          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
-          requires_previous_module: boolean
-          title: string
-          unlock_after_hours: number
-          updated_at: string
-        }
+          course_id: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_published: boolean;
+          position: number;
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null;
+          requires_previous_module: boolean;
+          title: string;
+          unlock_after_hours: number;
+          updated_at: string;
+        };
         Insert: {
-          course_id: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_published?: boolean
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          requires_previous_module?: boolean
-          title: string
-          unlock_after_hours?: number
-          updated_at?: string
-        }
+          course_id: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_published?: boolean;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          requires_previous_module?: boolean;
+          title: string;
+          unlock_after_hours?: number;
+          updated_at?: string;
+        };
         Update: {
-          course_id?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_published?: boolean
-          position?: number
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          requires_previous_module?: boolean
-          title?: string
-          unlock_after_hours?: number
-          updated_at?: string
-        }
+          course_id?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_published?: boolean;
+          position?: number;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          requires_previous_module?: boolean;
+          title?: string;
+          unlock_after_hours?: number;
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "modules_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "modules_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       notifications: {
         Row: {
-          body: string | null
-          created_at: string
-          id: string
-          is_read: boolean
-          link: string | null
-          title: string
-          type: Database["public"]["Enums"]["notification_type"]
-          user_id: string
-        }
+          body: string | null;
+          created_at: string;
+          id: string;
+          is_read: boolean;
+          link: string | null;
+          title: string;
+          type: Database["public"]["Enums"]["notification_type"];
+          user_id: string;
+        };
         Insert: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          link?: string | null
-          title: string
-          type: Database["public"]["Enums"]["notification_type"]
-          user_id: string
-        }
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          is_read?: boolean;
+          link?: string | null;
+          title: string;
+          type: Database["public"]["Enums"]["notification_type"];
+          user_id: string;
+        };
         Update: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          link?: string | null
-          title?: string
-          type?: Database["public"]["Enums"]["notification_type"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          is_read?: boolean;
+          link?: string | null;
+          title?: string;
+          type?: Database["public"]["Enums"]["notification_type"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       plan_features: {
         Row: {
-          created_at: string
-          feature_key: string
-          id: string
-          is_enabled: boolean
-          label: string | null
-          limit_value: number
-          plan: Database["public"]["Enums"]["subscription_plan"]
-          updated_at: string
-        }
+          created_at: string;
+          feature_key: string;
+          id: string;
+          is_enabled: boolean;
+          label: string | null;
+          limit_value: number;
+          plan: Database["public"]["Enums"]["subscription_plan"];
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          feature_key: string
-          id?: string
-          is_enabled?: boolean
-          label?: string | null
-          limit_value?: number
-          plan: Database["public"]["Enums"]["subscription_plan"]
-          updated_at?: string
-        }
+          created_at?: string;
+          feature_key: string;
+          id?: string;
+          is_enabled?: boolean;
+          label?: string | null;
+          limit_value?: number;
+          plan: Database["public"]["Enums"]["subscription_plan"];
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          feature_key?: string
-          id?: string
-          is_enabled?: boolean
-          label?: string | null
-          limit_value?: number
-          plan?: Database["public"]["Enums"]["subscription_plan"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          feature_key?: string;
+          id?: string;
+          is_enabled?: boolean;
+          label?: string | null;
+          limit_value?: number;
+          plan?: Database["public"]["Enums"]["subscription_plan"];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       problem_reports: {
         Row: {
-          admin_response: string | null
-          category: Database["public"]["Enums"]["problem_category"]
-          created_at: string
-          description: string
-          id: string
-          status: string
-          updated_at: string
-          user_id: string
-        }
+          admin_response: string | null;
+          category: Database["public"]["Enums"]["problem_category"];
+          created_at: string;
+          description: string;
+          id: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          admin_response?: string | null
-          category: Database["public"]["Enums"]["problem_category"]
-          created_at?: string
-          description: string
-          id?: string
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
+          admin_response?: string | null;
+          category: Database["public"]["Enums"]["problem_category"];
+          created_at?: string;
+          description: string;
+          id?: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          admin_response?: string | null
-          category?: Database["public"]["Enums"]["problem_category"]
-          created_at?: string
-          description?: string
-          id?: string
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          admin_response?: string | null;
+          category?: Database["public"]["Enums"]["problem_category"];
+          created_at?: string;
+          description?: string;
+          id?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       processed_checkout_sessions: {
         Row: {
-          created_at: string | null
-          environment: string
-          price_id: string | null
-          session_id: string
-          user_id: string | null
-        }
+          created_at: string | null;
+          environment: string;
+          price_id: string | null;
+          session_id: string;
+          user_id: string | null;
+        };
         Insert: {
-          created_at?: string | null
-          environment?: string
-          price_id?: string | null
-          session_id: string
-          user_id?: string | null
-        }
+          created_at?: string | null;
+          environment?: string;
+          price_id?: string | null;
+          session_id: string;
+          user_id?: string | null;
+        };
         Update: {
-          created_at?: string | null
-          environment?: string
-          price_id?: string | null
-          session_id?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string | null;
+          environment?: string;
+          price_id?: string | null;
+          session_id?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       product_builder_progress: {
         Row: {
-          id: string
-          item_key: string
-          item_type: string
-          module_key: string
-          notes: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
+          id: string;
+          item_key: string;
+          item_type: string;
+          module_key: string;
+          notes: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          id?: string
-          item_key: string
-          item_type: string
-          module_key: string
-          notes?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
+          id?: string;
+          item_key: string;
+          item_type: string;
+          module_key: string;
+          notes?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          id?: string
-          item_key?: string
-          item_type?: string
-          module_key?: string
-          notes?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          id?: string;
+          item_key?: string;
+          item_type?: string;
+          module_key?: string;
+          notes?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
-          ad_budget_ready: string | null
-          admin_notes: string | null
-          avatar_url: string | null
-          created_at: string
-          email: string
-          full_name: string | null
-          id: string
-          last_seen: string | null
-          lead_temp: Database["public"]["Enums"]["user_lead_temp"] | null
-          onboarding_completed_at: string | null
-          onboarding_skipped: boolean
-          phone: string | null
-          social_link: string | null
-          updated_at: string
-        }
+          ad_budget_ready: string | null;
+          admin_notes: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          last_seen: string | null;
+          lead_temp: Database["public"]["Enums"]["user_lead_temp"] | null;
+          onboarding_completed_at: string | null;
+          onboarding_skipped: boolean;
+          phone: string | null;
+          social_link: string | null;
+          updated_at: string;
+        };
         Insert: {
-          ad_budget_ready?: string | null
-          admin_notes?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          email: string
-          full_name?: string | null
-          id: string
-          last_seen?: string | null
-          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
-          onboarding_completed_at?: string | null
-          onboarding_skipped?: boolean
-          phone?: string | null
-          social_link?: string | null
-          updated_at?: string
-        }
+          ad_budget_ready?: string | null;
+          admin_notes?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          email: string;
+          full_name?: string | null;
+          id: string;
+          last_seen?: string | null;
+          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null;
+          onboarding_completed_at?: string | null;
+          onboarding_skipped?: boolean;
+          phone?: string | null;
+          social_link?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          ad_budget_ready?: string | null
-          admin_notes?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          id?: string
-          last_seen?: string | null
-          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null
-          onboarding_completed_at?: string | null
-          onboarding_skipped?: boolean
-          phone?: string | null
-          social_link?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          ad_budget_ready?: string | null;
+          admin_notes?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          last_seen?: string | null;
+          lead_temp?: Database["public"]["Enums"]["user_lead_temp"] | null;
+          onboarding_completed_at?: string | null;
+          onboarding_skipped?: boolean;
+          phone?: string | null;
+          social_link?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       recommended_tool_categories: {
         Row: {
-          created_at: string
-          description: string
-          emoji: string
-          gradient: string
-          name: string
-          position: number
-          slug: string
-          updated_at: string
-        }
+          created_at: string;
+          description: string;
+          emoji: string;
+          gradient: string;
+          name: string;
+          position: number;
+          slug: string;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          description?: string
-          emoji?: string
-          gradient?: string
-          name: string
-          position?: number
-          slug: string
-          updated_at?: string
-        }
+          created_at?: string;
+          description?: string;
+          emoji?: string;
+          gradient?: string;
+          name: string;
+          position?: number;
+          slug: string;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          description?: string
-          emoji?: string
-          gradient?: string
-          name?: string
-          position?: number
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          description?: string;
+          emoji?: string;
+          gradient?: string;
+          name?: string;
+          position?: number;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      recommended_tool_reviews: {
+        Row: {
+          author_name: string;
+          comment: string;
+          created_at: string;
+          id: string;
+          rating: number;
+          status: string;
+          tool_slug: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          author_name?: string;
+          comment: string;
+          created_at?: string;
+          id?: string;
+          rating: number;
+          status?: string;
+          tool_slug: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          author_name?: string;
+          comment?: string;
+          created_at?: string;
+          id?: string;
+          rating?: number;
+          status?: string;
+          tool_slug?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recommended_tool_reviews_tool_slug_fkey";
+            columns: ["tool_slug"];
+            isOneToOne: false;
+            referencedRelation: "recommended_tools";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
       recommended_tools: {
         Row: {
-          alternatives: Json
-          best_for: Json
-          category_slug: string
-          cons: Json
-          created_at: string
-          faq: Json
-          features: Json
-          gold: boolean
-          gradient: string
-          is_published: boolean
-          launched_year: number | null
-          letter: string
-          long_description: string
-          name: string
-          perk: string | null
-          position: number
-          pricing: Json
-          pros: Json
-          rating: number
-          reviews_count: number
-          short_description: string
-          slug: string
-          tagline: string
-          tags: Json
-          updated_at: string
-          url: string
-          used_by: number
-          website: string | null
-        }
+          alternatives: Json;
+          best_for: Json;
+          category_slug: string;
+          cons: Json;
+          created_at: string;
+          faq: Json;
+          features: Json;
+          gold: boolean;
+          gradient: string;
+          is_published: boolean;
+          launched_year: number | null;
+          letter: string;
+          long_description: string;
+          name: string;
+          perk: string | null;
+          position: number;
+          pricing: Json;
+          pros: Json;
+          rating: number;
+          reviews_count: number;
+          short_description: string;
+          slug: string;
+          tagline: string;
+          tags: Json;
+          updated_at: string;
+          url: string;
+          used_by: number;
+          website: string | null;
+        };
         Insert: {
-          alternatives?: Json
-          best_for?: Json
-          category_slug: string
-          cons?: Json
-          created_at?: string
-          faq?: Json
-          features?: Json
-          gold?: boolean
-          gradient?: string
-          is_published?: boolean
-          launched_year?: number | null
-          letter?: string
-          long_description?: string
-          name: string
-          perk?: string | null
-          position?: number
-          pricing?: Json
-          pros?: Json
-          rating?: number
-          reviews_count?: number
-          short_description?: string
-          slug: string
-          tagline?: string
-          tags?: Json
-          updated_at?: string
-          url?: string
-          used_by?: number
-          website?: string | null
-        }
+          alternatives?: Json;
+          best_for?: Json;
+          category_slug: string;
+          cons?: Json;
+          created_at?: string;
+          faq?: Json;
+          features?: Json;
+          gold?: boolean;
+          gradient?: string;
+          is_published?: boolean;
+          launched_year?: number | null;
+          letter?: string;
+          long_description?: string;
+          name: string;
+          perk?: string | null;
+          position?: number;
+          pricing?: Json;
+          pros?: Json;
+          rating?: number;
+          reviews_count?: number;
+          short_description?: string;
+          slug: string;
+          tagline?: string;
+          tags?: Json;
+          updated_at?: string;
+          url?: string;
+          used_by?: number;
+          website?: string | null;
+        };
         Update: {
-          alternatives?: Json
-          best_for?: Json
-          category_slug?: string
-          cons?: Json
-          created_at?: string
-          faq?: Json
-          features?: Json
-          gold?: boolean
-          gradient?: string
-          is_published?: boolean
-          launched_year?: number | null
-          letter?: string
-          long_description?: string
-          name?: string
-          perk?: string | null
-          position?: number
-          pricing?: Json
-          pros?: Json
-          rating?: number
-          reviews_count?: number
-          short_description?: string
-          slug?: string
-          tagline?: string
-          tags?: Json
-          updated_at?: string
-          url?: string
-          used_by?: number
-          website?: string | null
-        }
+          alternatives?: Json;
+          best_for?: Json;
+          category_slug?: string;
+          cons?: Json;
+          created_at?: string;
+          faq?: Json;
+          features?: Json;
+          gold?: boolean;
+          gradient?: string;
+          is_published?: boolean;
+          launched_year?: number | null;
+          letter?: string;
+          long_description?: string;
+          name?: string;
+          perk?: string | null;
+          position?: number;
+          pricing?: Json;
+          pros?: Json;
+          rating?: number;
+          reviews_count?: number;
+          short_description?: string;
+          slug?: string;
+          tagline?: string;
+          tags?: Json;
+          updated_at?: string;
+          url?: string;
+          used_by?: number;
+          website?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "recommended_tools_category_slug_fkey"
-            columns: ["category_slug"]
-            isOneToOne: false
-            referencedRelation: "recommended_tool_categories"
-            referencedColumns: ["slug"]
+            foreignKeyName: "recommended_tools_category_slug_fkey";
+            columns: ["category_slug"];
+            isOneToOne: false;
+            referencedRelation: "recommended_tool_categories";
+            referencedColumns: ["slug"];
           },
-        ]
-      }
+        ];
+      };
       rewards: {
         Row: {
-          course_id: string | null
-          created_at: string
-          description: string | null
-          id: string
-          is_available: boolean
-          payload_content: string | null
-          payload_url: string | null
-          position: number
-          title: string
-          updated_at: string
-          xp_cost: number
-        }
+          course_id: string | null;
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_available: boolean;
+          payload_content: string | null;
+          payload_url: string | null;
+          position: number;
+          title: string;
+          updated_at: string;
+          xp_cost: number;
+        };
         Insert: {
-          course_id?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_available?: boolean
-          payload_content?: string | null
-          payload_url?: string | null
-          position?: number
-          title: string
-          updated_at?: string
-          xp_cost?: number
-        }
+          course_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_available?: boolean;
+          payload_content?: string | null;
+          payload_url?: string | null;
+          position?: number;
+          title: string;
+          updated_at?: string;
+          xp_cost?: number;
+        };
         Update: {
-          course_id?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_available?: boolean
-          payload_content?: string | null
-          payload_url?: string | null
-          position?: number
-          title?: string
-          updated_at?: string
-          xp_cost?: number
-        }
+          course_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_available?: boolean;
+          payload_content?: string | null;
+          payload_url?: string | null;
+          position?: number;
+          title?: string;
+          updated_at?: string;
+          xp_cost?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "rewards_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "rewards_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       server_error_logs: {
         Row: {
-          created_at: string
-          function_name: string | null
-          id: string
-          message: string
-          request_id: string | null
-          status: number | null
-          url: string | null
-          user_id: string | null
-        }
+          created_at: string;
+          function_name: string | null;
+          id: string;
+          message: string;
+          request_id: string | null;
+          status: number | null;
+          url: string | null;
+          user_id: string | null;
+        };
         Insert: {
-          created_at?: string
-          function_name?: string | null
-          id?: string
-          message: string
-          request_id?: string | null
-          status?: number | null
-          url?: string | null
-          user_id?: string | null
-        }
+          created_at?: string;
+          function_name?: string | null;
+          id?: string;
+          message: string;
+          request_id?: string | null;
+          status?: number | null;
+          url?: string | null;
+          user_id?: string | null;
+        };
         Update: {
-          created_at?: string
-          function_name?: string | null
-          id?: string
-          message?: string
-          request_id?: string | null
-          status?: number | null
-          url?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          function_name?: string | null;
+          id?: string;
+          message?: string;
+          request_id?: string | null;
+          status?: number | null;
+          url?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       service_requests: {
         Row: {
-          admin_notes: string | null
-          created_at: string
-          email: string
-          id: string
-          message: string | null
-          name: string
-          phone: string | null
-          service_type: string
-          status: Database["public"]["Enums"]["service_request_status"]
-          updated_at: string
-          user_id: string
-        }
+          admin_notes: string | null;
+          created_at: string;
+          email: string;
+          id: string;
+          message: string | null;
+          name: string;
+          phone: string | null;
+          service_type: string;
+          status: Database["public"]["Enums"]["service_request_status"];
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          admin_notes?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          message?: string | null
-          name: string
-          phone?: string | null
-          service_type: string
-          status?: Database["public"]["Enums"]["service_request_status"]
-          updated_at?: string
-          user_id: string
-        }
+          admin_notes?: string | null;
+          created_at?: string;
+          email: string;
+          id?: string;
+          message?: string | null;
+          name: string;
+          phone?: string | null;
+          service_type: string;
+          status?: Database["public"]["Enums"]["service_request_status"];
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          admin_notes?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string | null
-          name?: string
-          phone?: string | null
-          service_type?: string
-          status?: Database["public"]["Enums"]["service_request_status"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          admin_notes?: string | null;
+          created_at?: string;
+          email?: string;
+          id?: string;
+          message?: string | null;
+          name?: string;
+          phone?: string | null;
+          service_type?: string;
+          status?: Database["public"]["Enums"]["service_request_status"];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       stripe_promo_codes: {
         Row: {
-          active: boolean
-          code: string
-          created_at: string
-          created_by: string | null
-          currency: string | null
-          description: string | null
-          discount_type: string
-          discount_value: number
-          duration: string
-          duration_in_months: number | null
-          environment: string
-          expires_at: string | null
-          id: string
-          kind: string
-          max_redemptions: number | null
-          min_amount: number | null
-          stripe_coupon_id: string
-          stripe_promotion_code_id: string
-          times_redeemed: number
-          updated_at: string
-        }
+          active: boolean;
+          code: string;
+          created_at: string;
+          created_by: string | null;
+          currency: string | null;
+          description: string | null;
+          discount_type: string;
+          discount_value: number;
+          duration: string;
+          duration_in_months: number | null;
+          environment: string;
+          expires_at: string | null;
+          id: string;
+          kind: string;
+          max_redemptions: number | null;
+          min_amount: number | null;
+          stripe_coupon_id: string;
+          stripe_promotion_code_id: string;
+          times_redeemed: number;
+          updated_at: string;
+        };
         Insert: {
-          active?: boolean
-          code: string
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          discount_type: string
-          discount_value: number
-          duration: string
-          duration_in_months?: number | null
-          environment?: string
-          expires_at?: string | null
-          id?: string
-          kind: string
-          max_redemptions?: number | null
-          min_amount?: number | null
-          stripe_coupon_id: string
-          stripe_promotion_code_id: string
-          times_redeemed?: number
-          updated_at?: string
-        }
+          active?: boolean;
+          code: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string | null;
+          description?: string | null;
+          discount_type: string;
+          discount_value: number;
+          duration: string;
+          duration_in_months?: number | null;
+          environment?: string;
+          expires_at?: string | null;
+          id?: string;
+          kind: string;
+          max_redemptions?: number | null;
+          min_amount?: number | null;
+          stripe_coupon_id: string;
+          stripe_promotion_code_id: string;
+          times_redeemed?: number;
+          updated_at?: string;
+        };
         Update: {
-          active?: boolean
-          code?: string
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          discount_type?: string
-          discount_value?: number
-          duration?: string
-          duration_in_months?: number | null
-          environment?: string
-          expires_at?: string | null
-          id?: string
-          kind?: string
-          max_redemptions?: number | null
-          min_amount?: number | null
-          stripe_coupon_id?: string
-          stripe_promotion_code_id?: string
-          times_redeemed?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          active?: boolean;
+          code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string | null;
+          description?: string | null;
+          discount_type?: string;
+          discount_value?: number;
+          duration?: string;
+          duration_in_months?: number | null;
+          environment?: string;
+          expires_at?: string | null;
+          id?: string;
+          kind?: string;
+          max_redemptions?: number | null;
+          min_amount?: number | null;
+          stripe_coupon_id?: string;
+          stripe_promotion_code_id?: string;
+          times_redeemed?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       subscriptions: {
         Row: {
-          cancel_at_period_end: boolean | null
-          created_at: string | null
-          current_period_end: string | null
-          current_period_start: string | null
-          environment: string
-          id: string
-          price_id: string
-          product_id: string
-          status: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          updated_at: string | null
-          user_id: string
-        }
+          cancel_at_period_end: boolean | null;
+          created_at: string | null;
+          current_period_end: string | null;
+          current_period_start: string | null;
+          environment: string;
+          id: string;
+          price_id: string;
+          product_id: string;
+          status: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          updated_at: string | null;
+          user_id: string;
+        };
         Insert: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          environment?: string
-          id?: string
-          price_id: string
-          product_id: string
-          status?: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          updated_at?: string | null
-          user_id: string
-        }
+          cancel_at_period_end?: boolean | null;
+          created_at?: string | null;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          environment?: string;
+          id?: string;
+          price_id: string;
+          product_id: string;
+          status?: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
         Update: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          environment?: string
-          id?: string
-          price_id?: string
-          product_id?: string
-          status?: string
-          stripe_customer_id?: string
-          stripe_subscription_id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+          cancel_at_period_end?: boolean | null;
+          created_at?: string | null;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          environment?: string;
+          id?: string;
+          price_id?: string;
+          product_id?: string;
+          status?: string;
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       survey_responses: {
         Row: {
-          acquisition_plan:
-            | Database["public"]["Enums"]["acquisition_plan_type"]
-            | null
-          biggest_problem: string | null
-          created_at: string
-          goal_90_days: string | null
-          has_landing_page: boolean | null
-          has_offer: boolean | null
-          has_product_idea: boolean | null
-          id: string
-          product_idea_details: string | null
-          readiness_percent: number
-          readiness_score: number
-          updated_at: string
-          user_id: string
-          weekly_hours: number | null
-        }
+          acquisition_plan: Database["public"]["Enums"]["acquisition_plan_type"] | null;
+          biggest_problem: string | null;
+          created_at: string;
+          goal_90_days: string | null;
+          has_landing_page: boolean | null;
+          has_offer: boolean | null;
+          has_product_idea: boolean | null;
+          id: string;
+          product_idea_details: string | null;
+          readiness_percent: number;
+          readiness_score: number;
+          updated_at: string;
+          user_id: string;
+          weekly_hours: number | null;
+        };
         Insert: {
-          acquisition_plan?:
-            | Database["public"]["Enums"]["acquisition_plan_type"]
-            | null
-          biggest_problem?: string | null
-          created_at?: string
-          goal_90_days?: string | null
-          has_landing_page?: boolean | null
-          has_offer?: boolean | null
-          has_product_idea?: boolean | null
-          id?: string
-          product_idea_details?: string | null
-          readiness_percent?: number
-          readiness_score?: number
-          updated_at?: string
-          user_id: string
-          weekly_hours?: number | null
-        }
+          acquisition_plan?: Database["public"]["Enums"]["acquisition_plan_type"] | null;
+          biggest_problem?: string | null;
+          created_at?: string;
+          goal_90_days?: string | null;
+          has_landing_page?: boolean | null;
+          has_offer?: boolean | null;
+          has_product_idea?: boolean | null;
+          id?: string;
+          product_idea_details?: string | null;
+          readiness_percent?: number;
+          readiness_score?: number;
+          updated_at?: string;
+          user_id: string;
+          weekly_hours?: number | null;
+        };
         Update: {
-          acquisition_plan?:
-            | Database["public"]["Enums"]["acquisition_plan_type"]
-            | null
-          biggest_problem?: string | null
-          created_at?: string
-          goal_90_days?: string | null
-          has_landing_page?: boolean | null
-          has_offer?: boolean | null
-          has_product_idea?: boolean | null
-          id?: string
-          product_idea_details?: string | null
-          readiness_percent?: number
-          readiness_score?: number
-          updated_at?: string
-          user_id?: string
-          weekly_hours?: number | null
-        }
-        Relationships: []
-      }
+          acquisition_plan?: Database["public"]["Enums"]["acquisition_plan_type"] | null;
+          biggest_problem?: string | null;
+          created_at?: string;
+          goal_90_days?: string | null;
+          has_landing_page?: boolean | null;
+          has_offer?: boolean | null;
+          has_product_idea?: boolean | null;
+          id?: string;
+          product_idea_details?: string | null;
+          readiness_percent?: number;
+          readiness_score?: number;
+          updated_at?: string;
+          user_id?: string;
+          weekly_hours?: number | null;
+        };
+        Relationships: [];
+      };
       task_submissions: {
         Row: {
-          admin_feedback: string | null
-          attachment_url: string | null
-          content: string
-          created_at: string
-          id: string
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["submission_status"]
-          task_id: string
-          user_id: string
-        }
+          admin_feedback: string | null;
+          attachment_url: string | null;
+          content: string;
+          created_at: string;
+          id: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          status: Database["public"]["Enums"]["submission_status"];
+          task_id: string;
+          user_id: string;
+        };
         Insert: {
-          admin_feedback?: string | null
-          attachment_url?: string | null
-          content: string
-          created_at?: string
-          id?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["submission_status"]
-          task_id: string
-          user_id: string
-        }
+          admin_feedback?: string | null;
+          attachment_url?: string | null;
+          content: string;
+          created_at?: string;
+          id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["submission_status"];
+          task_id: string;
+          user_id: string;
+        };
         Update: {
-          admin_feedback?: string | null
-          attachment_url?: string | null
-          content?: string
-          created_at?: string
-          id?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["submission_status"]
-          task_id?: string
-          user_id?: string
-        }
+          admin_feedback?: string | null;
+          attachment_url?: string | null;
+          content?: string;
+          created_at?: string;
+          id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["submission_status"];
+          task_id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "task_submissions_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_tasks"
-            referencedColumns: ["id"]
+            foreignKeyName: "task_submissions_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_tasks";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       tool_results: {
         Row: {
-          created_at: string
-          id: string
-          inputs: Json
-          outputs: Json
-          tool_slug: string
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          inputs: Json;
+          outputs: Json;
+          tool_slug: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          inputs?: Json
-          outputs?: Json
-          tool_slug: string
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          inputs?: Json;
+          outputs?: Json;
+          tool_slug: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          inputs?: Json
-          outputs?: Json
-          tool_slug?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          inputs?: Json;
+          outputs?: Json;
+          tool_slug?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_ai_credits: {
         Row: {
-          bonus_credits: number
-          bonus_expires_at: string | null
-          created_at: string
-          id: string
-          monthly_credits: number
-          purchased_credits: number
-          reset_at: string
-          updated_at: string
-          used_monthly_credits: number
-          user_id: string
-        }
+          bonus_credits: number;
+          bonus_expires_at: string | null;
+          created_at: string;
+          id: string;
+          monthly_credits: number;
+          purchased_credits: number;
+          reset_at: string;
+          updated_at: string;
+          used_monthly_credits: number;
+          user_id: string;
+        };
         Insert: {
-          bonus_credits?: number
-          bonus_expires_at?: string | null
-          created_at?: string
-          id?: string
-          monthly_credits?: number
-          purchased_credits?: number
-          reset_at?: string
-          updated_at?: string
-          used_monthly_credits?: number
-          user_id: string
-        }
+          bonus_credits?: number;
+          bonus_expires_at?: string | null;
+          created_at?: string;
+          id?: string;
+          monthly_credits?: number;
+          purchased_credits?: number;
+          reset_at?: string;
+          updated_at?: string;
+          used_monthly_credits?: number;
+          user_id: string;
+        };
         Update: {
-          bonus_credits?: number
-          bonus_expires_at?: string | null
-          created_at?: string
-          id?: string
-          monthly_credits?: number
-          purchased_credits?: number
-          reset_at?: string
-          updated_at?: string
-          used_monthly_credits?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
+          bonus_credits?: number;
+          bonus_expires_at?: string | null;
+          created_at?: string;
+          id?: string;
+          monthly_credits?: number;
+          purchased_credits?: number;
+          reset_at?: string;
+          updated_at?: string;
+          used_monthly_credits?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_badges: {
         Row: {
-          badge_id: string
-          earned_at: string
-          id: string
-          user_id: string
-        }
+          badge_id: string;
+          earned_at: string;
+          id: string;
+          user_id: string;
+        };
         Insert: {
-          badge_id: string
-          earned_at?: string
-          id?: string
-          user_id: string
-        }
+          badge_id: string;
+          earned_at?: string;
+          id?: string;
+          user_id: string;
+        };
         Update: {
-          badge_id?: string
-          earned_at?: string
-          id?: string
-          user_id?: string
-        }
+          badge_id?: string;
+          earned_at?: string;
+          id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_badges_badge_id_fkey"
-            columns: ["badge_id"]
-            isOneToOne: false
-            referencedRelation: "badges"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_badges_badge_id_fkey";
+            columns: ["badge_id"];
+            isOneToOne: false;
+            referencedRelation: "badges";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_challenges: {
         Row: {
-          challenge_id: string
-          claimed: boolean
-          claimed_at: string | null
-          completed_at: string | null
-          created_at: string
-          id: string
-          progress: number
-          user_id: string
-        }
+          challenge_id: string;
+          claimed: boolean;
+          claimed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          id: string;
+          progress: number;
+          user_id: string;
+        };
         Insert: {
-          challenge_id: string
-          claimed?: boolean
-          claimed_at?: string | null
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          progress?: number
-          user_id: string
-        }
+          challenge_id: string;
+          claimed?: boolean;
+          claimed_at?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          progress?: number;
+          user_id: string;
+        };
         Update: {
-          challenge_id?: string
-          claimed?: boolean
-          claimed_at?: string | null
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          progress?: number
-          user_id?: string
-        }
+          challenge_id?: string;
+          claimed?: boolean;
+          claimed_at?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          progress?: number;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_challenges_challenge_id_fkey"
-            columns: ["challenge_id"]
-            isOneToOne: false
-            referencedRelation: "challenges"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_challenges_challenge_id_fkey";
+            columns: ["challenge_id"];
+            isOneToOne: false;
+            referencedRelation: "challenges";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_course_enrollments: {
         Row: {
-          course_id: string
-          enrolled_at: string
-          id: string
-          user_id: string
-        }
+          course_id: string;
+          enrolled_at: string;
+          id: string;
+          user_id: string;
+        };
         Insert: {
-          course_id: string
-          enrolled_at?: string
-          id?: string
-          user_id: string
-        }
+          course_id: string;
+          enrolled_at?: string;
+          id?: string;
+          user_id: string;
+        };
         Update: {
-          course_id?: string
-          enrolled_at?: string
-          id?: string
-          user_id?: string
-        }
+          course_id?: string;
+          enrolled_at?: string;
+          id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_course_enrollments_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_course_enrollments_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_engagement: {
         Row: {
-          breakdown: Json
-          created_at: string
-          hot_notified_at: string | null
-          label: Database["public"]["Enums"]["user_lead_temp"]
-          on_fire_notified_at: string | null
-          recalc_at: string
-          score: number
-          updated_at: string
-          user_id: string
-        }
+          breakdown: Json;
+          created_at: string;
+          hot_notified_at: string | null;
+          label: Database["public"]["Enums"]["user_lead_temp"];
+          on_fire_notified_at: string | null;
+          recalc_at: string;
+          score: number;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          breakdown?: Json
-          created_at?: string
-          hot_notified_at?: string | null
-          label?: Database["public"]["Enums"]["user_lead_temp"]
-          on_fire_notified_at?: string | null
-          recalc_at?: string
-          score?: number
-          updated_at?: string
-          user_id: string
-        }
+          breakdown?: Json;
+          created_at?: string;
+          hot_notified_at?: string | null;
+          label?: Database["public"]["Enums"]["user_lead_temp"];
+          on_fire_notified_at?: string | null;
+          recalc_at?: string;
+          score?: number;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          breakdown?: Json
-          created_at?: string
-          hot_notified_at?: string | null
-          label?: Database["public"]["Enums"]["user_lead_temp"]
-          on_fire_notified_at?: string | null
-          recalc_at?: string
-          score?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          breakdown?: Json;
+          created_at?: string;
+          hot_notified_at?: string | null;
+          label?: Database["public"]["Enums"]["user_lead_temp"];
+          on_fire_notified_at?: string | null;
+          recalc_at?: string;
+          score?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_learning_path_steps: {
         Row: {
-          completed_at: string
-          id: string
-          step_id: string
-          user_id: string
-        }
+          completed_at: string;
+          id: string;
+          step_id: string;
+          user_id: string;
+        };
         Insert: {
-          completed_at?: string
-          id?: string
-          step_id: string
-          user_id: string
-        }
+          completed_at?: string;
+          id?: string;
+          step_id: string;
+          user_id: string;
+        };
         Update: {
-          completed_at?: string
-          id?: string
-          step_id?: string
-          user_id?: string
-        }
+          completed_at?: string;
+          id?: string;
+          step_id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_learning_path_steps_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "learning_path_steps"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_learning_path_steps_step_id_fkey";
+            columns: ["step_id"];
+            isOneToOne: false;
+            referencedRelation: "learning_path_steps";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_learning_paths: {
         Row: {
-          id: string
-          is_current: boolean
-          path_id: string
-          started_at: string
-          user_id: string
-        }
+          id: string;
+          is_current: boolean;
+          path_id: string;
+          started_at: string;
+          user_id: string;
+        };
         Insert: {
-          id?: string
-          is_current?: boolean
-          path_id: string
-          started_at?: string
-          user_id: string
-        }
+          id?: string;
+          is_current?: boolean;
+          path_id: string;
+          started_at?: string;
+          user_id: string;
+        };
         Update: {
-          id?: string
-          is_current?: boolean
-          path_id?: string
-          started_at?: string
-          user_id?: string
-        }
+          id?: string;
+          is_current?: boolean;
+          path_id?: string;
+          started_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_learning_paths_path_id_fkey"
-            columns: ["path_id"]
-            isOneToOne: false
-            referencedRelation: "learning_paths"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_learning_paths_path_id_fkey";
+            columns: ["path_id"];
+            isOneToOne: false;
+            referencedRelation: "learning_paths";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_lesson_progress: {
         Row: {
-          id: string
-          lesson_id: string
-          user_id: string
-          watched_at: string
-        }
+          id: string;
+          lesson_id: string;
+          user_id: string;
+          watched_at: string;
+        };
         Insert: {
-          id?: string
-          lesson_id: string
-          user_id: string
-          watched_at?: string
-        }
+          id?: string;
+          lesson_id: string;
+          user_id: string;
+          watched_at?: string;
+        };
         Update: {
-          id?: string
-          lesson_id?: string
-          user_id?: string
-          watched_at?: string
-        }
+          id?: string;
+          lesson_id?: string;
+          user_id?: string;
+          watched_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_lesson_progress_lesson_id_fkey"
-            columns: ["lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_lesson_progress_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_product_materials: {
         Row: {
-          created_at: string
-          external_link: string | null
-          file_url: string | null
-          id: string
-          kind: string
-          position: number
-          product_id: string
-          title: string
-          user_id: string
-        }
+          created_at: string;
+          external_link: string | null;
+          file_url: string | null;
+          id: string;
+          kind: string;
+          position: number;
+          product_id: string;
+          title: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          external_link?: string | null
-          file_url?: string | null
-          id?: string
-          kind?: string
-          position?: number
-          product_id: string
-          title?: string
-          user_id: string
-        }
+          created_at?: string;
+          external_link?: string | null;
+          file_url?: string | null;
+          id?: string;
+          kind?: string;
+          position?: number;
+          product_id: string;
+          title?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          external_link?: string | null
-          file_url?: string | null
-          id?: string
-          kind?: string
-          position?: number
-          product_id?: string
-          title?: string
-          user_id?: string
-        }
+          created_at?: string;
+          external_link?: string | null;
+          file_url?: string | null;
+          id?: string;
+          kind?: string;
+          position?: number;
+          product_id?: string;
+          title?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_product_materials_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "user_products"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_product_materials_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "user_products";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_product_packages: {
         Row: {
-          created_at: string
-          currency: string
-          description: string | null
-          id: string
-          is_featured: boolean
-          items: Json
-          name: string
-          position: number
-          price: number | null
-          product_id: string
-          updated_at: string
-          user_id: string
-        }
+          created_at: string;
+          currency: string;
+          description: string | null;
+          id: string;
+          is_featured: boolean;
+          items: Json;
+          name: string;
+          position: number;
+          price: number | null;
+          product_id: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          is_featured?: boolean
-          items?: Json
-          name?: string
-          position?: number
-          price?: number | null
-          product_id: string
-          updated_at?: string
-          user_id: string
-        }
+          created_at?: string;
+          currency?: string;
+          description?: string | null;
+          id?: string;
+          is_featured?: boolean;
+          items?: Json;
+          name?: string;
+          position?: number;
+          price?: number | null;
+          product_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          is_featured?: boolean
-          items?: Json
-          name?: string
-          position?: number
-          price?: number | null
-          product_id?: string
-          updated_at?: string
-          user_id?: string
-        }
+          created_at?: string;
+          currency?: string;
+          description?: string | null;
+          id?: string;
+          is_featured?: boolean;
+          items?: Json;
+          name?: string;
+          position?: number;
+          price?: number | null;
+          product_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_product_packages_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "user_products"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_product_packages_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "user_products";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_products: {
         Row: {
-          agenda: Json
-          benefits: Json
-          bonuses: Json
-          cover_url: string | null
-          created_at: string
-          cta_label: string | null
-          faq: Json
-          id: string
-          position: number
-          price_draft: number | null
-          problem: string | null
-          product_type: Database["public"]["Enums"]["user_product_type"] | null
-          promise: string | null
-          publish_checklist: Json
-          result: string | null
-          sales_headline: string | null
-          sales_subtitle: string | null
-          status: Database["public"]["Enums"]["user_product_status"]
-          subtitle: string | null
-          target_audience: string | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
+          agenda: Json;
+          benefits: Json;
+          bonuses: Json;
+          cover_url: string | null;
+          created_at: string;
+          cta_label: string | null;
+          faq: Json;
+          id: string;
+          position: number;
+          price_draft: number | null;
+          problem: string | null;
+          product_type: Database["public"]["Enums"]["user_product_type"] | null;
+          promise: string | null;
+          publish_checklist: Json;
+          result: string | null;
+          sales_headline: string | null;
+          sales_subtitle: string | null;
+          status: Database["public"]["Enums"]["user_product_status"];
+          subtitle: string | null;
+          target_audience: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          agenda?: Json
-          benefits?: Json
-          bonuses?: Json
-          cover_url?: string | null
-          created_at?: string
-          cta_label?: string | null
-          faq?: Json
-          id?: string
-          position?: number
-          price_draft?: number | null
-          problem?: string | null
-          product_type?: Database["public"]["Enums"]["user_product_type"] | null
-          promise?: string | null
-          publish_checklist?: Json
-          result?: string | null
-          sales_headline?: string | null
-          sales_subtitle?: string | null
-          status?: Database["public"]["Enums"]["user_product_status"]
-          subtitle?: string | null
-          target_audience?: string | null
-          title?: string
-          updated_at?: string
-          user_id: string
-        }
+          agenda?: Json;
+          benefits?: Json;
+          bonuses?: Json;
+          cover_url?: string | null;
+          created_at?: string;
+          cta_label?: string | null;
+          faq?: Json;
+          id?: string;
+          position?: number;
+          price_draft?: number | null;
+          problem?: string | null;
+          product_type?: Database["public"]["Enums"]["user_product_type"] | null;
+          promise?: string | null;
+          publish_checklist?: Json;
+          result?: string | null;
+          sales_headline?: string | null;
+          sales_subtitle?: string | null;
+          status?: Database["public"]["Enums"]["user_product_status"];
+          subtitle?: string | null;
+          target_audience?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          agenda?: Json
-          benefits?: Json
-          bonuses?: Json
-          cover_url?: string | null
-          created_at?: string
-          cta_label?: string | null
-          faq?: Json
-          id?: string
-          position?: number
-          price_draft?: number | null
-          problem?: string | null
-          product_type?: Database["public"]["Enums"]["user_product_type"] | null
-          promise?: string | null
-          publish_checklist?: Json
-          result?: string | null
-          sales_headline?: string | null
-          sales_subtitle?: string | null
-          status?: Database["public"]["Enums"]["user_product_status"]
-          subtitle?: string | null
-          target_audience?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          agenda?: Json;
+          benefits?: Json;
+          bonuses?: Json;
+          cover_url?: string | null;
+          created_at?: string;
+          cta_label?: string | null;
+          faq?: Json;
+          id?: string;
+          position?: number;
+          price_draft?: number | null;
+          problem?: string | null;
+          product_type?: Database["public"]["Enums"]["user_product_type"] | null;
+          promise?: string | null;
+          publish_checklist?: Json;
+          result?: string | null;
+          sales_headline?: string | null;
+          sales_subtitle?: string | null;
+          status?: Database["public"]["Enums"]["user_product_status"];
+          subtitle?: string | null;
+          target_audience?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_redeemed_codes: {
         Row: {
-          code_id: string
-          id: string
-          redeemed_at: string
-          user_id: string
-        }
+          code_id: string;
+          id: string;
+          redeemed_at: string;
+          user_id: string;
+        };
         Insert: {
-          code_id: string
-          id?: string
-          redeemed_at?: string
-          user_id: string
-        }
+          code_id: string;
+          id?: string;
+          redeemed_at?: string;
+          user_id: string;
+        };
         Update: {
-          code_id?: string
-          id?: string
-          redeemed_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          code_id?: string;
+          id?: string;
+          redeemed_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_rewards: {
         Row: {
-          claimed_at: string
-          id: string
-          reward_id: string
-          status: string
-          user_id: string
-          xp_spent: number
-        }
+          claimed_at: string;
+          id: string;
+          reward_id: string;
+          status: string;
+          user_id: string;
+          xp_spent: number;
+        };
         Insert: {
-          claimed_at?: string
-          id?: string
-          reward_id: string
-          status?: string
-          user_id: string
-          xp_spent: number
-        }
+          claimed_at?: string;
+          id?: string;
+          reward_id: string;
+          status?: string;
+          user_id: string;
+          xp_spent: number;
+        };
         Update: {
-          claimed_at?: string
-          id?: string
-          reward_id?: string
-          status?: string
-          user_id?: string
-          xp_spent?: number
-        }
+          claimed_at?: string;
+          id?: string;
+          reward_id?: string;
+          status?: string;
+          user_id?: string;
+          xp_spent?: number;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_rewards_reward_id_fkey"
-            columns: ["reward_id"]
-            isOneToOne: false
-            referencedRelation: "rewards"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_rewards_reward_id_fkey";
+            columns: ["reward_id"];
+            isOneToOne: false;
+            referencedRelation: "rewards";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "user_rewards_reward_id_fkey"
-            columns: ["reward_id"]
-            isOneToOne: false
-            referencedRelation: "rewards_catalog"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_rewards_reward_id_fkey";
+            columns: ["reward_id"];
+            isOneToOne: false;
+            referencedRelation: "rewards_catalog";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_roles: {
         Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          role?: Database["public"]["Enums"]["app_role"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_streaks: {
         Row: {
-          current_streak: number
-          last_activity_date: string | null
-          longest_streak: number
-          multiplier: number
-          updated_at: string
-          user_id: string
-        }
+          current_streak: number;
+          last_activity_date: string | null;
+          longest_streak: number;
+          multiplier: number;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          current_streak?: number
-          last_activity_date?: string | null
-          longest_streak?: number
-          multiplier?: number
-          updated_at?: string
-          user_id: string
-        }
+          current_streak?: number;
+          last_activity_date?: string | null;
+          longest_streak?: number;
+          multiplier?: number;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          current_streak?: number
-          last_activity_date?: string | null
-          longest_streak?: number
-          multiplier?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          current_streak?: number;
+          last_activity_date?: string | null;
+          longest_streak?: number;
+          multiplier?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_subscriptions: {
         Row: {
-          cancelled_at: string | null
-          created_at: string
-          current_period_end: string
-          current_period_start: string
-          free_month_used: boolean
-          id: string
-          paused_until: string | null
-          plan: Database["public"]["Enums"]["subscription_plan"]
-          status: Database["public"]["Enums"]["subscription_status"]
-          updated_at: string
-          user_id: string
-        }
+          cancelled_at: string | null;
+          created_at: string;
+          current_period_end: string;
+          current_period_start: string;
+          free_month_used: boolean;
+          id: string;
+          paused_until: string | null;
+          plan: Database["public"]["Enums"]["subscription_plan"];
+          status: Database["public"]["Enums"]["subscription_status"];
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          cancelled_at?: string | null
-          created_at?: string
-          current_period_end?: string
-          current_period_start?: string
-          free_month_used?: boolean
-          id?: string
-          paused_until?: string | null
-          plan?: Database["public"]["Enums"]["subscription_plan"]
-          status?: Database["public"]["Enums"]["subscription_status"]
-          updated_at?: string
-          user_id: string
-        }
+          cancelled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string;
+          current_period_start?: string;
+          free_month_used?: boolean;
+          id?: string;
+          paused_until?: string | null;
+          plan?: Database["public"]["Enums"]["subscription_plan"];
+          status?: Database["public"]["Enums"]["subscription_status"];
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          cancelled_at?: string | null
-          created_at?: string
-          current_period_end?: string
-          current_period_start?: string
-          free_month_used?: boolean
-          id?: string
-          paused_until?: string | null
-          plan?: Database["public"]["Enums"]["subscription_plan"]
-          status?: Database["public"]["Enums"]["subscription_status"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          cancelled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string;
+          current_period_start?: string;
+          free_month_used?: boolean;
+          id?: string;
+          paused_until?: string | null;
+          plan?: Database["public"]["Enums"]["subscription_plan"];
+          status?: Database["public"]["Enums"]["subscription_status"];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_xp_log: {
         Row: {
-          amount: number
-          created_at: string
-          id: string
-          reason: string
-          related_lesson_id: string | null
-          related_task_id: string | null
-          user_id: string
-        }
+          amount: number;
+          created_at: string;
+          id: string;
+          reason: string;
+          related_lesson_id: string | null;
+          related_task_id: string | null;
+          user_id: string;
+        };
         Insert: {
-          amount: number
-          created_at?: string
-          id?: string
-          reason: string
-          related_lesson_id?: string | null
-          related_task_id?: string | null
-          user_id: string
-        }
+          amount: number;
+          created_at?: string;
+          id?: string;
+          reason: string;
+          related_lesson_id?: string | null;
+          related_task_id?: string | null;
+          user_id: string;
+        };
         Update: {
-          amount?: number
-          created_at?: string
-          id?: string
-          reason?: string
-          related_lesson_id?: string | null
-          related_task_id?: string | null
-          user_id?: string
-        }
+          amount?: number;
+          created_at?: string;
+          id?: string;
+          reason?: string;
+          related_lesson_id?: string | null;
+          related_task_id?: string | null;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_xp_log_related_lesson_id_fkey"
-            columns: ["related_lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_xp_log_related_lesson_id_fkey";
+            columns: ["related_lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "user_xp_log_related_task_id_fkey"
-            columns: ["related_task_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_tasks"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_xp_log_related_task_id_fkey";
+            columns: ["related_task_id"];
+            isOneToOne: false;
+            referencedRelation: "lesson_tasks";
+            referencedColumns: ["id"];
           },
-        ]
-      }
-    }
+        ];
+      };
+    };
     Views: {
       ai_generators_public: {
         Row: {
-          category: string | null
-          credit_cost: number | null
-          description: string | null
-          form_schema: Json | null
-          id: string | null
-          name: string | null
-          position: number | null
-          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
-          slug: string | null
-          status: Database["public"]["Enums"]["ai_generator_status"] | null
-          supports_quality_modes: boolean | null
-        }
+          category: string | null;
+          credit_cost: number | null;
+          description: string | null;
+          form_schema: Json | null;
+          id: string | null;
+          name: string | null;
+          position: number | null;
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug: string | null;
+          status: Database["public"]["Enums"]["ai_generator_status"] | null;
+          supports_quality_modes: boolean | null;
+        };
         Insert: {
-          category?: string | null
-          credit_cost?: number | null
-          description?: string | null
-          form_schema?: Json | null
-          id?: string | null
-          name?: string | null
-          position?: number | null
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["ai_generator_status"] | null
-          supports_quality_modes?: boolean | null
-        }
+          category?: string | null;
+          credit_cost?: number | null;
+          description?: string | null;
+          form_schema?: Json | null;
+          id?: string | null;
+          name?: string | null;
+          position?: number | null;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug?: string | null;
+          status?: Database["public"]["Enums"]["ai_generator_status"] | null;
+          supports_quality_modes?: boolean | null;
+        };
         Update: {
-          category?: string | null
-          credit_cost?: number | null
-          description?: string | null
-          form_schema?: Json | null
-          id?: string | null
-          name?: string | null
-          position?: number | null
-          required_plan?:
-            | Database["public"]["Enums"]["subscription_plan"]
-            | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["ai_generator_status"] | null
-          supports_quality_modes?: boolean | null
-        }
-        Relationships: []
-      }
+          category?: string | null;
+          credit_cost?: number | null;
+          description?: string | null;
+          form_schema?: Json | null;
+          id?: string | null;
+          name?: string | null;
+          position?: number | null;
+          required_plan?: Database["public"]["Enums"]["subscription_plan"] | null;
+          slug?: string | null;
+          status?: Database["public"]["Enums"]["ai_generator_status"] | null;
+          supports_quality_modes?: boolean | null;
+        };
+        Relationships: [];
+      };
       rewards_catalog: {
         Row: {
-          course_id: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          is_available: boolean | null
-          position: number | null
-          title: string | null
-          updated_at: string | null
-          xp_cost: number | null
-        }
+          course_id: string | null;
+          created_at: string | null;
+          description: string | null;
+          id: string | null;
+          is_available: boolean | null;
+          position: number | null;
+          title: string | null;
+          updated_at: string | null;
+          xp_cost: number | null;
+        };
         Insert: {
-          course_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_available?: boolean | null
-          position?: number | null
-          title?: string | null
-          updated_at?: string | null
-          xp_cost?: number | null
-        }
+          course_id?: string | null;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string | null;
+          is_available?: boolean | null;
+          position?: number | null;
+          title?: string | null;
+          updated_at?: string | null;
+          xp_cost?: number | null;
+        };
         Update: {
-          course_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_available?: boolean | null
-          position?: number | null
-          title?: string | null
-          updated_at?: string | null
-          xp_cost?: number | null
-        }
+          course_id?: string | null;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string | null;
+          is_available?: boolean | null;
+          position?: number | null;
+          title?: string | null;
+          updated_at?: string | null;
+          xp_cost?: number | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "rewards_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
+            foreignKeyName: "rewards_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
           },
-        ]
-      }
-    }
+        ];
+      };
+    };
     Functions: {
       add_credits: {
         Args: {
-          _amount: number
-          _bonus_validity_days?: number
-          _description: string
-          _type: Database["public"]["Enums"]["ai_credit_tx_type"]
-          _user_id: string
-        }
-        Returns: undefined
-      }
+          _amount: number;
+          _bonus_validity_days?: number;
+          _description: string;
+          _type: Database["public"]["Enums"]["ai_credit_tx_type"];
+          _user_id: string;
+        };
+        Returns: undefined;
+      };
       award_badge: {
-        Args: { _badge_code: string; _user_id: string }
-        Returns: undefined
-      }
+        Args: { _badge_code: string; _user_id: string };
+        Returns: undefined;
+      };
       award_xp: {
         Args: {
-          _amount: number
-          _lesson_id?: string
-          _reason: string
-          _task_id?: string
-          _user_id: string
-        }
-        Returns: undefined
-      }
+          _amount: number;
+          _lesson_id?: string;
+          _reason: string;
+          _task_id?: string;
+          _user_id: string;
+        };
+        Returns: undefined;
+      };
       bump_duels: {
         Args: {
-          _delta: number
-          _metric: Database["public"]["Enums"]["duel_metric"]
-          _user_id: string
-        }
-        Returns: undefined
-      }
+          _delta: number;
+          _metric: Database["public"]["Enums"]["duel_metric"];
+          _user_id: string;
+        };
+        Returns: undefined;
+      };
       bump_user_challenges: {
         Args: {
-          _delta: number
-          _metric: Database["public"]["Enums"]["challenge_metric"]
-          _user_id: string
-        }
-        Returns: undefined
-      }
+          _delta: number;
+          _metric: Database["public"]["Enums"]["challenge_metric"];
+          _user_id: string;
+        };
+        Returns: undefined;
+      };
       consume_credits: {
         Args: {
-          _amount: number
-          _description: string
-          _generation_id?: string
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      ensure_user_credits: { Args: { _user_id: string }; Returns: undefined }
-      get_available_credits: { Args: { _user_id: string }; Returns: number }
+          _amount: number;
+          _description: string;
+          _generation_id?: string;
+          _user_id: string;
+        };
+        Returns: boolean;
+      };
+      ensure_user_credits: { Args: { _user_id: string }; Returns: undefined };
+      get_available_credits: { Args: { _user_id: string }; Returns: number };
       get_public_user_badges: {
-        Args: { _user_id: string }
+        Args: { _user_id: string };
         Returns: {
-          badge_id: string
-          earned_at: string
-          icon: string
-          name: string
-          rarity: Database["public"]["Enums"]["badge_rarity"]
-        }[]
-      }
-      get_public_user_streak: { Args: { _user_id: string }; Returns: number }
+          badge_id: string;
+          earned_at: string;
+          icon: string;
+          name: string;
+          rarity: Database["public"]["Enums"]["badge_rarity"];
+        }[];
+      };
+      get_public_user_streak: { Args: { _user_id: string }; Returns: number };
       get_rewards_catalog: {
-        Args: never
+        Args: never;
         Returns: {
-          course_id: string
-          created_at: string
-          description: string
-          id: string
-          is_available: boolean
-          position: number
-          title: string
-          updated_at: string
-          xp_cost: number
-        }[]
-      }
+          course_id: string;
+          created_at: string;
+          description: string;
+          id: string;
+          is_available: boolean;
+          position: number;
+          title: string;
+          updated_at: string;
+          xp_cost: number;
+        }[];
+      };
       has_active_subscription: {
-        Args: { check_env?: string; user_uuid: string }
-        Returns: boolean
-      }
+        Args: { check_env?: string; user_uuid: string };
+        Returns: boolean;
+      };
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+          _role: Database["public"]["Enums"]["app_role"];
+          _user_id: string;
+        };
+        Returns: boolean;
+      };
       lesson_unlocks_at: {
-        Args: { _lesson_id: string; _user_id: string }
-        Returns: string
-      }
+        Args: { _lesson_id: string; _user_id: string };
+        Returns: string;
+      };
       plan_monthly_credits: {
-        Args: { _plan: Database["public"]["Enums"]["subscription_plan"] }
-        Returns: number
-      }
-      recalc_engagement: { Args: { _user_id: string }; Returns: undefined }
+        Args: { _plan: Database["public"]["Enums"]["subscription_plan"] };
+        Returns: number;
+      };
+      recalc_engagement: { Args: { _user_id: string }; Returns: undefined };
       redeem_credit_code: {
-        Args: { _code: string; _user_id: string }
-        Returns: Json
-      }
-      send_task_due_reminders: { Args: never; Returns: undefined }
-      update_streak: { Args: { _user_id: string }; Returns: undefined }
-    }
+        Args: { _code: string; _user_id: string };
+        Returns: Json;
+      };
+      send_task_due_reminders: { Args: never; Returns: undefined };
+      update_streak: { Args: { _user_id: string }; Returns: undefined };
+    };
     Enums: {
-      acquisition_plan_type: "paid_ads" | "organic_social" | "unsure"
-      advisor_type: "technical" | "marketing"
-      ai_credit_tx_type:
-        | "monthly"
-        | "purchase"
-        | "usage"
-        | "bonus"
-        | "refund"
-        | "expired"
-      ai_generator_status: "active" | "inactive"
-      ai_quality_mode: "fast" | "pro" | "premium"
-      app_role: "admin" | "user"
-      badge_rarity: "common" | "rare" | "epic" | "legendary"
-      call_status: "scheduled" | "completed" | "skipped"
+      acquisition_plan_type: "paid_ads" | "organic_social" | "unsure";
+      advisor_type: "technical" | "marketing";
+      ai_credit_tx_type: "monthly" | "purchase" | "usage" | "bonus" | "refund" | "expired";
+      ai_generator_status: "active" | "inactive";
+      ai_quality_mode: "fast" | "pro" | "premium";
+      app_role: "admin" | "user";
+      badge_rarity: "common" | "rare" | "epic" | "legendary";
+      call_status: "scheduled" | "completed" | "skipped";
       challenge_metric:
         | "lessons_watched"
         | "tasks_approved"
@@ -2924,17 +2952,17 @@ export type Database = {
         | "xp_earned"
         | "posts_created"
         | "comments_created"
-        | "login_days"
-      challenge_type: "daily" | "weekly" | "sprint" | "community"
-      duel_metric: "tasks_approved" | "lessons_watched" | "xp_earned"
-      duel_status: "pending" | "active" | "completed" | "declined" | "expired"
+        | "login_days";
+      challenge_type: "daily" | "weekly" | "sprint" | "community";
+      duel_metric: "tasks_approved" | "lessons_watched" | "xp_earned";
+      duel_status: "pending" | "active" | "completed" | "declined" | "expired";
       mentor_task_status:
         | "assigned"
         | "submitted"
         | "approved"
         | "rejected"
         | "needs_revision"
-        | "in_progress"
+        | "in_progress";
       notification_type:
         | "task_approved"
         | "task_rejected"
@@ -2944,26 +2972,15 @@ export type Database = {
         | "xp_awarded"
         | "reminder"
         | "advisor_reply"
-        | "system"
-      problem_category:
-        | "offer"
-        | "website"
-        | "sales"
-        | "ads"
-        | "technical"
-        | "other"
-      product_status: "idea" | "building" | "active" | "paused"
-      service_request_status: "new" | "contacted" | "sold" | "rejected"
-      submission_status: "pending" | "approved" | "rejected" | "needs_revision"
-      subscription_plan: "start" | "pro" | "vip"
-      subscription_status:
-        | "active"
-        | "paused"
-        | "cancelled"
-        | "past_due"
-        | "trialing"
-      user_lead_temp: "cold" | "warm" | "hot" | "on_fire"
-      user_product_status: "idea" | "building" | "ready" | "published"
+        | "system";
+      problem_category: "offer" | "website" | "sales" | "ads" | "technical" | "other";
+      product_status: "idea" | "building" | "active" | "paused";
+      service_request_status: "new" | "contacted" | "sold" | "rejected";
+      submission_status: "pending" | "approved" | "rejected" | "needs_revision";
+      subscription_plan: "start" | "pro" | "vip";
+      subscription_status: "active" | "paused" | "cancelled" | "past_due" | "trialing";
+      user_lead_temp: "cold" | "warm" | "hot" | "on_fire";
+      user_product_status: "idea" | "building" | "ready" | "published";
       user_product_type:
         | "ebook"
         | "kurs"
@@ -2971,144 +2988,135 @@ export type Database = {
         | "aplikacja"
         | "konsultacje"
         | "abonament"
-        | "inne"
-    }
+        | "inne";
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+      Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+      Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
 export const Constants = {
   public: {
     Enums: {
       acquisition_plan_type: ["paid_ads", "organic_social", "unsure"],
       advisor_type: ["technical", "marketing"],
-      ai_credit_tx_type: [
-        "monthly",
-        "purchase",
-        "usage",
-        "bonus",
-        "refund",
-        "expired",
-      ],
+      ai_credit_tx_type: ["monthly", "purchase", "usage", "bonus", "refund", "expired"],
       ai_generator_status: ["active", "inactive"],
       ai_quality_mode: ["fast", "pro", "premium"],
       app_role: ["admin", "user"],
@@ -3145,25 +3153,12 @@ export const Constants = {
         "advisor_reply",
         "system",
       ],
-      problem_category: [
-        "offer",
-        "website",
-        "sales",
-        "ads",
-        "technical",
-        "other",
-      ],
+      problem_category: ["offer", "website", "sales", "ads", "technical", "other"],
       product_status: ["idea", "building", "active", "paused"],
       service_request_status: ["new", "contacted", "sold", "rejected"],
       submission_status: ["pending", "approved", "rejected", "needs_revision"],
       subscription_plan: ["start", "pro", "vip"],
-      subscription_status: [
-        "active",
-        "paused",
-        "cancelled",
-        "past_due",
-        "trialing",
-      ],
+      subscription_status: ["active", "paused", "cancelled", "past_due", "trialing"],
       user_lead_temp: ["cold", "warm", "hot", "on_fire"],
       user_product_status: ["idea", "building", "ready", "published"],
       user_product_type: [
@@ -3177,4 +3172,4 @@ export const Constants = {
       ],
     },
   },
-} as const
+} as const;

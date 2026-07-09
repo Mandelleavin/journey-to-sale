@@ -2,8 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { mainItems, adminItems, isItemActive } from "@/lib/nav-items";
-import logoMark from "@/assets/logo-mark.png";
-
+import logoWordmark from "@/assets/logo-90dni-wordmark.png";
 
 function tourIdForNav(to: string): string | undefined {
   switch (to) {
@@ -28,18 +27,15 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-card rounded-3xl p-4 sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
-      <Link to="/" className="flex items-center gap-3 rounded-2xl p-2 mb-2">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-violet grid place-items-center text-primary-foreground shadow-glow shrink-0">
-          <span className="font-display font-extrabold text-base leading-none">90</span>
-        </div>
-        <div className="leading-tight">
-          <div className="font-display font-extrabold text-foreground text-[15px]">90 DNI</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            do pierwszej
-            <br />
-            sprzedaży online
-          </div>
-        </div>
+      <Link to="/" className="mb-2 block rounded-2xl p-1.5">
+        <img
+          src={logoWordmark}
+          alt="90 Dni do pierwszej sprzedaży online"
+          width={390}
+          height={178}
+          loading="lazy"
+          className="h-16 w-full rounded-2xl object-contain"
+        />
       </Link>
 
       <div className="h-px bg-border/70 mx-2 mb-2" />
@@ -97,4 +93,3 @@ export function Sidebar() {
     </aside>
   );
 }
-

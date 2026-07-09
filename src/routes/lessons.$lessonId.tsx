@@ -1,9 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PlanGate } from "@/components/PlanGate";
 import {
   ArrowLeft,
@@ -14,12 +20,20 @@ import {
   MessageCircle,
   Send,
   Trash2,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import { SubmitTaskDialog } from "@/components/dashboard/SubmitTaskDialog";
 import { LessonVideoPlayer } from "@/components/lessons/LessonVideoPlayer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ContentBlock } from "@/components/admin/ContentBlocksEditor";
+import { savePlanResponse, type PlanResponseValue } from "@/lib/business-plan.functions";
+import {
+  isMindsetStarterModule,
+  isStarterPlanningLesson,
+  STARTER_PLAN_FIELDS,
+} from "@/lib/business-plan-starter-fields";
 
 export const Route = createFileRoute("/lessons/$lessonId")({
   component: LessonPage,
@@ -46,6 +60,19 @@ type Task = {
   business_plan_field_key?: string | null;
 };
 type Sub = { id: string; task_id: string; status: string };
+type LessonPlanField = {
+  field_key: string;
+  label: string;
+  help_text: string | null;
+  input_type: string;
+  options: { value: string; label: string }[];
+  placeholder: string | null;
+};
+type LessonPlanResponse = {
+  field_key: string;
+  value: PlanResponseValue;
+  updated_at: string;
+};
 type Comment = {
   id: string;
   user_id: string;
@@ -75,6 +102,8 @@ function LessonPage() {
   const [prevLessonId, setPrevLessonId] = useState<string | null>(null);
   const [fanfare, setFanfare] = useState(false);
   const [courseIsFree, setCourseIsFree] = useState(true);
+  const [planFields, setPlanFields] = useState<LessonPlanField[]>([]);
+  const [planResponses, setPlanResponses] = useState<LessonPlanResponse[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -82,6 +111,7 @@ function LessonPage() {
 
   const load = async () => {
     if (!user) return;
+    let includeStarterPlanning = isStarterPlanningLesson(lessonId);
     const [{ data: l }, { data: t }, { data: s }, { data: prog }, { data: a }, { data: c }] =
       await Promise.all([
         supabase
@@ -93,7 +123,9 @@ function LessonPage() {
           .maybeSingle(),
         supabase
           .from("lesson_tasks")
-          .select("id, title, instructions, xp_reward, is_required, due_in_days, business_plan_field_key")
+          .select(
+            "id, title, instructions, xp_reward, is_required, due_in_days, business_plan_field_key",
+          )
           .eq("lesson_id", lessonId),
         supabase.from("task_submissions").select("id, task_id, status").eq("user_id", user.id),
         supabase
@@ -128,8 +160,26 @@ function LessonPage() {
         .eq("id", lessonData.course_id)
         .maybeSingle();
       setCourseIsFree(courseRow?.is_free ?? false);
+
+      if (lessonData.module_id) {
+        const [{ data: moduleRow }, { data: firstLesson }] = await Promise.all([
+          supabase.from("modules").select("title").eq("id", lessonData.module_id).maybeSingle(),
+          supabase
+            .from("lessons")
+            .select("id")
+            .eq("module_id", lessonData.module_id)
+            .eq("is_published", true)
+            .order("position")
+            .limit(1)
+            .maybeSingle(),
+        ]);
+        includeStarterPlanning =
+          includeStarterPlanning ||
+          (isMindsetStarterModule(moduleRow?.title) && firstLesson?.id === lessonData.id);
+      }
     }
-    setTasks((t ?? []) as Task[]);
+    const taskRows = (t ?? []) as Task[];
+    setTasks(taskRows);
     setSubmissions((s ?? []) as Sub[]);
     setWatched(!!prog);
     const progRow = prog as { created_at?: string } | null;
@@ -148,6 +198,60 @@ function LessonPage() {
       setComments(cmts.map((c) => ({ ...c, author_name: map.get(c.user_id) ?? "Użytkownik" })));
     } else {
       setComments(cmts);
+    }
+
+    const fieldKeys = [
+      ...new Set(
+        [
+          ...taskRows.map((task) => task.business_plan_field_key),
+          ...(includeStarterPlanning ? STARTER_PLAN_FIELDS.map((field) => field.field_key) : []),
+        ].filter((key): key is string => !!key),
+      ),
+    ];
+    if (fieldKeys.length > 0) {
+      const [{ data: fields }, { data: responses }] = await Promise.all([
+        supabase
+          .from("business_plan_fields")
+          .select("field_key,label,help_text,input_type,options,placeholder")
+          .in("field_key", fieldKeys)
+          .eq("is_active", true),
+        supabase
+          .from("business_plan_responses")
+          .select("field_key,value,updated_at")
+          .eq("user_id", user.id)
+          .in("field_key", fieldKeys),
+      ]);
+      const normalizedFields: LessonPlanField[] = (fields ?? []).map((field) => ({
+        ...field,
+        options: Array.isArray(field.options)
+          ? (field.options as { value: string; label: string }[])
+          : [],
+      }));
+      const fieldsByKey = new Map(normalizedFields.map((field) => [field.field_key, field]));
+      if (includeStarterPlanning) {
+        for (const field of STARTER_PLAN_FIELDS) {
+          if (!fieldsByKey.has(field.field_key)) {
+            fieldsByKey.set(field.field_key, {
+              field_key: field.field_key,
+              label: field.label,
+              help_text: field.help_text,
+              input_type: field.input_type,
+              options: field.options,
+              placeholder: field.placeholder,
+            });
+          }
+        }
+      }
+      setPlanFields(
+        fieldKeys.flatMap((fieldKey) => {
+          const field = fieldsByKey.get(fieldKey);
+          return field ? [field] : [];
+        }),
+      );
+      setPlanResponses((responses ?? []) as LessonPlanResponse[]);
+    } else {
+      setPlanFields([]);
+      setPlanResponses([]);
     }
   };
 
@@ -188,8 +292,12 @@ function LessonPage() {
       setFanfare(true);
       try {
         const AudioCtx =
-          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
-            .AudioContext ||
+          (
+            window as unknown as {
+              AudioContext?: typeof AudioContext;
+              webkitAudioContext?: typeof AudioContext;
+            }
+          ).AudioContext ||
           (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
         if (AudioCtx) {
           const ctx = new AudioCtx();
@@ -283,341 +391,413 @@ function LessonPage() {
         const content = (
           <div className="mx-auto max-w-3xl p-4 md:p-6">
             <Link
-          to="/courses/$courseId"
-          params={{ courseId: lesson.course_id }}
-          className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-        >
-          <ArrowLeft className="w-3 h-3" /> Powrót do kursu
-        </Link>
-        <h1 className="font-display text-2xl md:text-3xl font-extrabold mt-2">{lesson.title}</h1>
-        {lesson.description && (
-          <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
-        )}
-
-        {/* Szybkie CTA do zadania, jeśli są jakieś do wykonania */}
-        {(() => {
-          const pendingTasks = tasks.filter((t) => {
-            const s = subForTask(t.id);
-            return !s || s.status === "needs_revision" || s.status === "rejected";
-          });
-          if (pendingTasks.length === 0) return null;
-          const first = pendingTasks[0];
-          return (
-            <div className="mt-4 rounded-2xl border-2 border-orange/50 bg-gradient-to-br from-orange-soft/60 to-card p-4 flex flex-wrap items-center gap-3 justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-orange grid place-items-center shrink-0">
-                  <Zap className="w-5 h-5 fill-white text-white" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-display font-extrabold text-sm">
-                    {pendingTasks.length === 1
-                      ? "Masz zadanie do wykonania"
-                      : `Masz ${pendingTasks.length} zadań do wykonania`}
-                  </div>
-                  <div className="text-xs text-muted-foreground truncate">{first.title}</div>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => setSubmitTask(first)}
-                  className="bg-gradient-violet text-primary-foreground"
-                >
-                  <Check className="w-4 h-4 mr-1" /> Wykonaj zadanie
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    document
-                      .getElementById("lesson-tasks")
-                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                >
-                  Zobacz wszystkie
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Główne wideo z auto-detekcją ukończenia */}
-        {lesson.video_url && (
-          <LessonVideoPlayer videoUrl={lesson.video_url} onCompleted={markWatched} />
-        )}
-
-        {/* Bloki treści */}
-        {lesson.content_blocks.length > 0 && (
-          <div className="mt-6 space-y-4">
-            {lesson.content_blocks.map((b) => (
-              <BlockView key={b.id} block={b} />
-            ))}
-          </div>
-        )}
-
-        {/* Status / Mark watched + następna lekcja */}
-        {/* Nawigacja prev/next w obrębie kursu */}
-        <div className="mt-6 flex items-center justify-between gap-2">
-          {prevLessonId ? (
-            <Link
-              to="/lessons/$lessonId"
-              params={{ lessonId: prevLessonId }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold hover:border-violet/40"
-            >
-              <ArrowLeft className="w-4 h-4" /> Poprzednia
-            </Link>
-          ) : (
-            <span />
-          )}
-          <span />
-        </div>
-
-        {/* Status / Mark watched + następna lekcja */}
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Button
-            onClick={markWatched}
-            disabled={watched}
-            className="rounded-xl bg-gradient-green text-primary-foreground"
-          >
-            {watched ? (
-              <>
-                <Check className="w-4 h-4 mr-1" />
-                Lekcja ukończona (+{lesson.xp_reward} XP)
-              </>
-            ) : (
-              <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
-            )}
-          </Button>
-          {watched && nextLessonId && (
-            <Button
-              onClick={() => navigate({ to: "/lessons/$lessonId", params: { lessonId: nextLessonId } })}
-              variant="outline"
-              className="rounded-xl"
-            >
-              Następna lekcja <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-          {watched && !nextLessonId && (
-            <Link
               to="/courses/$courseId"
               params={{ courseId: lesson.course_id }}
-              className="text-sm font-bold text-violet hover:underline"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
             >
-              Wróć do kursu →
+              <ArrowLeft className="w-3 h-3" /> Powrót do kursu
             </Link>
-          )}
-        </div>
+            <h1 className="font-display text-2xl md:text-3xl font-extrabold mt-2">
+              {lesson.title}
+            </h1>
+            {lesson.description && (
+              <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
+            )}
 
-        {/* Załączniki */}
-        {attachments.length > 0 && (
-          <div className="mt-8">
-            <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
-              <Paperclip className="w-4 h-4" /> Materiały do pobrania
-            </h2>
-            <div className="space-y-2">
-              {attachments.map((a) => (
-                <a
-                  key={a.id}
-                  href={a.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:border-violet/40"
-                >
-                  <Paperclip className="w-4 h-4 text-violet shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm truncate">{a.title}</div>
-                    {a.file_type && (
-                      <div className="text-xs text-muted-foreground">{a.file_type}</div>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold text-violet">Pobierz →</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Zadania */}
-        <div id="lesson-tasks" className="mt-8 scroll-mt-24">
-          <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-orange fill-orange" /> Zadania do wykonania
-          </h2>
-          {tasks.length === 0 && (
-            <div className="text-sm text-muted-foreground">Brak zadań w tej lekcji</div>
-          )}
-          <div className="space-y-3">
-            {tasks.map((t) => {
-              const sub = subForTask(t.id);
-              const statusLabels: Record<string, string> = {
-                pending: "W trakcie oceny",
-                approved: "Zatwierdzone",
-                rejected: "Odrzucone",
-                needs_revision: "Do poprawy",
-              };
-              const deadline =
-                t.due_in_days != null && watchedAt
-                  ? new Date(watchedAt.getTime() + t.due_in_days * 86400000)
-                  : null;
-              const overdue = deadline ? deadline.getTime() < Date.now() && sub?.status !== "approved" : false;
+            {/* Szybkie CTA do zadania, jeśli są jakieś do wykonania */}
+            {(() => {
+              const pendingTasks = tasks.filter((t) => {
+                const s = subForTask(t.id);
+                return !s || s.status === "needs_revision" || s.status === "rejected";
+              });
+              if (pendingTasks.length === 0) return null;
+              const first = pendingTasks[0];
               return (
-                <div
-                  key={t.id}
-                  className={cn(
-                    "rounded-2xl border-2 p-4 shadow-sm transition-all",
-                    t.is_required
-                      ? "border-orange/60 bg-gradient-to-br from-orange-soft/60 to-card ring-2 ring-orange/20"
-                      : "border-border bg-card",
-                  )}
-                >
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    {t.is_required && (
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-orange px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
-                        <Zap className="w-3 h-3 fill-white" /> Zadanie obowiązkowe
-                      </div>
-                    )}
-                    {t.due_in_days != null && (
-                      <div className="inline-flex items-center gap-1 rounded-full bg-blue/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-blue">
-                        Termin: {t.due_in_days} dni od ukończenia lekcji
-                      </div>
-                    )}
-                    {deadline && (
-                      <div
-                        className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide",
-                          overdue
-                            ? "bg-destructive/15 text-destructive"
-                            : "bg-muted text-muted-foreground",
-                        )}
-                      >
-                        {overdue ? "Po terminie: " : "Do: "}
-                        {deadline.toLocaleDateString("pl-PL")}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex-1">
-                      <div className="font-display font-extrabold text-base">{t.title}</div>
-                      {t.instructions && (
-                        <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
-                          {t.instructions}
-                        </p>
-                      )}
+                <div className="mt-4 rounded-2xl border-2 border-orange/50 bg-gradient-to-br from-orange-soft/60 to-card p-4 flex flex-wrap items-center gap-3 justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-orange grid place-items-center shrink-0">
+                      <Zap className="w-5 h-5 fill-white text-white" />
                     </div>
-                    <span className="text-xs font-bold text-violet flex items-center gap-1 shrink-0 rounded-full bg-violet-soft px-2.5 py-1">
-                      <Zap className="w-3 h-3 fill-violet" />+{t.xp_reward} XP
-                    </span>
+                    <div className="min-w-0">
+                      <div className="font-display font-extrabold text-sm">
+                        {pendingTasks.length === 1
+                          ? "Masz zadanie do wykonania"
+                          : `Masz ${pendingTasks.length} zadań do wykonania`}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">{first.title}</div>
+                    </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
-                    {sub ? (
-                      <span className="text-xs font-bold uppercase">
-                        Status:{" "}
-                        <span
-                          className={cn(
-                            sub.status === "approved" && "text-green",
-                            sub.status === "rejected" && "text-destructive",
-                            sub.status === "needs_revision" && "text-orange",
-                            sub.status === "pending" && "text-blue",
-                          )}
-                        >
-                          {statusLabels[sub.status] ?? sub.status}
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Jeszcze nie wykonane</span>
-                    )}
-                    {(!sub || sub.status === "needs_revision" || sub.status === "rejected") && (
-                      <Button
-                        size="sm"
-                        onClick={() => setSubmitTask(t)}
-                        className="bg-gradient-violet text-primary-foreground"
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        {sub ? "Wykonaj ponownie" : "Wykonaj zadanie"}
-                      </Button>
-                    )}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => setSubmitTask(first)}
+                      className="bg-gradient-violet text-primary-foreground"
+                    >
+                      <Check className="w-4 h-4 mr-1" /> Wykonaj zadanie
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        document
+                          .getElementById("lesson-tasks")
+                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                    >
+                      Zobacz wszystkie
+                    </Button>
                   </div>
                 </div>
               );
-            })}
-          </div>
-        </div>
+            })()}
 
-        {/* Komentarze */}
-        <div className="mt-8">
-          <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
-            <MessageCircle className="w-4 h-4" /> Pytania i komentarze ({comments.length})
-          </h2>
-          <div className="rounded-2xl border border-border bg-card p-3 mb-3">
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Zadaj pytanie lub podziel się przemyśleniem..."
-              rows={3}
-            />
-            <div className="flex justify-end mt-2">
-              <Button
-                size="sm"
-                onClick={addComment}
-                disabled={!newComment.trim()}
-                className="bg-gradient-violet text-primary-foreground"
-              >
-                <Send className="w-3.5 h-3.5 mr-1" /> Wyślij
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {comments.length === 0 && (
-              <div className="text-sm text-muted-foreground italic text-center py-4">
-                Bądź pierwszy — zadaj pytanie pod tą lekcją.
+            {/* Główne wideo z auto-detekcją ukończenia */}
+            {lesson.video_url && (
+              <LessonVideoPlayer videoUrl={lesson.video_url} onCompleted={markWatched} />
+            )}
+
+            {/* Bloki treści */}
+            {lesson.content_blocks.length > 0 && (
+              <div className="mt-6 space-y-4">
+                {lesson.content_blocks.map((b) => (
+                  <BlockView key={b.id} block={b} />
+                ))}
               </div>
             )}
-            {comments.map((c) => (
-              <div
-                key={c.id}
-                className={cn(
-                  "rounded-xl border p-3",
-                  c.is_admin_reply ? "border-violet/40 bg-violet-soft/20" : "border-border bg-card",
-                )}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs font-bold flex items-center gap-2">
-                    {c.author_name}
-                    {c.is_admin_reply && (
-                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet text-primary-foreground">
-                        mentor
-                      </span>
-                    )}
+
+            {planFields.length > 0 && (
+              <section className="mt-6 rounded-3xl border-2 border-violet/30 bg-gradient-to-br from-violet-soft/40 via-card to-blue-soft/20 p-5">
+                <div className="mb-4 flex items-start gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-violet text-white">
+                    <Sparkles className="h-5 w-5" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString("pl-PL", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    {c.user_id === user?.id && (
-                      <button
-                        onClick={() => deleteComment(c.id)}
-                        className="text-destructive hover:opacity-70"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
+                  <div>
+                    <h2 className="font-display text-lg font-extrabold">
+                      Uzupełnij swój Plan 12 tygodni
+                    </h2>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Te pytania są powiązane z tą lekcją. Odpowiedzi zapisują się automatycznie
+                      również w Twoim planie.
+                    </p>
                   </div>
                 </div>
-                <div className="text-sm whitespace-pre-wrap">{c.content}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-    return courseIsFree ? content : <PlanGate feature="courses_all" compact>{content}</PlanGate>;
-  })()}
+                <div className="space-y-4">
+                  {planFields.map((field) => (
+                    <LessonPlanQuestion
+                      key={field.field_key}
+                      field={field}
+                      response={
+                        planResponses.find((response) => response.field_key === field.field_key) ??
+                        null
+                      }
+                      lessonId={lessonId}
+                      taskId={
+                        tasks.find((task) => task.business_plan_field_key === field.field_key)
+                          ?.id ?? null
+                      }
+                      onSaved={(response) =>
+                        setPlanResponses((current) => [
+                          ...current.filter((item) => item.field_key !== response.field_key),
+                          response,
+                        ])
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-  <SubmitTaskDialog
+            {/* Status / Mark watched + następna lekcja */}
+            {/* Nawigacja prev/next w obrębie kursu */}
+            <div className="mt-6 flex items-center justify-between gap-2">
+              {prevLessonId ? (
+                <Link
+                  to="/lessons/$lessonId"
+                  params={{ lessonId: prevLessonId }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-bold hover:border-violet/40"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Poprzednia
+                </Link>
+              ) : (
+                <span />
+              )}
+              <span />
+            </div>
+
+            {/* Status / Mark watched + następna lekcja */}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Button
+                onClick={markWatched}
+                disabled={watched}
+                className="rounded-xl bg-gradient-green text-primary-foreground"
+              >
+                {watched ? (
+                  <>
+                    <Check className="w-4 h-4 mr-1" />
+                    Lekcja ukończona (+{lesson.xp_reward} XP)
+                  </>
+                ) : (
+                  <>Oznacz jako ukończoną (+{lesson.xp_reward} XP)</>
+                )}
+              </Button>
+              {watched && nextLessonId && (
+                <Button
+                  onClick={() =>
+                    navigate({ to: "/lessons/$lessonId", params: { lessonId: nextLessonId } })
+                  }
+                  variant="outline"
+                  className="rounded-xl"
+                >
+                  Następna lekcja <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              )}
+              {watched && !nextLessonId && (
+                <Link
+                  to="/courses/$courseId"
+                  params={{ courseId: lesson.course_id }}
+                  className="text-sm font-bold text-violet hover:underline"
+                >
+                  Wróć do kursu →
+                </Link>
+              )}
+            </div>
+
+            {/* Załączniki */}
+            {attachments.length > 0 && (
+              <div className="mt-8">
+                <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
+                  <Paperclip className="w-4 h-4" /> Materiały do pobrania
+                </h2>
+                <div className="space-y-2">
+                  {attachments.map((a) => (
+                    <a
+                      key={a.id}
+                      href={a.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:border-violet/40"
+                    >
+                      <Paperclip className="w-4 h-4 text-violet shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm truncate">{a.title}</div>
+                        {a.file_type && (
+                          <div className="text-xs text-muted-foreground">{a.file_type}</div>
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-violet">Pobierz →</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Zadania */}
+            <div id="lesson-tasks" className="mt-8 scroll-mt-24">
+              <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-orange fill-orange" /> Zadania do wykonania
+              </h2>
+              {tasks.length === 0 && (
+                <div className="text-sm text-muted-foreground">Brak zadań w tej lekcji</div>
+              )}
+              <div className="space-y-3">
+                {tasks.map((t) => {
+                  const sub = subForTask(t.id);
+                  const statusLabels: Record<string, string> = {
+                    pending: "W trakcie oceny",
+                    approved: "Zatwierdzone",
+                    rejected: "Odrzucone",
+                    needs_revision: "Do poprawy",
+                  };
+                  const deadline =
+                    t.due_in_days != null && watchedAt
+                      ? new Date(watchedAt.getTime() + t.due_in_days * 86400000)
+                      : null;
+                  const overdue = deadline
+                    ? deadline.getTime() < Date.now() && sub?.status !== "approved"
+                    : false;
+                  return (
+                    <div
+                      key={t.id}
+                      className={cn(
+                        "rounded-2xl border-2 p-4 shadow-sm transition-all",
+                        t.is_required
+                          ? "border-orange/60 bg-gradient-to-br from-orange-soft/60 to-card ring-2 ring-orange/20"
+                          : "border-border bg-card",
+                      )}
+                    >
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                        {t.is_required && (
+                          <div className="inline-flex items-center gap-1.5 rounded-full bg-orange px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
+                            <Zap className="w-3 h-3 fill-white" /> Zadanie obowiązkowe
+                          </div>
+                        )}
+                        {t.due_in_days != null && (
+                          <div className="inline-flex items-center gap-1 rounded-full bg-blue/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-blue">
+                            Termin: {t.due_in_days} dni od ukończenia lekcji
+                          </div>
+                        )}
+                        {t.business_plan_field_key && (
+                          <Badge className="border-0 bg-violet-soft text-[10px] text-violet">
+                            <Sparkles className="mr-1 h-3 w-3" />
+                            Uzupełnia Plan 12 tygodni
+                          </Badge>
+                        )}
+                        {deadline && (
+                          <div
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide",
+                              overdue
+                                ? "bg-destructive/15 text-destructive"
+                                : "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {overdue ? "Po terminie: " : "Do: "}
+                            {deadline.toLocaleDateString("pl-PL")}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex-1">
+                          <div className="font-display font-extrabold text-base">{t.title}</div>
+                          {t.instructions && (
+                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
+                              {t.instructions}
+                            </p>
+                          )}
+                          {t.business_plan_field_key && (
+                            <p className="mt-2 text-xs font-semibold text-violet">
+                              Pytanie w planie:{" "}
+                              {planFields.find(
+                                (field) => field.field_key === t.business_plan_field_key,
+                              )?.label ?? t.business_plan_field_key}
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-violet flex items-center gap-1 shrink-0 rounded-full bg-violet-soft px-2.5 py-1">
+                          <Zap className="w-3 h-3 fill-violet" />+{t.xp_reward} XP
+                        </span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
+                        {sub ? (
+                          <span className="text-xs font-bold uppercase">
+                            Status:{" "}
+                            <span
+                              className={cn(
+                                sub.status === "approved" && "text-green",
+                                sub.status === "rejected" && "text-destructive",
+                                sub.status === "needs_revision" && "text-orange",
+                                sub.status === "pending" && "text-blue",
+                              )}
+                            >
+                              {statusLabels[sub.status] ?? sub.status}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Jeszcze nie wykonane
+                          </span>
+                        )}
+                        {(!sub || sub.status === "needs_revision" || sub.status === "rejected") && (
+                          <Button
+                            size="sm"
+                            onClick={() => setSubmitTask(t)}
+                            className="bg-gradient-violet text-primary-foreground"
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            {sub ? "Wykonaj ponownie" : "Wykonaj zadanie"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Komentarze */}
+            <div className="mt-8">
+              <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" /> Pytania i komentarze ({comments.length})
+              </h2>
+              <div className="rounded-2xl border border-border bg-card p-3 mb-3">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Zadaj pytanie lub podziel się przemyśleniem..."
+                  rows={3}
+                />
+                <div className="flex justify-end mt-2">
+                  <Button
+                    size="sm"
+                    onClick={addComment}
+                    disabled={!newComment.trim()}
+                    className="bg-gradient-violet text-primary-foreground"
+                  >
+                    <Send className="w-3.5 h-3.5 mr-1" /> Wyślij
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {comments.length === 0 && (
+                  <div className="text-sm text-muted-foreground italic text-center py-4">
+                    Bądź pierwszy — zadaj pytanie pod tą lekcją.
+                  </div>
+                )}
+                {comments.map((c) => (
+                  <div
+                    key={c.id}
+                    className={cn(
+                      "rounded-xl border p-3",
+                      c.is_admin_reply
+                        ? "border-violet/40 bg-violet-soft/20"
+                        : "border-border bg-card",
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-xs font-bold flex items-center gap-2">
+                        {c.author_name}
+                        {c.is_admin_reply && (
+                          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet text-primary-foreground">
+                            mentor
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(c.created_at).toLocaleDateString("pl-PL", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        {c.user_id === user?.id && (
+                          <button
+                            onClick={() => deleteComment(c.id)}
+                            className="text-destructive hover:opacity-70"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-sm whitespace-pre-wrap">{c.content}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+        return courseIsFree ? (
+          content
+        ) : (
+          <PlanGate feature="courses_all" compact>
+            {content}
+          </PlanGate>
+        );
+      })()}
+
+      <SubmitTaskDialog
         taskId={submitTask?.id ?? null}
         taskTitle={submitTask?.title}
         taskInstructions={submitTask?.instructions ?? null}
@@ -627,6 +807,155 @@ function LessonPage() {
         onOpenChange={(v) => !v && setSubmitTask(null)}
         onSubmitted={load}
       />
+    </div>
+  );
+}
+
+function LessonPlanQuestion({
+  field,
+  response,
+  lessonId,
+  taskId,
+  onSaved,
+}: {
+  field: LessonPlanField;
+  response: LessonPlanResponse | null;
+  lessonId: string;
+  taskId: string | null;
+  onSaved: (response: LessonPlanResponse) => void;
+}) {
+  const save = useServerFn(savePlanResponse);
+  const [value, setValue] = useState<PlanResponseValue>(
+    response?.value ?? (field.input_type === "checkbox_group" ? [] : ""),
+  );
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(response?.updated_at ?? null);
+  const debounceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setValue(response?.value ?? (field.input_type === "checkbox_group" ? [] : ""));
+    setSavedAt(response?.updated_at ?? null);
+  }, [response?.updated_at, response?.value, field.input_type]);
+
+  useEffect(
+    () => () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    },
+    [],
+  );
+
+  const commit = async (nextValue: PlanResponseValue) => {
+    setSaving(true);
+    try {
+      await save({
+        data: {
+          field_key: field.field_key,
+          value: nextValue,
+          source: "lesson",
+          lesson_id: lessonId,
+          task_id: taskId ?? undefined,
+        },
+      });
+      const updatedAt = new Date().toISOString();
+      setSavedAt(updatedAt);
+      onSaved({
+        field_key: field.field_key,
+        value: nextValue,
+        updated_at: updatedAt,
+      });
+    } catch (error) {
+      console.error("Saving lesson plan answer failed", error);
+      toast.error("Nie udało się zapisać odpowiedzi w planie.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const changeText = (nextValue: string) => {
+    setValue(nextValue);
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => commit(nextValue), 700);
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <Label className="text-sm font-bold">{field.label}</Label>
+          {field.help_text && (
+            <p className="mt-1 text-xs text-muted-foreground">{field.help_text}</p>
+          )}
+        </div>
+        <div className="shrink-0 text-[10px] text-muted-foreground">
+          {saving ? (
+            "Zapisuję…"
+          ) : savedAt ? (
+            <span className="inline-flex items-center gap-1 text-green">
+              <CheckCircle2 className="h-3 w-3" /> Zapisano
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      {field.input_type === "text" || field.input_type === "url" ? (
+        <Input
+          value={typeof value === "string" ? value : ""}
+          onChange={(event) => changeText(event.target.value)}
+          placeholder={field.placeholder ?? ""}
+          type={field.input_type === "url" ? "url" : "text"}
+        />
+      ) : field.input_type === "single_choice" ? (
+        <RadioGroup
+          value={typeof value === "string" ? value : ""}
+          onValueChange={(nextValue) => {
+            setValue(nextValue);
+            commit(nextValue);
+          }}
+          className="grid gap-2 sm:grid-cols-2"
+        >
+          {field.options.map((option) => (
+            <label
+              key={option.value}
+              className="flex cursor-pointer items-center gap-2 rounded-xl border border-border p-3 hover:bg-accent"
+            >
+              <RadioGroupItem value={option.value} />
+              <span className="text-sm">{option.label}</span>
+            </label>
+          ))}
+        </RadioGroup>
+      ) : field.input_type === "checkbox_group" ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {field.options.map((option) => {
+            const selected = Array.isArray(value) ? value : [];
+            const checked = selected.includes(option.value);
+            return (
+              <label
+                key={option.value}
+                className="flex cursor-pointer items-center gap-2 rounded-xl border border-border p-3 hover:bg-accent"
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(nextChecked) => {
+                    const nextValue = nextChecked
+                      ? [...selected, option.value]
+                      : selected.filter((item) => item !== option.value);
+                    setValue(nextValue);
+                    commit(nextValue);
+                  }}
+                />
+                <span className="text-sm">{option.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      ) : (
+        <Textarea
+          value={typeof value === "string" ? value : ""}
+          onChange={(event) => changeText(event.target.value)}
+          placeholder={field.placeholder ?? ""}
+          className="min-h-28"
+        />
+      )}
     </div>
   );
 }

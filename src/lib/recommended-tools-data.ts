@@ -11,6 +11,20 @@ export type ToolFaq = { q: string; a: string };
 
 export type ToolFeature = { title: string; description: string };
 
+export type ToolReview = {
+  id: string;
+  toolSlug: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
+
+export type ToolReviewSummary = {
+  averageRating: number | null;
+  reviewCount: number;
+};
+
 export type RecommendedTool = {
   slug: string;
   name: string;
